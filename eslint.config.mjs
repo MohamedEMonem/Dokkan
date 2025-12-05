@@ -30,6 +30,8 @@ export default [
   // ---------------------------------------------------------
   {
     files: ['**/*.ts', '**/*.tsx'],
+    plugins: {
+    },
     rules: {
       // RULE: Strict TypeScript (No any)
       // Manifesto: "The use of the 'any' type is strictly forbidden." [cite: 15]
@@ -56,18 +58,19 @@ export default [
       // RULE: Documentation Standard
       // Manifesto: "Every significant function... must have a JSDoc comment" [cite: 108]
       // This rule requires JSDoc for exported functions
-      'jsdoc/require-jsdoc': [
-        'warn', 
-        {
-          require: {
-            FunctionDeclaration: true,
-            MethodDefinition: true,
-            ClassDeclaration: false,
-            ArrowFunctionExpression: false,
-            FunctionExpression: false
-          }
-        }
-      ]
+      // Note: Requires eslint-plugin-jsdoc to be installed
+      // 'jsdoc/require-jsdoc': [
+      //   'warn', 
+      //   {
+      //     require: {
+      //       FunctionDeclaration: true,
+      //       MethodDefinition: true,
+      //       ClassDeclaration: false,
+      //       ArrowFunctionExpression: false,
+      //       FunctionExpression: false
+      //     }
+      //   }
+      // ]
     },
   },
 ];

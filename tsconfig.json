@@ -1,3 +1,17 @@
 {
-  "extends": "./tsconfig.base.json"
+  "extends": "./tsconfig.base.json",
+  "references": [
+    {
+      "path": "./api-e2e"
+    },
+    {
+      "path": "./web-e2e"
+    },
+    {
+      "path": "./api"
+    },
+    {
+      "path": "./web"
+    }
+  ]
 }

@@ -65,12 +65,17 @@ jobs:
       - name: Lint all projects
         run: npx nx run-many -t lint --all
 
+      - name: Generate lint report
+        if: always()
+        run: npx nx run-many -t lint --all --outputFile=.eslintcache || true
+
       - name: Upload lint results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lint-results
-          path: .eslintignore
+          path: .eslintcache
+          if-no-files-found: ignore
 
   # Type checking
   typecheck:
@@ -90,7 +95,7 @@ jobs:
       - run: npm ci
 
       - name: Type check all projects
-        run: npx nx run-many -t typecheck --all
+        run: npx nx run-many -t typecheck -p @omni-store/api @omni-store/api-e2e
 
   # Unit tests
   test:

@@ -1,17 +1,14 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
+    "outDir": "dist/out-tsc",
     "types": [],
-    "declaration": false,
-    "emitDeclarationOnly": false,
     "lib": ["es2022", "dom"]
   },
-  "files": [
-    "src/main.ts",
-    "src/app/app.config.ts"
-  ],
+  "files": [],
   "include": [
-    "src/**/*.d.ts"
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.test.ts"
   ]
 }
