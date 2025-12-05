@@ -2,7 +2,12 @@
   "name": "@omni-store/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {"start": "nx run-many -t serve"},
+  "scripts": {
+    "start": "nx run-many -t serve",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "infra:logs": "docker compose logs -f"
+  },
   "private": true,
   "devDependencies": {
     "@angular-devkit/core": "~20.3.0",
