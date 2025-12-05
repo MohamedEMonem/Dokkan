@@ -47,3 +47,4 @@ test-output
 
 .angular
 .env
+/generated/prisma
