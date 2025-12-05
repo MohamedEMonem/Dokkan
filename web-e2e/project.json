@@ -1,5 +1,5 @@
 {
-  "name": "web-e2e",
+  "name": "@omni-store/web-e2e",
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "web-e2e/src",
