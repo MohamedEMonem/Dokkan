@@ -51,10 +51,10 @@
       "executor": "@angular/build:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "web:build:production"
+          "buildTarget": "@omni-store/web:build:production"
         },
         "development": {
-          "buildTarget": "web:build:development"
+          "buildTarget": "@omni-store/web:build:development"
         }
       },
       "defaultConfiguration": "development"
