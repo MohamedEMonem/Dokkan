@@ -36,7 +36,7 @@ npm install
 # 2. Configure environment variables
 cp env.example .env
 
-# 3. Start infrastructure (PostgreSQL, Meilisearch, MinIO)
+# 3. Start infrastructure (PostgreSQL, Redis, Meilisearch, MinIO)
 npm run infra:up
 
 # 4. Run Prisma migrations
@@ -44,27 +44,16 @@ npx prisma migrate dev
 
 # 5. Start all services (API + Frontend)
 npm start
-
-# 6. Open services
-# Frontend: http://localhost:4200
-# Backend API: http://localhost:3000
-# Swagger Docs: http://localhost:3000/api/docs
 ```
 
-### Environment Variables
-Copy `env.example` to `.env` and configure:
-```env
-POSTGRES_USER=myuser
-POSTGRES_PASSWORD=mypassword
-POSTGRES_DB=mydb
-DATABASE_URL=postgresql://myuser:mypassword@localhost:5432/mydb
-
-MEILI_MASTER_KEY=mySecureMasterKey
-MINIO_ROOT_USER=minioUser
-MINIO_ROOT_PASSWORD=minioSecurePassword
-
-PORT=3000
-```
+### Access Points After Setup
+- **Frontend**: http://localhost:4200
+- **Backend API**: http://localhost:3000
+- **API Documentation**: http://localhost:3000/api/docs
+- **Meilisearch**: http://localhost:7700
+- **MinIO Console**: http://localhost:9001
+- **PostgreSQL**: localhost:5432
+- **Redis**: localhost:6379
 
 ---
 
