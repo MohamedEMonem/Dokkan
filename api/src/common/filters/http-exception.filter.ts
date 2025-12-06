@@ -12,7 +12,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
-    const exceptionResponse: any = exception.getResponse();
+    const exceptionResponse: { message?: string | string[]; error?: string } = exception.getResponse() as { message?: string | string[]; error?: string };
 
     // Handle cases where the error message is an array (from class-validator) or a string
     const errorMessage =
