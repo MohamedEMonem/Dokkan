@@ -63,18 +63,14 @@ jobs:
       - run: npm ci
 
       - name: Lint all projects
-        run: npx nx run-many -t lint --all
-
-      - name: Generate lint report
-        if: always()
-        run: npx nx run-many -t lint --all --outputFile=.eslintcache || true
+        run: npx nx run-many -t lint --all --format=json --output-file=lint-report.json
 
       - name: Upload lint results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lint-results
-          path: .eslintcache
+          path: lint-report.json
           if-no-files-found: ignore
 
   # Type checking

@@ -293,10 +293,21 @@ Services contain **all** business logic and orchestrate dependencies.
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
+
+// User interface containing only fields needed for token generation
+interface User {
+  id: string;
+  email: string;
+  roles?: string[];
+}
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email);
@@ -311,8 +322,14 @@ export class AuthService {
     };
   }
 
-  private generateToken(user: any): string {
-    // Token generation logic
+  private generateToken(user: User): string {
+    // Token generation logic using user.id, user.email, and user.roles
+    const payload = { 
+      sub: user.id, 
+      email: user.email, 
+      roles: user.roles || [] 
+    };
+    return this.jwtService.sign(payload);
   }
 
   private async validatePassword(plain: string, hashed: string): Promise<boolean> {

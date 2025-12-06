@@ -34,6 +34,12 @@ yarn-error.log
 testem.log
 /typings
 
+# Coverage reports (generated during tests, should not be committed)
+coverage/
+api/coverage/
+web/coverage/
+.nyc_output/
+
 # System Files
 .DS_Store
 Thumbs.db
