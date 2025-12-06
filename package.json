@@ -4,9 +4,21 @@
   "license": "MIT",
   "scripts": {
     "start": "nx run-many -t serve",
+    "build": "nx run-many -t build",
+    "test": "nx run-many -t test",
+    "test:coverage": "nx run-many -t test -- --coverage",
+    "lint": "nx run-many -t lint",
+    "lint:fix": "nx run-many -t lint -- --fix",
+    "e2e": "nx run-many -t e2e",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
-    "infra:logs": "docker compose logs -f"
+    "infra:logs": "docker compose logs -f",
+    "infra:clean": "docker compose down -v",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "node --require=.pnp.cjs prisma/seed.js",
+    "nx:graph": "nx graph",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
   },
   "private": true,
   "devDependencies": {
