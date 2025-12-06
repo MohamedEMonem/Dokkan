@@ -62,7 +62,7 @@
     "extract-i18n": {
       "executor": "@angular/build:extract-i18n",
       "options": {
-        "buildTarget": "web:build"
+        "buildTarget": "@omni-store/web:build"
       }
     },
     "lint": {
@@ -80,7 +80,7 @@
       "continuous": true,
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "web:build",
+        "buildTarget": "@omni-store/web:build",
         "port": 4200,
         "staticFilePath": "dist/web/browser",
         "spa": true
