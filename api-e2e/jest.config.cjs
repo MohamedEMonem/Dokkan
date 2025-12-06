@@ -2,9 +2,16 @@
 const { readFileSync } = require('fs');
 
 // Reading the SWC compilation config for the spec files
-const swcJestConfig = JSON.parse(
-  readFileSync(`${__dirname}/.spec.swcrc`, 'utf-8')
-);
+let swcJestConfig;
+try {
+  swcJestConfig = JSON.parse(
+    readFileSync(`${__dirname}/.spec.swcrc`, 'utf-8')
+  );
+} catch (error) {
+  throw new Error(
+    `Failed to load SWC configuration from ${__dirname}/.spec.swcrc: ${error.message}`
+  );
+}
 
 // Disable .swcrc look-up by SWC core because we're passing in swcJestConfig ourselves
 swcJestConfig.swcrc = false;
