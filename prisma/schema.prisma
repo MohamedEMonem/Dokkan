@@ -5,10 +5,318 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// Enums
+enum UserRole {
+  Customer
+  StoreOwner
+  Admin
+}
+
+enum OrderStatus {
+  Pending
+  Shipped
+  Delivered
+  Cancelled
+}
+
+enum PaymentStatus {
+  Pending
+  Success
+  Failed
+}
+
+enum ProductStatus {
+  Active
+  Inactive
+}
+
+enum TransactionStatus {
+  Success
+  Failure
+}
+
+enum PayableType {
+  Order
+  Subscription
+}
+
+enum StoreStatus {
+  Pending
+  Active
+  Suspended
+}
+
+// Models
+model User {
+  id              Int       @id @default(autoincrement()) @map("user_id")
+  name            String    @db.Char(50)
+  email           String    @unique @db.VarChar(150)
+  password        String    @db.VarChar(255)
+  role            UserRole  @default(Customer)
+  contactNumber   String?   @map("contact_number") @db.VarChar(20)
+  profilePhotoUrl String?   @map("profile_photo_url") @db.VarChar(255)
+  googleOauthId   String?   @map("google_oauth_id") @db.VarChar(255)
+  isVerified      Boolean   @default(false) @map("is_verified")
+  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+
+  // Relations
+  ownedStores      Store[]         @relation("StoreOwner")
+  orders           Order[]
+  reviews          Review[]
+  cart             Cart?
+  sentMessages     Message[]       @relation("MessageSender")
+  receivedMessages Message[]       @relation("MessageReceiver")
+  notifications    Notification[]
+  employments      StoreEmployee[]
+
+  @@map("User")
+}
+
+model Store {
+  id              Int             @id @map("store_id")
+  ownerId         Int             @map("owner_id")
+  name            String          @db.Char(50)
+  subdomain       String          @unique @db.VarChar(150)
+  status          StoreStatus
+  description     String?         @db.Text
+  logoUrl         String?         @map("logo_url") @db.Text
+  coverBannerUrl  String?         @map("cover_banner_url") @db.Text
+  businessAddress String?         @map("business_address") @db.Text
+  vatNumber       String?         @map("vat_number") @db.VarChar(100)
+  themeSettings   Json?           @map("theme_settings")
+  createdAt       DateTime?       @default(now()) @map("created_at") @db.Timestamp(0)
+
+  // Relations
+  owner         User            @relation("StoreOwner", fields: [ownerId], references: [id])
+  products      Product[]
+  orders        Order[]
+  subscriptions Subscription[]
+  employees     StoreEmployee[]
+  messages      Message[]
+
+  @@map("Store")
+}
+
+model Plan {
+  id       Int     @id @map("plan_id")
+  name     String  @db.VarChar(100)
+  price    Decimal @db.Decimal(10, 2)
+  features Json
+
+  // Relations
+  subscriptions Subscription[]
+
+  @@map("Plan")
+}
+
+model Subscription {
+  id              BigInt    @id @map("subscription_id")
+  storeId         Int       @map("store_id")
+  planId          Int       @map("plan_id")
+  status          String    @db.VarChar(50)
+  nextBillingDate DateTime? @map("next_billing_date") @db.Timestamp(0)
+
+  // Relations
+  store Store @relation(fields: [storeId], references: [id])
+  plan  Plan  @relation(fields: [planId], references: [id])
+
+  @@map("Subscription")
+}
+
+model Category {
+  id               Int        @id @default(autoincrement()) @map("category_id")
+  name             String     @db.VarChar(100)
+  parentCategoryId Int?       @map("parent_category_id")
+
+  // Relations
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@map("Category")
+}
+
+model Product {
+  id            Int           @id @default(autoincrement()) @map("product_id")
+  storeId       Int           @map("store_id")
+  categoryId    Int           @map("category_id")
+  title         String        @db.VarChar(150)
+  description   String?       @db.Text
+  price         Decimal       @db.Decimal(10, 2)
+  stockQuantity Int           @default(0) @map("stock_quantity")
+  status        ProductStatus @default(Active)
+  createdAt     DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime?     @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // Relations
+  store      Store          @relation(fields: [storeId], references: [id])
+  category   Category       @relation(fields: [categoryId], references: [id])
+  images     ProductImage[]
+  orderItems OrderItem[]
+  reviews    Review[]
+  cartItems  CartItem[]
+
+  @@map("Product")
+}
+
+model ProductImage {
+  id        Int    @id @default(autoincrement()) @map("image_id")
+  productId Int    @map("product_id")
+  imageUrl  String @map("image_url") @db.VarChar(255)
+  sortOrder Int?   @default(0) @map("sort_order")
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("ProductImage")
+}
+
+model Order {
+  id              Int           @id @map("order_id")
+  customerId      Int           @map("customer_id")
+  storeId         Int           @map("store_id")
+  status          OrderStatus   @default(Pending)
+  shippingAddress Json?         @map("shipping_address")
+  totalAmount     Decimal       @map("total_amount") @db.Decimal(10, 2)
+  shippingCost    Decimal?      @default(0) @map("shipping_cost") @db.Decimal(10, 2)
+  taxAmount       Decimal?      @default(0) @map("tax_amount") @db.Decimal(10, 2)
+  paymentStatus   PaymentStatus @default(Pending) @map("payment_status")
+  createdAt       DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
+
+  // Relations
+  customer   User        @relation(fields: [customerId], references: [id])
+  store      Store       @relation(fields: [storeId], references: [id])
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  @@map("Orders")
+}
+
+model OrderItem {
+  id              Int     @id @default(autoincrement()) @map("order_item_id")
+  orderId         Int     @map("order_id")
+  productId       Int     @map("product_id")
+  quantity        Int
+  priceAtPurchase Decimal @map("price_at_purchase") @db.Decimal(10, 2)
+
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("OrderItem")
+}
+
+model Review {
+  id            Int       @id @default(autoincrement()) @map("review_id")
+  productId     Int       @map("product_id")
+  customerId    Int       @map("customer_id")
+  orderId       Int       @map("order_id")
+  rating        Int
+  reviewText    String?   @map("review_text") @db.Text
+  storeResponse String?   @map("store_response") @db.Text
+  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+
+  // Relations
+  product  Product @relation(fields: [productId], references: [id])
+  customer User    @relation(fields: [customerId], references: [id])
+  order    Order   @relation(fields: [orderId], references: [id])
+
+  @@map("Review")
+}
+
+model Cart {
+  id         Int       @id @default(autoincrement()) @map("cart_id")
+  customerId Int       @unique @map("customer_id")
+  expiresAt  DateTime? @map("expires_at") @db.Timestamp(0)
+
+  // Relations
+  customer  User       @relation(fields: [customerId], references: [id])
+  cartItems CartItem[]
+
+  @@map("Cart")
+}
+
+model CartItem {
+  id        Int @id @default(autoincrement()) @map("cart_item_id")
+  cartId    Int @map("cart_id")
+  productId Int @map("product_id")
+  quantity  Int
+
+  // Relations
+  cart    Cart    @relation(fields: [cartId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("CartItem")
+}
+
+model PaymentTransaction {
+  id                   Int               @id @default(autoincrement()) @map("transaction_id")
+  payableId            Int               @map("payable_id")
+  payableType          PayableType       @map("payable_type")
+  gatewayName          String?           @map("gateway_name") @db.VarChar(50)
+  gatewayTransactionId String?           @map("gateway_transaction_id") @db.VarChar(100)
+  amount               Decimal           @db.Decimal(10, 2)
+  status               TransactionStatus @default(Success)
+  createdAt            DateTime?         @default(now()) @map("created_at") @db.Timestamp(0)
+
+  @@map("PaymentTransaction")
+}
+
+model StoreEmployee {
+  userId      Int  @map("user_id")
+  storeId     Int  @map("store_id")
+  permissions Json?
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id])
+  store Store @relation(fields: [storeId], references: [id])
+
+  @@id([userId, storeId])
+  @@map("StoreEmployee")
+}
+
+model Message {
+  id         Int       @id @default(autoincrement()) @map("message_id")
+  senderId   Int       @map("sender_id")
+  receiverId Int       @map("receiver_id")
+  storeId    Int?      @map("store_id")
+  content    String    @db.Text
+  readStatus Boolean?  @default(false) @map("read_status")
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+
+  // Relations
+  sender   User   @relation("MessageSender", fields: [senderId], references: [id])
+  receiver User   @relation("MessageReceiver", fields: [receiverId], references: [id])
+  store    Store? @relation(fields: [storeId], references: [id])
+
+  @@map("Message")
+}
+
+model Notification {
+  id         Int       @id @map("notification_id")
+  userId     Int       @map("user_id")
+  type       String    @db.VarChar(50)
+  content    String    @db.VarChar(50)
+  readStatus Boolean?  @default(false) @map("read_status")
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("Notification")
+}
+
+model StoreAnalytics {
+  receiverId Int @map("receiver_id")
+
+  @@ignore
+  @@map("StoreAnalytics")
 }
