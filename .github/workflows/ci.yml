@@ -37,7 +37,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
 
       - name: Detect affected projects
         id: detect
@@ -60,7 +60,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
 
       - name: Lint all projects
         run: npx nx run-many -t lint --all --format=json --output-file=lint-report.json
@@ -88,7 +88,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
 
       - name: Type check all projects
         run: npx nx run-many -t typecheck -p @omni-store/api @omni-store/web
@@ -108,7 +108,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
 
       - name: Run unit tests
         run: npx nx run-many -t test --all --coverage
@@ -137,7 +137,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
 
       - name: Build all projects
         run: npx nx run-many -t build --all --prod
