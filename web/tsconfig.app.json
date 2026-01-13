@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/out-tsc",
+    "types": [],
+    "lib": ["es2022", "dom"],
+    "emitDeclarationOnly": false,
+    "composite": false,
+    "declarationMap": false,
+    "noEmitOnError": false
+  },
+  "files": ["src/main.ts"],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "node_modules"
+  ]
+}
