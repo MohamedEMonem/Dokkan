@@ -98,19 +98,6 @@ services:
       - nx_network
     restart: unless-stopped
 
-# -----------------------------
-# Volumes & Networks
-# -----------------------------
-volumes:
-  postgres_data:
-  redis_data:
-  meili_data:
-  minio_data:
-
-networks:
-  nx_network:
-    driver: bridge
-
   # -----------------------------
   # React Frontend Application
   # -----------------------------
@@ -128,3 +115,16 @@ networks:
     networks:
       - nx_network
     restart: unless-stopped
+
+# -----------------------------
+# Volumes & Networks
+# -----------------------------
+volumes:
+  postgres_data:
+  redis_data:
+  meili_data:
+  minio_data:
+
+networks:
+  nx_network:
+    driver: bridge

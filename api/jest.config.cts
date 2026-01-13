@@ -9,7 +9,7 @@ const swcJestConfig = JSON.parse(
 swcJestConfig.swcrc = false;
 
 module.exports = {
-  displayName: '@omni-store/api',
+  displayName: '@dokkan/api',
   testEnvironment: 'node',
   transform: {
     '^.+\\.(ts|js)$': ['@swc/jest', swcJestConfig],

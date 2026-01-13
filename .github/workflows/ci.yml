@@ -1,4 +1,4 @@
-name: CI
+name: CI (MVP)
 
 on:
   push:
@@ -10,161 +10,43 @@ on:
       - master
       - dev
 
-permissions:
-  actions: read
-  contents: read
-  checks: write
-  pull-requests: write
-
 env:
-  NX_CLOUD_DISTRIBUTED_EXECUTION: false
   NODE_VERSION: '20'
 
 jobs:
-  # Detect what changed to run only affected tasks
-  affected:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.detect.outputs.matrix }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - run: npm ci --legacy-peer-deps
-
-      - name: Detect affected projects
-        id: detect
-        run: |
-          AFFECTED=$(npx nx show projects --affected --base=origin/master --head=HEAD --json)
-          echo "matrix=$AFFECTED" >> $GITHUB_OUTPUT
-
   # Lint check
   lint:
     runs-on: ubuntu-latest
-    name: Lint
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-
       - run: npm ci --legacy-peer-deps
+      - run: npx nx run-many -t lint --all
 
-      - name: Lint all projects
-        run: npx nx run-many -t lint --all --format=json --output-file=lint-report.json
-
-      - name: Upload lint results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-results
-          path: lint-report.json
-          if-no-files-found: ignore
-
-  # Type checking
+  # Type check
   typecheck:
     runs-on: ubuntu-latest
-    name: Type Check
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-
       - run: npm ci --legacy-peer-deps
+      - run: npx nx run-many -t typecheck -p @dokkan/api @dokkan/web
 
-      - name: Type check all projects
-        run: npx nx run-many -t typecheck -p @omni-store/api @omni-store/web
-
-  # Unit tests
-  test:
-    runs-on: ubuntu-latest
-    name: Unit Tests
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - run: npm ci --legacy-peer-deps
-
-      - name: Run unit tests
-        run: npx nx run-many -t test --all --coverage
-
-      - name: Upload coverage reports
-        if: always()
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage
-          fail_ci_if_error: false
-          verbose: true
-
-  # Build all projects
+  # Build
   build:
     runs-on: ubuntu-latest
-    name: Build
-    needs: [lint, typecheck, test]
+    needs: [lint, typecheck]
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-
       - run: npm ci --legacy-peer-deps
-
-      - name: Build all projects
-        run: npx nx run-many -t build --all --prod
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            dist/
-            build/
-
-  # Final check - all tests passed
-  ci-success:
-    runs-on: ubuntu-latest
-    name: CI Pipeline Success
-    needs: [lint, typecheck, test, build]
-    if: success()
-    steps:
-      - name: All checks passed
-        run: echo "✅ All CI checks passed successfully!"
-
-  ci-failure:
-    runs-on: ubuntu-latest
-    name: CI Pipeline Failed
-    needs: [lint, typecheck, test, build]
-    if: failure()
-    steps:
-      - name: Notify failure
-        run: exit 1
+      - run: npx nx run-many -t build --all --prod

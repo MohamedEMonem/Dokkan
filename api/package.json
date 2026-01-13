@@ -1,7 +1,20 @@
 {
-  "name": "@omni-store/api",
+  "name": "@dokkan/api",
   "version": "0.0.1",
   "private": true,
+  "description": "Dokkan Backend API - NestJS Application",
+  "scripts": {
+    "start": "node dist/main",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "build": "nest build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "type-check": "tsc --noEmit"
+  },
   "nx": {
     "targets": {
       "build": {
@@ -63,15 +76,15 @@
           "build"
         ],
         "options": {
-          "buildTarget": "@omni-store/api:build",
+          "buildTarget": "@dokkan/api:build",
           "runBuildTargetDependencies": false
         },
         "configurations": {
           "development": {
-            "buildTarget": "@omni-store/api:build:development"
+            "buildTarget": "@dokkan/api:build:development"
           },
           "production": {
-            "buildTarget": "@omni-store/api:build:production"
+            "buildTarget": "@dokkan/api:build:production"
           }
         }
       },
@@ -84,13 +97,37 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.2.3",
+    "@prisma/client": "^7.1.0",
+    "axios": "^1.6.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "swagger-ui-express": "^5.0.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@nestjs/testing": "^11.0.0"
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.19.9",
+    "@types/swagger-ui-express": "^4.1.6",
+    "@typescript-eslint/utils": "^8.40.0",
+    "eslint": "^9.8.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-import": "2.31.0",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^30.0.2",
+    "jest-util": "^30.0.2",
+    "prettier": "~3.6.2",
+    "prisma": "^7.1.0",
+    "ts-jest": "^29.4.6",
+    "ts-node": "10.9.1",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.40.0"
   }
 }

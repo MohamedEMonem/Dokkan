@@ -4,9 +4,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug @omni-store/api with Nx",
+      "name": "Debug @dokkan/api with Nx",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["nx", "serve", "@omni-store/api"],
+      "runtimeArgs": ["nx", "serve", "@dokkan/api"],
       "env": {
         "NODE_OPTIONS": "--inspect=9229"
       },
