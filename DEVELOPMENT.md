@@ -31,14 +31,70 @@ npm start
 
 ## 📝 Common Commands
 
-### Development
+### Development - Start Services
+
+**Start All Services** (API + React Web):
 ```bash
-npm start              # Start all dev servers (API + Web)
-npm run build          # Build all projects
-npm run test           # Run all tests
-npm run test:coverage  # Run tests with coverage
+npm start              # Start both API and web app
+npm run start:all      # Alternative: same as npm start
+```
+
+**Start Specific Service**:
+```bash
+npm run start:api      # Start only NestJS API (port 3000)
+npm run start:web      # Start only React app (port 4200)
+```
+
+### Development - Build
+
+**Build All Projects**:
+```bash
+npm run build          # Build API and web for production
+```
+
+**Build Specific Service**:
+```bash
+npm run build:api      # Build only NestJS API
+npm run build:web      # Build only React web app
+```
+
+### Development - Testing
+
+**Run All Tests**:
+```bash
+npm run test           # Run all unit tests
+npm run test:coverage  # Run all tests with coverage
+npm run test:watch     # Run all tests in watch mode
+```
+
+**Test Specific Service**:
+```bash
+npm run test:api       # Test only API
+npm run test:web       # Test only React app
+npm run test:api:watch     # Test API in watch mode
+npm run test:web:watch     # Test React app in watch mode
+npm run test:api:coverage  # Test API with coverage
+npm run test:web:coverage  # Test React app with coverage
+```
+
+### Development - Code Quality
+
+**Lint All Projects**:
+```bash
 npm run lint           # Lint all projects
-npm run lint:fix       # Lint and auto-fix
+npm run lint:fix       # Lint and auto-fix all projects
+```
+
+**Lint Specific Service**:
+```bash
+npm run lint:api       # Lint only API
+npm run lint:web       # Lint only React app
+npm run lint:api:fix   # Lint and fix API
+npm run lint:web:fix   # Lint and fix React app
+```
+
+### Development - Format
+```bash
 npm run format         # Format code with Prettier
 ```
 
@@ -61,7 +117,6 @@ npm run db:seed        # Seed database with initial data
 ```bash
 npm run test           # Run unit tests
 npm run test:coverage  # Generate coverage reports
-npm run e2e            # Run end-to-end tests
 npm run lint           # Check code quality
 ```
 
@@ -76,9 +131,7 @@ npm run nx:graph       # Visualize project dependencies
 
 ```
 ├── api/              # NestJS Backend API
-├── web/              # Angular Frontend Application
-├── api-e2e/          # Backend E2E Tests (Playwright)
-├── web-e2e/          # Frontend E2E Tests (Playwright)
+├── web/              # React Frontend Application
 ├── libs/             # Shared libraries
 ├── prisma/           # Database schema & migrations
 └── packages/         # External packages
@@ -92,12 +145,13 @@ When `npm start` is running:
 
 | Service | URL | Purpose |
 |---------|-----|---------|
-| Frontend | http://localhost:4200 | Angular Web Application |
+| Frontend | http://localhost:4200 | React Web Application |
 | Backend API | http://localhost:3000 | NestJS API Server |
 | API Docs | http://localhost:3000/api/docs | Swagger Documentation |
 | Meilisearch | http://localhost:7700 | Search Engine |
 | MinIO Console | http://localhost:9001 | S3-like Storage |
-| PgAdmin | http://localhost:5050 | PostgreSQL Management |
+| PostgreSQL | localhost:5432 | Database |
+| Redis | localhost:6379 | Cache/Queue |
 
 ---
 
@@ -106,21 +160,16 @@ When `npm start` is running:
 ### Unit Tests
 ```bash
 # Run tests for a specific project
-nx test api
-nx test web
+npm run test:api       # Test API only
+npm run test:web       # Test React web only
 
-# Watch mode
-nx test api --watch
-```
+# Run all tests
+npm run test           # Run all unit tests
 
-### E2E Tests
-```bash
-# Run all e2e tests
-npm run e2e
-
-# Run specific e2e tests
-nx e2e api-e2e
-nx e2e web-e2e
+# Watch mode (auto-rerun on changes)
+npm run test:api:watch # Test API in watch mode
+npm run test:web:watch # Test React app in watch mode
+npm run test:watch     # Test all in watch mode
 ```
 
 ### Coverage Reports
@@ -154,7 +203,7 @@ npm run db:migrate
 ```bash
 # Clean reinstall
 rm -r node_modules
-npm install
+npm install --legacy-peer-deps
 ```
 
 ### Docker Issues
@@ -165,6 +214,13 @@ npm run infra:logs
 # Rebuild containers
 docker compose down -v
 docker compose up -d
+```
+
+### Vite Dev Server Issues
+```bash
+# If the React app won't start, try clearing cache
+rm -rf node_modules/.vite
+npm run dev web
 ```
 
 ---
@@ -207,7 +263,8 @@ docker compose up -d
 ## 📚 Resources
 
 - [NestJS Documentation](https://docs.nestjs.com)
-- [Angular Documentation](https://angular.io/docs)
+- [React Documentation](https://react.dev)
+- [Vite Documentation](https://vitejs.dev)
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [Nx Documentation](https://nx.dev/docs)
 - [Docker Compose Reference](https://docs.docker.com/compose/compose-file)
@@ -220,3 +277,4 @@ docker compose up -d
 - Review Troubleshooting section above
 - Ask in team chat/meeting
 - Check project documentation in README.md
+

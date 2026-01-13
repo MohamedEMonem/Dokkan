@@ -70,6 +70,34 @@ services:
       - nx_network
     restart: always
 
+  # -----------------------------
+  # NestJS Backend API
+  # -----------------------------
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: nx_api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-root}@postgres:5432/${POSTGRES_DB:-my_app_db}
+      - REDIS_URL=redis://redis:6379
+      - MEILISEARCH_URL=http://meilisearch:7700
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+    depends_on:
+      - postgres
+      - redis
+      - meilisearch
+      - minio
+    networks:
+      - nx_network
+    restart: unless-stopped
+
 # -----------------------------
 # Volumes & Networks
 # -----------------------------
@@ -82,3 +110,21 @@ volumes:
 networks:
   nx_network:
     driver: bridge
+
+  # -----------------------------
+  # React Frontend Application
+  # -----------------------------
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    container_name: nx_web
+    ports:
+      - "4200:4200"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      - api
+    networks:
+      - nx_network
+    restart: unless-stopped
