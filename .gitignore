@@ -54,3 +54,5 @@ test-output
 .angular
 .env
 /generated/prisma
+
+vite.config.*.timestamp*

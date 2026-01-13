@@ -5,7 +5,7 @@ export default [
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
-    ignores: ['**/dist'],
+    ignores: ['**/dist', '**/vite.config.*.timestamp*'],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
@@ -30,8 +30,7 @@ export default [
   // ---------------------------------------------------------
   {
     files: ['**/*.ts', '**/*.tsx'],
-    plugins: {
-    },
+    plugins: {},
     rules: {
       // RULE: Strict TypeScript (No any)
       // Manifesto: "The use of the 'any' type is strictly forbidden." [cite: 15]
@@ -60,7 +59,7 @@ export default [
       // This rule requires JSDoc for exported functions
       // Note: Requires eslint-plugin-jsdoc to be installed
       // 'jsdoc/require-jsdoc': [
-      //   'warn', 
+      //   'warn',
       //   {
       //     require: {
       //       FunctionDeclaration: true,
