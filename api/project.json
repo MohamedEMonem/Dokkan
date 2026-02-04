@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@dokkan/api",
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "api/src",
   "projectType": "application",
@@ -13,7 +13,8 @@
         "{workspaceRoot}/dist/api/package-lock.json"
       ],
       "options": {
-        "buildTarget": "build"
+        "buildTarget": "@dokkan/api:build",
+        "inspect": false
       }
     },
     "copy-workspace-modules": {
@@ -22,7 +23,7 @@
       "outputs": ["{workspaceRoot}/dist/api/workspace_modules"],
       "executor": "@nx/js:copy-workspace-modules",
       "options": {
-        "buildTarget": "build"
+        "buildTarget": "@dokkan/api:build"
       }
     },
     "prune": {
@@ -35,15 +36,16 @@
       "defaultConfiguration": "development",
       "dependsOn": ["build"],
       "options": {
-        "buildTarget": "api:build",
-        "runBuildTargetDependencies": false
+        "buildTarget": "@dokkan/api:build",
+        "runBuildTargetDependencies": false,
+        "inspect": false
       },
       "configurations": {
         "development": {
-          "buildTarget": "api:build:development"
+          "buildTarget": "@dokkan/api:build:development"
         },
         "production": {
-          "buildTarget": "api:build:production"
+          "buildTarget": "@dokkan/api:build:production"
         }
       }
     }
