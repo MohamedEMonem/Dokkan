@@ -53,7 +53,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["api-e2e/**/*", "apps/api-e2e/**/*", "api-e2e/**/*"]
+      "exclude": ["api-e2e/**/*", "apps/api-e2e/**/*", "api-e2e/**/*", "api-e2e/**/*"]
     },
     {
       "plugin": "@nx/playwright/plugin",

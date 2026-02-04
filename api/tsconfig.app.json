@@ -2,9 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../dist/out-tsc",
-    "types": ["node", "express"],
     "module": "esnext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "types": ["node", "express"],
+    "esModuleInterop": true
   },
   "include": ["src/**/*.ts"]
 }
