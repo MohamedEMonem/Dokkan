@@ -1,4 +1,4 @@
-# 🚀 Development Guide - Omni-Store
+# 🚀 Development Guide - Dokkan
 
 This guide provides quick reference for common development tasks and workflows.
 

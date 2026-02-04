@@ -309,4 +309,4 @@ Documents are kept up-to-date. If something is wrong:
 
 Happy coding! 🚀
 
-*- The Omni-Store Team*
+*- The Dokkan Team*

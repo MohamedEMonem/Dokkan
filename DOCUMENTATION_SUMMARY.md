@@ -401,6 +401,6 @@ Everything is ready. Your team can now:
 
 *Created: January 14, 2026*
 *Documentation Version: 1.0*
-*Project: Omni-Store*
+*Project: Dokkan*
 
 **Happy coding, team! 🎉**

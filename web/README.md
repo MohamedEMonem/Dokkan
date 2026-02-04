@@ -1,6 +1,6 @@
 # 🌐 Web - React Frontend
 
-Modern React frontend for Omni-Store e-commerce platform built with Vite.
+Modern React frontend for Dokkan e-commerce platform built with Vite.
 
 ---
 
@@ -390,7 +390,7 @@ VITE_API_URL=https://api.production.com
 Create `.env` file in root:
 ```env
 VITE_API_URL=http://localhost:3000
-VITE_APP_NAME=Omni-Store
+VITE_APP_NAME=Dokkan
 ```
 
 Access in code:

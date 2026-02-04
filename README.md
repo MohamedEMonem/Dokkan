@@ -1,6 +1,6 @@
 # DoKKan - Full Stack E-Commerce Platform
 
-Welcome to Omni-Store! This is a **full-stack e-commerce platform** built with modern technologies. This guide will help you get started quickly.
+Welcome to Dokkan! This is a **full-stack e-commerce platform** built with modern technologies. This guide will help you get started quickly.
 
 ---
 

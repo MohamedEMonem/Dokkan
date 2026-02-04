@@ -6,7 +6,7 @@
             "server": "localhost",
             "port": 5432,
             "driver": "PostgreSQL",
-            "name": "omni",
+            "name": "Dokkan",
             "database": "mydb",
             "username": "root",
             "password": "root"

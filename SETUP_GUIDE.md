@@ -1,6 +1,6 @@
-# 🚀 Complete Setup Guide - Omni-Store
+# 🚀 Complete Setup Guide - Dokkan
 
-This guide walks you through setting up Omni-Store from scratch. Follow each step carefully.
+This guide walks you through setting up Dokkan from scratch. Follow each step carefully.
 
 ---
 

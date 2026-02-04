@@ -1,12 +1,12 @@
 # 👋 Start Here - Team Onboarding Guide
 
-**Welcome to Omni-Store!** This is your first stop. Follow this guide to get up and running.
+**Welcome to Dokkan!** This is your first stop. Follow this guide to get up and running.
 
 ---
 
 ## 🎯 What is This Project?
 
-Omni-Store is a **full-stack e-commerce platform** built with:
+Dokkan is a **full-stack e-commerce platform** built with:
 - **Frontend:** React + TypeScript + Vite
 - **Backend:** NestJS + TypeScript
 - **Database:** PostgreSQL with Prisma ORM

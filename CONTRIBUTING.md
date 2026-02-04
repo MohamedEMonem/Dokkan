@@ -1,13 +1,13 @@
-# 📖 Contributing Guide - Omni-Store
+# 📖 Contributing Guide - Dokkan
 
-Thank you for contributing to the Omni-Store project! Please follow these guidelines to ensure smooth collaboration.
+Thank you for contributing to the Dokkan project! Please follow these guidelines to ensure smooth collaboration.
 
 ## Workflow
 
 ### 1. Setup Your Local Environment
 ```bash
 git clone <repository-url>
-cd Omni-Store
+cd Dokkan
 npm install
 cp env.example .env
 npm run infra:up
