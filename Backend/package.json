@@ -1,0 +1,33 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend of dokkan",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "start:dev": "nodemon index.js",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "infra:logs": "docker compose logs -f",
+    "infra:clean": "docker compose down -v",
+    "infra:FullClean": "docker system prune -a --volumes",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "node --require=.pnp.cjs prisma/seed.js",
+    "lint": "nx run-many -t lint --all",
+    "lint:api": "nx lint api",
+    "lint:fix": "nx run-many -t lint --all -- --fix",
+    "lint:api:fix": "nx lint api -- --fix"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "prisma": "^7.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3"
+  }
+}
