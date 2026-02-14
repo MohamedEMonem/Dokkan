@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "start:dev": "nodemon index.js",
+    "dev": "nodemon index.js",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f",
@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "express": "^5.2.1",
+    "nodemon": "^3.1.11",
     "prisma": "^7.4.0"
   },
   "devDependencies": {
