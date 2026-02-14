@@ -1,9 +1,17 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const { sendSuccess } = require('./utils/response');
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
+    return sendSuccess(res, { 
+        status: 'OK', 
+        timestamp: new Date().toISOString() 
+    }, 'Server is healthy');
 });
 
 const authRoutes = require("./routes/auth");

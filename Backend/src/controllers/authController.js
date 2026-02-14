@@ -1,10 +1,9 @@
 const prisma = require("../prisma/client");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { date } = require("joi");
-const { register } = require("node:module");
+const { sendSuccess, sendError, sendServerError } = require("../utils/response");
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || "admin";
 
 function saltingString(str) {
     let sum = 0;
@@ -16,30 +15,53 @@ function saltingString(str) {
     return sum;
 }
 
-// GET /users - Admin only
-
-
 const createUser = async (req, res) => {
     try {
         const { email, password, name } = req.body;
+        
+        // Validation
+        if (!email || !password || !name) {
+            return sendError(res, "Please provide email, password, and name", 400);
+        }
+        
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ message: "User already exists" });
+            return sendError(res, "User already exists", 400);
         }
+        
         const saltedPassword = saltingString(password);
         const hashedPassword = await bcrypt.hash(saltedPassword.toString(), 10);
+        
         const user = await prisma.user.create({
             data: {
                 email,
                 password: hashedPassword,
                 name,
             },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                createdAt: true
+            }
         });
-        await user.save();
-        res.status(201).json({ message: "User created successfully", user });
+        
+        // Generate JWT token
+        const token = jwt.sign(
+            { userId: user.id, email: user.email },
+            JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+        
+        return sendSuccess(
+            res,
+            { user, token },
+            "User created successfully",
+            201
+        );
     } catch (error) {
-        console.error("Error in createUser:", error);
-        res.status(500).json({ message: "Internal server error" });
+        return sendServerError(res, "Internal server error", error);
     }
 };
 

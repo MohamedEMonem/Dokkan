@@ -24,7 +24,11 @@
     "lint:api:fix": "nx lint api -- --fix"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.4.0",
+    "@prisma/client": "^7.4.0",
+    "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "nodemon": "^3.1.11",
     "prisma": "^7.4.0"
   },
