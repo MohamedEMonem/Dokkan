@@ -1,6 +1,6 @@
 const prisma = require("../prisma/client");
 const { z } = require("zod");
-const { sendSuccess, sendError, sendServerError } = require("../utils/response");
+const { sendSuccess, sendError, sendServerError, sendNotFound, sendValidationError } = require("../utils/response");
 
 const categorySchema = z.object({
     name: z.string().min(1).max(100),
@@ -24,7 +24,7 @@ const getCategories = async (req, res) => {
             }
         });
 
-        return sendSuccess(res, categories, "Categories retrieved successfully", 200);
+        return sendSuccess(res, categories, "Categories retrieved successfully");
     } catch (error) {
         return sendServerError(res, "Failed to fetch categories", error);
     }
@@ -35,7 +35,7 @@ const createCategory = async (req, res) => {
     try {
         const validation = categorySchema.safeParse(req.body);
         if (!validation.success) {
-            return sendError(res, "Validation failed", 400, validation.error.format());
+            return sendValidationError(res, validation.error.format());
         }
 
         const { name, parentCategoryId } = validation.data;
@@ -45,7 +45,7 @@ const createCategory = async (req, res) => {
                 where: { id: parentCategoryId }
             });
             if (!parentExists) {
-                return sendError(res, "Parent category does not exist", 404);
+                return sendError(res, "Parent category does not exist");
             }
         }
 
@@ -66,18 +66,18 @@ const updateCategory = async (req, res) => {
         
         const validation = updateCategorySchema.safeParse(req.body);
         if (!validation.success) {
-            return sendError(res, "Validation failed", 400, validation.error.format());
+            return sendValidationError(res, validation.error.format());
         }
 
         const { name, parentCategoryId } = validation.data;
 
         const existingCategory = await prisma.category.findUnique({ where: { id: categoryId } });
         if (!existingCategory) {
-            return sendError(res, "Category not found", 404);
+            return sendNotFound(res, "Category not found");
         }
 
         if (parentCategoryId === categoryId) {
-            return sendError(res, "A category cannot be its own parent", 400);
+            return sendError(res, "A category cannot be its own parent");
         }
 
         const updatedCategory = await prisma.category.update({
@@ -85,7 +85,7 @@ const updateCategory = async (req, res) => {
             data: { name, parentCategoryId }
         });
 
-        return sendSuccess(res, updatedCategory, "Category updated successfully", 200);
+        return sendSuccess(res, updatedCategory, "Category updated successfully");
     } catch (error) {
         return sendServerError(res, "Failed to update category", error);
     }
@@ -105,22 +105,22 @@ const deleteCategory = async (req, res) => {
         });
 
         if (!existingCategory) {
-            return sendError(res, "Category not found", 404);
+            return sendNotFound(res, "Category not found");
         }
 
         if (existingCategory.children.length > 0) {
-            return sendError(res, "Cannot delete category because it has sub-categories. Please reassign or delete them first.", 400);
+            return sendError(res, "Cannot delete category because it has sub-categories. Please reassign or delete them first.");
         }
 
         if (existingCategory._count.products > 0) {
-            return sendError(res, "Cannot delete category because there are products attached to it.", 400);
+            return sendError(res, "Cannot delete category because there are products attached to it.");
         }
 
         await prisma.category.delete({
             where: { id: categoryId }
         });
 
-        return sendSuccess(res, null, "Category deleted successfully", 200);
+        return sendSuccess(res, null, "Category deleted successfully");
     } catch (error) {
         return sendServerError(res, "Failed to delete category", error);
     }
