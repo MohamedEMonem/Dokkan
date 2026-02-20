@@ -16,6 +16,10 @@ const productSchema = z.object({
   categoryId: z.number().int(),
   storeId: z.number().int(),
   stockQuantity: z.number().int().min(0).optional(),
+  images: z.array(z.object({
+    imageUrl: z.string().url("Invalid image URL"),
+    sortOrder: z.number().int().optional().default(0),
+  })).optional(),
 });
 
 const updateProductSchema = productSchema.partial();
@@ -88,12 +92,13 @@ const createProduct = async (req, res) => {
       return sendValidationError(res, validation.error.format());
     }
 
-    const parsedData = validation.data;
+    const {images, ...parsedData} = validation.data;
 
     await verifyStoreAccess(req.user, parsedData.storeId);
 
     const newProduct = await prisma.product.create({
-      data: parsedData,
+      data: {...parsedData, images: images ? { create: images } : undefined },
+      include: { images: true }
     });
 
     return sendSuccess(res, newProduct, "Product created successfully", 201);
@@ -119,10 +124,11 @@ const updateProduct = async (req, res) => {
       return sendValidationError(res, validation.error.format());
     }
 
-    const parsedData = validation.data;
+    const {images, ...parsedData} = validation.data;
 
     const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
+      include: { images: true }
     });
     if (!existingProduct || existingProduct.deletedAt) {
       return sendNotFound(res, "Product not found");
@@ -134,9 +140,16 @@ const updateProduct = async (req, res) => {
       await verifyStoreAccess(req.user, parsedData.storeId);
     }
 
+    const updatedPayload = { ...parsedData };
+
+    if (images) {
+      updatedPayload.images = {deleteMany: {imageUrl: { in: existingProduct.images.map(img => img.imageUrl) }}, create: images };
+    }
+
     const updatedProduct = await prisma.product.update({
       where: { id: productId },
-      data: parsedData,
+      data: updatedPayload,
+      include: { images: true }
     });
 
     return sendSuccess(
