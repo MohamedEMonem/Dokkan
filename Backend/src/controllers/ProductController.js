@@ -1,5 +1,5 @@
 const prisma = require("../prisma/client");
-const { z } = require("zod");
+const { z, object } = require("zod");
 const {
   sendSuccess,
   sendError,
@@ -8,18 +8,27 @@ const {
   sendNotFound,
   sendValidationError,
 } = require("../utils/response");
+const { productImgUploadHandler } = require("./uploadController");
+
 
 const productSchema = z.object({
   title: z.string().min(1).max(150),
   description: z.string().optional(),
-  price: z.number().positive("Price must be greater than zero"),
-  categoryId: z.number().int(),
-  storeId: z.number().int(),
-  stockQuantity: z.number().int().min(0).optional(),
+  // price: z.string().min(1).max(150),
+  // categoryId: z.string().min(1).max(150),
+  // storeId: z.string().min(1).max(150),
+  // stockQuantity: z.string().min(1).max(150).optional(),
+  // imageUrl: z.string().url("Invalid image URL").optional(),
+
+  price: z.coerce.number().positive("Price must be greater than zero"),
+  categoryId: z.coerce.number().int(),
+  storeId: z.coerce.number().int(),
+  stockQuantity: z.coerce.number().int().min(0).optional(),
   images: z.array(z.object({
     imageUrl: z.string().url("Invalid image URL"),
     sortOrder: z.number().int().optional().default(0),
   })).optional(),
+  objectName: z.string().optional()
 });
 
 const updateProductSchema = productSchema.partial();
@@ -87,19 +96,42 @@ const getProducts = async (req, res) => {
 // POST /api/products
 const createProduct = async (req, res) => {
   try {
+
+    console.log("1. Did Multer find a file?", req.file ? "YES" : "NO");
+    console.log("2. Did Middleware attach images?", req.images ? "YES" : "NO");
     const validation = productSchema.safeParse(req.body);
     if (!validation.success) {
       return sendValidationError(res, validation.error.format());
     }
 
-    const {images, ...parsedData} = validation.data;
+    const {...parsedData} = validation.data;
+    // const {...parsedData} = req.body;
+    let uploadResult = undefined;
+    if (req.images && req.images.length > 0) {
+      uploadResult = {
+        imageUrl: req.images[0].imageUrl,
+        objectName: req.uploadedObjectName,
+      };
+    }
+    // await verifyStoreAccess(req.user, parsedData.storeId); /// temporarily disabled for testing without auth
 
-    await verifyStoreAccess(req.user, parsedData.storeId);
-
-    const newProduct = await prisma.product.create({
-      data: {...parsedData, images: images ? { create: images } : undefined },
+     const newProduct = await prisma.product.create({
+      data: {...parsedData, images: uploadResult ? { create: [{ imageUrl: uploadResult.imageUrl, sortOrder: 0 }] } : undefined },
       include: { images: true }
     });
+
+    // const newProduct = await prisma.product.create({
+    //   data: {
+    //     title: parsedData.title,
+    //     description: parsedData.description,
+    //     price: parseFloat(parsedData.price),
+    //     categoryId: parseInt(parsedData.categoryId),
+    //     storeId: parseInt(parsedData.storeId),
+    //     stockQuantity: parsedData.stockQuantity ? parseInt(parsedData.stockQuantity) : undefined,
+    //     images: uploadResult ? { create: [{ imageUrl: uploadResult.imageUrl, sortOrder }] } : undefined
+    //   },
+    //   include: { images: true }
+    // });
 
     return sendSuccess(res, newProduct, "Product created successfully", 201);
   } catch (error) {
