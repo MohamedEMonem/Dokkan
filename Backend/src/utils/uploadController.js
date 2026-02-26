@@ -2,7 +2,7 @@ const multer = require('multer');
 const minioClient = require('../../minio.config.js');
 const storage = multer.memoryStorage();
 // const {prisma} =require("../prisma/client.js")
-const { sendSuccess, sendError } = require('../utils/response');
+const { sendSuccess, sendError } = require('./response.js');
 
 
 const upload = multer({
@@ -53,17 +53,29 @@ const setupBucket = async (bucketName) => {
     }
 };
 
-const productImgUploadHandler = async (req, res, next) => {
+const imgUploadHandler = async (req, res, next) => {
 
     try {
-        const img = req.file
+
+        await new Promise((resolve, reject) => {
+            upload.single("image")(req, res, (err) => {
+                if (err) {
+                    console.error("Upload error:", err);
+                    return reject(err);
+                }
+                resolve();
+            });
+        });
+
+        const img = req.file;
         if (!img) {
             console.log("No file uploaded");
-            
-            
-            return next();}
-
-        const bucketName = "essam-products";
+            return next();
+        }
+        const userEmail = (req.user.email).split('@'); // Use email prefix for bucket naming
+        const userId = req.user.id.toString();
+        const bucketName = userEmail[0]+'-'+userEmail[1]+'-'+userId; // Use email prefix as bucket name
+        console.log("Bucket name (user ID):", bucketName);
         const exists = await minioClient.bucketExists(bucketName);
         if (!exists) {
             await setupBucket(bucketName);
@@ -97,5 +109,5 @@ const productImgUploadHandler = async (req, res, next) => {
 
 module.exports = {
     upload,
-    productImgUploadHandler
+    imgUploadHandler
 }

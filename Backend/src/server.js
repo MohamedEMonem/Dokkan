@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const { sendSuccess } = require('./utils/response');
-const uploadRoutes = require('./routes/upload.js');
+// const uploadRoutes = require('./routes/upload.js');
 const productRoutes = require('./routes/productRoutes.js');
 
 // Middleware
@@ -17,7 +17,7 @@ app.get('/api/health', (req, res) => {
 });
 app.use("/products", productRoutes);
 
-app.use('/uploads',uploadRoutes);
+// app.use('/uploads',uploadRoutes);
 
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);

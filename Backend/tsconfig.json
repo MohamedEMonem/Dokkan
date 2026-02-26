@@ -8,6 +8,6 @@
     "outDir": "dist",
     "types": ["node"]
   },
-  "include": ["**/*.ts", "minio.config.js", "src/controllers/uploadController.js", "src/routes/upload.js"],
+  "include": ["**/*.ts", "minio.config.js", "src/utils/uploadController.js", "src/routes/upload.js"],
   "exclude": ["node_modules", "dist"]
 }

@@ -17,8 +17,10 @@ function saltingString(str) {
 
 const createUser = async (req, res) => {
     try {
-        const { email, password, name } = req.body;
-        
+        // Support both `req.body` and `req.body.data` formats
+        const payload = (req.body && req.body.data) ? req.body.data : req.body || {};
+        const { email, password, name } = payload;
+
         // Validation
         if (!email || !password || !name) {
             return sendError(res, "Please provide email, password, and name", 400);

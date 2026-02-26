@@ -8,7 +8,7 @@ const {
   sendNotFound,
   sendValidationError,
 } = require("../utils/response");
-const { productImgUploadHandler } = require("./uploadController");
+const { imgUploadHandler } = require("../utils/uploadController");
 
 
 const productSchema = z.object({
@@ -22,7 +22,9 @@ const productSchema = z.object({
 
   price: z.coerce.number().positive("Price must be greater than zero"),
   categoryId: z.coerce.number().int(),
-  storeId: z.coerce.number().int(),
+  storeId: z.coerce.number().int(),//int id
+  // storeId: z.string().min(1).max(150), //string subdomain
+
   stockQuantity: z.coerce.number().int().min(0).optional(),
   images: z.array(z.object({
     imageUrl: z.string().url("Invalid image URL"),
@@ -96,6 +98,13 @@ const getProducts = async (req, res) => {
 // POST /api/products
 const createProduct = async (req, res) => {
   try {
+    // Call upload handler and handle errors
+    await new Promise((resolve, reject) => {
+      imgUploadHandler(req, res, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
 
     console.log("1. Did Multer find a file?", req.file ? "YES" : "NO");
     console.log("2. Did Middleware attach images?", req.images ? "YES" : "NO");
@@ -142,9 +151,10 @@ const createProduct = async (req, res) => {
       );
     if (error.message === "NOT_FOUND")
       return sendError(res, "Store not found.");
-    return sendServerError(res, "Failed to create product", error);
+    console.error("Create product error:", error);
+    return sendServerError(res, "Failed to create product", error);}
   }
-};
+
 
 // PATCH /api/products/:id
 const updateProduct = async (req, res) => {
