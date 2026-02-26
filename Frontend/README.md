@@ -23,7 +23,7 @@ src/
 ├── components/   # Reusable UI components
 ├── features/     # Feature-based modules
 ├── hooks/        # Custom React hooks
-├── layout/       # Layout components (header, sidebar, etc.)
+├── layout/       # Layout design (customer, store owner, etc.)
 ├── routes/       # Route definitions & page components
 ├── types/        # Shared TypeScript types & interfaces
 ├── App.tsx       # Root application component
