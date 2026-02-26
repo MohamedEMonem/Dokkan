@@ -1,73 +1,77 @@
-# React + TypeScript + Vite
+# Dokkan — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend client for the **Dokkan** multi-tenant web application.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+| Category            | Technology                                                                 |
+| ------------------- | -------------------------------------------------------------------------- |
+| **Language**        | [TypeScript](https://www.typescriptlang.org/) ~5.9                        |
+| **UI Library**      | [React](https://react.dev/) 19                                            |
+| **Build Tool**      | [Vite](https://vite.dev/) 7                                               |
+| **Styling**         | [Tailwind CSS](https://tailwindcss.com/) 4                                |
+| **State Management**| [Redux Toolkit](https://redux-toolkit.js.org/) 2 + [React-Redux](https://react-redux.js.org/) 9 |
+| **Routing**         | [React Router](https://reactrouter.com/) 7                                |
+| **Linting**         | [ESLint](https://eslint.org/) 9 with typescript-eslint                    |
 
-## React Compiler
+## Project Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── api/          # API client & request helpers
+├── assets/       # Static assets (images, SVGs, etc.)
+├── components/   # Reusable UI components
+├── features/     # Feature-based modules
+├── hooks/        # Custom React hooks
+├── layout/       # Layout components (header, sidebar, etc.)
+├── routes/       # Route definitions & page components
+├── types/        # Shared TypeScript types & interfaces
+├── App.tsx       # Root application component
+├── main.tsx      # Entry point
+└── index.css     # Global styles
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- [Node.js](https://nodejs.org/) (v18+)
+- npm / yarn / pnpm
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development
+
+```bash
+npm run dev
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Preview Production Build
+
+```bash
+npm run preview
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+## Path Aliases
+
+The project uses `@/` as an alias for the `src/` directory, configured in [vite.config.ts](vite.config.ts) and [tsconfig.app.json](tsconfig.app.json).
+
+```tsx
+import MyComponent from '@/components/MyComponent'
 ```
