@@ -35,7 +35,7 @@
       "@assets/*": ["assets/*"],
       "@components/*": ["components/*"],
       "@features/*": ["features/*"],
-      "@layouts/*": ["layouts/*"],
+      "@layout/*": ["layouts/*"],
       "@pages/*": ["pages/*"],
       "@routes/*": ["routes/*"],
       "@utils/*": ["utils/*"]
