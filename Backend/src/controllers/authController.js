@@ -17,8 +17,10 @@ function saltingString(str) {
 
 const createUser = async (req, res) => {
     try {
-        const { email, password, name } = req.body;
-        
+        // Support both `req.body` and `req.body.data` formats
+        const payload = (req.body && req.body.data) ? req.body.data : req.body || {};
+        const { email, password, name ,role="Customer"} = payload;
+
         // Validation
         if (!email || !password || !name) {
             return sendError(res, "Please provide email, password, and name", 400);
@@ -37,6 +39,7 @@ const createUser = async (req, res) => {
                 email,
                 password: hashedPassword,
                 name,
+                role: role || "user", //added to test storeOwner temperarily
             },
             select: {
                 id: true,
@@ -49,7 +52,7 @@ const createUser = async (req, res) => {
         
         // Generate JWT token
         const token = jwt.sign(
-            { userId: user.id, email: user.email },
+            { userId: user.id, email: user.email,role: user.role },
             JWT_SECRET,
             { expiresIn: "7d" }
         );
