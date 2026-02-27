@@ -8,8 +8,8 @@ export const apiSlice = createApi({
     baseUrl: import.meta.env.SERVER_DEV_API_URL,
     headers: {
       'Authorization': `Bearer ${token}`
-    }
-
+    },
+    credentials: 'include'
   }),
   endpoints: () => ({}),
   tagTypes : [
