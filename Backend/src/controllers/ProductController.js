@@ -8,7 +8,8 @@ const {
   sendNotFound,
   sendValidationError,
 } = require("../utils/response");
-const { imgUploadHandler } = require("../utils/uploadController");
+// const { imgUploadHandler } = require("../utils/minioClient");
+const {uploadPublicImg,deletePublicImg}=require("../services/imgStorageService")
 
 
 const productSchema = z.object({
@@ -99,33 +100,34 @@ const getProducts = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     // Call upload handler and handle errors
-    await new Promise((resolve, reject) => {
-      imgUploadHandler(req, res, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
-
-    console.log("1. Did Multer find a file?", req.file ? "YES" : "NO");
-    console.log("2. Did Middleware attach images?", req.images ? "YES" : "NO");
+    // await new Promise((resolve, reject) => {
+    //   imgUploadHandler(req, res, (err) => {
+    //     if (err) return reject(err);
+    //     resolve();
+    //   });
+    // });
     const validation = productSchema.safeParse(req.body);
     if (!validation.success) {
       return sendValidationError(res, validation.error.format());
     }
+        const {...parsedData} = validation.data;
+    //     console.log("Create Product parameters:", req.user );
+    // console.log("1. Did Multer find a file?", req.file ? "YES" : "NO");
+        
+    // console.log( "test result: " + req.user.id + " - " + req.user.email + " - " + req.user.role);
+  console.log("DEBUG CHECK:", { fileExists: !!req.file, userId: req.user?.id, userEmail: req.user?.email });
 
-    const {...parsedData} = validation.data;
+    const uploadedImageUrl = await uploadPublicImg(req.file, req.user?.email, req.user?.role, "product-images")
+    
+
+    // console.log("2. Uploaded image URL:", uploadedImageUrl);    
+
     // const {...parsedData} = req.body;
-    let uploadResult = undefined;
-    if (req.images && req.images.length > 0) {
-      uploadResult = {
-        imageUrl: req.images[0].imageUrl,
-        objectName: req.uploadedObjectName,
-      };
-    }
+    
     // await verifyStoreAccess(req.user, parsedData.storeId); /// temporarily disabled for testing without auth
 
      const newProduct = await prisma.product.create({
-      data: {...parsedData, images: uploadResult ? { create: [{ imageUrl: uploadResult.imageUrl, sortOrder: 0 }] } : undefined },
+      data: {...parsedData, images: uploadedImageUrl ? { create: [{ imageUrl: uploadedImageUrl, sortOrder: 0 }] } : undefined },
       include: { images: true }
     });
 
@@ -219,13 +221,24 @@ const deleteProduct = async (req, res) => {
 
     const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
+      include: { images: true }
     });
     if (!existingProduct || existingProduct.deletedAt) {
       return sendNotFound(res, "Product not found");
     }
 
-    await verifyStoreAccess(req.user, existingProduct.storeId);
-
+    // await verifyStoreAccess(req.user, existingProduct.storeId);
+    console.log("Product to be deleted:", existingProduct," - images: ", existingProduct.images," - url: ",existingProduct.images[0]?.imageUrl);
+    if (existingProduct.images && existingProduct.images.length > 0) {
+        for (const image of existingProduct.images) {
+          console.log("Deleting image URL inside the loop:", image.imageUrl);
+            await deletePublicImg(image.imageUrl);
+        }
+      }
+    else {
+        console.log("No images to delete for this product.");
+    }
+    
     await prisma.product.update({
       where: { id: productId },
       data: { deletedAt: new Date() },
