@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery} from '@reduxjs/toolkit/query';
 
-const token = localStorage.getItem('token'); // TBF later;
+const token : string | null = localStorage.getItem('token'); // TBF later;
 
 export const apiSlice = createApi({
   reducerPath: 'api',
