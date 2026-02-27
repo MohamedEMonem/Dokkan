@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery} from '@reduxjs/toolkit/query';
+import { createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 
 const token : string | null = localStorage.getItem('token'); // TBF later;
 
