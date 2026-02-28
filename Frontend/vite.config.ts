@@ -6,7 +6,7 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env : any = loadEnv(mode, process.cwd(), '');
-  const PORT : number = parseInt(env.PORT);
+  const PORT : number = parseInt(env.VITE_CLIENT_PORT);
 
   return {
     plugins: [react(), tailwindcss()],
