@@ -1,0 +1,18 @@
+import { createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
+
+const token : string | null = localStorage.getItem('token'); // TBF later;
+
+export const apiSlice = createApi({
+  reducerPath: 'apiSlice',
+  baseQuery: fetchBaseQuery({
+    baseUrl: import.meta.env.VITE_SERVER_DEV_API_URL,
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+    credentials: 'include'
+  }),
+  endpoints: () => ({}),
+  tagTypes : [
+    /** Add tags to API Endpoints */
+  ]
+});
