@@ -29,29 +29,18 @@ const variantClasses = {
 } as const;
 
 const baseClasses =
-  "inline-flex items-center justify-center whitespace-nowrap font-medium transition-all " +
+  "w-full h-full flex items-center justify-center whitespace-nowrap font-medium transition-all " +
   "disabled:pointer-events-none disabled:opacity-50 " +
   "outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 " +
-  "cursor-pointer";
-
-const sizeClasses = {
-  xs: "h-8 min-w-16 px-3 text-xs rounded-lg gap-1.5",
-  sm: "h-9 min-w-20 px-4 py-2 text-sm rounded-md gap-2",
-  md: "h-10 min-w-24 px-4 py-2 text-base rounded-xl gap-2",
-  lg: "h-12 min-w-28 px-6 py-3 text-lg rounded-xl gap-2",
-  xl: "h-14 min-w-32 px-8 py-4 text-xl rounded-xl gap-2",
-  icon: "h-10 w-10 rounded-full p-0 flex items-center justify-center",
-} as const;
+  "cursor-pointer rounded-lg";
 
 /* ────────────────────────────────────────────────────────
  * Types
  * ──────────────────────────────────────────────────────── */
 export type ButtonVariant = keyof typeof variantClasses;
-export type ButtonSize = keyof typeof sizeClasses;
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
-  size?: ButtonSize;
   children: ReactNode;
 }
 
@@ -60,19 +49,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
  * ──────────────────────────────────────────────────────── */
 export function Button({
   variant = "primary",
-  size = "md",
   className,
   children,
   ...rest
 }: ButtonProps) {
   return (
     <button
-      className={[
-        baseClasses,
-        variantClasses[variant],
-        sizeClasses[size],
-        className,
-      ].join(" ")}
+      className={[baseClasses, variantClasses[variant], className].join(" ")}
       {...rest}
     >
       {children}
