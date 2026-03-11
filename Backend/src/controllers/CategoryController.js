@@ -4,7 +4,7 @@ const { sendSuccess, sendError, sendServerError, sendNotFound, sendValidationErr
 
 const categorySchema = z.object({
     name: z.string().min(1).max(100),
-    parentCategoryId: z.number().int().nullable().optional(),
+    parentCategoryId: z.string().uuid("Invalid parent category ID").nullable().optional(),
 });
 
 const updateCategorySchema = categorySchema.partial();
@@ -62,7 +62,7 @@ const createCategory = async (req, res) => {
 //PATCH /api/categories/:id
 const updateCategory = async (req, res) => {
     try {
-        const categoryId = Number(req.params.id);
+        const categoryId = req.params.id;
         
         const validation = updateCategorySchema.safeParse(req.body);
         if (!validation.success) {
@@ -94,7 +94,7 @@ const updateCategory = async (req, res) => {
 // DELETE /api/categories/:id
 const deleteCategory = async (req, res) => {
     try {
-        const categoryId = Number(req.params.id);
+        const categoryId = req.params.id;
 
         const existingCategory = await prisma.category.findUnique({
             where: { id: categoryId },

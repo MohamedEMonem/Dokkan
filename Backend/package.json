@@ -30,7 +30,6 @@
     "crypto": "^1.0.1",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3"
     "jsonwebtoken": "^9.0.3",
     "minio": "^7.0.26",
     "multer": "^2.0.2",
@@ -41,8 +40,12 @@
   "devDependencies": {
     "@types/node": "^25.3.0",
     "nodemon": "^3.1.11",
-    "prisma": "^6.19.2"
+    "prisma": "^6.19.2",
     "@types/node": "^25.2.3",
     "prisma": "^7.4.1"
-  }
+  },
+  "prisma": {
+  "schema": "Backend/src/prisma/schema.prisma"
+}
+  
 }
