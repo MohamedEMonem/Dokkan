@@ -19,7 +19,7 @@ const productSchema = z.object({
   images: z.array(z.object({
     imageUrl: z.string().url("Invalid image URL"),
     sortOrder: z.number().int().optional().default(0),
-  })).optional(),
+  })).optional()
 });
 
 const updateProductSchema = productSchema.partial();
@@ -61,7 +61,7 @@ const getProducts = async (req, res) => {
       where: whereClause,
       skip,
       take,
-      include: { images: true },
+      include: { images: true }
     });
 
     const totalCount = await prisma.product.count({ where: whereClause });
