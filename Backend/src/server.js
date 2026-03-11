@@ -22,6 +22,9 @@ app.use("/products", productRoutes);
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
+const cartRoutes = require('./routes/cartRoutes');
+app.use("/api/cart", cartRoutes);
+
 // Error handling middleware for Multer
 const { sendError } = require('./utils/response');
 

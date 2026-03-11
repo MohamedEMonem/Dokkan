@@ -34,18 +34,16 @@
     "minio": "^7.0.26",
     "multer": "^2.0.2",
     "nodemon": "^3.1.11",
+    "redis": "^5.11.0",
     "sharp": "^0.34.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.3.0",
-    "nodemon": "^3.1.11",
-    "prisma": "^6.19.2",
     "@types/node": "^25.2.3",
+    "nodemon": "^3.1.11",
     "prisma": "^7.4.1"
   },
   "prisma": {
-  "schema": "Backend/src/prisma/schema.prisma"
-}
-  
+    "schema": "Backend/src/prisma/schema.prisma"
+  }
 }
