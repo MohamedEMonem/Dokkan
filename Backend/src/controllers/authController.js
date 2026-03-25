@@ -39,7 +39,7 @@ const createUser = async (req, res) => {
                 email,
                 password: hashedPassword,
                 name,
-                role: role || "user", //added to test storeOwner temperarily
+                // role: role || "user", //added to test storeOwner temperarily
             },
             select: {
                 id: true,
@@ -71,3 +71,17 @@ const createUser = async (req, res) => {
 module.exports = {
     register: createUser
 };
+
+
+
+// req.user
+// req.user.name = "new name";
+// jwt{ userId: user.id, email: user.email,role: user.role },
+
+// user{
+//     email
+//     id 
+//     role
+//     name = new name
+//     category
+// }

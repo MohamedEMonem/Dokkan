@@ -8,6 +8,8 @@ module.exports = {
     path: "src/prisma/migrations",
   },
   datasource: {
-    url: process.env.DATABASE_URL,
+    // Use a direct connection for Prisma CLI operations (migrations/introspection)
+    // to avoid PgBouncer prepared statement issues.
+    url: process.env.DIRECT_URL || process.env.DATABASE_URL,
   },
 };
