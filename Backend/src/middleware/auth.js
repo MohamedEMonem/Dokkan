@@ -2,7 +2,14 @@ const jwt = require("jsonwebtoken");
 const prisma = require("../prisma/client");
 const { sendUnauthorized, sendForbidden, sendServerError } = require("../utils/response");
 
-const JWT_SECRET = process.env.JWT_SECRET || "admin";
+const JWT_SECRET = process.env.JWT_SECRET;
+
+function getJwtSecret() {
+    if (!JWT_SECRET) {
+        throw new Error("JWT_SECRET is not configured");
+    }
+    return JWT_SECRET;
+}
 
 /**
  * Authentication middleware
@@ -18,7 +25,7 @@ const auth = async (req, res, next) => {
         }
 
         // Verify token
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, getJwtSecret());
 
         // Get user from database
         const user = await prisma.user.findUnique({
@@ -41,6 +48,8 @@ const auth = async (req, res, next) => {
         if (user.deletedAt) {
             return sendUnauthorized(res, "Account has been deleted.");
         }
+
+        user.name = user.name?.trimEnd();
 
         // Attach user to request
         req.user = user;
