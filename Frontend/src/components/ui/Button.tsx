@@ -4,28 +4,27 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
  * Variants
  * ──────────────────────────────────────────────────────── */
 const variantClasses = {
-  // ── Semantic hierarchy ─────────────────────────────────
-  /** Solid teal fill — most prominent CTA */
+  /** Solid teal fill */
   primary: "bg-primary hover:bg-primary-dark text-white",
-  /** Teal outline — second-level action */
+  /** Teal outline */
   secondary:
     "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-white",
-  /** Ghost / subtle — lowest-emphasis action */
+  /** Ghost / subtle  */
   tertiary: "text-primary hover:bg-primary/10",
 
   // ── Accent (Gold) ──────────────────────────────────────
-  /** Solid gold fill — e.g. featured / premium action */
+  /** Solid gold fill */
   accent: "bg-accent hover:bg-accent-dark text-white",
-  /** Gold outline — e.g. seller CTA */
+  /** Gold outline  */
   "outline-accent":
     "border-2 border-accent text-accent bg-transparent hover:bg-accent hover:text-white",
 
-  // ── Special contexts ───────────────────────────────────
-  /** White bg, teal text — for use on dark/gradient hero sections */
+  /** White bg, teal text */
   hero: "bg-white text-primary hover:bg-accent-light",
-  /** Glass effect — for use on dark/image backgrounds */
+  /** Glass effect */
   "outline-white":
-    "border-2 border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white hover:text-primary",
+    "border-2 border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white hover:text-primary"
+
 } as const;
 
 const baseClasses =
