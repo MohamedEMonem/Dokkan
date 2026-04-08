@@ -1,5 +1,5 @@
 const prisma = require("../prisma/client");
-const { z, object } = require("zod");
+const { z } = require("zod");
 const {
   sendSuccess,
   sendError,
