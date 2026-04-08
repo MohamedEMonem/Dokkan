@@ -119,13 +119,9 @@ const createProduct = async (req, res) => {
       userEmail: req.user?.email,
     });
 
-    const uploadedImageUrl = await uploadPublicImg(
-      req.file,
-      req.user?.email,
-      req.user?.role,
-      "product-images",
-    );
-
+    const uploadedImageUrl = req.file
+        ? await uploadPublicImg(req.file, req.user.email, req.user.role, "product-images")
+        : null;
     // console.log("2. Uploaded image URL:", uploadedImageUrl);
 
     // const {...parsedData} = req.body;
