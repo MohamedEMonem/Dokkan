@@ -1,4 +1,5 @@
 import type { SelectHTMLAttributes } from "react";
+import clsx from "clsx";
 
 /* ────────────────────────────────────────────────────────
  * Styles
@@ -44,7 +45,7 @@ export function Select({
       <div className="relative">
         <select
           id={id}
-          className={[baseClasses, className].join(" ")}
+          className={clsx(baseClasses, className)}
           {...rest}
         >
           {placeholder && <option value="">{placeholder}</option>}

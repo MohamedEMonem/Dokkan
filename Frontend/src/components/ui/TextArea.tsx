@@ -1,4 +1,5 @@
 import type { TextareaHTMLAttributes } from "react";
+import clsx from "clsx";
 
 /* ────────────────────────────────────────────────────────
  * Styles
@@ -30,7 +31,7 @@ export function TextArea({ label, className, id, ...rest }: TextAreaProps) {
       )}
       <textarea
         id={id}
-        className={[baseClasses, className].join(" ")}
+        className={clsx(baseClasses, className)}
         {...rest}
       />
     </div>

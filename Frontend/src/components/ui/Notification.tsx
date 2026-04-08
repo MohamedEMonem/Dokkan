@@ -1,4 +1,5 @@
 import { Check, X } from "lucide-react";
+import clsx from "clsx";
 import {
   ToastContainer,
   type ToastContent,
@@ -39,8 +40,14 @@ export const variantStyles: Record<
   NotificationVariant,
   NonNullable<ToastOptions["className"]>
 > = {
-  success: `${baseNotificationClass} bg-emerald-950 border border-emerald-900 !text-green-400`,
-  error: `${baseNotificationClass} bg-red-950 border border-red-900 !text-red-400`,
+  success: clsx(
+    baseNotificationClass,
+    "bg-emerald-950 border border-emerald-900 !text-green-400",
+  ),
+  error: clsx(
+    baseNotificationClass,
+    "bg-red-950 border border-red-900 !text-red-400",
+  ),
 };
 
 /* ────────────────────────────────────────────────────────
@@ -73,7 +80,7 @@ export const CustomCloseButton = ({
       onClick={() => closeToast?.()}
       type="button"
       aria-label={ariaLabel}
-      className={`${baseCloseButtonClass} ${variantClasses[type].closeButton}`}
+      className={clsx(baseCloseButtonClass, variantClasses[type].closeButton)}
     >
       <X size={12} strokeWidth={2.5} aria-hidden="true" />
     </button>
@@ -86,7 +93,7 @@ export const VariantIcon = ({ variant }: { variant: NotificationVariant }) => {
 
   return (
     <div
-      className={`${baseIconClass} ${variantClasses[variant].iconCircle}`}
+      className={clsx(baseIconClass, variantClasses[variant].iconCircle)}
       role="img"
       aria-label={ariaLabel}
     >

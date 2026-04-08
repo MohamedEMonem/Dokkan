@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import clsx from "clsx";
 
 /* ────────────────────────────────────────────────────────
  * Variants
@@ -24,7 +25,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
  * ──────────────────────────────────────────────────────── */
 export function Card({ variant = "default", className, children, ...rest }: CardProps) {
   return (
-    <div className={[variantClasses[variant], className].join(" ")} {...rest}>
+    <div className={clsx(variantClasses[variant], className)} {...rest}>
       {children}
     </div>
   );

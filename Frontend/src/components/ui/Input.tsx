@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
+import clsx from "clsx";
 
 /* ────────────────────────────────────────────────────────
  * Styles
@@ -35,7 +36,7 @@ export function Input({ label, icon, className, id, ...rest }: InputProps) {
           {label}
         </label>
       )}
-      <div className={[containerClasses, className].join(" ")}>
+      <div className={clsx(containerClasses, className)}>
         {icon && (
           <span className="flex items-center text-text-muted shrink-0">
             {icon}

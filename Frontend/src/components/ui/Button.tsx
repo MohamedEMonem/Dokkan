@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import clsx from "clsx";
 
 /* ────────────────────────────────────────────────────────
  * Styles
@@ -54,7 +55,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={[baseClasses, variantClasses[variant], className].join(" ")}
+      className={clsx(baseClasses, variantClasses[variant], className)}
       {...rest}
     >
       {children}
