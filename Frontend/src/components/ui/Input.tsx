@@ -1,5 +1,9 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 
+/* ────────────────────────────────────────────────────────
+ * Styles
+ * ──────────────────────────────────────────────────────── */
+
 const containerClasses =
   "w-full h-9 border-2 border-accent-light rounded-xl px-3 py-1 bg-bg-cream " +
   "flex items-center gap-2 " +

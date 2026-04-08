@@ -7,24 +7,10 @@ import {
 } from "react-toastify";
 
 /* ────────────────────────────────────────────────────────
- * Types
- * ──────────────────────────────────────────────────────── */
-export type NotificationVariant = "success" | "error";
-
-export interface NotificationProps {
-  message: ToastContent;
-  variant?: NotificationVariant;
-  options?: ToastOptions;
-}
-
-export interface CustomCloseButtonProps extends CloseButtonProps {
-  type: NotificationVariant;
-}
-
-/* ────────────────────────────────────────────────────────
  * Styles
  * ──────────────────────────────────────────────────────── */
 const baseIconClass = "flex h-5 w-5 items-center justify-center rounded-full";
+
 const baseCloseButtonClass =
   `
   absolute -top-2 -right-2 flex h-5 w-5 
@@ -56,6 +42,21 @@ export const variantStyles: Record<
   success: `${baseNotificationClass} bg-emerald-950 border border-emerald-900 !text-green-400`,
   error: `${baseNotificationClass} bg-red-950 border border-red-900 !text-red-400`,
 };
+
+/* ────────────────────────────────────────────────────────
+ * Types
+ * ──────────────────────────────────────────────────────── */
+export type NotificationVariant = "success" | "error";
+
+export interface NotificationProps {
+  message: ToastContent;
+  variant?: NotificationVariant;
+  options?: ToastOptions;
+}
+
+export interface CustomCloseButtonProps extends CloseButtonProps {
+  type: NotificationVariant;
+}
 
 /* ────────────────────────────────────────────────────────
  * Component helpers

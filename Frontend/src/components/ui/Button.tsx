@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 /* ────────────────────────────────────────────────────────
- * Variants
+ * Styles
  * ──────────────────────────────────────────────────────── */
 const variantClasses = {
   /** Solid teal fill */

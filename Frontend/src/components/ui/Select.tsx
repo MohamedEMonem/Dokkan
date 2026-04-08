@@ -1,5 +1,8 @@
 import type { SelectHTMLAttributes } from "react";
 
+/* ────────────────────────────────────────────────────────
+ * Styles
+ * ──────────────────────────────────────────────────────── */
 const baseClasses =
   "w-full h-12 border-2 border-accent-light rounded-xl px-5 text-base text-text-dark bg-white font-[inherit] " +
   "outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 " +

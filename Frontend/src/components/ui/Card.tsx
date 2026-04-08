@@ -20,7 +20,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /* ────────────────────────────────────────────────────────
- * Card
+ * Component
  * ──────────────────────────────────────────────────────── */
 export function Card({ variant = "default", className, children, ...rest }: CardProps) {
   return (

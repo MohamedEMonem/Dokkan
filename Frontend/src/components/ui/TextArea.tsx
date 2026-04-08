@@ -1,5 +1,8 @@
 import type { TextareaHTMLAttributes } from "react";
 
+/* ────────────────────────────────────────────────────────
+ * Styles
+ * ──────────────────────────────────────────────────────── */
 const baseClasses =
   "w-full border-2 border-accent-light rounded-xl px-5 py-4 text-base text-text-dark bg-bg-cream font-[inherit] " +
   "outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 " +
