@@ -272,7 +272,7 @@ const deleteProduct = async (req, res) => {
       return sendNotFound(res, "Product not found");
     }
 
-    // await verifyStoreAccess(req.user, existingProduct.storeId);
+    await verifyStoreAccess(req.user, existingProduct.storeId);
     console.log(
       "Product to be deleted:",
       existingProduct,
