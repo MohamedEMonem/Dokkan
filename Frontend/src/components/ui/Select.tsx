@@ -1,4 +1,5 @@
 import type { SelectHTMLAttributes } from "react";
+import { ChevronDown } from "lucide-react";
 import clsx from "clsx";
 
 /* ────────────────────────────────────────────────────────
@@ -57,9 +58,7 @@ export function Select({
         </select>
         {/* Chevron icon */}
         <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-text-muted">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 6l4 4 4-4" />
-          </svg>
+          <ChevronDown size={16} color="black" strokeWidth={2} aria-hidden="true" />
         </span>
       </div>
     </div>
