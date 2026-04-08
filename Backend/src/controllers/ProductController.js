@@ -28,8 +28,7 @@ const productSchema = z.object({
   storeId: z.coerce.string().uuid("Invalid store ID"), //int id
   // storeId: z.string().min(1).max(150), //string subdomain
 
-  stockQuantity: z.coerce.number().int().min(0).optional(),
-  objectName: z.string().optional(),
+  stockQuantity: z.coerce.number().int().min(0).optional()
 });
 
 const updateProductSchema = productSchema.partial();
