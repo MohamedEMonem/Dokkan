@@ -15,7 +15,7 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString() 
     }, 'Server is healthy');
 });
-app.use("/products", productRoutes);
+app.use("/api/products", productRoutes);
 
 // app.use('/uploads',uploadRoutes);
 
