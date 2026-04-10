@@ -8,6 +8,7 @@ import {
   ChevronDown,
   User,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -68,12 +69,12 @@ const iconActions = [
 // ─── SubNavItem ──────────────────────────────────────────────────────────────
 function SubNavItem({ label, href }: SubItem) {
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       className="px-4 py-2 text-sm text-text-dark hover:bg-bg-cream hover:text-primary rounded-lg transition-colors"
     >
       {label}
-    </a>
+    </Link>
   );
 }
 
@@ -88,8 +89,8 @@ function NavItem({ item }: { item: NavItemData }) {
       onMouseLeave={() => setOpen(false)}
     >
       {/* Trigger */}
-      <a
-        href={item.href}
+      <Link
+        to={item.href}
         className="flex items-center gap-1 px-3 py-2 text-sm text-text-dark hover:text-primary transition-colors"
       >
         <span>{item.label}</span>
@@ -98,7 +99,7 @@ function NavItem({ item }: { item: NavItemData }) {
             className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           />
         )}
-      </a>
+      </Link>
 
       {/* Dropdown */}
       {item.subItems && open && (
@@ -122,12 +123,12 @@ export default function Header() {
       <div className="container mx-auto ps-8 pe-4 md:ps-12 md:pe-6">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 shrink-0">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
             <div className="w-10 h-10 bg-linear-to-br from-primary to-primary-light rounded-xl flex items-center justify-center">
               <Store className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl text-primary">دكان</span>
-          </a>
+          </Link>
 
           {/* Nav links */}
           <nav className="hidden lg:flex items-center gap-6">
@@ -152,16 +153,16 @@ export default function Header() {
           {/* Icon actions */}
           <div className="flex items-center gap-4">
             {iconActions.map((action, idx) => (
-              <a
+              <Link
                 key={idx}
-                href={action.href}
+                to={action.href}
                 className="relative"
                 aria-label={action.ariaLabel}
               >
                 <button className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors cursor-pointer">
                   {action.icon}
                 </button>
-              </a>
+              </Link>
             ))}
 
             {/* Mobile menu toggle */}

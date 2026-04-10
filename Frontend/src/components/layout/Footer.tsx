@@ -1,4 +1,5 @@
 import { Mail, Store } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // ─── Brand icons (removed from lucide-react v1+) ───────────────────────────
 const FacebookIcon = () => (
@@ -90,9 +91,9 @@ function NavItem({ label, href, route }: NavItemProps) {
   return (
     <li>
       {route ? (
-        <a className={cls} href={href}>
+        <Link className={cls} to={href}>
           {label}
-        </a>
+        </Link>
       ) : (
         <a className={cls} href={href}>
           {label}
@@ -119,8 +120,8 @@ export default function Footer() {
             justifyContent: "flex-start",
           }}
         >
-          <a
-            href="/"
+          <Link
+            to="/"
             style={{
               display: "flex",
               alignItems: "center",
@@ -132,7 +133,7 @@ export default function Footer() {
               <Store className="w-6 h-6 text-white" />
             </div>
             <span className="text-lg text-white">{COMPANY_NAME}</span>
-          </a>
+          </Link>
           <p
             className="text-sm text-gray-400 leading-relaxed"
             style={{ marginBottom: "24px", maxWidth: "280px" }}
