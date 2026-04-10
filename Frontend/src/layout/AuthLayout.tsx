@@ -1,5 +1,3 @@
-import { Store } from "lucide-react";
-
 export default function AuthLayout() {
   return (
     <div className="min-h-screen bg-linear-to-br from-bg-cream via-bg-cream to-accent-light py-12">
