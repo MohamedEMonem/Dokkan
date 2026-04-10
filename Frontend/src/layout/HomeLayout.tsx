@@ -6,7 +6,7 @@ export default function HomeLayout() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <div className='container mx-auto px-4 w-full h-[250px] bg-primary' >
+        <div className='container mx-auto px-4'>
           <p>Hero</p>
         </div>
       </main>
