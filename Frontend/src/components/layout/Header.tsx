@@ -103,8 +103,8 @@ function NavItem({ item }: { item: NavItemData }) {
 
       {/* Dropdown */}
       {item.subItems && open && (
-        <div className="absolute top-full right-0 pt-4 z-50 justify-center items-center">
-          <div className="w-56 bg-white border justify-center border-accent-light rounded-xl shadow-lg p-3 flex flex-col gap-3">
+        <div className="absolute right-0 pt-2 pb-2 z-50">
+          <div className="w-48 bg-white border justify-center border-accent-light rounded-xl shadow-lg p-3 flex flex-col gap-1">
             {item.subItems.map((sub, i) => (
               <SubNavItem key={i} label={sub.label} href={sub.href} />
             ))}
@@ -118,10 +118,7 @@ function NavItem({ item }: { item: NavItemData }) {
 // ─── Header ──────────────────────────────────────────────────────────────────
 export default function Header() {
   return (
-    <header
-      className="sticky top-0 z-60 bg-white border-b shadow-sm"
-      dir="rtl"
-    >
+    <header className="sticky top-0 z-60 bg-white border-b shadow-sm">
       <div className="container mx-auto ps-8 pe-4 md:ps-12 md:pe-6">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
