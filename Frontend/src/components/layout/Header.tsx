@@ -71,7 +71,7 @@ function SubNavItem({ label, href }: SubItem) {
   return (
     <Link
       to={href}
-      className="px-4 py-2 text-sm text-text-dark hover:bg-bg-cream hover:text-primary rounded-lg transition-colors"
+      className="w-full h-9 px-4 py-2 text-sm text-text-dark hover:bg-bg-cream hover:text-primary rounded-lg transition-colors"
     >
       {label}
     </Link>
@@ -103,10 +103,12 @@ function NavItem({ item }: { item: NavItemData }) {
 
       {/* Dropdown */}
       {item.subItems && open && (
-        <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-accent-light rounded-xl shadow-lg p-3 flex flex-col gap-2 z-50">
-          {item.subItems.map((sub, i) => (
-            <SubNavItem key={i} label={sub.label} href={sub.href} />
-          ))}
+        <div className="absolute top-full right-0 pt-4 z-50 justify-center items-center">
+          <div className="w-56 bg-white border justify-center border-accent-light rounded-xl shadow-lg p-3 flex flex-col gap-3">
+            {item.subItems.map((sub, i) => (
+              <SubNavItem key={i} label={sub.label} href={sub.href} />
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -131,7 +133,7 @@ export default function Header() {
           </Link>
 
           {/* Nav links */}
-          <nav className="hidden lg:flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-10">
             {navItems.map((item, idx) => (
               <NavItem key={idx} item={item} />
             ))}
