@@ -1,18 +1,24 @@
-const { bucketExistsAsync,
+import { bucketExistsAsync,
     makeBucketAsync,
     setBucketPolicyAsync,
     putObjectAsync,
     setupBucket,
         deleteObjectAsync
-} = require("../utils/minioClient")
-const minioClient = require("../../minio.config.js");
+} from "../utils/minioClient.js";
+import minioClient from "../config/minio.config.js";
 
-const crypto = require('crypto');
-const sharp = require('sharp');
+import crypto from "crypto";
+import sharp from "sharp";
 
 const publicBucketName = "dokkan-public-assets"
 
 
+/**
+ * Normalize a string for safe use in object paths.
+ * @param {string} name Input value to sanitize.
+ * @param {number} [maxLen=63] Maximum output length.
+ * @returns {string}
+ */
 const sanitizer =(name, maxLen = 63) => {
     if (!name) return '';
     let s = String(name).toLowerCase();
@@ -24,6 +30,11 @@ const sanitizer =(name, maxLen = 63) => {
 };
 
 
+/**
+ * Optimize an image buffer and convert it to webp.
+ * @param {Buffer} buffer Original image buffer.
+ * @returns {Promise<Buffer>}
+ */
 const optimizedImageBuffer =async(buffer)=> {
     try {
         
@@ -39,6 +50,15 @@ const optimizedImageBuffer =async(buffer)=> {
 
         }
 
+/**
+ * Build a deterministic object path for uploaded images.
+ * @param {object} params
+ * @param {string} params.clientRole User role segment in path.
+ * @param {string} params.subFolder Logical subfolder segment in path.
+ * @param {string} params.clientEmail User email used to derive owner segment.
+ * @param {string} params.fileName Original file name.
+ * @returns {string}
+ */
 const determinePathName=({clientRole,subFolder,clientEmail,fileName})=>{
         const uniqeId= crypto.randomBytes(8).toString('hex');
         
@@ -48,6 +68,14 @@ const determinePathName=({clientRole,subFolder,clientEmail,fileName})=>{
 
 }
 
+/**
+ * Upload an optimized image to the public MinIO bucket.
+ * @param {Express.Multer.File} file Uploaded file from multer.
+ * @param {string} clientEmail Email of the uploading user.
+ * @param {string} clientRole Role of the uploading user.
+ * @param {string} subFolder Folder segment inside the role path.
+ * @returns {Promise<string>} Public image URL.
+ */
 const uploadPublicImg = async (file, clientEmail, clientRole, subFolder) => {
     try {
         if (!(file && clientEmail && clientRole)) throw new Error("Missing required parameters");
@@ -69,6 +97,11 @@ const uploadPublicImg = async (file, clientEmail, clientRole, subFolder) => {
 
 }
 
+/**
+ * Delete an object from the public MinIO bucket using its full URL.
+ * @param {string} imgUrl Public URL of the stored image.
+ * @returns {Promise<void>}
+ */
 const deletePublicImg = async (imgUrl) => {
     // take the object path after the bucket name
     if (!imgUrl) return;
@@ -82,7 +115,7 @@ const deletePublicImg = async (imgUrl) => {
     await deleteObjectAsync(publicBucketName, objectName);
 }
 
-module.exports = {
+export {
     uploadPublicImg,
     deletePublicImg
 };

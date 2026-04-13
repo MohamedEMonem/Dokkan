@@ -1,6 +1,8 @@
-require("dotenv/config");
-const { PrismaPg } = require("@prisma/adapter-pg");
-const { PrismaClient } = require("../generated/prisma");
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
+import generatedPrisma from "../generated/prisma/index.js";
+
+const { PrismaClient } = generatedPrisma;
 
 const connectionString = process.env.DATABASE_URL;
 const adapter = new PrismaPg({ connectionString });
