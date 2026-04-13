@@ -1,9 +1,12 @@
-require('dotenv').config();
-const express = require('express');
+import dotenv from "dotenv";
+import express from "express";
+import { sendSuccess, sendError } from "./utils/response.js";
+import productRoutes from "./routes/productRoutes.js";
+import authRoutes from "./routes/auth.js";
+
+dotenv.config();
 const app = express();
-const { sendSuccess } = require('./utils/response');
 // const uploadRoutes = require('./routes/upload.js');
-const productRoutes = require('./routes/productRoutes.js');
 
 // Middleware
 app.use(express.json());
@@ -19,15 +22,12 @@ app.use("/api/products", productRoutes);
 
 // app.use('/uploads',uploadRoutes);
 
-const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
 const cartRoutes = require('./routes/cartRoutes');
 app.use("/api/cart", cartRoutes);
 
 // Error handling middleware for Multer
-const { sendError } = require('./utils/response');
-
 
 const PORT = process.env.PORT || 3000;
 

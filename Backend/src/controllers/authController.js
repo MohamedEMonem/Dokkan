@@ -1,15 +1,14 @@
-const prisma = require("../prisma/client");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { sendSuccess, sendError, sendServerError } = require("../utils/response");
-
-const JWT_SECRET = process.env.JWT_SECRET;
+import prisma from "../prisma/client.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { sendSuccess, sendError, sendServerError } from "../utils/response.js";
 
 function getJwtSecret() {
-    if (!JWT_SECRET) {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
         throw new Error("JWT_SECRET is not configured");
     }
-    return JWT_SECRET;
+    return jwtSecret;
 }
 
 // Reusable select for public user fields (never expose password)
@@ -34,7 +33,7 @@ function trimUser(user) {
 
 const register = async (req, res) => {
     try {
-        const { email, password, name } = req.body;
+        const { email, password, name } = req.body.data ;
         const normalizedName = typeof name === "string" ? name.trim() : "";
 
         // Validation
@@ -262,7 +261,7 @@ const deleteAccount = async (req, res) => {
     }
 };
 
-module.exports = {
+export {
     register,
     login,
     getProfile,

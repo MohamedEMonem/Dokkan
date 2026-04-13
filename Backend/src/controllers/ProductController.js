@@ -1,18 +1,16 @@
-const prisma = require("../prisma/client");
-const { z } = require("zod");
-const {
+import prisma from "../prisma/client.js";
+import { z } from "zod";
+import {
   sendSuccess,
   sendError,
   sendServerError,
   sendForbidden,
   sendNotFound,
   sendValidationError,
-} = require("../utils/response");
+} from "../utils/response.js";
 // const { imgUploadHandler } = require("../utils/minioClient");
-const {
-  uploadPublicImg,
-  deletePublicImg,
-} = require("../services/imgStorageService");
+import { uploadPublicImg, deletePublicImg } from "../services/imgStorageService.js";
+
 
 const productSchema = z.object({
   title: z.string().min(1).max(150),
@@ -301,7 +299,7 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getProducts,
   createProduct,
   updateProduct,

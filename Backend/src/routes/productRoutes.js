@@ -1,11 +1,10 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 // const {upload,productImgUploadHandler} = require('../controllers/uploadController');
-const {upload}=require("../middleware/uploadValidator");
+import { upload } from "../middleware/uploadValidator.js";
 
-const ProductController = require("../controllers/ProductController");
-const { auth, authStoreOwner } = require("../middleware/auth");
-const { imgUploadHandler } = require("../utils/minioClient");
+import * as ProductController from "../controllers/ProductController.js";
+import { auth, authStoreOwner } from "../middleware/auth.js";
 
 router.get("/", ProductController.getProducts);
 
@@ -13,7 +12,10 @@ router.get("/", ProductController.getProducts);
 // router.use(authStoreOwner);
 
 // router.post("/", upload.single("product"),productImgUploadHandler,ProductController.createProduct);
+
+
 router.post("/",auth,authStoreOwner,upload.single("image"),ProductController.createProduct);
 router.patch("/:id", auth, authStoreOwner, upload.single("image"), ProductController.updateProduct);
 router.delete("/:id", auth, authStoreOwner, ProductController.deleteProduct);
-module.exports = router;
+
+export default router;

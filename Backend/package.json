@@ -4,7 +4,7 @@
   "description": "backend of dokkan",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "./src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -15,8 +15,8 @@
     "infra:logs": "docker compose logs -f",
     "infra:clean": "docker compose down -v",
     "infra:FullClean": "docker system prune -a --volumes",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio",
+    "db:migrate": "prisma migrate dev --schema src/prisma/schema.prisma",
+    "db:studio": "prisma studio --schema src/prisma/schema.prisma",
     "db:seed": "node src/prisma/seed.js",
     "lint": "nx run-many -t lint --all",
     "lint:api": "nx lint api",
@@ -39,11 +39,12 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.0",
+    "is-extglob": "^2.1.1",
     "nodemon": "^3.1.11",
     "prisma": "^7.4.1"
   },
   "prisma": {
-    "schema": "Backend/src/prisma/schema.prisma"
+    "schema": "src/prisma/schema.prisma"
   }
 }
