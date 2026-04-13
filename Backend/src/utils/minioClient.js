@@ -1,5 +1,5 @@
-const { resolve } = require('path');
-const minioClient = require('../../minio.config.js');
+import { resolve } from "path";
+import minioClient from "../config/minio.config.js";
 
 
 
@@ -93,7 +93,7 @@ const deleteObjectAsync=(bucketName,objectName)=> new Promise((resolve,reject)=>
 })
 
 
-module.exports = {
+export {
     bucketExistsAsync,
     makeBucketAsync,
     setBucketPolicyAsync,

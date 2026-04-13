@@ -1,4 +1,4 @@
-const {deleteBucketAsync, setupBucket}=require('./utils/minioClient')
+import { deleteBucketAsync, setupBucket } from "./utils/minioClient.js";
 
 
 
