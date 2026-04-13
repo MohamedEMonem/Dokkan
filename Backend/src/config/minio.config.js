@@ -1,4 +1,4 @@
-const Minio = require("minio");
+import * as Minio from "minio";
 
 const minioClient = new Minio.Client({
   endPoint: "localhost",
@@ -8,4 +8,4 @@ const minioClient = new Minio.Client({
   secretKey: process.env.MINIO_ROOT_PASSWORD || "rootpassword",
 });
 
-module.exports = minioClient;
+export default minioClient;

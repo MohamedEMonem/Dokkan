@@ -1,6 +1,6 @@
-const prisma = require("../prisma/client");
-const { z } = require("zod");
-const { sendSuccess, sendError, sendServerError, sendNotFound, sendValidationError } = require("../utils/response");
+import prisma from "../prisma/client.js";
+import { z } from "zod";
+import { sendSuccess, sendError, sendServerError, sendNotFound, sendValidationError } from "../utils/response.js";
 
 const categorySchema = z.object({
     name: z.string().min(1).max(100),
@@ -126,7 +126,7 @@ const deleteCategory = async (req, res) => {
     }
 };
 
-module.exports = {
+export {
     getCategories,
     createCategory,
     updateCategory,

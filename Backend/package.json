@@ -4,7 +4,7 @@
   "description": "backend of dokkan",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "./src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -15,8 +15,8 @@
     "infra:logs": "docker compose logs -f",
     "infra:clean": "docker compose down -v",
     "infra:FullClean": "docker system prune -a --volumes",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio",
+    "db:migrate": "prisma migrate dev --schema src/prisma/schema.prisma",
+    "db:studio": "prisma studio --schema src/prisma/schema.prisma",
     "db:seed": "node src/prisma/seed.js",
     "lint": "nx run-many -t lint --all",
     "lint:api": "nx lint api",
@@ -24,18 +24,26 @@
     "lint:api:fix": "nx lint api -- --fix"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.4.0",
+    "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "^7.4.0",
     "bcryptjs": "^3.0.3",
+    "crypto": "^1.0.1",
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "minio": "^7.0.26",
     "multer": "^2.0.2",
     "nodemon": "^3.1.11",
+    "sharp": "^0.34.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.0",
+    "is-extglob": "^2.1.1",
+    "nodemon": "^3.1.11",
     "prisma": "^7.4.1"
+  },
+  "prisma": {
+    "schema": "src/prisma/schema.prisma"
   }
 }

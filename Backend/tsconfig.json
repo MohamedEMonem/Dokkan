@@ -5,9 +5,12 @@
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "strict": true,
-    "outDir": "dist",
+    "outDir": "./dist",
+    "allowJs": true,            // Essential for incremental migration
+    "checkJs": false,
+    "rootDir": "./src",
     "types": ["node"]
   },
-  "include": ["**/*.ts", "minio.config.js", "src/controllers/uploadController.js", "src/routes/upload.js"],
+  "include": ["**/*.ts", "src/config/minio.config.js", "src/utils/minioClient.js", "src/routes/upload.js"],
   "exclude": ["node_modules", "dist"]
 }

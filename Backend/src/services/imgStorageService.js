@@ -1,0 +1,121 @@
+import { bucketExistsAsync,
+    makeBucketAsync,
+    setBucketPolicyAsync,
+    putObjectAsync,
+    setupBucket,
+        deleteObjectAsync
+} from "../utils/minioClient.js";
+import minioClient from "../config/minio.config.js";
+
+import crypto from "crypto";
+import sharp from "sharp";
+
+const publicBucketName = "dokkan-public-assets"
+
+
+/**
+ * Normalize a string for safe use in object paths.
+ * @param {string} name Input value to sanitize.
+ * @param {number} [maxLen=63] Maximum output length.
+ * @returns {string}
+ */
+const sanitizer =(name, maxLen = 63) => {
+    if (!name) return '';
+    let s = String(name).toLowerCase();
+    s = s.replace(/[^a-z0-9-]/g, '-');
+    s = s.replace(/-+/g, '-'); 
+    s = s.replace(/^-|-$/g, '');
+    if (s.length > maxLen) s = s.slice(0, maxLen);
+    return s;
+};
+
+
+/**
+ * Optimize an image buffer and convert it to webp.
+ * @param {Buffer} buffer Original image buffer.
+ * @returns {Promise<Buffer>}
+ */
+const optimizedImageBuffer =async(buffer)=> {
+    try {
+        
+            const optimizedBuffer = await sharp(buffer)
+            .resize({ width: 800, height: 800, fit: 'inside' })
+            .webp({ quality: 80 })
+            .toBuffer();
+        return optimizedBuffer;
+
+    } catch (error) {
+        throw error;
+    }
+
+        }
+
+/**
+ * Build a deterministic object path for uploaded images.
+ * @param {object} params
+ * @param {string} params.clientRole User role segment in path.
+ * @param {string} params.subFolder Logical subfolder segment in path.
+ * @param {string} params.clientEmail User email used to derive owner segment.
+ * @param {string} params.fileName Original file name.
+ * @returns {string}
+ */
+const determinePathName=({clientRole,subFolder,clientEmail,fileName})=>{
+        const uniqeId= crypto.randomBytes(8).toString('hex');
+        
+
+
+    return `${clientRole}/${subFolder}/${sanitizer(clientEmail.split("@")[0])}/${sanitizer(fileName)}-${uniqeId}.webp`;
+
+}
+
+/**
+ * Upload an optimized image to the public MinIO bucket.
+ * @param {Express.Multer.File} file Uploaded file from multer.
+ * @param {string} clientEmail Email of the uploading user.
+ * @param {string} clientRole Role of the uploading user.
+ * @param {string} subFolder Folder segment inside the role path.
+ * @returns {Promise<string>} Public image URL.
+ */
+const uploadPublicImg = async (file, clientEmail, clientRole, subFolder) => {
+    try {
+        if (!(file && clientEmail && clientRole)) throw new Error("Missing required parameters");
+
+        const fileName = file.originalname;
+        console.log("Received file for upload:", { fileName, clientEmail, clientRole, subFolder });
+        const objectName = determinePathName({ clientRole, subFolder, clientEmail, fileName: fileName });
+
+        const buffer = await optimizedImageBuffer(file.buffer);
+
+        await putObjectAsync({ bucket: publicBucketName, objectName, buffer, size: buffer.length, meta: { "Content-Type": "image/webp" } });
+
+        const imgUrl = `${process.env.MINIO_PUBLIC_URL}/${publicBucketName}/${objectName}`;
+        return imgUrl;
+    }
+    catch (err) {
+        throw err;
+    }
+
+}
+
+/**
+ * Delete an object from the public MinIO bucket using its full URL.
+ * @param {string} imgUrl Public URL of the stored image.
+ * @returns {Promise<void>}
+ */
+const deletePublicImg = async (imgUrl) => {
+    // take the object path after the bucket name
+    if (!imgUrl) return;
+    const marker = `${publicBucketName}/`;
+    const idx = imgUrl.indexOf(marker);
+    if (idx === -1) {
+        console.warn("deletePublicImg: URL does not contain bucket name", imgUrl);
+        return;
+    }
+    const objectName = imgUrl.substring(idx + marker.length);
+    await deleteObjectAsync(publicBucketName, objectName);
+}
+
+export {
+    uploadPublicImg,
+    deletePublicImg
+};

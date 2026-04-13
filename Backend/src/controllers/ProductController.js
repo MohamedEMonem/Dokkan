@@ -1,14 +1,15 @@
-const prisma = require("../prisma/client");
-const { z, object } = require("zod");
-const {
+import prisma from "../prisma/client.js";
+import { z } from "zod";
+import {
   sendSuccess,
   sendError,
   sendServerError,
   sendForbidden,
   sendNotFound,
   sendValidationError,
-} = require("../utils/response");
-const { productImgUploadHandler } = require("./uploadController");
+} from "../utils/response.js";
+// const { imgUploadHandler } = require("../utils/minioClient");
+import { uploadPublicImg, deletePublicImg } from "../services/imgStorageService.js";
 
 
 const productSchema = z.object({
@@ -22,7 +23,9 @@ const productSchema = z.object({
 
   price: z.coerce.number().positive("Price must be greater than zero"),
   categoryId: z.coerce.number().int(),
-  storeId: z.coerce.number().int(),
+  storeId: z.coerce.number().int(),//int id
+  // storeId: z.string().min(1).max(150), //string subdomain
+
   stockQuantity: z.coerce.number().int().min(0).optional(),
   images: z.array(z.object({
     imageUrl: z.string().url("Invalid image URL"),
@@ -96,27 +99,35 @@ const getProducts = async (req, res) => {
 // POST /api/products
 const createProduct = async (req, res) => {
   try {
-
-    console.log("1. Did Multer find a file?", req.file ? "YES" : "NO");
-    console.log("2. Did Middleware attach images?", req.images ? "YES" : "NO");
+    // Call upload handler and handle errors
+    // await new Promise((resolve, reject) => {
+    //   imgUploadHandler(req, res, (err) => {
+    //     if (err) return reject(err);
+    //     resolve();
+    //   });
+    // });
     const validation = productSchema.safeParse(req.body);
     if (!validation.success) {
       return sendValidationError(res, validation.error.format());
     }
+    const { ...parsedData } = validation.data;
+    //     console.log("Create Product parameters:", req.user );
+    // console.log("1. Did Multer find a file?", req.file ? "YES" : "NO");
 
-    const {...parsedData} = validation.data;
+    // console.log( "test result: " + req.user.id + " - " + req.user.email + " - " + req.user.role);
+    console.log("DEBUG CHECK:", { fileExists: !!req.file, userId: req.user?.id, userEmail: req.user?.email });
+
+    const uploadedImageUrl = await uploadPublicImg(req.file, req.user?.email, req.user?.role, "product-images")
+
+
+    // console.log("2. Uploaded image URL:", uploadedImageUrl);    
+
     // const {...parsedData} = req.body;
-    let uploadResult = undefined;
-    if (req.images && req.images.length > 0) {
-      uploadResult = {
-        imageUrl: req.images[0].imageUrl,
-        objectName: req.uploadedObjectName,
-      };
-    }
+
     // await verifyStoreAccess(req.user, parsedData.storeId); /// temporarily disabled for testing without auth
 
-     const newProduct = await prisma.product.create({
-      data: {...parsedData, images: uploadResult ? { create: [{ imageUrl: uploadResult.imageUrl, sortOrder: 0 }] } : undefined },
+    const newProduct = await prisma.product.create({
+      data: { ...parsedData, images: uploadedImageUrl ? { create: [{ imageUrl: uploadedImageUrl, sortOrder: 0 }] } : undefined },
       include: { images: true }
     });
 
@@ -142,9 +153,11 @@ const createProduct = async (req, res) => {
       );
     if (error.message === "NOT_FOUND")
       return sendError(res, "Store not found.");
+    console.error("Create product error:", error);
     return sendServerError(res, "Failed to create product", error);
   }
-};
+}
+
 
 // PATCH /api/products/:id
 const updateProduct = async (req, res) => {
@@ -156,7 +169,7 @@ const updateProduct = async (req, res) => {
       return sendValidationError(res, validation.error.format());
     }
 
-    const {images, ...parsedData} = validation.data;
+    const { images, ...parsedData } = validation.data;
 
     const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
@@ -175,7 +188,13 @@ const updateProduct = async (req, res) => {
     const updatedPayload = { ...parsedData };
 
     if (images) {
-      updatedPayload.images = {deleteMany: {imageUrl: { in: existingProduct.images.map(img => img.imageUrl) }}, create: images };
+      updatedPayload.images = {
+        deleteMany: {
+           imageUrl: {
+             in: existingProduct.images.map(img => img.imageUrl)
+             } 
+          }, create: images
+      };
     }
 
     const updatedProduct = await prisma.product.update({
@@ -209,12 +228,23 @@ const deleteProduct = async (req, res) => {
 
     const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
+      include: { images: true }
     });
     if (!existingProduct || existingProduct.deletedAt) {
       return sendNotFound(res, "Product not found");
     }
 
-    await verifyStoreAccess(req.user, existingProduct.storeId);
+    // await verifyStoreAccess(req.user, existingProduct.storeId);
+    console.log("Product to be deleted:", existingProduct, " - images: ", existingProduct.images, " - url: ", existingProduct.images[0]?.imageUrl);
+    if (existingProduct.images && existingProduct.images.length > 0) {
+      for (const image of existingProduct.images) {
+        console.log("Deleting image URL inside the loop:", image.imageUrl);
+        await deletePublicImg(image.imageUrl);
+      }
+    }
+    else {
+      console.log("No images to delete for this product.");
+    }
 
     await prisma.product.update({
       where: { id: productId },
@@ -232,7 +262,7 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getProducts,
   createProduct,
   updateProduct,

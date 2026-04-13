@@ -1,28 +1,21 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const { 
-  auth,
-  authAdmin, 
-} = require("../middleware/auth");
-const { sendSuccess } = require("../utils/response");
+import { auth } from "../middleware/auth.js";
+import {
+    register,
+    login,
+    getProfile,
+    patchProfile,
+    deleteAccount
+} from "../controllers/authController.js";
 
-const {
- register,
-} = require("../controllers/authController");
-
-// Public routes (no authentication required)
+// Public routes
 router.post("/register", register);
+router.post("/login", login);
 
 // Protected routes (authentication required)
-router.get("/profile", auth, (req, res) => {
-    return sendSuccess(
-        res,
-        { user: req.user },
-        "Authenticated successfully"
-    );
-});
-// router.put("/profile", auth, updateProfile);
+router.get("/profile", auth, getProfile);
+router.patch("/profile", auth, patchProfile);
+router.delete("/profile", auth, deleteAccount);
 
-
-
-module.exports = router;
+export default router;
