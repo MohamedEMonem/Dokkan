@@ -22,16 +22,11 @@ const productSchema = z.object({
   // imageUrl: z.string().url("Invalid image URL").optional(),
 
   price: z.coerce.number().positive("Price must be greater than zero"),
-  categoryId: z.coerce.number().int(),
-  storeId: z.coerce.number().int(),//int id
+  categoryId: z.coerce.string().uuid("Invalid category ID"), //int id
+  storeId: z.coerce.string().uuid("Invalid store ID"), //int id
   // storeId: z.string().min(1).max(150), //string subdomain
 
-  stockQuantity: z.coerce.number().int().min(0).optional(),
-  images: z.array(z.object({
-    imageUrl: z.string().url("Invalid image URL"),
-    sortOrder: z.number().int().optional().default(0),
-  })).optional(),
-  objectName: z.string().optional()
+  stockQuantity: z.coerce.number().int().min(0).optional()
 });
 
 const updateProductSchema = productSchema.partial();
@@ -66,7 +61,7 @@ const getProducts = async (req, res) => {
 
     const whereClause = { deletedAt: null };
     if (store_id) {
-      whereClause.storeId = Number(store_id);
+      whereClause.storeId = store_id;
     }
 
     const products = await prisma.product.findMany({
@@ -115,20 +110,29 @@ const createProduct = async (req, res) => {
     // console.log("1. Did Multer find a file?", req.file ? "YES" : "NO");
 
     // console.log( "test result: " + req.user.id + " - " + req.user.email + " - " + req.user.role);
-    console.log("DEBUG CHECK:", { fileExists: !!req.file, userId: req.user?.id, userEmail: req.user?.email });
+    console.log("DEBUG CHECK:", {
+      fileExists: !!req.file,
+      userId: req.user?.id,
+      userEmail: req.user?.email,
+    });
 
-    const uploadedImageUrl = await uploadPublicImg(req.file, req.user?.email, req.user?.role, "product-images")
-
-
-    // console.log("2. Uploaded image URL:", uploadedImageUrl);    
+    const uploadedImageUrl = req.file
+        ? await uploadPublicImg(req.file, req.user.email, req.user.role, "product-images")
+        : null;
+    // console.log("2. Uploaded image URL:", uploadedImageUrl);
 
     // const {...parsedData} = req.body;
 
     // await verifyStoreAccess(req.user, parsedData.storeId); /// temporarily disabled for testing without auth
 
     const newProduct = await prisma.product.create({
-      data: { ...parsedData, images: uploadedImageUrl ? { create: [{ imageUrl: uploadedImageUrl, sortOrder: 0 }] } : undefined },
-      include: { images: true }
+      data: {
+        ...parsedData,
+        images: uploadedImageUrl
+          ? { create: [{ imageUrl: uploadedImageUrl, sortOrder: 0 }] }
+          : undefined,
+      },
+      include: { images: true },
     });
 
     // const newProduct = await prisma.product.create({
@@ -156,13 +160,12 @@ const createProduct = async (req, res) => {
     console.error("Create product error:", error);
     return sendServerError(res, "Failed to create product", error);
   }
-}
-
+};
 
 // PATCH /api/products/:id
 const updateProduct = async (req, res) => {
   try {
-    const productId = Number(req.params.id);
+    const productId = req.params.id;
 
     const validation = updateProductSchema.safeParse(req.body);
     if (!validation.success) {
@@ -173,7 +176,7 @@ const updateProduct = async (req, res) => {
 
     const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
-      include: { images: true }
+      include: { images: true },
     });
     if (!existingProduct || existingProduct.deletedAt) {
       return sendNotFound(res, "Product not found");
@@ -187,20 +190,48 @@ const updateProduct = async (req, res) => {
 
     const updatedPayload = { ...parsedData };
 
-    if (images) {
+    //If a new file is uploaded, physically delete the old ones first.
+    if (req.file) {
+      // Delete old images from MinIO
+      if (existingProduct.images && existingProduct.images.length > 0) {
+        for (const image of existingProduct.images) {
+          await deletePublicImg(image.imageUrl);
+        }
+      }
+
+      // Upload new image
+      const uploadedImageUrl = await uploadPublicImg(
+        req.file,
+        req.user?.email,
+        req.user?.role,
+        "product-images",
+      );
+
+      // Update database payload
       updatedPayload.images = {
         deleteMany: {
-           imageUrl: {
-             in: existingProduct.images.map(img => img.imageUrl)
-             } 
-          }, create: images
+          imageUrl: { in: existingProduct.images.map((img) => img.imageUrl) },
+        },
+        create: [{ imageUrl: uploadedImageUrl, sortOrder: 0 }],
+      };
+    } else if (req.body.removeImage === "true") {
+      // Allow frontend to delete an image without uploading a new one, FormData should include removeImage=true to trigger this (formData.append('removeImage', 'true'))
+      if (existingProduct.images && existingProduct.images.length > 0) {
+        for (const image of existingProduct.images) {
+          await deletePublicImg(image.imageUrl);
+        }
+      }
+      updatedPayload.images = {
+        deleteMany: {
+          imageUrl: { in: existingProduct.images.map((img) => img.imageUrl) },
+        },
       };
     }
 
     const updatedProduct = await prisma.product.update({
       where: { id: productId },
       data: updatedPayload,
-      include: { images: true }
+      include: { images: true },
     });
 
     return sendSuccess(
@@ -224,25 +255,31 @@ const updateProduct = async (req, res) => {
 // DELETE /api/products/:id
 const deleteProduct = async (req, res) => {
   try {
-    const productId = Number(req.params.id);
+    const productId = req.params.id;
 
     const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
-      include: { images: true }
+      include: { images: true },
     });
     if (!existingProduct || existingProduct.deletedAt) {
       return sendNotFound(res, "Product not found");
     }
 
-    // await verifyStoreAccess(req.user, existingProduct.storeId);
-    console.log("Product to be deleted:", existingProduct, " - images: ", existingProduct.images, " - url: ", existingProduct.images[0]?.imageUrl);
+    await verifyStoreAccess(req.user, existingProduct.storeId);
+    console.log(
+      "Product to be deleted:",
+      existingProduct,
+      " - images: ",
+      existingProduct.images,
+      " - url: ",
+      existingProduct.images[0]?.imageUrl,
+    );
     if (existingProduct.images && existingProduct.images.length > 0) {
       for (const image of existingProduct.images) {
         console.log("Deleting image URL inside the loop:", image.imageUrl);
         await deletePublicImg(image.imageUrl);
       }
-    }
-    else {
+    } else {
       console.log("No images to delete for this product.");
     }
 

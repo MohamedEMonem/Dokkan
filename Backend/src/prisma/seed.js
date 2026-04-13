@@ -14,7 +14,7 @@ async function main() {
   if (!user) {
     user = await prisma.user.create({
       data: {
-        id: 1,
+        
         name: "Test Owner",
         email: "owner@test.com",
         password: "hashedpassword",
@@ -28,7 +28,7 @@ async function main() {
   if (!store) {
     store = await prisma.store.create({
       data: {
-        id: 1001,
+        
         ownerId: user.id,
         name: "Test Store",
         subdomain: "teststore",
@@ -42,7 +42,7 @@ async function main() {
   if (!category) {
     category = await prisma.category.create({
       data: {
-        id: 2,
+        
         name: "Test Category",
       },
     });

@@ -18,11 +18,14 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString() 
     }, 'Server is healthy');
 });
-app.use("/products", productRoutes);
+app.use("/api/products", productRoutes);
 
 // app.use('/uploads',uploadRoutes);
 
 app.use("/api/auth", authRoutes);
+
+const cartRoutes = require('./routes/cartRoutes');
+app.use("/api/cart", cartRoutes);
 
 // Error handling middleware for Multer
 
