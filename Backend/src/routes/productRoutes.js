@@ -12,9 +12,7 @@ router.get("/", ProductController.getProducts);
 // router.use(authStoreOwner);
 
 // router.post("/", upload.single("product"),productImgUploadHandler,ProductController.createProduct);
-
-
-router.post("/",auth,authStoreOwner,upload.single("image"),ProductController.createProduct);
+router.post("/", auth, authStoreOwner, upload.single("image"), ProductController.createProduct);
 router.patch("/:id", auth, authStoreOwner, upload.single("image"), ProductController.updateProduct);
 router.delete("/:id", auth, authStoreOwner, ProductController.deleteProduct);
 

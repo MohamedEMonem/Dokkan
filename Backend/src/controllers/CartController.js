@@ -1,6 +1,6 @@
-const CartService = require("../services/CartService");
-const { sendSuccess, sendError, sendServerError, sendNotFound, sendValidationError } = require("../utils/response");
-const { z } = require("zod");
+import * as CartService from "../services/CartService.js";
+import { sendSuccess, sendError, sendServerError, sendNotFound, sendValidationError } from "../utils/response.js";
+import { z } from "zod";
 
 //  Zod Schemas
 
@@ -128,7 +128,7 @@ const clearCart = async (req, res) => {
     }
 };
 
-module.exports = {
+export {
     getCart,
     addItem,
     updateItem,

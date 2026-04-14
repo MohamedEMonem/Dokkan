@@ -1,4 +1,4 @@
-import prisma from "../prisma/client.js";
+import prisma from "../config/db.js";
 import { z } from "zod";
 import {
   sendSuccess,
@@ -61,7 +61,7 @@ const getProducts = async (req, res) => {
 
     const whereClause = { deletedAt: null };
     if (store_id) {
-      whereClause.storeId = store_id;
+      whereClause.storeId = String(store_id);
     }
 
     const products = await prisma.product.findMany({
@@ -110,16 +110,18 @@ const createProduct = async (req, res) => {
     // console.log("1. Did Multer find a file?", req.file ? "YES" : "NO");
 
     // console.log( "test result: " + req.user.id + " - " + req.user.email + " - " + req.user.role);
-    console.log("DEBUG CHECK:", {
+      console.log("DEBUG CHECK:", {
       fileExists: !!req.file,
       userId: req.user?.id,
       userEmail: req.user?.email,
     });
 
     const uploadedImageUrl = req.file
-        ? await uploadPublicImg(req.file, req.user.email, req.user.role, "product-images")
-        : null;
-    // console.log("2. Uploaded image URL:", uploadedImageUrl);
+      ? await uploadPublicImg(req.file, req.user?.email, req.user?.role, "product-images")
+      : null;
+
+
+    // console.log("2. Uploaded image URL:", uploadedImageUrl);    
 
     // const {...parsedData} = req.body;
 
@@ -160,7 +162,8 @@ const createProduct = async (req, res) => {
     console.error("Create product error:", error);
     return sendServerError(res, "Failed to create product", error);
   }
-};
+}
+
 
 // PATCH /api/products/:id
 const updateProduct = async (req, res) => {
@@ -279,7 +282,8 @@ const deleteProduct = async (req, res) => {
         console.log("Deleting image URL inside the loop:", image.imageUrl);
         await deletePublicImg(image.imageUrl);
       }
-    } else {
+    }
+    else {
       console.log("No images to delete for this product.");
     }
 

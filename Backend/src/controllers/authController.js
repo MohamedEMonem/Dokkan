@@ -1,4 +1,4 @@
-import prisma from "../prisma/client.js";
+import prisma from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendSuccess, sendError, sendServerError } from "../utils/response.js";
