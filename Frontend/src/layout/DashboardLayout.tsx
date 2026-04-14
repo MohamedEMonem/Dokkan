@@ -1,4 +1,7 @@
-export default function DashboardLayout({ userName = "Store Owner" }) {
+import { Outlet } from "react-router-dom";
+
+export default function DashboardLayout() {
+  const userName = "Store Owner"; // To be changed
   return (
     <div className="min-h-screen bg-bg-cream" dir="rtl">
       {/* Top banner */}
@@ -12,6 +15,9 @@ export default function DashboardLayout({ userName = "Store Owner" }) {
           مرحباً، {userName} 👋
         </div>
       </div>
+
+      <Outlet />
     </div>
+
   );
 }
