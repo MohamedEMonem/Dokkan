@@ -167,7 +167,7 @@ export default function Footer() {
         <div
           className="max-w-7xl mx-auto text-center text-sm text-gray-400 py-6! px-12!"
         >
-          <p>© 2026 دكان - جميع الحقوق محفوظة</p>
+          <p>© {new Date().getFullYear()} دكان - جميع الحقوق محفوظة</p>
         </div>
       </div>
     </footer>
