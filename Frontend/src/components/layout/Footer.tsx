@@ -38,7 +38,7 @@ const socialLinks = [
     ariaLabel: "Instagram",
   },
   {
-    icon: <Mail className="w-5.5 h-5.5" />,
+    icon: <Mail className="w-6 h-6" />,
     href: "mailto:info@dokkan.eg",
     ariaLabel: "Email",
   },
