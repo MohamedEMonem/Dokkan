@@ -3,6 +3,7 @@ import express from "express";
 import { sendSuccess, sendError } from "./utils/response.js";
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/auth.js";
+import storeRouter from "./routes/storeRouters.js";
 
 dotenv.config();
 const app = express();
@@ -19,6 +20,7 @@ app.get('/api/health', (req, res) => {
     }, 'Server is healthy');
 });
 app.use("/products", productRoutes);
+app.use("/stores", storeRouter);
 
 // app.use('/uploads',uploadRoutes);
 

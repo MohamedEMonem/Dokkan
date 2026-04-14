@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -50,7 +50,7 @@ enum StoreStatus {
 
 // Models
 model User {
-  id              Int       @id @default(autoincrement()) @map("user_id")
+  id              String       @id @default(uuid()) @map("user_id")
   name            String    @db.Char(50)
   email           String    @unique @db.VarChar(150)
   password        String    @db.VarChar(255)
@@ -76,9 +76,9 @@ model User {
 }
 
 model Store {
-  id              Int           @id @map("store_id")
-  ownerId         Int           @map("owner_id")
-  name            String        @db.Char(50)
+  id              String        @id @default(uuid()) @map("store_id")
+  ownerId         String        @map("owner_id")
+  name            String        @unique @db.Char(50)
   subdomain       String        @unique @db.VarChar(150)
   status          StoreStatus
   description     String?       @db.Text
@@ -115,7 +115,7 @@ model Plan {
 
 model Subscription {
   id              BigInt    @id @map("subscription_id")
-  storeId         Int       @map("store_id")
+  storeId         String    @map("store_id")
   planId          Int       @map("plan_id")
   status          String    @db.VarChar(50)
   nextBillingDate DateTime? @map("next_billing_date") @db.Timestamp(0)
@@ -142,7 +142,7 @@ model Category {
 
 model Product {
   id            Int           @id @default(autoincrement()) @map("product_id")
-  storeId       Int           @map("store_id")
+  storeId       String        @map("store_id")
   categoryId    Int           @map("category_id")
   title         String        @db.VarChar(150)
   description   String?       @db.Text
@@ -178,8 +178,8 @@ model ProductImage {
 
 model Order {
   id              Int           @id @map("order_id")
-  customerId      Int           @map("customer_id")
-  storeId         Int           @map("store_id")
+  customerId      String        @map("customer_id")
+  storeId         String        @map("store_id")
   status          OrderStatus   @default(Pending)
   shippingAddress Json?         @map("shipping_address")
   totalAmount     Decimal       @map("total_amount") @db.Decimal(10, 2)
@@ -215,7 +215,7 @@ model OrderItem {
 model Review {
   id            Int       @id @default(autoincrement()) @map("review_id")
   productId     Int       @map("product_id")
-  customerId    Int       @map("customer_id")
+  customerId    String    @map("customer_id")
   orderId       Int       @map("order_id")
   rating        Int
   reviewText    String?   @map("review_text") @db.Text
@@ -232,7 +232,7 @@ model Review {
 
 model Cart {
   id         Int       @id @default(autoincrement()) @map("cart_id")
-  customerId Int       @unique @map("customer_id")
+  customerId String    @unique @map("customer_id")
   expiresAt  DateTime? @map("expires_at") @db.Timestamp(0)
 
   // Relations
@@ -269,8 +269,8 @@ model PaymentTransaction {
 }
 
 model StoreEmployee {
-  userId      Int   @map("user_id")
-  storeId     Int   @map("store_id")
+  userId      String @map("user_id")
+  storeId     String @map("store_id")
   permissions Json?
 
   // Relations
@@ -283,9 +283,9 @@ model StoreEmployee {
 
 model Message {
   id         Int       @id @default(autoincrement()) @map("message_id")
-  senderId   Int       @map("sender_id")
-  receiverId Int       @map("receiver_id")
-  storeId    Int?      @map("store_id")
+  senderId   String    @map("sender_id")
+  receiverId String    @map("receiver_id")
+  storeId    String?   @map("store_id")
   content    String    @db.Text
   readStatus Boolean?  @default(false) @map("read_status")
   createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
@@ -300,7 +300,7 @@ model Message {
 
 model Notification {
   id         Int       @id @map("notification_id")
-  userId     Int       @map("user_id")
+  userId     String    @map("user_id")
   type       String    @db.VarChar(50)
   content    String    @db.VarChar(50)
   readStatus Boolean?  @default(false) @map("read_status")

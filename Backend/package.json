@@ -10,14 +10,16 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "dev:ts": "tsx watch src/server.ts",
+    "build": "tsc",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f",
     "infra:clean": "docker compose down -v",
     "infra:FullClean": "docker system prune -a --volumes",
-    "db:migrate": "prisma migrate dev --schema src/prisma/schema.prisma",
-    "db:studio": "prisma studio --schema src/prisma/schema.prisma",
-    "db:seed": "node src/prisma/seed.js",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "db:studio": "prisma studio --schema prisma/schema.prisma",
+    "db:seed": "node prisma/seed.js",
     "lint": "nx run-many -t lint --all",
     "lint:api": "nx lint api",
     "lint:fix": "nx run-many -t lint --all -- --fix",
@@ -38,12 +40,16 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.3.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
     "is-extglob": "^2.1.1",
     "nodemon": "^3.1.11",
-    "prisma": "^7.4.1"
+    "prisma": "^7.4.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
   },
   "prisma": {
-    "schema": "src/prisma/schema.prisma"
+    "schema": "prisma/schema.prisma"
   }
 }
