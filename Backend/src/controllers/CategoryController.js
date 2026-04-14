@@ -1,4 +1,4 @@
-import prisma from "../prisma/client.js";
+import prisma from "../config/db.js";
 import { z } from "zod";
 import { sendSuccess, sendError, sendServerError, sendNotFound, sendValidationError } from "../utils/response.js";
 

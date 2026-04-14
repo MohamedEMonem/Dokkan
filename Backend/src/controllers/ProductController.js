@@ -1,4 +1,4 @@
-import prisma from "../prisma/client.js";
+import prisma from "../config/db.js";
 import { z } from "zod";
 import {
   sendSuccess,
@@ -23,8 +23,7 @@ const productSchema = z.object({
 
   price: z.coerce.number().positive("Price must be greater than zero"),
   categoryId: z.coerce.number().int(),
-  storeId: z.coerce.number().int(),//int id
-  // storeId: z.string().min(1).max(150), //string subdomain
+  storeId: z.string().min(1),
 
   stockQuantity: z.coerce.number().int().min(0).optional(),
   images: z.array(z.object({
@@ -66,7 +65,7 @@ const getProducts = async (req, res) => {
 
     const whereClause = { deletedAt: null };
     if (store_id) {
-      whereClause.storeId = Number(store_id);
+      whereClause.storeId = String(store_id);
     }
 
     const products = await prisma.product.findMany({
