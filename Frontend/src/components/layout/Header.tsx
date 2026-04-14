@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
-import { Button } from "../ui/Button";
+import { Button } from "@/components/ui/Button";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SubItem {
