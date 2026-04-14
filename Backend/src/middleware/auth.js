@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import prisma from "../prisma/client.js";
+import prisma from "../config/db.js";
 import { sendUnauthorized, sendForbidden, sendServerError } from "../utils/response.js";
 
 function getJwtSecret() {

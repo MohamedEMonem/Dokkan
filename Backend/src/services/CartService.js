@@ -1,5 +1,5 @@
-const redisClient = require("../utils/redisClient");
-const prisma = require("../prisma/client");
+import redisClient from "../utils/redisClient.js";
+import prisma from "../config/db.js";
 
 // Flat shipping estimate in currency units (e.g. $5.00)
 const SHIPPING_ESTIMATE = 5.0;
@@ -134,7 +134,7 @@ const clearCart = async (userId) => {
     await redisClient.del(cartKey(userId));
 };
 
-module.exports = {
+export {
     addToCart,
     removeFromCart,
     updateCartItem,

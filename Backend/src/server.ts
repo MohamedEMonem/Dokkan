@@ -3,6 +3,8 @@ import express from "express";
 import { sendSuccess, sendError } from "./utils/response.js";
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/auth.js";
+import storeRouter from "./routes/storeRouters.js";
+import cartRoutes from "./routes/cartRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -19,14 +21,12 @@ app.get('/api/health', (req, res) => {
     }, 'Server is healthy');
 });
 app.use("/api/products", productRoutes);
+app.use("/api/stores", storeRouter);
 
 // app.use('/uploads',uploadRoutes);
 
 app.use("/api/auth", authRoutes);
-
-const cartRoutes = require('./routes/cartRoutes');
 app.use("/api/cart", cartRoutes);
-
 // Error handling middleware for Multer
 
 const PORT = process.env.PORT || 3000;
