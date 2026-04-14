@@ -38,7 +38,7 @@ const socialLinks = [
     ariaLabel: "Instagram",
   },
   {
-    icon: <Mail className="w-[22px] h-[22px]" />,
+    icon: <Mail className="w-5.5 h-5.5" />,
     href: "mailto:info@dokkan.eg",
     ariaLabel: "Email",
   },
@@ -108,39 +108,23 @@ export default function Footer() {
   return (
     <footer className="bg-text-dark text-white border-t mt-auto" dir="rtl">
       <div
-        className="max-w-7xl mx-auto flex flex-col md:flex-row items-start"
-        style={{ padding: "56px 48px", gap: "48px" }}
+        className="max-w-7xl mx-auto flex flex-col md:flex-row items-start py-14! px-12! gap-12"
       >
         {/* Brand column */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-          }}
-        >
+        <div className="flex-1 flex flex-col justify-start">
           <Link
             to="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "20px",
-            }}
+            className="flex items-center gap-2 mb-5!"
           >
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <Store className="w-6 h-6 text-white" />
             </div>
             <span className="text-lg text-white">{COMPANY_NAME}</span>
           </Link>
-          <p
-            className="text-sm text-gray-400 leading-relaxed"
-            style={{ marginBottom: "24px", maxWidth: "280px" }}
-          >
+          <p className="text-sm text-gray-400 leading-relaxed mb-6! max-w-70">
             {COMPANY_DESCRIPTION}
           </p>
-          <div style={{ display: "flex", gap: "20px" }}>
+          <div className="flex gap-5">
             {socialLinks.map((item, idx) => (
               <a
                 key={idx}
@@ -157,30 +141,13 @@ export default function Footer() {
         </div>
 
         {/* Link columns */}
-        <div
-          style={{
-            flex: 2,
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "32px",
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full flex-2">
           {footerSections.map((section, idx) => (
             <div key={idx}>
-              <h4
-                className="text-white font-semibold text-base"
-                style={{ marginBottom: "20px" }}
-              >
+              <h4 className="text-white font-semibold text-base mb-5!">
                 {section.header}
               </h4>
-              <ul
-                style={{
-                  listStyle: "none",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                }}
-              >
+              <ul className="list-none flex flex-col gap-3">
                 {section.links.map((link, i) => (
                   <NavItem
                     key={i}
@@ -198,8 +165,7 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-gray-700">
         <div
-          className="max-w-7xl mx-auto text-center text-sm text-gray-400"
-          style={{ padding: "24px 48px" }}
+          className="max-w-7xl mx-auto text-center text-sm text-gray-400 py-6! px-12!"
         >
           <p>© 2026 دكان - جميع الحقوق محفوظة</p>
         </div>
