@@ -12,7 +12,6 @@ export interface IProductImageBase {
   sortOrder?: number;
 }
 
-export type IProductImage = WithId<IProductImageBase>;
 
 export interface IProductBase {
   storeId: number;
@@ -26,3 +25,4 @@ export interface IProductBase {
 }
 
 export type IProduct = WithId<OptionalAudited<SoftDeleted<IProductBase>>>;
+export type IProductImage = WithId<IProductImageBase>;
