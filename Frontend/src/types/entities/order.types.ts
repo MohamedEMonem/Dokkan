@@ -32,7 +32,7 @@ export interface IOrderInfo {
   customerId: number;
   storeId: number;
   status: EOrderStatus;
-  shippingAddress?: Record<string, any>;
+  shippingAddress?: Record<string, unknown>;
   totalAmount: number;
   shippingCost?: number;
   taxAmount?: number;

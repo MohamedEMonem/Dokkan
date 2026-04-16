@@ -18,7 +18,7 @@ export interface IAPIErrorResponse {
   success: boolean;
   data: null;
   message: string;
-  error: string | Record<string, any> | any[];
+  error: string | Record<string, unknown> | any[];
 }
 
 export interface IRTKQueryError<T = IAPIErrorResponse> {

@@ -16,5 +16,5 @@ export interface IQueryOptions {
   sortBy?: string;
   sortOrder?: ESortDirection;
   searchTerm?: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
 }

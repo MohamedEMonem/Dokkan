@@ -17,7 +17,7 @@ export enum EStoreStatus {
 export interface IStoreEmployee {
   userId: number;
   storeId: number;
-  permissions?: Record<string, any>;
+  permissions?: Record<string, unknown>;
 }
 
 export interface IStoreAnalytics {
@@ -34,7 +34,7 @@ export interface IStoreInfo {
   coverBannerUrl?: string;
   businessAddress?: string;
   vatNumber?: string;
-  themeSettings?: Record<string, any>;
+  themeSettings?: Record<string, unknown>;
 }
 
 /* ────────────────────────────────────────────────────────

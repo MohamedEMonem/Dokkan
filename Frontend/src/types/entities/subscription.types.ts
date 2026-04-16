@@ -8,7 +8,7 @@ import { SoftDeleted } from '@/types/core/audit.types';
 export interface IPlanInfo {
   name: string;
   price: number;
-  features: Record<string, any>;
+  features: Record<string, unknown>;
 }
 
 export interface ISubscriptionInfo {
