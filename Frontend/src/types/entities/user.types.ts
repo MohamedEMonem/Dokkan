@@ -17,6 +17,7 @@ export enum EUserRole {
 export interface IUserInfo {
   name: string;
   email: string;
+  password: string;
   role: EUserRole;
   contactNumber?: string;
   profilePhotoUrl?: string;
