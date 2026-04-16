@@ -14,7 +14,7 @@ export enum EUserRole {
  * User Interfaces
  * ──────────────────────────────────────────────────────── */
 
-export interface IUserBase {
+export interface IUserInfo {
   name: string;
   email: string;
   role: EUserRole;
@@ -26,19 +26,19 @@ export interface IUserBase {
 
 // ── Role Specific Extensions ─────────────────────────── //
 
-export interface IStoreOwner extends IUserBase {
+export interface IStoreOwner extends IUserInfo {
   role: EUserRole.StoreOwner;
 }
 
-export interface IAdmin extends IUserBase {
+export interface IAdmin extends IUserInfo {
   role: EUserRole.Admin;
 }
 
-export interface ICustomer extends IUserBase {
+export interface ICustomer extends IUserInfo {
   role: EUserRole.Customer;
 }
 
 /* ────────────────────────────────────────────────────────
  * Composition
  * ──────────────────────────────────────────────────────── */
-export type IUser = WithId<OptionalAudited<SoftDeleted<IUserBase>>>;
+export type IUser = WithId<OptionalAudited<SoftDeleted<ICustomer | IStoreOwner | IAdmin>>>;
