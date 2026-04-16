@@ -1,3 +1,6 @@
+/* ────────────────────────────────────────────────────────
+ * Error Enums
+ * ──────────────────────────────────────────────────────── */
 export enum EQueryErrorStatus {
   FETCH_ERROR = "FETCH_ERROR",
   PARSING_ERROR = "PARSING_ERROR",
@@ -5,6 +8,10 @@ export enum EQueryErrorStatus {
   TIMEOUT_ERROR = "TIMEOUT_ERROR",
   CUSTOM_ERROR = "CUSTOM_ERROR"
 }
+
+/* ────────────────────────────────────────────────────────
+ * API Error Types
+ * ──────────────────────────────────────────────────────── */
 
 export interface IAPIErrorResponse {  
   code: number;

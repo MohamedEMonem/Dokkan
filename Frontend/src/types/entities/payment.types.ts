@@ -1,6 +1,9 @@
 import { WithId } from '@/types/core/entity.types';
 import { type OptionalAudited } from '@/types/core/audit.types';
 
+/* ────────────────────────────────────────────────────────
+ * Payment Enums
+ * ──────────────────────────────────────────────────────── */
 export enum ETransactionStatus {
   SUCCESS = 'Success',
   FAILURE = 'Failure'
@@ -11,6 +14,10 @@ export enum EPayableType {
   SUBSCRIPTION = 'Subscription'
 }
 
+/* ────────────────────────────────────────────────────────
+ * Payment Interfaces
+ * ──────────────────────────────────────────────────────── */
+
 export interface IPaymentTransactionInfo {
   payableId: number;
   payableType: EPayableType;
@@ -20,4 +27,7 @@ export interface IPaymentTransactionInfo {
   status: ETransactionStatus;
 }
 
+/* ────────────────────────────────────────────────────────
+ * Composition
+ * ──────────────────────────────────────────────────────── */
 export type IPaymentTransaction = WithId<OptionalAudited<IPaymentTransactionInfo>>;

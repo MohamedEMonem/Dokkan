@@ -1,6 +1,10 @@
 import { WithId } from '@/types/core/entity.types';
 import { OptionalAudited, SoftDeleted } from '@/types/core/audit.types';
 
+/* ────────────────────────────────────────────────────────
+ * Review Interfaces
+ * ──────────────────────────────────────────────────────── */
+
 export interface IReviewInfo {
   productId: number;
   customerId: number;
@@ -10,4 +14,7 @@ export interface IReviewInfo {
   storeResponse?: string;
 }
 
+/* ────────────────────────────────────────────────────────
+ * Composition
+ * ──────────────────────────────────────────────────────── */
 export type IReview = WithId<OptionalAudited<SoftDeleted<IReviewInfo>>>;

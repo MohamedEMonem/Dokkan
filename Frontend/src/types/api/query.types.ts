@@ -1,13 +1,20 @@
+/* ────────────────────────────────────────────────────────
+ * Query Enums
+ * ──────────────────────────────────────────────────────── */
 export enum ESortDirection {
-    Asc = "asc",
-    Desc = "desc",
+  ASC = 'asc',
+  DESC = 'desc'
 }
+
+/* ────────────────────────────────────────────────────────
+ * API Query Interfaces
+ * ──────────────────────────────────────────────────────── */
 
 export interface IQueryOptions {
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortDir?: ESortDirection;
-  search?: string;
-  [key: string]: any;
+  sortOrder?: ESortDirection;
+  searchTerm?: string;
+  filters?: Record<string, any>;
 }

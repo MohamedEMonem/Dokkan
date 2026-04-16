@@ -1,17 +1,23 @@
 import { WithId } from '@/types/core/entity.types';
 import { SoftDeleted, OptionalAudited } from '@/types/core/audit.types';
 
+/* ────────────────────────────────────────────────────────
+ * Product Enums
+ * ──────────────────────────────────────────────────────── */
 export enum EProductStatus {
   Active = 'Active',
   Inactive = 'Inactive'
 }
+
+/* ────────────────────────────────────────────────────────
+ * Product Interfaces
+ * ──────────────────────────────────────────────────────── */
 
 export interface IProductImageBase {
   productId: number;
   imageUrl: string;
   sortOrder?: number;
 }
-
 
 export interface IProductBase {
   storeId: number;
@@ -24,5 +30,8 @@ export interface IProductBase {
   images?: IProductImage[];
 }
 
+/* ────────────────────────────────────────────────────────
+ * Composition
+ * ──────────────────────────────────────────────────────── */
 export type IProduct = WithId<OptionalAudited<SoftDeleted<IProductBase>>>;
 export type IProductImage = WithId<IProductImageBase>;

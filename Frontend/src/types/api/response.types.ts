@@ -1,13 +1,19 @@
+/* ────────────────────────────────────────────────────────
+ * Standard Response
+ * ──────────────────────────────────────────────────────── */
+
 export interface IAPIResponse<T> {
   data: T;
-  message: string;
-  statusCode: number;
-  success: boolean;
+  message?: string;
 }
 
+/* ────────────────────────────────────────────────────────
+ * Paginated Response
+ * ──────────────────────────────────────────────────────── */
+
 export interface IPaginatedResponse<T> extends IAPIResponse<T[]> {
-  page: number;
-  limit: number;
-  total: number;
+  totalCount: number;
   totalPages: number;
+  page?: number;
+  limit?: number;
 }

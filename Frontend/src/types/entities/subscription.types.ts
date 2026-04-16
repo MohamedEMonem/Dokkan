@@ -1,6 +1,10 @@
 import { WithId } from '@/types/core/entity.types';
 import { SoftDeleted } from '@/types/core/audit.types';
 
+/* ────────────────────────────────────────────────────────
+ * Subscription Interfaces
+ * ──────────────────────────────────────────────────────── */
+
 export interface IPlanInfo {
   name: string;
   price: number;
@@ -14,5 +18,8 @@ export interface ISubscriptionInfo {
   nextBillingDate?: Date;
 }
 
+/* ────────────────────────────────────────────────────────
+ * Composition
+ * ──────────────────────────────────────────────────────── */
 export type IPlan = WithId<IPlanInfo>;
 export type ISubscription = WithId<SoftDeleted<ISubscriptionInfo>>;

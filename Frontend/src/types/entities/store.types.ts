@@ -1,11 +1,18 @@
 import { WithId } from '@/types/core/entity.types';
 import { SoftDeleted, OptionalAudited } from '@/types/core/audit.types';
 
+/* ────────────────────────────────────────────────────────
+ * Store Enums
+ * ──────────────────────────────────────────────────────── */
 export enum EStoreStatus {
   Pending = 'Pending',
   Active = 'Active',
   Suspended = 'Suspended'
 }
+
+/* ────────────────────────────────────────────────────────
+ * Store Interfaces
+ * ──────────────────────────────────────────────────────── */
 
 export interface IStoreEmployee {
   userId: number;
@@ -30,4 +37,7 @@ export interface IStoreInfo {
   themeSettings?: Record<string, any>;
 }
 
+/* ────────────────────────────────────────────────────────
+ * Composition
+ * ──────────────────────────────────────────────────────── */
 export type IStore = WithId<OptionalAudited<SoftDeleted<IStoreInfo>>>;
