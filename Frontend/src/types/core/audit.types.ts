@@ -13,7 +13,7 @@ export interface IOptionalAudit {
 }
 
 export interface ISoftDelete {
-  deletedAt: Date;
+  deletedAt?: Date;
 }
 
 /* ────────────────────────────────────────────────────────
