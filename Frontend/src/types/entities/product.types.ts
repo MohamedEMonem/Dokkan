@@ -13,13 +13,13 @@ export enum EProductStatus {
  * Product Interfaces
  * ──────────────────────────────────────────────────────── */
 
-export interface IProductImageBase {
+export interface IProductImageInfo {
   productId: number;
   imageUrl: string;
   sortOrder?: number;
 }
 
-export interface IProductBase {
+export interface IProductInfo {
   storeId: number;
   categoryId: number;
   title: string;
@@ -33,5 +33,5 @@ export interface IProductBase {
 /* ────────────────────────────────────────────────────────
  * Composition
  * ──────────────────────────────────────────────────────── */
-export type IProduct = WithId<OptionalAudited<SoftDeleted<IProductBase>>>;
-export type IProductImage = WithId<IProductImageBase>;
+export type IProduct = WithId<OptionalAudited<SoftDeleted<IProductInfo>>>;
+export type IProductImage = WithId<IProductImageInfo>;
