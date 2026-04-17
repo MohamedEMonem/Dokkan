@@ -71,7 +71,7 @@ const iconActions = [
   },
   {
     icon: <User className="w-5 h-5 text-text-dark" />,
-    href: "/login",
+    href: "/auth/login",
     ariaLabel: "حسابي",
     label: "حسابي",
   },
@@ -262,7 +262,7 @@ function MobileMenu({
               type="button"
               onClick={() => {
                 onClose();
-                navigate("/login");
+                navigate("/auth/login");
               }}
               variant="primary"
               className="h-12! justify-start! m-5! gap-3 p-3! rounded-xl! transition-all duration-200 "

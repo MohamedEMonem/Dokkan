@@ -137,7 +137,7 @@ export const RegisterForm = (): React.JSX.Element => {
         <p className="text-text-muted">
           لديك حساب بالفعل؟{" "}
           <Link
-            to="/login"
+            to="/auth/login"
             className="text-primary hover:text-primary-dark hover:underline"
           >
             سجّل دخولك

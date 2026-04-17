@@ -14,8 +14,8 @@ export default function AppRoutes() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<HomeLayout />} />
-      <Route path="/login" element={<AuthLayout />}>
-        <Route index element={<LoginForm />} />
+      <Route path='/auth'  element={<AuthLayout />}>
+        <Route path="login" element={<LoginForm />} />
         <Route path="register" element={<RegisterForm />} />
       </Route>
 

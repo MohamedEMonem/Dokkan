@@ -61,7 +61,7 @@ export const LoginForm = (): React.JSX.Element => {
         <p className="text-text-muted">
           ليس لديك حساب؟{" "}
           <Link
-            to="/register"
+            to="/auth/register"
             className="text-primary hover:text-primary-dark hover:underline"
           >
             سجّل الآن
