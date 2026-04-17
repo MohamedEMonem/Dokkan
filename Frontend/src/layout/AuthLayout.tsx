@@ -1,12 +1,22 @@
+import { Store } from "lucide-react";
+import { Link, Outlet } from "react-router-dom";
+
 export default function AuthLayout() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-bg-cream via-bg-cream to-accent-light py-12">
-      <div className="container mx-auto px-4">
+    <main className="flex-1">
+      <div className="min-h-screen py-12 justify-center items-center bg-linear-to-br from-bg-cream via-bg-cream to-accent-light">
         <div className="max-w-md mx-auto">
-          {/* Page content goes here */}
-          <p className="text-white">auth page</p>
+          {/* Logo */}
+          <Link to="/" className="flex items-center justify-center gap-2 mb-8">
+            <div className="w-12 h-12 bg-linear-to-br from-primary to-primary-light rounded-xl flex items-center justify-center">
+              <Store className="w-7 h-7 text-white" />
+            </div>
+            <span className="text-2xl text-primary">دكان</span>
+          </Link>
+          {/* Form outlet */}
+          <Outlet />
         </div>
       </div>
-    </div>
+    </main>
   );
 }
