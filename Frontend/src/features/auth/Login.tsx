@@ -1,37 +1,97 @@
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+
 import { AuthCard } from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Mail, Lock } from "lucide-react";
 
+/* ────────────────────────────────────────────────────────
+ * Types
+ * ──────────────────────────────────────────────────────── */
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+/* ────────────────────────────────────────────────────────
+ * Component
+ * ──────────────────────────────────────────────────────── */
+
 export const LoginForm = (): React.JSX.Element => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+  });
+
+  const onSubmit = async (data: LoginFormValues) => {
+    // TODO: wire up to your API
+    console.log("Login payload:", data);
+  };
+
   return (
     <AuthCard title="تسجيل الدخول" subtitle="أهلاً بك مجدداً في دكان">
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4">
-          <Input
-            label="البريد الإلكتروني"
-            id="email"
-            type="email"
-            placeholder="البريد@الإلكتروني.com"
-            icon={<Mail className="w-5 h-5" />}
-            required
-          />
+          {/* Email */}
+          <div>
+            <Input
+              label="البريد الإلكتروني"
+              id="email"
+              type="email"
+              placeholder="البريد@الإلكتروني.com"
+              icon={<Mail className="w-5 h-5" />}
+              {...register("email", {
+                required: "البريد الإلكتروني مطلوب",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "صيغة البريد الإلكتروني غير صحيحة",
+                },
+              })}
+            />
+            {errors.email && (
+              <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
             <Input
               label="كلمة المرور"
               id="password"
               type="password"
               placeholder="••••••••"
               icon={<Lock className="w-5 h-5" />}
-              required
+              {...register("password", {
+                required: "كلمة المرور مطلوبة",
+                minLength: {
+                  value: 6,
+                  message: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+                },
+              })}
             />
+            {errors.password && (
+              <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+            )}
+          </div>
         </div>
 
+        {/* Remember Me + Forgot Password */}
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-2 cursor-pointer group">
             <input
               type="checkbox"
               className="rounded border-accent-light accent-primary w-4 h-4"
+              {...register("rememberMe")}
             />
             <span className="text-sm text-text-muted group-hover:text-text-dark transition-colors">
               تذكرني
@@ -45,12 +105,14 @@ export const LoginForm = (): React.JSX.Element => {
           </Link>
         </div>
 
+        {/* Submit */}
         <Button
           type="submit"
           variant="primary"
           className="py-6 rounded-xl h-9! text-lg w-full"
+          disabled={isSubmitting}
         >
-          تسجيل الدخول
+          {isSubmitting ? "جارٍ الدخول..." : "تسجيل الدخول"}
         </Button>
       </form>
 
