@@ -17,8 +17,6 @@ export const LoginForm = (): React.JSX.Element => {
             icon={<Mail className="w-5 h-5" />}
             required
           />
-
-          <div>
             <Input
               label="كلمة المرور"
               id="password"
@@ -27,7 +25,6 @@ export const LoginForm = (): React.JSX.Element => {
               icon={<Lock className="w-5 h-5" />}
               required
             />
-          </div>
         </div>
 
         <div className="flex items-center justify-between">
