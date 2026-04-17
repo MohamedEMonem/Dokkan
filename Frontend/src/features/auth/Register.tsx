@@ -8,7 +8,11 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { User, Mail, Lock } from "lucide-react";
 
-import { registerSchema, type RegisterFormValues } from "./schemas/register.schema";
+import {
+  registerSchema,
+  type RegisterFormValues,
+} from "./schemas/register.schema";
+import { useRegisterMutation } from "@/api/auth.api";
 
 /* ────────────────────────────────────────────────────────
  * Constants
@@ -41,6 +45,8 @@ const roles: readonly Role[] = [
  * ──────────────────────────────────────────────────────── */
 
 export const RegisterForm = (): React.JSX.Element => {
+  const [registerApi] = useRegisterMutation();
+
   const {
     register,
     handleSubmit,
@@ -57,8 +63,12 @@ export const RegisterForm = (): React.JSX.Element => {
   const selectedRole = watch("role");
 
   const onSubmit = async (data: RegisterFormValues) => {
-    // TODO: wire up to your API
-    console.log("Register payload:", data);
+    try {
+      const response = await registerApi(data).unwrap();
+      console.log("Register success:", response);
+    } catch (error) {
+      console.error("Register error:", error);
+    }
   };
 
   return (
@@ -119,7 +129,9 @@ export const RegisterForm = (): React.JSX.Element => {
               {...register("email")}
             />
             {errors.email && (
-              <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -134,7 +146,9 @@ export const RegisterForm = (): React.JSX.Element => {
               {...register("password")}
             />
             {errors.password ? (
-              <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.password.message}
+              </p>
             ) : (
               <p className="text-xs text-text-muted mt-1">6 أحرف على الأقل</p>
             )}
@@ -178,7 +192,9 @@ export const RegisterForm = (): React.JSX.Element => {
               </Link>
             </label>
             {errors.terms && (
-              <p className="text-xs text-red-500 mt-1">{errors.terms.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.terms.message}
+              </p>
             )}
           </div>
         </div>

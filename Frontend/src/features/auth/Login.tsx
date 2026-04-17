@@ -9,12 +9,15 @@ import { Button } from "@/components/ui/Button";
 import { Mail, Lock } from "lucide-react";
 
 import { loginSchema, type LoginFormValues } from "./schemas/login.schema";
+import { useLoginMutation } from "@/api/auth.api";
 
 /* ────────────────────────────────────────────────────────
  * Component
  * ──────────────────────────────────────────────────────── */
 
 export const LoginForm = (): React.JSX.Element => {
+  const [loginApi] = useLoginMutation();
+
   const {
     register,
     handleSubmit,
@@ -29,8 +32,12 @@ export const LoginForm = (): React.JSX.Element => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    // TODO: wire up to your API
-    console.log("Login payload:", data);
+    try {
+      const response = await loginApi(data).unwrap();
+      console.log("Login success:", response);
+    } catch (error) {
+      console.error("Login error:", error);
+    }
   };
 
   return (
@@ -48,7 +55,9 @@ export const LoginForm = (): React.JSX.Element => {
               {...register("email")}
             />
             {errors.email && (
-              <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -63,7 +72,9 @@ export const LoginForm = (): React.JSX.Element => {
               {...register("password")}
             />
             {errors.password && (
-              <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.password.message}
+              </p>
             )}
           </div>
         </div>
