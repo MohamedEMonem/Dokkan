@@ -1,37 +1,25 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AuthCard } from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { User, Mail, Lock } from "lucide-react";
 
-/* ────────────────────────────────────────────────────────
- * Types
- * ──────────────────────────────────────────────────────── */
-
-type RoleName = "Customer" | "StoreOwner";
-
-interface Role {
-  roleName: RoleName;
-  icon: string;
-  title: string;
-  description: string;
-}
-
-interface RegisterFormValues {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  terms: boolean;
-  role: RoleName;
-}
+import { registerSchema, type RegisterFormValues } from "./schemas/register.schema";
 
 /* ────────────────────────────────────────────────────────
  * Constants
  * ──────────────────────────────────────────────────────── */
+
+interface Role {
+  roleName: RegisterFormValues["role"];
+  icon: string;
+  title: string;
+  description: string;
+}
 
 const roles: readonly Role[] = [
   {
@@ -60,12 +48,12 @@ export const RegisterForm = (): React.JSX.Element => {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       role: "Customer",
     },
   });
 
-  // Watch the current role value so the UI stays in sync
   const selectedRole = watch("role");
 
   const onSubmit = async (data: RegisterFormValues) => {
@@ -100,7 +88,6 @@ export const RegisterForm = (): React.JSX.Element => {
               </div>
             ))}
           </div>
-          {/* Hidden input so RHF tracks the role value */}
           <input type="hidden" {...register("role")} />
         </div>
 
@@ -114,10 +101,7 @@ export const RegisterForm = (): React.JSX.Element => {
               type="text"
               placeholder="أدخل اسمك الكامل"
               icon={<User className="w-5 h-5" />}
-              {...register("name", {
-                required: "الاسم مطلوب",
-                minLength: { value: 2, message: "الاسم يجب أن يكون حرفين على الأقل" },
-              })}
+              {...register("name")}
             />
             {errors.name && (
               <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
@@ -132,13 +116,7 @@ export const RegisterForm = (): React.JSX.Element => {
               type="email"
               placeholder="البريد@الإلكتروني.com"
               icon={<Mail className="w-5 h-5" />}
-              {...register("email", {
-                required: "البريد الإلكتروني مطلوب",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "صيغة البريد الإلكتروني غير صحيحة",
-                },
-              })}
+              {...register("email")}
             />
             {errors.email && (
               <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
@@ -153,10 +131,7 @@ export const RegisterForm = (): React.JSX.Element => {
               type="password"
               placeholder="••••••••"
               icon={<Lock className="w-5 h-5" />}
-              {...register("password", {
-                required: "كلمة المرور مطلوبة",
-                minLength: { value: 6, message: "كلمة المرور يجب أن تكون 6 أحرف على الأقل" },
-              })}
+              {...register("password")}
             />
             {errors.password ? (
               <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
@@ -173,11 +148,7 @@ export const RegisterForm = (): React.JSX.Element => {
               type="password"
               placeholder="••••••••"
               icon={<Lock className="w-5 h-5" />}
-              {...register("confirmPassword", {
-                required: "تأكيد كلمة المرور مطلوب",
-                validate: (value) =>
-                  value === watch("password") || "كلمتا المرور غير متطابقتين",
-              })}
+              {...register("confirmPassword")}
             />
             {errors.confirmPassword && (
               <p className="text-xs text-red-500 mt-1">
@@ -193,9 +164,7 @@ export const RegisterForm = (): React.JSX.Element => {
             type="checkbox"
             id="terms"
             className="mt-1 rounded border-accent-light accent-primary"
-            {...register("terms", {
-              required: "يجب الموافقة على الشروط والأحكام",
-            })}
+            {...register("terms")}
           />
           <div>
             <label htmlFor="terms" className="text-sm text-text-muted">

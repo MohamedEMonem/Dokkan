@@ -1,20 +1,14 @@
 import { Link } from "react-router-dom";
+
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AuthCard } from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Mail, Lock } from "lucide-react";
 
-/* ────────────────────────────────────────────────────────
- * Types
- * ──────────────────────────────────────────────────────── */
-
-interface LoginFormValues {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-}
+import { loginSchema, type LoginFormValues } from "./schemas/login.schema";
 
 /* ────────────────────────────────────────────────────────
  * Component
@@ -26,6 +20,7 @@ export const LoginForm = (): React.JSX.Element => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -50,13 +45,7 @@ export const LoginForm = (): React.JSX.Element => {
               type="email"
               placeholder="البريد@الإلكتروني.com"
               icon={<Mail className="w-5 h-5" />}
-              {...register("email", {
-                required: "البريد الإلكتروني مطلوب",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "صيغة البريد الإلكتروني غير صحيحة",
-                },
-              })}
+              {...register("email")}
             />
             {errors.email && (
               <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
@@ -71,13 +60,7 @@ export const LoginForm = (): React.JSX.Element => {
               type="password"
               placeholder="••••••••"
               icon={<Lock className="w-5 h-5" />}
-              {...register("password", {
-                required: "كلمة المرور مطلوبة",
-                minLength: {
-                  value: 6,
-                  message: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
-                },
-              })}
+              {...register("password")}
             />
             {errors.password && (
               <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
