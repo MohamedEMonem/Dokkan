@@ -13,8 +13,8 @@ import {
   type RegisterFormValues,
 } from "./schemas/register.schema";
 import { useRegisterMutation } from "@/api/auth.api";
-import { toast } from "react-toastify";
 import { showNotification } from "@/utils/showNotification";
+import { EUserRole } from "@/types/entities/user.types";
 
 /* ────────────────────────────────────────────────────────
  * Constants
@@ -29,13 +29,13 @@ interface Role {
 
 const roles: readonly Role[] = [
   {
-    roleName: "Customer",
+    roleName: EUserRole.Customer,
     icon: "🛍️",
     title: "أشتري منتجات",
     description: "تسوق من المتاجر",
   },
   {
-    roleName: "StoreOwner",
+    roleName: EUserRole.StoreOwner,
     icon: "🏪",
     title: "أبيع منتجات",
     description: "أنشئ متجراً",
@@ -58,7 +58,7 @@ export const RegisterForm = (): React.JSX.Element => {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      role: "Customer",
+      role: EUserRole.Customer,
     },
   });
 
@@ -66,7 +66,8 @@ export const RegisterForm = (): React.JSX.Element => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      const response = await registerApi(data).unwrap();
+      const {confirmPassword, terms, ...payload} = data;
+      const response = await registerApi(payload).unwrap();
 
       // notify using our notification system
       showNotification({ message: response.message, variant: "success" });

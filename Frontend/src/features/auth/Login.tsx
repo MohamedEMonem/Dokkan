@@ -24,12 +24,7 @@ export const LoginForm = (): React.JSX.Element => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      rememberMe: false,
-    },
+    resolver: zodResolver(loginSchema)
   });
 
   const onSubmit = async (data: LoginFormValues) => {

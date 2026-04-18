@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { EUserRole } from "@/types/entities/user.types";
 
 export const registerSchema = z
   .object({
-    role: z.enum(["Customer", "StoreOwner"]),
-
+    role: z.enum([EUserRole.Customer, EUserRole.StoreOwner]),
+    
     name: z
       .string()
       .min(2, "الاسم يجب أن يكون حرفين على الأقل"),
