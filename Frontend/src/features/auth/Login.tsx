@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import { Mail, Lock } from "lucide-react";
 import { loginSchema, type LoginFormValues } from "./schemas/login.schema";
 import { useLoginMutation } from "@/api/auth.api";
 import { showNotification } from "@/utils/showNotification";
+import { EUserRole } from "@/types/entities/user.types";
 
 /* ────────────────────────────────────────────────────────
  * Component
@@ -18,23 +19,26 @@ import { showNotification } from "@/utils/showNotification";
 
 export const LoginForm = (): React.JSX.Element => {
   const [loginApi] = useLoginMutation();
+  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema)
+    resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const response = await loginApi(data).unwrap();
-      showNotification({ message: response.message, variant: "success" });
+
+      showNotification({ message: "تم تسجيل الدخول بنجاح", variant: "success" });
+      response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
     } catch (error: any) {
-      const errorMessage = error?.data?.message || error?.message || "حدث خطأ غير متوقع";
+      const errorMessage =
+        error?.data?.message || error?.message || "حدث خطأ غير متوقع";
       showNotification({ message: errorMessage, variant: "error" });
-      console.error("Login error:", error);
     }
   };
 

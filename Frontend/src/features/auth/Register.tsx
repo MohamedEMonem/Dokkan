@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,6 +48,7 @@ const roles: readonly Role[] = [
 
 export const RegisterForm = (): React.JSX.Element => {
   const [registerApi] = useRegisterMutation();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -69,14 +70,11 @@ export const RegisterForm = (): React.JSX.Element => {
       const {confirmPassword, terms, ...payload} = data;
       const response = await registerApi(payload).unwrap();
 
-      // notify using our notification system
-      showNotification({ message: response.message, variant: "success" });
-
-      console.log("Register success:", response);
+      showNotification({ message: "تم تسجيل الحساب بنجاح", variant: "success" });
+      response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
     } catch (error: any) {
       const errorMessage = error?.data?.message || error?.message || "حدث خطأ غير متوقع";
       showNotification({ message: errorMessage, variant: "error" });
-      console.error("Register error:", error);
     }
   };
 
