@@ -33,6 +33,9 @@ export const LoginForm = (): React.JSX.Element => {
     try {
       const response = await loginApi(data).unwrap();
 
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.user.role);
+
       showNotification({ message: "تم تسجيل الدخول بنجاح", variant: "success" });
       response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
     } catch (error: any) {

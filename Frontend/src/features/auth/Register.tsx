@@ -70,6 +70,9 @@ export const RegisterForm = (): React.JSX.Element => {
       const {confirmPassword, terms, ...payload} = data;
       const response = await registerApi(payload).unwrap();
 
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.user.role);
+
       showNotification({ message: "تم تسجيل الحساب بنجاح", variant: "success" });
       response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
     } catch (error: any) {
