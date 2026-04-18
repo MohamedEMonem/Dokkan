@@ -10,6 +10,7 @@ import { Mail, Lock } from "lucide-react";
 
 import { loginSchema, type LoginFormValues } from "./schemas/login.schema";
 import { useLoginMutation } from "@/api/auth.api";
+import { showNotification } from "@/utils/showNotification";
 
 /* ────────────────────────────────────────────────────────
  * Component
@@ -34,8 +35,10 @@ export const LoginForm = (): React.JSX.Element => {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const response = await loginApi(data).unwrap();
-      console.log("Login success:", response);
-    } catch (error) {
+      showNotification({ message: response.message, variant: "success" });
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || error?.message || "حدث خطأ غير متوقع";
+      showNotification({ message: errorMessage, variant: "error" });
       console.error("Login error:", error);
     }
   };

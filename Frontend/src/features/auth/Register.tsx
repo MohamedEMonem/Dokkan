@@ -13,6 +13,8 @@ import {
   type RegisterFormValues,
 } from "./schemas/register.schema";
 import { useRegisterMutation } from "@/api/auth.api";
+import { toast } from "react-toastify";
+import { showNotification } from "@/utils/showNotification";
 
 /* ────────────────────────────────────────────────────────
  * Constants
@@ -65,8 +67,14 @@ export const RegisterForm = (): React.JSX.Element => {
   const onSubmit = async (data: RegisterFormValues) => {
     try {
       const response = await registerApi(data).unwrap();
+
+      // notify using our notification system
+      showNotification({ message: response.message, variant: "success" });
+
       console.log("Register success:", response);
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || error?.message || "حدث خطأ غير متوقع";
+      showNotification({ message: errorMessage, variant: "error" });
       console.error("Register error:", error);
     }
   };
