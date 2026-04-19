@@ -71,7 +71,7 @@ const iconActions = [
   },
   {
     icon: <User className="w-5 h-5 text-text-dark" />,
-    href: "/login",
+    href: "/auth/login",
     ariaLabel: "حسابي",
     label: "حسابي",
   },
@@ -262,7 +262,7 @@ function MobileMenu({
               type="button"
               onClick={() => {
                 onClose();
-                navigate("/login");
+                navigate("/auth/login");
               }}
               variant="primary"
               className="h-12! justify-start! m-5! gap-3 p-3! rounded-xl! transition-all duration-200 "
@@ -288,7 +288,7 @@ export default function Header() {
 
   return (
       <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
-        <div className="container mx-auto ps-8 pe-4 md:ps-12 md:pe-6">
+        <div className="container mx-auto ps-8! pe-4 md:ps-12! md:pe-6">
           <div className="flex items-center justify-between h-16 gap-4">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
