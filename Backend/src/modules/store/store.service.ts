@@ -49,9 +49,21 @@ export class StoreServices {
 
             return {store, storeowner};
         } catch (error) {
-            const prismaError = error as { code?: string };
+            const prismaError = error as { code?: string; meta?: { target?: unknown } };
             if (prismaError.code === "P2002") {
-                const conflictError = new Error("Subdomain already exists") as Error & { statusCode?: number };
+                const targetValue = prismaError.meta?.target;
+                const targets = Array.isArray(targetValue)
+                    ? targetValue.map((value) => String(value).toLowerCase())
+                    : [String(targetValue ?? "").toLowerCase()];
+
+                let conflictMessage = "A unique field already exists";
+                if (targets.some((target) => target.includes("subdomain"))) {
+                    conflictMessage = "Subdomain already exists";
+                } else if (targets.some((target) => target.includes("name"))) {
+                    conflictMessage = "Store name already exists";
+                }
+
+                const conflictError = new Error(conflictMessage) as Error & { statusCode?: number };
                 conflictError.statusCode = 409;
                 throw conflictError;
             }
