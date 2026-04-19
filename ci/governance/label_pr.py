@@ -28,6 +28,7 @@ import argparse
 import json
 import os
 import sys
+import urllib.parse
 import urllib.request
 import urllib.error
 
@@ -103,10 +104,6 @@ def remove_labels(repo: str, pr_number: str, labels: set[str]) -> None:
     for lbl in labels:
         url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels/{urllib.parse.quote(lbl)}"
         gh_api("DELETE", url)
-
-
-# urllib.parse needed for quote
-import urllib.parse
 
 
 def main() -> None:

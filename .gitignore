@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# CI artifacts (generated at runtime)
+reports/
+findings.json
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
