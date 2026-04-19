@@ -29,7 +29,8 @@ function trimUser(user) {
 
 const register = async (req, res) => {
     try {
-        const { email, password, name } = req.body.data ;
+        const requestData = req.body?.data ?? {};
+        const { email, password, name } = requestData;
         const normalizedName = typeof name === "string" ? name.trim() : "";
 
         if (!email || !password || !normalizedName) {

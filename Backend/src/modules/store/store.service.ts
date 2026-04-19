@@ -16,7 +16,7 @@ export class StoreServices {
             throw error;
         }
 
-        const existingStoreName = await prisma.store.findUnique({
+        const existingStoreName = await prisma.store.findFirst({
             where: { name: dto.name },
         });
 
@@ -28,28 +28,38 @@ export class StoreServices {
             throw error;
         }
 
-     
-        const [store, storeowner] = await prisma.$transaction([
-         prisma.store.create({
-            data: {
-                ...dto,
-                status: 'Pending',
-                owner: {
-                    connect: { id: ownerId }
-                }
-            },
-        }),
-         prisma.user.update({
-            where:{id:ownerId},
-            data: {
-                role: 'StoreOwner',
+        try {
+            const [store, storeowner] = await prisma.$transaction([
+                prisma.store.create({
+                    data: {
+                        ...dto,
+                        status: 'Pending',
+                        owner: {
+                            connect: { id: ownerId }
+                        }
+                    },
+                }),
+                prisma.user.update({
+                    where:{id:ownerId},
+                    data: {
+                        role: 'StoreOwner',
+                    }
+                })
+            ]);
 
+            return {store, storeowner};
+        } catch (error) {
+            const prismaError = error as { code?: string; meta?: { target?: unknown } };
+            if (prismaError.code === "P2002") {
+                const target = Array.isArray(prismaError.meta?.target) ? prismaError.meta.target : [];
+                const conflictField = target.includes("subdomain") ? "Subdomain" : "Resource";
+                const conflictError = new Error(`${conflictField} already exists`) as Error & { statusCode?: number };
+                conflictError.statusCode = 409;
+                throw conflictError;
             }
-        })
 
-    ]);
-
-        return {store, storeowner};
+            throw error;
+        }
     }
     async getUserWithStores(userId: string) {
         const userWithStores = await prisma.user.findUnique({
