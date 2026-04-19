@@ -374,24 +374,31 @@ export default function Header() {
                     </button>
                     {/* User Dropdown */}
                     <div className="absolute top-10 left-0 pt-2 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-200 z-50">
-                      <div className="w-56 bg-white border border-accent-light rounded-xl shadow-lg flex flex-col overflow-hidden">
-                        <div className="p-3 border-b border-gray-100 flex flex-col gap-1 items-start bg-gray-50/50">
-                          <span className="text-sm font-bold text-gray-900 truncate w-full">{user.name}</span>
-                          <span className="text-xs text-gray-500 truncate w-full">{user.email}</span>
+                      <div className="w-64 bg-white border border-gray-200 rounded-2xl shadow-xl flex flex-col overflow-hidden">
+                        <div className="p-4 flex items-center gap-3 bg-gray-50/50 border-b border-gray-100">
+                          <UserAvatar name={user.name} avatarUrl={user.profilePhotoUrl} className="w-10 h-10 shrink-0 shadow-sm" />
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-semibold text-gray-900 truncate">{user.name}</span>
+                            <span className="text-xs text-gray-500 truncate">{user.email}</span>
+                          </div>
                         </div>
-                        <div className="p-2 flex flex-col">
-                          <Link to="/profile" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-bg-cream hover:text-primary rounded-md transition-colors">
+                        <div className="p-2 space-y-0.5">
+                          <Link to="/profile" className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100/80 rounded-xl transition-colors">
+                            <User className="w-4 h-4 text-gray-500" />
                             الملف الشخصي
                           </Link>
-                          <Link to="/orders" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-bg-cream hover:text-primary rounded-md transition-colors">
+                          <Link to="/orders" className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100/80 rounded-xl transition-colors">
+                            <Package className="w-4 h-4 text-gray-500" />
                             طلباتي
                           </Link>
                           {user.role === 'StoreOwner' && (
-                            <Link to="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-bg-cream hover:text-primary rounded-md transition-colors">
+                            <Link to="/dashboard" className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100/80 rounded-xl transition-colors">
+                              <Store className="w-4 h-4 text-gray-500" />
                               لوحة تحكم البائع
                             </Link>
                           )}
-                          <div className="h-px bg-gray-100 my-1 w-full" />
+                        </div>
+                        <div className="p-2 border-t border-gray-100">
                           <button
                             onClick={() => {
                               localStorage.removeItem("token");
@@ -399,7 +406,7 @@ export default function Header() {
                               localStorage.removeItem("user");
                               window.location.href = "/auth/login";
                             }}
-                            className="cursor-pointer flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors w-full text-start"
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full text-start"
                           >
                             <LogOut className="w-4 h-4" />
                             تسجيل الخروج
