@@ -7,7 +7,7 @@ import {
     getProfile,
     patchProfile,
     deleteAccount
-} from "../controllers/authController.js";
+} from "../modules/auth/auth.controller.js";
 
 // Public routes
 router.post("/register", register);
