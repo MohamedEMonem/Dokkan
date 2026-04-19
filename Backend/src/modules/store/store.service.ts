@@ -51,7 +51,7 @@ export class StoreServices {
 
         return {store, storeowner};
     }
-    async getUserwithStores(userId: string) {
+    async getUserWithStores(userId: string) {
         const userWithStores = await prisma.user.findUnique({
             where: {id : userId},
             include:{

@@ -15,7 +15,7 @@ try{
     }
 
     const newStore = await storeService.createStore(dto, currentUserId);
-    const userWithStores = await storeService.getUserwithStores(currentUserId);
+    const userWithStores = await storeService.getUserWithStores(currentUserId);
     const userStoreCount = userWithStores?.ownedStores.length
 
     return sendSuccess(res, { newStore, userStoreCount,userWithStores }, "Store created successfully", 201);
