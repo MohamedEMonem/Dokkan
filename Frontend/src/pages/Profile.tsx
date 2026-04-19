@@ -25,12 +25,12 @@ export default function Profile() {
   const roleTranslation: Record<string, string> = {
     Customer: "عميل",
     StoreOwner: "بائع",
-    Admin: "مدير",
+    Admin: "ادمن",
   };
 
   const accountTypeTranslation: Record<string, string> = {
     Customer: "حساب مشتري",
-    StoreOwner: "حساب بائع محترف",
+    StoreOwner: "حساب بائع",
     Admin: "حساب مدير النظام",
   };
 
