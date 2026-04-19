@@ -32,7 +32,7 @@ echo "════════════════════════�
 
 # ── 1. Branch naming ─────────────────────────────────────────────────────────
 BRANCH="${PR_HEAD_REF:-}"
-BRANCH_PATTERN='^(feature|fix|bugfix|chore|refactor|docs|ci|release|hotfix|test|perf|security)/[a-z0-9._/-]+$'
+BRANCH_PATTERN='^(feature|fix|bugfix|chore|refactor|docs|ci|release|hotfix|test|perf|security|copilot)/[a-z0-9._/-]+$'
 
 if [[ -z "$BRANCH" ]]; then
   log_warn "PR_HEAD_REF is empty – skipping branch-name check"

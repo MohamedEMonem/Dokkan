@@ -102,15 +102,16 @@ for root, dirs, files in os.walk(routes_dir):
             route_paths.add(m.group(2))
 
 findings = []
-# Paths in spec but not in routes → undocumented implementation
+# Paths in spec but not in routes → document as LOW (route mounting means full path
+# won't appear literally in route files; this is an advisory check only)
 for sp in spec_paths:
     if sp not in route_paths:
         findings.append({
-            "severity": "MEDIUM", "tool": "contract-check",
+            "severity": "LOW", "tool": "contract-check",
             "file": spec_path, "line": 0, "col": 0,
             "rule": "missing-route-implementation",
-            "message": f"OpenAPI path '{sp}' has no matching Express route handler.",
-            "recommendation": f"Add the route handler or remove the path from the OpenAPI spec."
+            "message": f"OpenAPI path '{sp}' has no literal match in Express route files (may be mounted).",
+            "recommendation": "Verify the route is mounted with the correct prefix in server.ts."
         })
 
 # Paths in routes but not in spec → missing docs (warn only)

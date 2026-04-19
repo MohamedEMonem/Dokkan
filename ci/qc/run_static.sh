@@ -49,7 +49,7 @@ echo "  Found $ESLINT_COUNT ESLint issues"
 echo ""
 echo "► TypeScript tsc --noEmit…"
 TSC_EXIT=0
-npx --prefix Backend tsc --noEmit --project Backend/tsconfig.json \
+Backend/node_modules/.bin/tsc --noEmit --project Backend/tsconfig.json \
   2>"$REPORTS_DIR/_tsc_stderr.txt" || TSC_EXIT=$?
 
 if [[ "$TSC_EXIT" != "0" ]]; then

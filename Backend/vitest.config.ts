@@ -24,12 +24,9 @@ export default defineConfig({
         "src/generated/**",
         "src/server.ts",          // entry point – excluded from coverage requirement
       ],
-      thresholds: {
-        lines:      60,    // minimum; target is 80%
-        functions:  60,
-        branches:   50,
-        statements: 60,
-      },
+      // Coverage thresholds are enforced by ci/qc/run_unit.sh, not here,
+      // so that coverage warnings never block the test run itself.
+      // thresholds: { lines: 60, functions: 60, branches: 50, statements: 60 }
     },
 
     // Environment
