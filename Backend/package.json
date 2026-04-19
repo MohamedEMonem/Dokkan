@@ -17,9 +17,9 @@
     "infra:logs": "docker compose logs -f",
     "infra:clean": "docker compose down -v",
     "infra:FullClean": "docker system prune -a --volumes",
-    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
-    "db:studio": "prisma studio --schema prisma/schema.prisma",
-    "db:seed": "node prisma/seed.js",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "node --require=.pnp.cjs prisma/seed.js",
     "lint": "nx run-many -t lint --all",
     "lint:api": "nx lint api",
     "lint:fix": "nx run-many -t lint --all -- --fix",
@@ -32,25 +32,13 @@
     "crypto": "^1.0.1",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "minio": "^7.0.26",
-    "multer": "^2.0.2",
-    "nodemon": "^3.1.11",
-    "redis": "^5.11.0",
-    "sharp": "^0.34.5",
-    "zod": "^4.3.6"
+    "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
     "is-extglob": "^2.1.1",
     "nodemon": "^3.1.11",
-    "prisma": "^7.4.1",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.21.0",
-    "typescript": "^6.0.2"
-  },
-  "prisma": {
-    "schema": "prisma/schema.prisma"
+    "prisma": "^6.19.2"
   }
 }
