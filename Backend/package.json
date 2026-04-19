@@ -37,8 +37,10 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
+    "@vitest/coverage-v8": "^4.1.4",
     "is-extglob": "^2.1.1",
     "nodemon": "^3.1.11",
-    "prisma": "^6.19.2"
+    "prisma": "^6.19.2",
+    "vitest": "^4.1.4"
   }
 }
