@@ -1,0 +1,26 @@
+# CODEOWNERS – mandatory reviewers for critical backend paths
+# Syntax: <path pattern>  <@owner or @team>
+# All listed owners must approve before merge is allowed.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ── Catch-all: every change needs at least one review ─────────
+*                               @MohamedEMonem
+
+# ── Backend core ──────────────────────────────────────────────
+Backend/**                      @MohamedEMonem
+Backend/src/controllers/**      @MohamedEMonem
+Backend/src/services/**         @MohamedEMonem
+Backend/src/middleware/**       @MohamedEMonem
+Backend/src/routes/**           @MohamedEMonem
+Backend/src/config/**           @MohamedEMonem
+
+# ── Database / migrations (higher risk – require 2 reviews) ───
+Backend/prisma/**               @MohamedEMonem
+
+# ── CI/CD governance scripts ──────────────────────────────────
+.github/**                      @MohamedEMonem
+ci/**                           @MohamedEMonem
+
+# ── Security-sensitive files ──────────────────────────────────
+Backend/src/middleware/auth*    @MohamedEMonem
+Backend/src/utils/**            @MohamedEMonem

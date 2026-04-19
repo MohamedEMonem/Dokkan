@@ -1,0 +1,288 @@
+name: backend-quality-governance
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    paths:
+      - "Backend/**"
+      - "ci/**"
+      - ".github/workflows/backend-quality-governance.yml"
+  push:
+    branches:
+      - main
+      - "release/**"
+    paths:
+      - "Backend/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+  security-events: write
+  issues: write
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+# ──────────────────────────────────────────────────────────────
+# Shared env available to all jobs
+# ──────────────────────────────────────────────────────────────
+env:
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.11"
+  REPORTS_DIR: reports
+
+jobs:
+  # ════════════════════════════════════════════════════════════
+  # JOB 1 – QA GOVERNANCE (process/policy gates)
+  # Runs first; QC jobs are blocked until this passes.
+  # ════════════════════════════════════════════════════════════
+  qa-governance:
+    name: "QA – Process Governance"
+    runs-on: ubuntu-latest
+    outputs:
+      qa_status: ${{ steps.qa_eval.outputs.status }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed for commitlint
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: Backend/package-lock.json
+
+      - name: Install root dev-tools (commitlint)
+        run: npm install --save-dev @commitlint/cli @commitlint/config-conventional 2>/dev/null || true
+
+      - name: "QA-1 | PR metadata & branch-naming policy"
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_HEAD_REF: ${{ github.head_ref }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: bash ci/qa/policy_check.sh
+
+      - name: "QA-2 | Conventional commit lint"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: bash ci/qa/commitlint_check.sh
+
+      - name: "QA-3 | ESLint + TypeScript type-check (lint gate)"
+        run: bash ci/qa/lint_check.sh
+
+      - name: "QA-4 | SonarQube quality gate"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: bash ci/qa/sonar_gate.sh
+
+      - id: qa_eval
+        name: "QA-5 | Evaluate & emit QA status"
+        run: bash ci/qa/evaluate_qa.sh
+
+  # ════════════════════════════════════════════════════════════
+  # JOB 2 – QC VALIDATION (code correctness gates)
+  # Runs in parallel matrix after QA passes.
+  # fail-fast: false so all suites produce reports even if one fails.
+  # ════════════════════════════════════════════════════════════
+  qc-validation:
+    name: "QC – ${{ matrix.suite }}"
+    runs-on: ubuntu-latest
+    needs: qa-governance
+    if: always() && needs.qa-governance.result != 'cancelled'
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [static, unit, integration, contract, security, performance]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: Backend/package-lock.json
+
+      - name: Set up Python
+        if: matrix.suite == 'contract'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Create reports directory
+        run: mkdir -p ${{ env.REPORTS_DIR }}
+
+      - name: "Run QC suite – ${{ matrix.suite }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SUITE: ${{ matrix.suite }}
+        run: bash ci/qc/run_${{ matrix.suite }}.sh
+
+      - name: "Upload suite report – ${{ matrix.suite }}"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-${{ matrix.suite }}
+          path: ${{ env.REPORTS_DIR }}/${{ matrix.suite }}.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ════════════════════════════════════════════════════════════
+  # JOB 3 – AGGREGATE + ENFORCE
+  # Runs after ALL QC suites (regardless of individual results).
+  # Posts PR comment, labels, optionally auto-remediates, and
+  # finally fails the job if any HIGH-severity finding exists.
+  # ════════════════════════════════════════════════════════════
+  aggregate-and-enforce:
+    name: "Governance – Aggregate & Enforce"
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [qa-governance, qc-validation]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Python deps
+        run: pip install requests 2>/dev/null || true
+
+      - name: Download all suite reports
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.REPORTS_DIR }}
+          merge-multiple: true
+
+      - name: Normalize report paths
+        # reports land as reports/report-<suite>/<suite>.json – flatten them
+        run: |
+          for d in ${{ env.REPORTS_DIR }}/report-*/; do
+            suite=$(basename "$d" | sed 's/^report-//')
+            if [ -f "$d/$suite.json" ]; then
+              cp "$d/$suite.json" "${{ env.REPORTS_DIR }}/$suite.json"
+            fi
+          done
+
+      - name: "Classify findings & map to file:line"
+        run: |
+          python ci/governance/classify_findings.py \
+            --reports-dir ${{ env.REPORTS_DIR }} \
+            --out findings.json \
+            --changed-files-base "${{ github.event.pull_request.base.sha }}" \
+            --changed-files-head "${{ github.sha }}"
+
+      - name: "Post / update actionable PR comment"
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python ci/governance/comment_pr.py \
+            --findings findings.json \
+            --pr-number "$PR_NUMBER" \
+            --repo "$REPO" \
+            --run-url "$RUN_URL"
+
+      - name: "Label PR based on findings"
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          python ci/governance/label_pr.py \
+            --findings findings.json \
+            --pr-number "$PR_NUMBER" \
+            --repo "$REPO"
+
+      - name: "Safe auto-remediation (guarded, deterministic fixes only)"
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          HEAD_REF: ${{ github.head_ref }}
+          CONFIDENCE_THRESHOLD: "0.90"
+        run: |
+          python ci/governance/safe_remediate.py \
+            --findings findings.json \
+            --mode guarded \
+            --confidence-threshold "$CONFIDENCE_THRESHOLD" \
+            --head-ref "$HEAD_REF"
+
+      - name: "Upload classified findings"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: classified-findings
+          path: findings.json
+          retention-days: 90
+
+      - name: "Fail pipeline on HIGH-severity findings"
+        run: |
+          python ci/governance/fail_on_high.py --findings findings.json
+
+  # ════════════════════════════════════════════════════════════
+  # JOB 4 – POST-MERGE OBSERVABILITY
+  # Publishes quality metrics after a merge to main/release/*.
+  # ════════════════════════════════════════════════════════════
+  post-merge-observability:
+    name: "Observability – Publish Metrics"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Python deps
+        run: pip install requests 2>/dev/null || true
+
+      - name: Download classified findings (if available)
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.REPORTS_DIR }}
+          merge-multiple: true
+        continue-on-error: true
+
+      - name: Publish quality metrics
+        env:
+          METRICS_ENDPOINT: ${{ secrets.METRICS_PUSH_URL }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
+          REPO: ${{ github.repository }}
+        run: |
+          python ci/metrics/publish.py \
+            --source ${{ env.REPORTS_DIR }} \
+            --sha "$GITHUB_SHA" \
+            --ref "$GITHUB_REF" \
+            --repo "$REPO"
