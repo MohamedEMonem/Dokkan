@@ -40,7 +40,7 @@ export class StoreServices {
                     },
                 }),
                 prisma.user.update({
-                    where:{id:ownerId},
+                    where: { id: ownerId },
                     data: {
                         role: 'StoreOwner',
                     }
@@ -49,9 +49,9 @@ export class StoreServices {
 
             return {store, storeowner};
         } catch (error) {
-            const prismaError = error as { code?: string; meta?: { target?: unknown } };
-            if (prismaError.code === "P2002") {
-                const target = Array.isArray(prismaError.meta?.target) ? prismaError.meta.target : [];
+            const errorWithCode = error as { code?: string; meta?: { target?: unknown } };
+            if (errorWithCode.code === "P2002") {
+                const target = Array.isArray(errorWithCode.meta?.target) ? errorWithCode.meta.target : [];
                 const conflictField = target.includes("subdomain") ? "Subdomain" : "Resource";
                 const conflictError = new Error(`${conflictField} already exists`) as Error & { statusCode?: number };
                 conflictError.statusCode = 409;
