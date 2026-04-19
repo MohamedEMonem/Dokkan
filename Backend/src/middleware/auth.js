@@ -1,14 +1,13 @@
-const jwt = require("jsonwebtoken");
-const prisma = require("../prisma/client");
-const { sendUnauthorized, sendForbidden, sendServerError } = require("../utils/response");
-
-const JWT_SECRET = process.env.JWT_SECRET;
+import jwt from "jsonwebtoken";
+import prisma from "../config/db.js";
+import { sendUnauthorized, sendForbidden, sendServerError } from "../utils/response.js";
 
 function getJwtSecret() {
-    if (!JWT_SECRET) {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
         throw new Error("JWT_SECRET is not configured");
     }
-    return JWT_SECRET;
+    return jwtSecret;
 }
 
 /**
@@ -107,7 +106,7 @@ const authStoreOwner = async (req, res, next) => {
     }
 };
 
-module.exports = {
+export {
     auth,
     authAdmin,
     authStoreOwner

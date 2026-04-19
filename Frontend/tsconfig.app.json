@@ -37,8 +37,7 @@
       "@layout/*": ["layouts/*"],
       "@pages/*": ["pages/*"],
       "@routes/*": ["routes/*"],
-      "@utils/*": ["utils/*"],
-      "@store/*": ["store/*"]
+      "@utils/*": ["utils/*"]
     }
   },
   "include": ["src"]

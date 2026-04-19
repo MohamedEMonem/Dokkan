@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "strict": true,
-    "outDir": "dist",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "allowJs": true,            // Essential for incremental migration
+    "checkJs": false,
     "types": ["node"]
   },
-  "include": ["**/*.ts", "minio.config.js", "src/utils/minioClient.js", "src/routes/upload.js"],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

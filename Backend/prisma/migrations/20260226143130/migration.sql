@@ -21,7 +21,7 @@ CREATE TYPE "StoreStatus" AS ENUM ('Pending', 'Active', 'Suspended');
 
 -- CreateTable
 CREATE TABLE "User" (
-    "user_id" SERIAL NOT NULL,
+    "user_id" UUID NOT NULL,
     "name" CHAR(50) NOT NULL,
     "email" VARCHAR(150) NOT NULL,
     "password" VARCHAR(255) NOT NULL,
@@ -38,8 +38,8 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Store" (
-    "store_id" INTEGER NOT NULL,
-    "owner_id" INTEGER NOT NULL,
+    "store_id" UUID NOT NULL,
+    "owner_id" UUID NOT NULL,
     "name" CHAR(50) NOT NULL,
     "subdomain" VARCHAR(150) NOT NULL,
     "status" "StoreStatus" NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE "Store" (
 
 -- CreateTable
 CREATE TABLE "Plan" (
-    "plan_id" INTEGER NOT NULL,
+    "plan_id" UUID NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "price" DECIMAL(10,2) NOT NULL,
     "features" JSONB NOT NULL,
@@ -67,9 +67,9 @@ CREATE TABLE "Plan" (
 
 -- CreateTable
 CREATE TABLE "Subscription" (
-    "subscription_id" BIGINT NOT NULL,
-    "store_id" INTEGER NOT NULL,
-    "plan_id" INTEGER NOT NULL,
+    "subscription_id" UUID NOT NULL,
+    "store_id" UUID NOT NULL,
+    "plan_id" UUID NOT NULL,
     "status" VARCHAR(50) NOT NULL,
     "next_billing_date" TIMESTAMP(0),
 
@@ -78,18 +78,18 @@ CREATE TABLE "Subscription" (
 
 -- CreateTable
 CREATE TABLE "Category" (
-    "category_id" SERIAL NOT NULL,
+    "category_id" UUID NOT NULL,
     "name" VARCHAR(100) NOT NULL,
-    "parent_category_id" INTEGER,
+    "parent_category_id" UUID,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("category_id")
 );
 
 -- CreateTable
 CREATE TABLE "Product" (
-    "product_id" SERIAL NOT NULL,
-    "store_id" INTEGER NOT NULL,
-    "category_id" INTEGER NOT NULL,
+    "product_id" UUID NOT NULL,
+    "store_id" UUID NOT NULL,
+    "category_id" UUID NOT NULL,
     "title" VARCHAR(150) NOT NULL,
     "description" TEXT,
     "price" DECIMAL(10,2) NOT NULL,
@@ -104,8 +104,8 @@ CREATE TABLE "Product" (
 
 -- CreateTable
 CREATE TABLE "ProductImage" (
-    "image_id" SERIAL NOT NULL,
-    "product_id" INTEGER NOT NULL,
+    "image_id" UUID NOT NULL,
+    "product_id" UUID NOT NULL,
     "image_url" VARCHAR(255) NOT NULL,
     "sort_order" INTEGER DEFAULT 0,
 
@@ -114,9 +114,9 @@ CREATE TABLE "ProductImage" (
 
 -- CreateTable
 CREATE TABLE "Orders" (
-    "order_id" INTEGER NOT NULL,
-    "customer_id" INTEGER NOT NULL,
-    "store_id" INTEGER NOT NULL,
+    "order_id" UUID NOT NULL,
+    "customer_id" UUID NOT NULL,
+    "store_id" UUID NOT NULL,
     "status" "OrderStatus" NOT NULL DEFAULT 'Pending',
     "shipping_address" JSONB,
     "total_amount" DECIMAL(10,2) NOT NULL,
@@ -131,9 +131,9 @@ CREATE TABLE "Orders" (
 
 -- CreateTable
 CREATE TABLE "OrderItem" (
-    "order_item_id" SERIAL NOT NULL,
-    "order_id" INTEGER NOT NULL,
-    "product_id" INTEGER NOT NULL,
+    "order_item_id" UUID NOT NULL,
+    "order_id" UUID NOT NULL,
+    "product_id" UUID NOT NULL,
     "quantity" INTEGER NOT NULL,
     "price_at_purchase" DECIMAL(10,2) NOT NULL,
 
@@ -142,10 +142,10 @@ CREATE TABLE "OrderItem" (
 
 -- CreateTable
 CREATE TABLE "Review" (
-    "review_id" SERIAL NOT NULL,
-    "product_id" INTEGER NOT NULL,
-    "customer_id" INTEGER NOT NULL,
-    "order_id" INTEGER NOT NULL,
+    "review_id" UUID NOT NULL,
+    "product_id" UUID NOT NULL,
+    "customer_id" UUID NOT NULL,
+    "order_id" UUID NOT NULL,
     "rating" INTEGER NOT NULL,
     "review_text" TEXT,
     "store_response" TEXT,
@@ -156,8 +156,8 @@ CREATE TABLE "Review" (
 
 -- CreateTable
 CREATE TABLE "Cart" (
-    "cart_id" SERIAL NOT NULL,
-    "customer_id" INTEGER NOT NULL,
+    "cart_id" UUID NOT NULL,
+    "customer_id" UUID NOT NULL,
     "expires_at" TIMESTAMP(0),
 
     CONSTRAINT "Cart_pkey" PRIMARY KEY ("cart_id")
@@ -165,9 +165,9 @@ CREATE TABLE "Cart" (
 
 -- CreateTable
 CREATE TABLE "CartItem" (
-    "cart_item_id" SERIAL NOT NULL,
-    "cart_id" INTEGER NOT NULL,
-    "product_id" INTEGER NOT NULL,
+    "cart_item_id" UUID NOT NULL,
+    "cart_id" UUID NOT NULL,
+    "product_id" UUID NOT NULL,
     "quantity" INTEGER NOT NULL,
 
     CONSTRAINT "CartItem_pkey" PRIMARY KEY ("cart_item_id")
@@ -175,8 +175,8 @@ CREATE TABLE "CartItem" (
 
 -- CreateTable
 CREATE TABLE "PaymentTransaction" (
-    "transaction_id" SERIAL NOT NULL,
-    "payable_id" INTEGER NOT NULL,
+    "transaction_id" UUID NOT NULL,
+    "payable_id" UUID NOT NULL,
     "payable_type" "PayableType" NOT NULL,
     "gateway_name" VARCHAR(50),
     "gateway_transaction_id" VARCHAR(100),
@@ -189,8 +189,8 @@ CREATE TABLE "PaymentTransaction" (
 
 -- CreateTable
 CREATE TABLE "StoreEmployee" (
-    "user_id" INTEGER NOT NULL,
-    "store_id" INTEGER NOT NULL,
+    "user_id" UUID NOT NULL,
+    "store_id" UUID NOT NULL,
     "permissions" JSONB,
 
     CONSTRAINT "StoreEmployee_pkey" PRIMARY KEY ("user_id","store_id")
@@ -198,10 +198,10 @@ CREATE TABLE "StoreEmployee" (
 
 -- CreateTable
 CREATE TABLE "Message" (
-    "message_id" SERIAL NOT NULL,
-    "sender_id" INTEGER NOT NULL,
-    "receiver_id" INTEGER NOT NULL,
-    "store_id" INTEGER,
+    "message_id" UUID NOT NULL,
+    "sender_id" UUID NOT NULL,
+    "receiver_id" UUID NOT NULL,
+    "store_id" UUID,
     "content" TEXT NOT NULL,
     "read_status" BOOLEAN DEFAULT false,
     "created_at" TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP,
@@ -211,8 +211,8 @@ CREATE TABLE "Message" (
 
 -- CreateTable
 CREATE TABLE "Notification" (
-    "notification_id" INTEGER NOT NULL,
-    "user_id" INTEGER NOT NULL,
+    "notification_id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
     "type" VARCHAR(50) NOT NULL,
     "content" VARCHAR(50) NOT NULL,
     "read_status" BOOLEAN DEFAULT false,
@@ -223,7 +223,7 @@ CREATE TABLE "Notification" (
 
 -- CreateTable
 CREATE TABLE "StoreAnalytics" (
-    "receiver_id" INTEGER NOT NULL
+    "receiver_id" UUID NOT NULL
 );
 
 -- CreateIndex
