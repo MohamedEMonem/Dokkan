@@ -1,4 +1,4 @@
-import type { StoreStatus } from "@prisma/client";
+type StoreStatus = "Pending" | "Active" | "Suspended";
 
 export interface StoreModel {
 	id: string;

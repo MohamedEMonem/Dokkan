@@ -1,4 +1,4 @@
-import { ZodError, ZodTypeAny } from "zod";
+import { ZodError, ZodIssue, ZodTypeAny } from "zod";
 import { Request, Response, NextFunction } from 'express';
 
 export const validateBody = (schema: ZodTypeAny) => {
@@ -6,9 +6,9 @@ export const validateBody = (schema: ZodTypeAny) => {
     try {
       req.body = schema.parse(req.body);
       next();
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof ZodError) {
-        const formattedErrors = error.issues.map((issue) => ({
+        const formattedErrors = error.issues.map((issue: ZodIssue) => ({
           field: issue.path.join('.'),
           message: issue.message,
         }));

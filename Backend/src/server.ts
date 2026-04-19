@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import { sendSuccess, sendError } from "./utils/response.js";
-import productRoutes from "./routes/productRoutes.js";
+import { productRoutes } from "./routes/productRoutes.js";
 import authRoutes from "./routes/auth.js";
 import storeRouter from "./routes/storeRouters.js";
 import cartRoutes from "./routes/cartRoutes.js";
