@@ -8,6 +8,7 @@ import ErrorPage from '@/pages/ErrorPage';
 
 import { LoginForm } from '@/features/auth/Login';
 import { RegisterForm } from '@/features/auth/Register';
+import Profile from '@/pages/Profile';
 
 export default function AppRoutes() {
   return (
@@ -19,9 +20,10 @@ export default function AppRoutes() {
         <Route path="register" element={<RegisterForm />} />
       </Route>
 
-      {/* Protected — store owner only */}
+      {/* Protected */}
       <Route element={<ProtectedRoutes />}>
         <Route path="/dashboard" element={<DashboardLayout />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
       {/* Catch-all */}
       <Route path="*" element={<ErrorPage />} />

@@ -11,10 +11,12 @@ import {
   X,
   Package,
   LogIn,
+  LogOut,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SubItem {
@@ -68,12 +70,6 @@ const iconActions = [
     href: "/cart",
     ariaLabel: "سلة التسوق",
     label: "سلة التسوق",
-  },
-  {
-    icon: <User className="w-5 h-5 text-text-dark" />,
-    href: "/auth/login",
-    ariaLabel: "حسابي",
-    label: "حسابي",
   },
 ];
 
@@ -135,9 +131,11 @@ function NavItem({ item }: { item: NavItemData }) {
 function MobileMenu({
   isOpen,
   onClose,
+  user,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  user: any;
 }) {
   const navigate = useNavigate();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
@@ -180,13 +178,27 @@ function MobileMenu({
 
           <div className="border-b border-gray-200 bg-linear-to-br from-accent-light/30 to-primary/5">
             <div className="flex flex-col items-center text-center p-4!">
-              <div className="w-14 h-14 bg-linear-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center mb-2 shadow-lg">
-                <User className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-base text-gray-900 mb-0.5">مرحباً بك</h3>
-              <p className="text-xs text-gray-500 mb-2">
-                قم بتسجيل الدخول للاستفادة من جميع المزايا
-              </p>
+              {user ? (
+                <>
+                  <UserAvatar 
+                    name={user.name} 
+                    avatarUrl={user.profilePhotoUrl} 
+                    className="w-16 h-16 mb-3 rounded-2xl shadow-md"
+                  />
+                  <h3 className="text-base font-bold text-gray-900 mb-0.5">مرحباً، {user.name}</h3>
+                  <p className="text-xs text-gray-500 mb-2">{user.email}</p>
+                </>
+              ) : (
+                <>
+                  <div className="w-14 h-14 bg-linear-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                    <User className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-base text-gray-900 mb-0.5">مرحباً بك</h3>
+                  <p className="text-xs text-gray-500 mb-2">
+                    قم بتسجيل الدخول للاستفادة من جميع المزايا
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
@@ -258,18 +270,35 @@ function MobileMenu({
           </nav>
 
           <div className="p-4 border-t border-gray-200 flex justify-center">
-            <Button
-              type="button"
-              onClick={() => {
-                onClose();
-                navigate("/auth/login");
-              }}
-              variant="primary"
-              className="h-12! justify-start! m-5! gap-3 p-3! rounded-xl! transition-all duration-200 "
-            >
-              <LogIn className="w-5 h-5 shrink-0 text-white" />
-              <span className="text-sm leading-none">تسجيل الدخول</span>
-            </Button>
+            {user ? (
+              <Button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  localStorage.removeItem("role");
+                  localStorage.removeItem("user");
+                  onClose();
+                  window.location.href = "/auth/login";
+                }}
+                className="h-12! w-full justify-start! m-2! gap-3 p-3! rounded-xl! transition-all duration-200 bg-red-700 text-white hover:bg-red-600 hover:text-white"
+              >
+                <LogOut className="w-5 h-5 shrink-0" />
+                <span className="text-sm font-semibold leading-none">تسجيل الخروج</span>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  navigate("/auth/login");
+                }}
+                variant="primary"
+                className="h-12! w-full justify-start! m-2! gap-3 p-3! rounded-xl! transition-all duration-200"
+              >
+                <LogIn className="w-5 h-5 shrink-0 text-white" />
+                <span className="text-sm leading-none">تسجيل الدخول</span>
+              </Button>
+            )}
           </div>
         </div>
       </aside>
@@ -281,6 +310,11 @@ function MobileMenu({
 export default function Header() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const token = localStorage.getItem("token");
+  const isAuthenticated = !!token;
+  const userRaw = localStorage.getItem("user");
+  const user = userRaw ? JSON.parse(userRaw) : null;
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -331,6 +365,58 @@ export default function Header() {
                     {action.icon}
                   </Link>
                 ))}
+
+                {/* User Profile */}
+                {isAuthenticated && user ? (
+                  <div className="relative group/user">
+                    <button className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors">
+                      <UserAvatar name={user.name} avatarUrl={user.profilePhotoUrl} className="w-7 h-7" />
+                    </button>
+                    {/* User Dropdown */}
+                    <div className="absolute top-10 left-0 pt-2 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-200 z-50">
+                      <div className="w-56 bg-white border border-accent-light rounded-xl shadow-lg flex flex-col overflow-hidden">
+                        <div className="p-3 border-b border-gray-100 flex flex-col gap-1 items-start bg-gray-50/50">
+                          <span className="text-sm font-bold text-gray-900 truncate w-full">{user.name}</span>
+                          <span className="text-xs text-gray-500 truncate w-full">{user.email}</span>
+                        </div>
+                        <div className="p-2 flex flex-col">
+                          <Link to="/profile" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-bg-cream hover:text-primary rounded-md transition-colors">
+                            الملف الشخصي
+                          </Link>
+                          <Link to="/orders" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-bg-cream hover:text-primary rounded-md transition-colors">
+                            طلباتي
+                          </Link>
+                          {user.role === 'StoreOwner' && (
+                            <Link to="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-bg-cream hover:text-primary rounded-md transition-colors">
+                              لوحة تحكم البائع
+                            </Link>
+                          )}
+                          <div className="h-px bg-gray-100 my-1 w-full" />
+                          <button
+                            onClick={() => {
+                              localStorage.removeItem("token");
+                              localStorage.removeItem("role");
+                              localStorage.removeItem("user");
+                              window.location.href = "/auth/login";
+                            }}
+                            className="cursor-pointer flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors w-full text-start"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            تسجيل الخروج
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    to="/auth/login"
+                    className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
+                    aria-label="حسابي"
+                  >
+                    <User className="w-5 h-5 text-text-dark" />
+                  </Link>
+                )}
               </div>
 
               <button
@@ -348,6 +434,7 @@ export default function Header() {
       <MobileMenu
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
+        user={user}
       />      
     </header>
 
