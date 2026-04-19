@@ -49,11 +49,9 @@ export class StoreServices {
 
             return {store, storeowner};
         } catch (error) {
-            const errorWithCode = error as { code?: string; meta?: { target?: unknown } };
-            if (errorWithCode.code === "P2002") {
-                const target = Array.isArray(errorWithCode.meta?.target) ? errorWithCode.meta.target : [];
-                const conflictField = target.includes("subdomain") ? "Subdomain" : "Resource";
-                const conflictError = new Error(`${conflictField} already exists`) as Error & { statusCode?: number };
+            const prismaError = error as { code?: string };
+            if (prismaError.code === "P2002") {
+                const conflictError = new Error("Subdomain already exists") as Error & { statusCode?: number };
                 conflictError.statusCode = 409;
                 throw conflictError;
             }
