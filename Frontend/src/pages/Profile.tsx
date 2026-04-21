@@ -6,6 +6,8 @@ import {
   Phone,
   ShieldCheck,
   Calendar,
+  Lock,
+  Key,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
@@ -176,6 +178,44 @@ export default function Profile() {
                           : "bg-white text-left"
                       }
                     />
+                  </div>
+                  
+                  <div className={`pt-6 border-t-2 border-accent-light mt-10 ${isEditing ? "" : "hidden"}`}>
+                    <h3 className="text-lg text-text-dark mb-6 flex items-center gap-2">
+                      <Lock className="w-5 h-5 text-primary" />
+                      تغيير كلمة المرور
+                    </h3>
+                    <div className="space-y-6">
+                      <Input
+                        label="كلمة المرور الحالية"
+                        type="password"
+                        disabled={!isEditing}
+                        placeholder="أدخل كلمة المرور الحالية"
+                        className={
+                          !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
+                        }
+                      />
+
+                      <Input
+                        label="كلمة المرور الجديدة"
+                        type="password"
+                        disabled={!isEditing}
+                        placeholder="أدخل كلمة المرور الجديدة"
+                        className={
+                          !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
+                        }
+                      />
+
+                      <Input
+                        label="تأكيد كلمة المرور"
+                        type="password"
+                        disabled={!isEditing}
+                        placeholder="أعد إدخال كلمة المرور الجديدة"
+                        className={
+                          !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
+                        }
+                      />
+                    </div>
                   </div>
 
                   {!isEditing && (
