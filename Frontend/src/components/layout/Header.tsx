@@ -312,9 +312,9 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const token = localStorage.getItem("token");
-  const isAuthenticated = !!token;
   const userRaw = localStorage.getItem("user");
   const user = userRaw ? JSON.parse(userRaw) : null;
+  const isAuthenticated = !!token && !!user?.role;
 
   useEffect(() => {
     setMobileMenuOpen(false);
