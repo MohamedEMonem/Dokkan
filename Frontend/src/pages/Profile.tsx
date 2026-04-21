@@ -44,10 +44,10 @@ export default function Profile() {
     : "غير متوفر";
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-warm">
+    <div className="min-h-screen flex flex-col bg-bg-warm overflow-x-hidden">
       <Header />
 
-      <main className="flex-1 py-12 px-4" dir="rtl">
+      <main className="flex-1 py-8 sm:py-12 px-4" dir="rtl">
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
           <div className="text-center mb-10">
@@ -56,10 +56,10 @@ export default function Profile() {
                 <CircleUser className="w-9 h-9 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-text-dark mb-3">
+            <h1 className="text-3xl sm:text-4xl font-bold text-text-dark mb-3">
               حسابي الشخصي
             </h1>
-            <p className="text-lg text-text-muted">
+            <p className="text-base sm:text-lg text-text-muted">
               إدارة معلوماتك الشخصية وإعدادات الحساب
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function Profile() {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Right Sidebar (Profile Info) */}
             <div className="md:col-span-1">
-              <div className="bg-white rounded-2xl border-2 border-accent-light shadow-md p-8">
+              <div className="bg-white rounded-2xl border-2 border-accent-light shadow-md p-6 sm:p-8">
                 <div className="text-center">
                   <div className="relative inline-block mb-6">
                     <div className="size-40! rounded-full overflow-hidden border-4 border-accent-light bg-bg-cream shadow-inner flex items-center justify-center">
@@ -96,7 +96,6 @@ export default function Profile() {
                   </h3>
                   <p className="text-sm text-text-muted mb-4">{user.email}</p>
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full border border-primary/20">
-                    <ShieldCheck className="w-4 h-4 text-primary" />
                     <span className="text-sm font-bold text-primary">
                       {roleTranslation[user.role]}
                     </span>
@@ -108,32 +107,32 @@ export default function Profile() {
             {/* Left Main Area */}
             <div className="md:col-span-2 space-y-8">
               <div className="bg-white rounded-2xl border-2 border-accent-light shadow-md overflow-hidden">
-                <div className="p-8">
-                  <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
-                    <h2 className="text-2xl font-bold text-text-dark">
+                <div className="p-5 sm:p-8">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-100">
+                    <h2 className="text-xl sm:text-2xl font-bold text-text-dark">
                       المعلومات الشخصية
                     </h2>
                     {!isEditing ? (
                       <Button
                         variant="primary"
                         onClick={() => setIsEditing(true)}
-                        className="h-9! w-fit! px-8 rounded-full font-bold shadow-md hover:scale-105 transition-transform text-sm"
+                        className="h-9! w-full sm:w-fit! px-8 rounded-full font-bold shadow-md hover:scale-105 transition-transform text-sm"
                       >
                         تعديل البيانات
                       </Button>
                     ) : (
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 w-full sm:w-auto">
                         <Button
                           variant="primary"
                           onClick={() => setIsEditing(false)}
-                          className="h-9! w-24! bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-md transition-all text-sm"
+                          className="h-9! flex-1 sm:w-24! bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-md transition-all text-sm"
                         >
                           حفظ
                         </Button>
                         <Button
                           variant="secondary"
                           onClick={() => setIsEditing(false)}
-                          className="h-9! w-24! border-2 border-gray-200 text-text-muted hover:bg-gray-50 rounded-full font-bold transition-all text-sm"
+                          className="h-9! flex-1 sm:w-24! border-2 border-gray-200 text-text-muted hover:bg-gray-50 rounded-full font-bold transition-all text-sm"
                         >
                           إلغاء
                         </Button>
@@ -238,8 +237,8 @@ export default function Profile() {
                   <ShieldCheck className="w-5 h-5 text-accent" />
                   تفاصيل الحساب
                 </h3>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center justify-between p-4 bg-bg-cream rounded-xl border border-accent-light/30">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div className="flex flex-wrap items-center justify-between p-4 bg-bg-cream rounded-xl border border-accent-light/30 gap-y-2">
                     <div className="flex items-center gap-3">
                       <Calendar className="w-5 h-5 text-primary/60" />
                       <span className="text-text-muted text-sm">
@@ -250,13 +249,13 @@ export default function Profile() {
                       {formattedDate}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-bg-cream rounded-xl border border-accent-light/30">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center justify-between p-4 bg-bg-cream rounded-xl border border-accent-light/30 gap-y-2">
+                    <div className="flex items-center gap-2">
                       <span className="text-text-muted text-sm">
                         نوع الحساب
                       </span>
                     </div>
-                    <span className="text-text-dark font-black">
+                    <span className="text-text-dark font-black text-xs sm:text-sm">
                       {accountTypeTranslation[user.role]}
                     </span>
                   </div>
