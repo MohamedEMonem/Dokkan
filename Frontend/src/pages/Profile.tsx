@@ -126,14 +126,14 @@ export default function Profile() {
                         <Button
                           variant="primary"
                           onClick={() => setIsEditing(false)}
-                          className="size-h-9! w-24! bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-md transition-all text-sm"
+                          className="h-9! w-24! bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-md transition-all text-sm"
                         >
                           حفظ
                         </Button>
                         <Button
                           variant="secondary"
                           onClick={() => setIsEditing(false)}
-                          className="size-h-9! w-24! border-2 border-gray-200 text-text-muted hover:bg-gray-50 rounded-full font-bold transition-all text-sm"
+                          className="h-9! w-24! border-2 border-gray-200 text-text-muted hover:bg-gray-50 rounded-full font-bold transition-all text-sm"
                         >
                           إلغاء
                         </Button>
