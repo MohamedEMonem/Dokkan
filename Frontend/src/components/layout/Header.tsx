@@ -132,10 +132,12 @@ function MobileMenu({
   isOpen,
   onClose,
   user,
+  onLogout,
 }: {
   isOpen: boolean;
   onClose: () => void;
   user: any;
+  onLogout: () => void;
 }) {
   const navigate = useNavigate();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
@@ -275,11 +277,8 @@ function MobileMenu({
               <Button
                 type="button"
                 onClick={() => {
-                  localStorage.removeItem("token");
-                  localStorage.removeItem("role");
-                  localStorage.removeItem("user");
+                  onLogout();
                   onClose();
-                  window.location.href = "/auth/login";
                 }}
                 className="h-12! w-full justify-start! m-2! gap-3 p-3! rounded-xl! transition-all duration-200 bg-red-700 text-white hover:bg-red-600 hover:text-white"
               >
@@ -323,9 +322,17 @@ export default function Header() {
     setMobileMenuOpen(false);
   }, [location.pathname, location.search]);
 
+  // function to handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
+    window.location.href = "/auth/login";
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
-      <div className="container mx-auto ps-8! pe-4 md:ps-12! md:pe-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -424,13 +431,8 @@ export default function Header() {
                       </div>
                       <div className="p-2 border-t border-gray-100">
                         <button
-                          onClick={() => {
-                            localStorage.removeItem("token");
-                            localStorage.removeItem("role");
-                            localStorage.removeItem("user");
-                            window.location.href = "/auth/login";
-                          }}
-                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full text-start"
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full text-start cursor-pointer"
                         >
                           <LogOut className="w-4 h-4" />
                           تسجيل الخروج
@@ -466,6 +468,7 @@ export default function Header() {
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         user={user}
+        onLogout={handleLogout}
       />
     </header>
   );
