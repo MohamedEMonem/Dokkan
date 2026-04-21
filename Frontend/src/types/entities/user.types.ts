@@ -23,6 +23,7 @@ export interface IUserInfo {
   profilePhotoUrl?: string;
   googleOauthId?: string;
   isVerified: boolean;
+  createdAt: Date;
 }
 
 // ── Role Specific Extensions ─────────────────────────── //
