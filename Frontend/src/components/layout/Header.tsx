@@ -379,7 +379,11 @@ export default function Header() {
               {/* User Profile */}
               {isAuthenticated && user ? (
                 <div className="relative group/user">
-                  <button className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors">
+                  <button 
+                    className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
                     <UserAvatar
                       name={user.name}
                       avatarUrl={user.profilePhotoUrl}
@@ -387,7 +391,7 @@ export default function Header() {
                     />
                   </button>
                   {/* User Dropdown */}
-                  <div className="absolute top-10 left-0 pt-2 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-200 z-50">
+                  <div className="absolute top-10 left-0 pt-2 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible group-focus-within/user:opacity-100 group-focus-within/user:visible transition-all duration-200 z-50">
                     <div className="w-64 bg-white border border-gray-200 rounded-2xl shadow-xl flex flex-col overflow-hidden">
                       <div className="p-4 flex items-center gap-3 bg-gray-50/50 border-b border-gray-100">
                         <UserAvatar
