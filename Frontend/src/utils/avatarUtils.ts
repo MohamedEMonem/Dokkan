@@ -1,7 +1,14 @@
+const getTrimmedName = (name?: string): string => {
+  if (!name) return "";
+  return name.trim();
+};
+
 // Helper to extract initials (e.g., "Mohamed Hassan" -> "MH", "Mohamed" -> "M", "Mohamed Ali Hassan" -> "MH")
 export const getInitials = (name?: string) => {
-  if (!name) return "";
-  const parts = name.trim().split(/\s+/);
+  const trimmedName = getTrimmedName(name);
+  if (!trimmedName) return "";
+ 
+  const parts = trimmedName.split(/\s+/);
   if (parts.length >= 2) {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
