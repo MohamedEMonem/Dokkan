@@ -17,6 +17,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import type { IUserInfo } from "@/types/entities/user.types";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SubItem {
@@ -135,7 +136,7 @@ function MobileMenu({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  user: any;
+  user: Pick<IUserInfo, "name" | "email" | "profilePhotoUrl"> | null;
 }) {
   const navigate = useNavigate();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
