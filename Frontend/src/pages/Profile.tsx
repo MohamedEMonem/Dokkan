@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   Calendar,
   Lock,
-  Key,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
