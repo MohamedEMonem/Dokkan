@@ -30,7 +30,7 @@ function trimUser<T extends { name?: string | null }>(user: T) {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const requestData = req.body?.data ?? {};
+    const requestData = req.body?.data ?? req.body ?? {};
     const { email, password, name } = requestData;
     const normalizedName = typeof name === "string" ? name.trim() : "";
 
@@ -104,6 +104,7 @@ export const login = async (req: Request, res: Response) => {
           contactNumber: user.contactNumber,
           profilePhotoUrl: user.profilePhotoUrl,
           isVerified: user.isVerified,
+          createdAt: user.createdAt,
         },
         token,
       },
