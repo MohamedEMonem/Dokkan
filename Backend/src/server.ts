@@ -6,6 +6,8 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import authRoutes from "./routes/auth.js";
 import storeRouter from "./routes/storeRouters.js";
 import cartRoutes from "./routes/cartRoutes.js";
+// @ts-ignore
+import cors from "cors";
 
 dotenv.config();
 const app = express();
@@ -14,6 +16,12 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+//npm install corsconfigured for development, in production we will use nginx to handle cors
+app.use(cors({
+    origin: "http://localhost:5000",
+    credentials: true,
+    optionsSuccessStatus: 200
+}));
 
 app.get('/api/health', (req, res) => {
     return sendSuccess(res, { 
