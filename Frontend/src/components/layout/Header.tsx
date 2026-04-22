@@ -11,10 +11,12 @@ import {
   X,
   Package,
   LogIn,
+  LogOut,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SubItem {
@@ -68,12 +70,6 @@ const iconActions = [
     href: "/cart",
     ariaLabel: "سلة التسوق",
     label: "سلة التسوق",
-  },
-  {
-    icon: <User className="w-5 h-5 text-text-dark" />,
-    href: "/auth/login",
-    ariaLabel: "حسابي",
-    label: "حسابي",
   },
 ];
 
@@ -135,9 +131,13 @@ function NavItem({ item }: { item: NavItemData }) {
 function MobileMenu({
   isOpen,
   onClose,
+  user,
+  onLogout,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  user: any;
+  onLogout: () => void;
 }) {
   const navigate = useNavigate();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
@@ -180,13 +180,29 @@ function MobileMenu({
 
           <div className="border-b border-gray-200 bg-linear-to-br from-accent-light/30 to-primary/5">
             <div className="flex flex-col items-center text-center p-4!">
-              <div className="w-14 h-14 bg-linear-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center mb-2 shadow-lg">
-                <User className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-base text-gray-900 mb-0.5">مرحباً بك</h3>
-              <p className="text-xs text-gray-500 mb-2">
-                قم بتسجيل الدخول للاستفادة من جميع المزايا
-              </p>
+              {user ? (
+                <>
+                  <UserAvatar
+                    name={user.name}
+                    avatarUrl={user.profilePhotoUrl}
+                    className="w-16 h-16 mb-3 rounded-2xl shadow-md"
+                  />
+                  <h3 className="text-base font-bold text-gray-900 mb-0.5">
+                    مرحباً، {user.name}
+                  </h3>
+                  <p className="text-xs text-gray-500 mb-2">{user.email}</p>
+                </>
+              ) : (
+                <>
+                  <div className="w-14 h-14 bg-linear-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                    <User className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-base text-gray-900 mb-0.5">مرحباً بك</h3>
+                  <p className="text-xs text-gray-500 mb-2">
+                    قم بتسجيل الدخول للاستفادة من جميع المزايا
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
@@ -207,9 +223,8 @@ function MobileMenu({
 
                   {item.subItems && (
                     <Button
-                      onClick={() => toggleSection(item.label)}                      
+                      onClick={() => toggleSection(item.label)}
                       variant="tertiary"
-
                       className="inline-flex size-9! text-primary transition-colors"
                       aria-label={`فتح ${item.label}`}
                     >
@@ -258,18 +273,34 @@ function MobileMenu({
           </nav>
 
           <div className="p-4 border-t border-gray-200 flex justify-center">
-            <Button
-              type="button"
-              onClick={() => {
-                onClose();
-                navigate("/auth/login");
-              }}
-              variant="primary"
-              className="h-12! justify-start! m-5! gap-3 p-3! rounded-xl! transition-all duration-200 "
-            >
-              <LogIn className="w-5 h-5 shrink-0 text-white" />
-              <span className="text-sm leading-none">تسجيل الدخول</span>
-            </Button>
+            {user ? (
+              <Button
+                type="button"
+                onClick={() => {
+                  onLogout();
+                  onClose();
+                }}
+                className="h-12! w-full justify-start! m-2! gap-3 p-3! rounded-xl! transition-all duration-200 bg-red-700 text-white hover:bg-red-600 hover:text-white"
+              >
+                <LogOut className="w-5 h-5 shrink-0" />
+                <span className="text-sm font-semibold leading-none">
+                  تسجيل الخروج
+                </span>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  navigate("/auth/login");
+                }}
+                variant="primary"
+                className="h-12! w-full justify-start! m-2! gap-3 p-3! rounded-xl! transition-all duration-200"
+              >
+                <LogIn className="w-5 h-5 shrink-0 text-white" />
+                <span className="text-sm leading-none">تسجيل الدخول</span>
+              </Button>
+            )}
           </div>
         </div>
       </aside>
@@ -282,74 +313,167 @@ export default function Header() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const token = localStorage.getItem("token");
+  const userRaw = localStorage.getItem("user");
+  const user = userRaw ? JSON.parse(userRaw) : null;
+  const isAuthenticated = !!token && !!user?.role;
+
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname, location.search]);
 
+  // function to handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
+    window.location.href = "/auth/login";
+  };
+
   return (
-      <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
-        <div className="container mx-auto ps-8! pe-4 md:ps-12! md:pe-6">
-          <div className="flex items-center justify-between h-16 gap-4">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
-              <div className="w-10 h-10 bg-linear-to-br from-primary to-primary-light rounded-xl flex items-center justify-center">
-                <Store className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl text-primary">دكان</span>
-            </Link>
-
-            {/* Nav links */}
-            <nav className="hidden lg:flex items-center gap-10">
-              {navItems.map((item) => (
-                <NavItem key={item.href} item={item} />
-              ))}
-            </nav>
-
-            {/* Search bar */}
-            <div className="hidden md:flex flex-1 items-center justify-center max-w-2xl mx-auto">
-              <div className="w-full">
-                <div className="relative">
-                  <Input
-                    type="text"
-                    placeholder="ابحث عن منتج أو متجر..."
-                    icon={<Search className="w-5 h-5 text-gray-400" />}
-                  />
-                </div>
-              </div>
+    <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 gap-4">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <div className="w-10 h-10 bg-linear-to-br from-primary to-primary-light rounded-xl flex items-center justify-center">
+              <Store className="w-6 h-6 text-white" />
             </div>
+            <span className="text-xl text-primary">دكان</span>
+          </Link>
 
-            {/* Desktop icon actions + mobile menu toggle */}
-            <div className="flex items-center gap-2 md:gap-4">
-              <div className="hidden lg:flex items-center gap-4">
-                {iconActions.map((action) => (
-                  <Link
-                    key={action.href}
-                    to={action.href}
-                    className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
-                    aria-label={action.ariaLabel}
-                  >
-                    {action.icon}
-                  </Link>
-                ))}
+          {/* Nav links */}
+          <nav className="hidden lg:flex items-center gap-10">
+            {navItems.map((item) => (
+              <NavItem key={item.href} item={item} />
+            ))}
+          </nav>
+
+          {/* Search bar */}
+          <div className="hidden md:flex flex-1 items-center justify-center max-w-2xl mx-auto">
+            <div className="w-full">
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="ابحث عن منتج أو متجر..."
+                  icon={<Search className="w-5 h-5 text-gray-400" />}
+                />
               </div>
-
-              <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors lg:hidden"
-                aria-label="فتح القائمة"
-                aria-expanded={mobileMenuOpen}
-              >
-                <Menu className="w-6 h-6 text-text-dark" />
-              </button>
             </div>
           </div>
+
+          {/* Desktop icon actions + mobile menu toggle */}
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="hidden lg:flex items-center gap-4">
+              {iconActions.map((action) => (
+                <Link
+                  key={action.href}
+                  to={action.href}
+                  className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
+                  aria-label={action.ariaLabel}
+                >
+                  {action.icon}
+                </Link>
+              ))}
+
+              {/* User Profile */}
+              {isAuthenticated && user ? (
+                <div className="relative group/user">
+                  <button 
+                    className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <UserAvatar
+                      name={user.name}
+                      avatarUrl={user.profilePhotoUrl}
+                      className="w-7 h-7"
+                    />
+                  </button>
+                  {/* User Dropdown */}
+                  <div className="absolute top-10 left-0 pt-2 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible group-focus-within/user:opacity-100 group-focus-within/user:visible transition-all duration-200 z-50">
+                    <div className="w-64 bg-white border border-gray-200 rounded-2xl shadow-xl flex flex-col overflow-hidden">
+                      <div className="p-4 flex items-center gap-3 bg-gray-50/50 border-b border-gray-100">
+                        <UserAvatar
+                          name={user.name}
+                          avatarUrl={user.profilePhotoUrl}
+                          className="w-10 h-10 shrink-0 shadow-sm"
+                        />
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm font-semibold text-gray-900 truncate">
+                            {user.name}
+                          </span>
+                          <span className="text-xs text-gray-500 truncate">
+                            {user.email}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-2 space-y-0.5">
+                        <Link
+                          to="/profile"
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100/80 rounded-xl transition-colors"
+                        >
+                          <User className="w-4 h-4 text-gray-500" />
+                          الملف الشخصي
+                        </Link>
+                        <Link
+                          to="/orders"
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100/80 rounded-xl transition-colors"
+                        >
+                          <Package className="w-4 h-4 text-gray-500" />
+                          طلباتي
+                        </Link>
+                        {user.role === "StoreOwner" && (
+                          <Link
+                            to="/dashboard"
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100/80 rounded-xl transition-colors"
+                          >
+                            <Store className="w-4 h-4 text-gray-500" />
+                            لوحة تحكم البائع
+                          </Link>
+                        )}
+                      </div>
+                      <div className="p-2 border-t border-gray-100">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full text-start cursor-pointer"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          تسجيل الخروج
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  to="/auth/login"
+                  className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
+                  aria-label="حسابي"
+                >
+                  <User className="w-5 h-5 text-text-dark" />
+                </Link>
+              )}
+            </div>
+
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors lg:hidden"
+              aria-label="فتح القائمة"
+              aria-expanded={mobileMenuOpen}
+            >
+              <Menu className="w-6 h-6 text-text-dark" />
+            </button>
+          </div>
         </div>
+      </div>
 
       <MobileMenu
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-      />      
+        user={user}
+        onLogout={handleLogout}
+      />
     </header>
-
   );
 }
