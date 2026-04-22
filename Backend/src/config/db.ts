@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
-	throw new Error("DATABASE_URL is not defined. Ensure .env is loaded before Prisma client initialization.");
+  throw new Error("DATABASE_URL is not defined. Ensure .env is loaded before Prisma client initialization.");
 }
 
 const adapter = new PrismaPg({ connectionString });

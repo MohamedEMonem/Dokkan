@@ -1,17 +1,10 @@
 import express from "express";
-const router = express.Router();
-
 import * as CartController from "../controllers/CartController.js";
 import { auth } from "../middleware/auth.js";
 
-// All cart routes require authentication
-router.use(auth);
+const router = express.Router();
 
-// GET    /api/cart 
-// POST   /api/cart/items  
-// PATCH  /api/cart/items/:productId
-// DELETE /api/cart/items/:productId
-// DELETE /api/cart
+router.use(auth);
 
 router.get("/", CartController.getCart);
 router.post("/items", CartController.addItem);
