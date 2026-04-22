@@ -116,6 +116,20 @@ export const updateCategory = async (req: Request, res: Response) => {
         if (!parent) {
           return sendNotFound(res, "Parent category not found");
         }
+
+        let ancestorId: string | null = parent.parentCategoryId;
+        while (ancestorId !== null) {
+          if (ancestorId === id) {
+            return sendError(res, "Category cannot be moved under its own descendant", 400);
+          }
+
+          const ancestor = await prisma.category.findUnique({
+            where: { id: ancestorId },
+            select: { parentCategoryId: true },
+          });
+
+          ancestorId = ancestor?.parentCategoryId ?? null;
+        }
       }
 
       data.parentCategoryId = parentCategoryId;
