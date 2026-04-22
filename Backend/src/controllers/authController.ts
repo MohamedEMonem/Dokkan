@@ -1,0 +1,1 @@
+export { deleteAccount, getProfile, login, patchProfile, register } from "../modules/auth/auth.controller.js";
