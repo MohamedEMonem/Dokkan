@@ -42,7 +42,7 @@ npm run db:migrate
 ### 5. Start the dev server
 
 ```bash
-npm run start:dev
+npm run dev
 ```
 
 ## Useful Commands
