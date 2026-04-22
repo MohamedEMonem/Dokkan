@@ -10,7 +10,7 @@ const containerClasses =
   "flex items-center gap-2 " +
   "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30 " +
   "transition-[color,box-shadow] " +
-  "has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50";
+  "has-[:disabled]:pointer-events-none";
 
 const inputClasses =
   "flex-1 bg-transparent border-none outline-none p-0 " +
