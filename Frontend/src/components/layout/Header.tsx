@@ -84,7 +84,7 @@ function SubNavItem({
     <Link
       to={href}
       onClick={onClick}
-      className={`w-full h-9 px-4! py-2! text-sm text-text-dark hover:bg-bg-cream hover:text-primary rounded-lg transition-colors ${className ?? ""}`}
+      className={`w-full h-9 px-4 py-2 text-sm text-text-dark hover:bg-bg-cream hover:text-primary rounded-lg transition-colors ${className ?? ""}`}
     >
       {label}
     </Link>
@@ -165,7 +165,7 @@ function MobileMenu({
         }`}
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between p-4! border-b border-accent-light">
+          <div className="flex items-center justify-between p-4 border-b border-accent-light">
             <h2 className="text-lg font-bold text-text-dark">
               القائمة الرئيسية
             </h2>
@@ -179,7 +179,7 @@ function MobileMenu({
           </div>
 
           <div className="border-b border-gray-200 bg-linear-to-br from-accent-light/30 to-primary/5">
-            <div className="flex flex-col items-center text-center p-4!">
+            <div className="flex flex-col items-center text-center p-4">
               {user ? (
                 <>
                   <UserAvatar
@@ -206,9 +206,9 @@ function MobileMenu({
             </div>
           </div>
 
-          <nav className="flex-1 overflow-y-auto py-4! px-2! justify-center">
+          <nav className="flex-1 overflow-y-auto py-4 px-2 justify-center">
             {navItems.map((item) => (
-              <div key={item.href} className="px-5! py-1! flex flex-col ">
+              <div key={item.href} className="px-5 py-1 flex flex-col ">
                 <div className="flex items-center justify-between">
                   <Link
                     to={item.href}
@@ -225,7 +225,7 @@ function MobileMenu({
                     <Button
                       onClick={() => toggleSection(item.label)}
                       variant="tertiary"
-                      className="inline-flex size-9! text-primary transition-colors"
+                      className="inline-flex size-9 text-primary transition-colors"
                       aria-label={`فتح ${item.label}`}
                     >
                       <ChevronDown
@@ -238,7 +238,7 @@ function MobileMenu({
                 </div>
 
                 {item.subItems && openSections[item.label] && (
-                  <ul className="mt-2! mr-8! space-y-1 flex flex-col gap-3">
+                  <ul className="mt-2 mr-8 space-y-1 flex flex-col gap-3">
                     {item.subItems.map((sub) => (
                       <li key={sub.href}>
                         <Link
@@ -255,7 +255,7 @@ function MobileMenu({
               </div>
             ))}
 
-            <div className="mt-2 py-4! px-5! space-y-1 flex flex-col gap-3">
+            <div className="mt-2 py-4 px-5 space-y-1 flex flex-col gap-3">
               {iconActions.map((action) => (
                 <Link
                   key={action.href}
@@ -280,7 +280,7 @@ function MobileMenu({
                   onLogout();
                   onClose();
                 }}
-                className="h-12! w-full justify-start! m-2! gap-3 p-3! rounded-xl! transition-all duration-200 bg-red-700 text-white hover:bg-red-600 hover:text-white"
+                className="h-12 w-full justify-start m-2 gap-3 p-3 rounded-xl transition-all duration-200 bg-red-700 text-white hover:bg-red-600 hover:text-white"
               >
                 <LogOut className="w-5 h-5 shrink-0" />
                 <span className="text-sm font-semibold leading-none">
@@ -295,7 +295,7 @@ function MobileMenu({
                   navigate("/auth/login");
                 }}
                 variant="primary"
-                className="h-12! w-full justify-start! m-2! gap-3 p-3! rounded-xl! transition-all duration-200"
+                className="h-12 w-full justify-start m-2 gap-3 p-3 rounded-xl transition-all duration-200"
               >
                 <LogIn className="w-5 h-5 shrink-0 text-white" />
                 <span className="text-sm leading-none">تسجيل الدخول</span>
