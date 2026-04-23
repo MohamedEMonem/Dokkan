@@ -27,7 +27,7 @@ npm run infra:up
 
 > **Windows users:** If port 5432 is blocked by Hyper-V, run in an **admin terminal**:
 >
-> ```
+> ```Bash
 > net stop winnat
 > npm run infra:up
 > net start winnat
@@ -48,7 +48,7 @@ npm run dev
 ## Useful Commands
 
 | Command | Description |
-|---|---|
+|---|---| Bash
 | `npm run infra:up` | Start all Docker services |
 | `npm run infra:down` | Stop all Docker services |
 | `npm run infra:logs` | View Docker service logs |
@@ -59,7 +59,7 @@ npm run dev
 ## Services
 
 | Service | URL |
-|---|---|
+|---|---| Bash
 | PostgreSQL | `localhost:5432` |
 | Redis | `localhost:6379` |
 | Meilisearch | `http://localhost:7700` |
