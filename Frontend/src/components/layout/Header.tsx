@@ -12,6 +12,7 @@ import {
   Package,
   LogIn,
   LogOut,
+  ShoppingBag,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
@@ -70,6 +71,19 @@ const iconActions = [
     href: "/cart",
     ariaLabel: "سلة التسوق",
     label: "سلة التسوق",
+  },
+];
+
+const userActions = [
+  {
+    label: "طلباتي",
+    href: "/orders",
+    icon: ShoppingBag,
+  },
+  {
+    label: "الملف الشخصي",
+    href: "/profile",
+    icon: User,
   },
 ];
 
@@ -270,19 +284,34 @@ function MobileMenu({
                   </Link>
                 </li>
               ))}
+
+              {user &&
+                userActions.map((action) => (
+                  <li key={action.href}>
+                    <Link
+                      to={action.href}
+                      onClick={onClose}
+                      className="w-full flex items-center gap-3 px-4 py-3 [&>svg]:text-primary rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:transform hover:scale-[1.01]"
+                    >
+                      <action.icon className="w-5 h-5 shrink-0" />
+                      <span className="text-base font-medium text-text-dark">
+                        {action.label}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
             </ul>
           </nav>
 
           <div className="border-t border-gray-200 px-4 py-3">
             {user ? (
               <Button
-                type="button"
                 variant="hero"
                 onClick={() => {
                   onLogout();
                   onClose();
                 }}
-                className="w-full gap-3 px-4 py-3 rounded-xl transition-all duration-200  text-red-500 hover:bg-red-50 hover:text-white"
+                className="gap-3 px-4 py-3 rounded-xl transition-all duration-200  text-red-500 hover:bg-red-50 "
               >
                 <LogOut className="w-5 h-5 shrink-0" />
                 <span className="text-sm font-semibold leading-none">
@@ -329,7 +358,7 @@ export default function Header() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("user");
-    window.location.href = "/auth/login";
+    window.location.href = "/";
   };
 
   return (
@@ -337,7 +366,7 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-10 h-10 bg-linear-to-br from-primary to-primary-light rounded-xl flex items-center justify-center">
               <Store className="w-6 h-6 text-white" />
             </div>
@@ -357,6 +386,7 @@ export default function Header() {
               <div className="relative">
                 <Input
                   type="text"
+                  className="h-10!"
                   placeholder="ابحث عن منتج أو متجر..."
                   icon={<Search className="w-5 h-5 text-gray-400" />}
                 />
@@ -365,7 +395,7 @@ export default function Header() {
           </div>
 
           {/* Icon actions + mobile menu toggle */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             {iconActions.map((action) => (
               <Link
                 key={action.href}
@@ -381,59 +411,47 @@ export default function Header() {
               {/* User Profile */}
               {isAuthenticated && user ? (
                 <div className="relative group/user">
-                  <button
-                    className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
+                  <Button
+                    className="inline-flex items-center justify-center size-9!"
                     aria-haspopup="true"
                     aria-expanded="false"
+                    variant="hero"
                   >
                     <UserAvatar
                       name={user.name}
                       avatarUrl={user.profilePhotoUrl}
                       className="w-7 h-7"
                     />
-                  </button>
+                  </Button>
                   {/* User Dropdown */}
                   <div className="absolute top-10 left-0 pt-2 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible group-focus-within/user:opacity-100 group-focus-within/user:visible transition-all duration-200 z-50">
                     <div className="w-64 bg-white border border-gray-200 rounded-2xl shadow-xl flex flex-col overflow-hidden">
-                      <div className="p-4 flex items-center gap-3 bg-gray-50/50 border-b border-gray-100">
+                      <div className="p-2 flex flex-col items-center text-center bg-gray-50/50 border-b border-gray-100">
                         <UserAvatar
                           name={user.name}
                           avatarUrl={user.profilePhotoUrl}
                           className="w-10 h-10 shrink-0 shadow-sm"
                         />
                         <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-semibold text-gray-900 truncate">
+                          <span className="text-base font-semibold text-text-dark">
                             {user.name}
                           </span>
-                          <span className="text-xs text-gray-500 truncate">
+                          <span className="text-xs text-gray-500 ">
                             {user.email}
                           </span>
                         </div>
                       </div>
                       <div className="p-2 space-y-0.5">
-                        <Link
-                          to="/profile"
-                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100/80 rounded-xl transition-colors"
-                        >
-                          <User className="w-4 h-4 text-gray-500" />
-                          الملف الشخصي
-                        </Link>
-                        <Link
-                          to="/orders"
-                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100/80 rounded-xl transition-colors"
-                        >
-                          <Package className="w-4 h-4 text-gray-500" />
-                          طلباتي
-                        </Link>
-                        {user.role === "StoreOwner" && (
+                        {userActions.map((action) => (
                           <Link
-                            to="/dashboard"
-                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100/80 rounded-xl transition-colors"
+                            key={action.href}
+                            to={action.href}
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-dark hover:bg-bg-cream hover:text-primary rounded-xl transition-colors group"
                           >
-                            <Store className="w-4 h-4 text-gray-500" />
-                            لوحة تحكم البائع
+                            <action.icon className="w-4 h-4 text-primary group-hover:text-primary transition-colors" />
+                            {action.label}
                           </Link>
-                        )}
+                        ))}
                       </div>
                       <div className="p-2 border-t border-gray-100">
                         <button
