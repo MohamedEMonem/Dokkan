@@ -1,8 +1,10 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import prismaClientPkg from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
+
+const { PrismaClient } = prismaClientPkg;
 
 const connectionString = process.env.DATABASE_URL;
 const adapter = new PrismaPg({ connectionString });
