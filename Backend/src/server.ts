@@ -21,19 +21,6 @@ const allowedOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-//npm install corsconfigured for development, in production we will use nginx to handle cors
-app.use(cors({
-    origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-            return;
-        }
-
-        callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    optionsSuccessStatus: 200
-}));
 
 app.get('/api/health', (req, res) => {
     return sendSuccess(res, { 
