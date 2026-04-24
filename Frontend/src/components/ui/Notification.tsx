@@ -116,6 +116,5 @@ export const Notification = () => (
     theme="dark"
     rtl
     newestOnTop
-    className="px-4! top-4!"
   />
 );

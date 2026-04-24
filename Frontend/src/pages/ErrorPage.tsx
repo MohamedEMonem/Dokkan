@@ -35,10 +35,9 @@ export default function ErrorPage() {
           <Button
             variant="secondary"
             onClick={() => navigate(-1)}
-            className="h-12 sm:h-14 text-lg sm:text-xl flex-1 rounded-xl shadow-md order-2 sm:order-1"
-            icon={<ArrowRight size={24} className="shrink-0" />}
-            iconPos="right"
+            className="h-12 sm:h-14 text-lg sm:text-xl flex-1 rounded-xl shadow-md gap-2 order-2 sm:order-1"
           >
+            <ArrowRight size={24} className="shrink-0" />
             العودة
           </Button>
 
@@ -46,10 +45,9 @@ export default function ErrorPage() {
           <Button
             variant="primary"
             onClick={() => navigate("/")}
-            className="h-12 sm:h-14 text-lg sm:text-xl flex-1 rounded-xl shadow-md order-1 sm:order-2"
-            icon={<HomeIcon size={24} className="shrink-0" />}
-            iconPos="right"
+            className="h-12 sm:h-14 text-lg sm:text-xl flex-1 rounded-xl shadow-md gap-2 order-1 sm:order-2"
           >
+            <HomeIcon size={24} className="shrink-0" />
             الرئيسية
           </Button>
         </div>
