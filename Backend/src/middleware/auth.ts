@@ -18,16 +18,26 @@ function getJwtSecret() {
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const authorizationHeader = req.header("Authorization");
 
-    if (!token) {
+    if (!authorizationHeader) {
       return sendUnauthorized(res, "Access denied. No token provided.");
     }
 
+    const headerMatch = authorizationHeader.trim().match(/^Bearer\s+([^\s]+)$/);
+    if (!headerMatch) {
+      return sendUnauthorized(res, "Malformed authorization header. Expected: Bearer <token>.");
+    }
+
+    const token = headerMatch[1];
+
     const decoded = jwt.verify(token, getJwtSecret()) as DecodedToken;
 
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+    const user = await prisma.user.findFirst({
+      where: {
+        id: decoded.userId,
+        deletedAt: null,
+      },
       select: {
         id: true,
         email: true,
@@ -39,14 +49,10 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     if (!user) {
-      return sendUnauthorized(res, "Invalid token. User not found.");
+      return sendUnauthorized(res, "Account has been deleted or is no longer available.");
     }
 
-    if (user.deletedAt) {
-      return sendUnauthorized(res, "Account has been deleted.");
-    }
-
-    user.name = user.name?.trimEnd();
+    user.name = user.name?.trim();
 
     req.user = user;
     req.token = token;
