@@ -87,6 +87,12 @@ const userActions = [
   },
 ];
 
+// ─── Styles ──────────────────────────────────────────────────────────────────
+const navLinkVariant = (isActive: boolean) =>
+  isActive
+    ? "bg-linear-to-r from-primary to-primary-light text-white shadow-md transform scale-[1.02] [&>svg]:text-white"
+    : "text-text-dark hover:bg-bg-cream hover:text-primary [&>svg]:text-primary";
+
 // ─── SubNavItem ──────────────────────────────────────────────────────────────
 function SubNavItem({
   label,
@@ -154,6 +160,7 @@ function MobileMenu({
   onLogout: () => void;
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (label: string) => {
@@ -270,36 +277,42 @@ function MobileMenu({
                 </li>
               ))}
 
-              {iconActions.map((action) => (
-                <li key={action.href}>
-                  <Link
-                    to={action.href}
-                    onClick={onClose}
-                    className="flex items-center gap-3 px-4 py-3 [&>svg]:text-primary rounded-xl hover:bg-bg-cream transition-colors"
-                  >
-                    {action.icon}
-                    <span className="text-base font-medium text-text-dark">
-                      {action.label}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-
-              {user &&
-                userActions.map((action) => (
+              {iconActions.map((action) => {
+                const isActive = location.pathname === action.href;
+                return (
                   <li key={action.href}>
                     <Link
                       to={action.href}
                       onClick={onClose}
-                      className="w-full flex items-center gap-3 px-4 py-3 [&>svg]:text-primary rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:transform hover:scale-[1.01]"
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${navLinkVariant(isActive)}`}
                     >
-                      <action.icon className="w-5 h-5 shrink-0" />
-                      <span className="text-base font-medium text-text-dark">
+                      {action.icon}
+                      <span className="text-base font-medium">
                         {action.label}
                       </span>
                     </Link>
                   </li>
-                ))}
+                );
+              })}
+
+              {user &&
+                userActions.map((action) => {
+                  const isActive = action.href === location.pathname;
+                  return (
+                    <li key={action.href}>
+                      <Link
+                        to={action.href}
+                        onClick={onClose}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${navLinkVariant(isActive)}`}
+                      >
+                        <action.icon className="w-5 h-5 shrink-0" />
+                        <span className="text-base font-medium">
+                          {action.label}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
             </ul>
           </nav>
 
@@ -442,16 +455,19 @@ export default function Header() {
                         </div>
                       </div>
                       <div className="p-2 space-y-0.5">
-                        {userActions.map((action) => (
-                          <Link
-                            key={action.href}
-                            to={action.href}
-                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-dark hover:bg-bg-cream hover:text-primary rounded-xl transition-colors group"
-                          >
-                            <action.icon className="w-4 h-4 text-primary group-hover:text-primary transition-colors" />
-                            {action.label}
-                          </Link>
-                        ))}
+                        {userActions.map((action) => {
+                          const isActive = location.pathname === action.href;
+                          return (
+                            <Link
+                              key={action.href}
+                              to={action.href}
+                              className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group ${navLinkVariant(isActive)}`}
+                            >
+                              <action.icon className="w-4 h-4 transition-colors" />
+                              {action.label}
+                            </Link>
+                          );
+                        })}
                       </div>
                       <div className="p-2 border-t border-gray-100">
                         <button
