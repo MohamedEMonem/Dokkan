@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../../config/db.js";
+import { hashPassword, verifyPassword } from "../../utils/password.js";
 import { sendError, sendServerError, sendSuccess } from "../../utils/response.js";
 
 function getJwtSecret() {
@@ -47,7 +47,7 @@ export const register = async (req: Request, res: Response) => {
       return sendError(res, "User already exists", 400);
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password);
 
     const user = await prisma.user.create({
       data: {
@@ -84,7 +84,7 @@ export const login = async (req: Request, res: Response) => {
       return sendError(res, "Account has been deleted", 401);
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await verifyPassword(password, user.password);
     if (!isPasswordValid) {
       return sendError(res, "Invalid email or password", 401);
     }
