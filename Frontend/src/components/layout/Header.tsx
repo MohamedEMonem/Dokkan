@@ -277,11 +277,12 @@ function MobileMenu({
             {user ? (
               <Button
                 type="button"
+                variant="hero"
                 onClick={() => {
                   onLogout();
                   onClose();
                 }}
-                className="w-full gap-3 px-4 py-3 rounded-xl transition-all duration-200 bg-red-700 text-white hover:bg-red-600 hover:text-white"
+                className="w-full gap-3 px-4 py-3 rounded-xl transition-all duration-200  text-red-500 hover:bg-red-50 hover:text-white"
               >
                 <LogOut className="w-5 h-5 shrink-0" />
                 <span className="text-sm font-semibold leading-none">
