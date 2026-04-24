@@ -249,13 +249,14 @@ function MobileMenu({
                         variant="tertiary"
                         className="inline-flex size-9! text-primary transition-colors"
                         aria-label={`فتح ${item.label}`}
-                      >
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
-                            openSections[item.label] ? "rotate-180" : ""
-                          }`}
-                        />
-                      </Button>
+                        icon={
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              openSections[item.label] ? "rotate-180" : ""
+                            }`}
+                          />
+                        }
+                      />
                     )}
                   </div>
 
@@ -325,8 +326,9 @@ function MobileMenu({
                   onClose();
                 }}
                 className="gap-3 px-4 py-3 rounded-xl transition-all duration-200  text-red-500 hover:bg-red-50 "
+                icon={<LogOut className="w-5 h-5 shrink-0" />}
+                iconPos="right"
               >
-                <LogOut className="w-5 h-5 shrink-0" />
                 <span className="text-sm font-semibold leading-none">
                   تسجيل الخروج
                 </span>
@@ -340,8 +342,9 @@ function MobileMenu({
                 }}
                 variant="primary"
                 className="w-full gap-3 px-4 py-3 rounded-xl transition-all duration-200"
+                icon={<LogIn className="w-5 h-5 shrink-0 text-white" />}
+                iconPos="right"
               >
-                <LogIn className="w-5 h-5 shrink-0 text-white" />
                 <span className="text-sm leading-none">تسجيل الدخول</span>
               </Button>
             )}
