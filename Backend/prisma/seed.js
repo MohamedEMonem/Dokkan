@@ -1,15 +1,43 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import prismaClientPkg from "@prisma/client";
 import { randomUUID } from "crypto";
+import { randomBytes, pbkdf2 as pbkdf2Callback } from "crypto";
+import { promisify } from "util";
+
+const { PrismaClient } = prismaClientPkg;
+
+const pbkdf2 = promisify(pbkdf2Callback);
+
+const PASSWORD_ALGORITHM = "pbkdf2";
+const PASSWORD_DIGEST = "sha256";
+const PASSWORD_ITERATIONS = 310000;
+const PASSWORD_KEY_LENGTH = 32;
+const PASSWORD_SALT_BYTES = 16;
+
+function toBase64Url(value) {
+  return value.toString("base64url");
+}
+
+async function hashPassword(password) {
+  const salt = randomBytes(PASSWORD_SALT_BYTES);
+  const derivedKey = await pbkdf2(password, salt, PASSWORD_ITERATIONS, PASSWORD_KEY_LENGTH, PASSWORD_DIGEST);
+
+  return [
+    PASSWORD_ALGORITHM,
+    PASSWORD_DIGEST,
+    String(PASSWORD_ITERATIONS),
+    toBase64Url(salt),
+    toBase64Url(derivedKey),
+  ].join("$");
+}
 
 const connectionString = process.env.DATABASE_URL;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const hashedPassword = await bcrypt.hash("Pass1234!", 10);
+  const hashedPassword = await hashPassword("Pass1234!");
 
   // Create or find a test user
   let user = await prisma.user.findUnique({ where: { email: "owner@test.com" } });
