@@ -207,69 +207,70 @@ function MobileMenu({
           </div>
 
           <nav className="flex-1 py-3 px-4 overflow-y-auto overflow-x-hidden">
-            {navItems.map((item) => (
-              <div key={item.href} className="flex flex-col">
-                <div className="flex items-center justify-between">
+            <ul className="space-y-1">
+              {navItems.map((item) => (
+                <li key={item.href} className="flex flex-col">
+                  <div className="flex items-center justify-between">
+                    <Link
+                      to={item.href}
+                      onClick={onClose}
+                      className="flex flex-1 items-center gap-3 px-4 py-3 rounded-xl hover:bg-bg-cream transition-colors"
+                    >
+                      {item.icon}
+                      <span className="text-base font-semibold text-text-dark">
+                        {item.label}
+                      </span>
+                    </Link>
+
+                    {item.subItems && (
+                      <Button
+                        onClick={() => toggleSection(item.label)}
+                        variant="tertiary"
+                        className="inline-flex size-9! text-primary transition-colors"
+                        aria-label={`فتح ${item.label}`}
+                      >
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            openSections[item.label] ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
+                    )}
+                  </div>
+
+                  {item.subItems && openSections[item.label] && (
+                    <ul className="my-2 mr-12 flex flex-col gap-3">
+                      {item.subItems.map((sub) => (
+                        <li key={sub.href}>
+                          <Link
+                            to={sub.href}
+                            onClick={onClose}
+                            className="block w-full py-1.5 text-right rounded-lg text-sm text-gray-600 hover:bg-accent-light/30 hover:text-primary transition-colors duration-150"
+                          >
+                            {sub.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+
+              {iconActions.map((action) => (
+                <li key={action.href}>
                   <Link
-                    to={item.href}
+                    to={action.href}
                     onClick={onClose}
-                    className="flex flex-1 items-center gap-3 px-4 py-3 rounded-xl hover:bg-bg-cream transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 [&>svg]:text-primary rounded-xl hover:bg-bg-cream transition-colors"
                   >
-                    {item.icon}
-                    <span className="text-base font-semibold text-text-dark">
-                      {item.label}
+                    {action.icon}
+                    <span className="text-base font-medium text-text-dark">
+                      {action.label}
                     </span>
                   </Link>
-
-                  {item.subItems && (
-                    <Button
-                      onClick={() => toggleSection(item.label)}
-                      variant="tertiary"
-                      className="inline-flex size-9! text-primary transition-colors"
-                      aria-label={`فتح ${item.label}`}
-                    >
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform duration-200 ${
-                          openSections[item.label] ? "rotate-180" : ""
-                        }`}
-                      />
-                    </Button>
-                  )}
-                </div>
-
-                {item.subItems && openSections[item.label] && (
-                  <ul className="mt-1 mr-8 flex flex-col gap-3">
-                    {item.subItems.map((sub) => (
-                      <li key={sub.href}>
-                        <Link
-                          to={sub.href}
-                          onClick={onClose}
-                          className="block w-full py-1.5 text-right rounded-lg text-sm text-gray-600 hover:bg-accent-light/30 hover:text-primary transition-colors duration-150"
-                        >
-                          {sub.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-
-            <div className="space-y-1">
-              {iconActions.map((action) => (
-                <Link
-                  key={action.href}
-                  to={action.href}
-                  onClick={onClose}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-bg-cream transition-colors"
-                >
-                  {action.icon}
-                  <span className="text-base font-medium text-text-dark">
-                    {action.label}
-                  </span>
-                </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </nav>
 
           <div className="border-t border-gray-200 px-4 py-3">
