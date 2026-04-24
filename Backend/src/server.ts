@@ -13,12 +13,28 @@ dotenv.config();
 const app = express();
 // const uploadRoutes = require('./routes/upload.js');
 
+const allowedOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:5000")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //npm install corsconfigured for development, in production we will use nginx to handle cors
 app.use(cors({
+<<<<<<< HEAD
     origin: "http://localhost:5000",
+=======
+    origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+            return;
+        }
+
+        callback(new Error("Not allowed by CORS"));
+    },
+>>>>>>> origin/dev
     credentials: true,
     optionsSuccessStatus: 200
 }));
