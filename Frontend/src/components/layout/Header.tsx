@@ -160,12 +160,12 @@ function MobileMenu({
 
       <aside
         dir="rtl"
-        className={`fixed left-0 top-0 z-70 h-full w-[320px] max-w-[85vw] bg-white shadow-2xl transition-transform duration-300 ease-out ${
+        className={`fixed left-0 top-0 z-70 h-full w-80 bg-white shadow-2xl transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between p-4 border-b border-accent-light">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
             <h2 className="text-lg font-bold text-text-dark">
               القائمة الرئيسية
             </h2>
@@ -178,8 +178,8 @@ function MobileMenu({
             </button>
           </div>
 
-          <div className="border-b border-gray-200 bg-linear-to-br from-accent-light/30 to-primary/5">
-            <div className="flex flex-col items-center text-center p-4">
+          <div className="px-4 py-4 border-b border-gray-200 bg-linear-to-br from-accent-light/30 to-primary/5">
+            <div className="flex flex-col items-center text-center">
               {user ? (
                 <>
                   <UserAvatar
@@ -206,14 +206,14 @@ function MobileMenu({
             </div>
           </div>
 
-          <nav className="flex-1 overflow-y-auto py-4 px-2 justify-center">
+          <nav className="flex-1 py-3 px-4 overflow-y-auto overflow-x-hidden">
             {navItems.map((item) => (
-              <div key={item.href} className="px-5 py-1 flex flex-col ">
+              <div key={item.href} className="flex flex-col">
                 <div className="flex items-center justify-between">
                   <Link
                     to={item.href}
                     onClick={onClose}
-                    className="flex flex-1 items-center gap-3 px-2 py-3 rounded-lg hover:bg-bg-cream transition-colors"
+                    className="flex flex-1 items-center gap-3 px-4 py-3 rounded-xl hover:bg-bg-cream transition-colors"
                   >
                     {item.icon}
                     <span className="text-base font-semibold text-text-dark">
@@ -225,7 +225,7 @@ function MobileMenu({
                     <Button
                       onClick={() => toggleSection(item.label)}
                       variant="tertiary"
-                      className="inline-flex size-9 text-primary transition-colors"
+                      className="inline-flex size-9! text-primary transition-colors"
                       aria-label={`فتح ${item.label}`}
                     >
                       <ChevronDown
@@ -238,13 +238,13 @@ function MobileMenu({
                 </div>
 
                 {item.subItems && openSections[item.label] && (
-                  <ul className="mt-2 mr-8 space-y-1 flex flex-col gap-3">
+                  <ul className="mt-1 mr-8 flex flex-col gap-3">
                     {item.subItems.map((sub) => (
                       <li key={sub.href}>
                         <Link
                           to={sub.href}
                           onClick={onClose}
-                          className="block w-full text-right rounded-lg text-sm text-gray-600 hover:bg-accent-light/30 hover:text-primary transition-colors duration-150"
+                          className="block w-full py-1.5 text-right rounded-lg text-sm text-gray-600 hover:bg-accent-light/30 hover:text-primary transition-colors duration-150"
                         >
                           {sub.label}
                         </Link>
@@ -255,13 +255,13 @@ function MobileMenu({
               </div>
             ))}
 
-            <div className="mt-2 py-4 px-5 space-y-1 flex flex-col gap-3">
+            <div className="space-y-1">
               {iconActions.map((action) => (
                 <Link
                   key={action.href}
                   to={action.href}
                   onClick={onClose}
-                  className="flex items-center gap-3 rounded-lg hover:bg-bg-cream transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-bg-cream transition-colors"
                 >
                   {action.icon}
                   <span className="text-base font-medium text-text-dark">
@@ -272,7 +272,7 @@ function MobileMenu({
             </div>
           </nav>
 
-          <div className="p-4 border-t border-gray-200 flex justify-center">
+          <div className="border-t border-gray-200 px-4 py-3">
             {user ? (
               <Button
                 type="button"
@@ -280,7 +280,7 @@ function MobileMenu({
                   onLogout();
                   onClose();
                 }}
-                className="h-12 w-full justify-start m-2 gap-3 p-3 rounded-xl transition-all duration-200 bg-red-700 text-white hover:bg-red-600 hover:text-white"
+                className="w-full gap-3 px-4 py-3 rounded-xl transition-all duration-200 bg-red-700 text-white hover:bg-red-600 hover:text-white"
               >
                 <LogOut className="w-5 h-5 shrink-0" />
                 <span className="text-sm font-semibold leading-none">
@@ -295,7 +295,7 @@ function MobileMenu({
                   navigate("/auth/login");
                 }}
                 variant="primary"
-                className="h-12 w-full justify-start m-2 gap-3 p-3 rounded-xl transition-all duration-200"
+                className="w-full gap-3 px-4 py-3 rounded-xl transition-all duration-200"
               >
                 <LogIn className="w-5 h-5 shrink-0 text-white" />
                 <span className="text-sm leading-none">تسجيل الدخول</span>
@@ -331,8 +331,8 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50  shadow-sm">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -343,7 +343,7 @@ export default function Header() {
           </Link>
 
           {/* Nav links */}
-          <nav className="hidden lg:flex items-center gap-10">
+          <nav className="hidden lg:flex items-center gap-4">
             {navItems.map((item) => (
               <NavItem key={item.href} item={item} />
             ))}
@@ -362,24 +362,24 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Desktop icon actions + mobile menu toggle */}
-          <div className="flex items-center gap-2 md:gap-4">
-            <div className="hidden lg:flex items-center gap-4">
-              {iconActions.map((action) => (
-                <Link
-                  key={action.href}
-                  to={action.href}
-                  className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
-                  aria-label={action.ariaLabel}
-                >
-                  {action.icon}
-                </Link>
-              ))}
+          {/* Icon actions + mobile menu toggle */}
+          <div className="flex items-center gap-2">
+            {iconActions.map((action) => (
+              <Link
+                key={action.href}
+                to={action.href}
+                className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
+                aria-label={action.ariaLabel}
+              >
+                {action.icon}
+              </Link>
+            ))}
 
+            <div className="hidden lg:flex items-center gap-4">
               {/* User Profile */}
               {isAuthenticated && user ? (
                 <div className="relative group/user">
-                  <button 
+                  <button
                     className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
                     aria-haspopup="true"
                     aria-expanded="false"
