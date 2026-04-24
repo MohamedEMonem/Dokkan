@@ -29,7 +29,7 @@ const variantClasses = {
 } as const;
 
 const baseClasses =
-  "w-full h-full flex items-center justify-center whitespace-nowrap font-medium transition-all " +
+  "w-full h-full flex gap-2 items-center justify-center whitespace-nowrap font-medium transition-all " +
   "disabled:pointer-events-none disabled:opacity-50 " +
   "outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 " +
   "cursor-pointer rounded-lg";
@@ -41,7 +41,9 @@ export type ButtonVariant = keyof typeof variantClasses;
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
-  children: ReactNode;
+  icon?: ReactNode;
+  iconPos?: "left" | "right";
+  children?: ReactNode;
 }
 
 /* ────────────────────────────────────────────────────────
@@ -49,6 +51,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
  * ──────────────────────────────────────────────────────── */
 export function Button({
   variant = "primary",
+  icon,
+  iconPos = "right",
   className,
   children,
   ...rest
@@ -58,6 +62,16 @@ export function Button({
       className={clsx(baseClasses, variantClasses[variant], className)}
       {...rest}
     >
+      {icon && (
+        <span
+          className={clsx(
+            "flex items-center shrink-0",
+            iconPos === "left" && "order-last"
+          )}
+        >
+          {icon}
+        </span>
+      )}
       {children}
     </button>
   );
