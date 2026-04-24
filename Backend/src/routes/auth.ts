@@ -14,10 +14,11 @@ router.post("/login", login);
 
 const router = express.Router();
 
+// Public auth endpoints
 router.post("/register", register);
 router.post("/login", login);
 
->>>>>>> origin/master
+// Authenticated profile endpoints
 router.get("/profile", auth, getProfile);
 router.patch("/profile", auth, patchProfile);
 router.delete("/profile", auth, deleteAccount);
