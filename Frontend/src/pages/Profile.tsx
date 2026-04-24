@@ -44,7 +44,7 @@ export default function Profile() {
     : "غير متوفر";
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-warm overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-bg-cream via-bg-cream to-accent-light overflow-x-hidden">
       <Header />
 
       <main className="flex-1 py-8 sm:py-12 px-4" dir="rtl">
