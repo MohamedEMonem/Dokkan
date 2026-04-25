@@ -6,7 +6,6 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-
 // Enums
 enum UserRole {
   Customer
@@ -76,19 +75,19 @@ model User {
 }
 
 model Store {
-  id              String        @id @default(uuid()) @map("store_id") @db.Uuid
-  ownerId         String        @map("owner_id") @db.Uuid
-  name            String        @db.Char(50)
-  subdomain       String        @unique @db.VarChar(150)
+  id              String      @id @default(uuid()) @map("store_id") @db.Uuid
+  ownerId         String      @map("owner_id") @db.Uuid
+  name            String      @db.Char(50)
+  subdomain       String      @unique @db.VarChar(150)
   status          StoreStatus
-  description     String?       @db.Text
-  logoUrl         String?       @map("logo_url") @db.Text
-  coverBannerUrl  String?       @map("cover_banner_url") @db.Text
-  businessAddress String?       @map("business_address") @db.Text
-  vatNumber       String?       @map("vat_number") @db.VarChar(100)
-  themeSettings   Json?         @map("theme_settings")
-  createdAt       DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
-  deletedAt       DateTime?     @map("deleted_at") @db.Timestamp(0)
+  description     String?     @db.Text
+  logoUrl         String?     @map("logo_url") @db.Text
+  coverBannerUrl  String?     @map("cover_banner_url") @db.Text
+  businessAddress String?     @map("business_address") @db.Text
+  vatNumber       String?     @map("vat_number") @db.VarChar(100)
+  themeSettings   Json?       @map("theme_settings")
+  createdAt       DateTime?   @default(now()) @map("created_at") @db.Timestamp(0)
+  deletedAt       DateTime?   @map("deleted_at") @db.Timestamp(0)
 
   // Relations
   owner         User            @relation("StoreOwner", fields: [ownerId], references: [id])
@@ -128,9 +127,9 @@ model Subscription {
 }
 
 model Category {
-  id               String    @id @default(uuid()) @map("category_id") @db.Uuid
-  name             String    @db.VarChar(100)
-  parentCategoryId String?   @map("parent_category_id") @db.Uuid
+  id               String  @id @default(uuid()) @map("category_id") @db.Uuid
+  name             String  @db.VarChar(100)
+  parentCategoryId String? @map("parent_category_id") @db.Uuid
 
   // Relations
   parent   Category?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
@@ -165,10 +164,10 @@ model Product {
 }
 
 model ProductImage {
-  id        String     @id @default(uuid()) @map("image_id") @db.Uuid
-  productId String     @map("product_id") @db.Uuid
-  imageUrl  String     @map("image_url") @db.VarChar(255)
-  sortOrder Int?       @default(0) @map("sort_order")
+  id        String @id @default(uuid()) @map("image_id") @db.Uuid
+  productId String @map("product_id") @db.Uuid
+  imageUrl  String @map("image_url") @db.VarChar(255)
+  sortOrder Int?   @default(0) @map("sort_order")
 
   // Relations
   product Product @relation(fields: [productId], references: [id])
@@ -199,9 +198,9 @@ model Order {
 }
 
 model OrderItem {
-  id              String     @id @default(uuid()) @map("order_item_id") @db.Uuid
-  orderId         String     @map("order_id") @db.Uuid
-  productId       String     @map("product_id") @db.Uuid
+  id              String  @id @default(uuid()) @map("order_item_id") @db.Uuid
+  orderId         String  @map("order_id") @db.Uuid
+  productId       String  @map("product_id") @db.Uuid
   quantity        Int
   priceAtPurchase Decimal @map("price_at_purchase") @db.Decimal(10, 2)
 
@@ -243,9 +242,9 @@ model Cart {
 }
 
 model CartItem {
-  id        String    @id @default(uuid()) @map("cart_item_id") @db.Uuid
-  cartId    String    @map("cart_id") @db.Uuid
-  productId String    @map("product_id") @db.Uuid
+  id        String @id @default(uuid()) @map("cart_item_id") @db.Uuid
+  cartId    String @map("cart_id") @db.Uuid
+  productId String @map("product_id") @db.Uuid
   quantity  Int
 
   // Relations
@@ -269,8 +268,8 @@ model PaymentTransaction {
 }
 
 model StoreEmployee {
-  userId      String   @map("user_id") @db.Uuid
-  storeId     String   @map("store_id") @db.Uuid
+  userId      String @map("user_id") @db.Uuid
+  storeId     String @map("store_id") @db.Uuid
   permissions Json?
 
   // Relations
@@ -315,6 +314,6 @@ model Notification {
 model StoreAnalytics {
   receiverId String @map("receiver_id") @db.Uuid
 
-  @@ignore
   @@map("StoreAnalytics")
+  @@ignore
 }

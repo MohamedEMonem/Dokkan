@@ -38,7 +38,7 @@ npm run backend:reset
 Notes:
 - Database schema is synced automatically during startup.
 - Seed data is inserted automatically by default (`AUTO_SEED=true`).
-- This flow is isolated in `docker-compose.frontend.yml` and does not change the backend team compose workflow.
+- This flow is isolated in `docker-compose.backend.yml` and does not change the backend team compose workflow.
 
 ## Backend Team Existing Local Workflow
 
