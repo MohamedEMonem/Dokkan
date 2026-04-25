@@ -2,7 +2,7 @@ import { Outlet, NavLink } from "react-router-dom";
 import {
   Store,
   Bell,
-  Eye,
+  Sparkles,
   LayoutDashboard,
   Package,
   ShoppingBag,
@@ -27,42 +27,56 @@ export default function DashboardLayout() {
   ];
 
   return (
-    <main className="flex-1" dir="rtl">
-      <div className="min-h-screen bg-linear-to-br from-bg-cream via-bg-cream to-accent-light">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-bg-cream via-bg-cream to-accent-light" dir="rtl">
         {/* Top Header Banner */}
-        <header className="bg-primary text-white py-6 px-8 flex justify-between items-center shadow-md">
-          {/* Right Section: User & Store Info */}
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm">
-              <Store className="w-8 h-8" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold mb-1">مرحباً، {userName}</h1>
-              <p className="text-sm opacity-90">
-                لوحة تحكم البائع - {storeName}
-              </p>
-            </div>
-          </div>
+        <header className="bg-linear-to-l from-primary to-primary-light text-white py-8 px-4 shadow-lg">
+          <div className="container mx-auto">
+            {/* Top Row: User Info + Actions */}
+            <div className="flex items-center justify-between mb-6">
+              {/* Right Section: User & Store Info */}
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-primary shadow-lg">
+                  <Store className="w-9 h-9" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold mb-1">مرحباً، {userName}</h1>
+                  <p className="text-white/90 text-lg">
+                    لوحة تحكم البائع - {storeName}
+                  </p>
+                </div>
+              </div>
 
-          {/* Left Section: Actions */}
-          <div className="flex items-center gap-6">
-            <Button
-              variant="primary"
-              icon={<Bell className="w-6 h-6" />}
-              className="relative p-2.5"
-            >
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                3
-              </span>
-            </Button>
-            <Button
-              variant="accent"
-              icon={<Eye className="w-5 h-5" />}
-              iconPos="left"
-              className="px-6 py-2.5 rounded-xl "
-            >
-              عرض متجري
-            </Button>
+              {/* Left Section: Actions */}
+              <div className="flex items-center gap-3">
+                {/* Notification Bell */}
+                <div className="relative">
+                  <Button
+                    variant="tertiary"
+                    icon={<Bell className="w-6 h-6" />}
+                    className="relative p-3 rounded-xl text-white hover:bg-white/10"
+                  >
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      3
+                    </span>
+                  </Button>
+                </div>
+
+                {/* Create Store CTA */}
+                <Button
+                  variant="accent"
+                  icon={<Sparkles className="w-5 h-5" />}
+                  iconPos="right"
+                  className="px-6 py-3 rounded-xl shadow-lg hover:shadow-xl"
+                >
+                  إنشاء متجري
+                </Button>
+              </div>
+            </div>
+
+            {/* Stats Cards Area — reserved for dashboard stat cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Stat cards will be rendered here via the Outlet / page */}
+            </div>
           </div>
         </header>
 
@@ -82,7 +96,7 @@ export default function DashboardLayout() {
                   }`
                 }
               >
-                <link.icon className="w-[18px] h-[18px]" />
+                <link.icon className="w-4 h-4" />
                 <span>{link.name}</span>
               </NavLink>
             ))}
@@ -90,10 +104,9 @@ export default function DashboardLayout() {
         </div>
 
         {/* Dashboard Content */}
-        <div className="container mx-auto px-8 py-8">
+        <main className="flex-1 container mx-auto px-8 py-8">
           <Outlet />
-        </div>
+        </main>
       </div>
-    </main>
   );
 }
