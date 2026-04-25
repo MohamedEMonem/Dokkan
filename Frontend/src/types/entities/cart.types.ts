@@ -6,13 +6,13 @@ import { SoftDeleted } from '@/types/core/audit.types';
  * ──────────────────────────────────────────────────────── */
 
 export interface ICartItemInfo {
-  cartId: number;
-  productId: number;
+  cartId: string;
+  productId: string;
   quantity: number;
 }
 
 export interface ICartInfo {
-  customerId: number;
+  customerId: string;
   expiresAt?: Date;
   cartItems?: ICartItem[];
 }

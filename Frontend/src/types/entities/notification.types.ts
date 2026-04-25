@@ -1,18 +1,18 @@
 import { WithId } from '@/types/core/entity.types';
-import { OptionalAudited, SoftDeleted } from '@/types/core/audit.types';
+import { OptionalAudited } from '@/types/core/audit.types';
 
 /* ────────────────────────────────────────────────────────
  * Notification Interfaces
  * ──────────────────────────────────────────────────────── */
 
 export interface INotificationInfo {
-  userId: number;
-  title: string;
-  message: string;
-  isRead: boolean;
+  userId: string;
+  type: string;
+  content: string;
+  readStatus?: boolean;
 }
 
 /* ────────────────────────────────────────────────────────
  * Composition
  * ──────────────────────────────────────────────────────── */
-export type INotification = WithId<OptionalAudited<SoftDeleted<INotificationInfo>>>;
+export type INotification = WithId<OptionalAudited<INotificationInfo>>;

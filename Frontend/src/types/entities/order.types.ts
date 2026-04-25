@@ -22,15 +22,15 @@ export enum EPaymentStatus {
  * ──────────────────────────────────────────────────────── */
 
 export interface IOrderItemInfo {
-  orderId: number;
-  productId: number;
+  orderId: string;
+  productId: string;
   quantity: number;
   priceAtPurchase: number;
 }
 
 export interface IOrderInfo {
-  customerId: number;
-  storeId: number;
+  customerId: string;
+  storeId: string;
   status: EOrderStatus;
   shippingAddress?: Record<string, unknown>;
   totalAmount: number;

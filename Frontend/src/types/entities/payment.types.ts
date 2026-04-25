@@ -19,7 +19,7 @@ export enum EPayableType {
  * ──────────────────────────────────────────────────────── */
 
 export interface IPaymentTransactionInfo {
-  payableId: number;
+  payableId: string;
   payableType: EPayableType;
   gatewayName?: string;
   gatewayTransactionId?: string;
