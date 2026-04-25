@@ -1,4 +1,14 @@
-import { Store, Bell, Sparkles } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import {
+  Store,
+  Bell,
+  Sparkles,
+  LayoutDashboard,
+  Package,
+  ShoppingBag,
+  BarChart3,
+  Settings,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 interface DashboardHeaderProps {
@@ -6,8 +16,17 @@ interface DashboardHeaderProps {
   storeName: string;
 }
 
+const navLinks = [
+  { name: "نظرة عامة", path: "/dashboard", icon: LayoutDashboard },
+  { name: "المنتجات", path: "/dashboard/products", icon: Package },
+  { name: "الطلبات", path: "/dashboard/orders", icon: ShoppingBag },
+  { name: "التحليلات", path: "/dashboard/analytics", icon: BarChart3 },
+  { name: "إعدادات المتجر", path: "/dashboard/settings", icon: Settings },
+];
+
 export function DashboardHeader({ userName, storeName }: DashboardHeaderProps) {
   return (
+    <>
     <header className="bg-linear-to-l from-primary to-primary-light text-white py-8 px-4 shadow-lg">
       <div className="container mx-auto">
         {/* Top Row: User Info + Actions */}
@@ -58,5 +77,29 @@ export function DashboardHeader({ userName, storeName }: DashboardHeaderProps) {
         </div>
       </div>
     </header>
+
+      {/* Navigation Bar */}
+      <div className="container mx-auto px-8 mt-6">
+        <nav className="bg-white border border-gray-200 rounded-full p-1 flex items-center justify-start gap-1 w-fit shadow-sm">
+          {navLinks.map((link) => (
+            <NavLink
+              key={link.name}
+              to={link.path}
+              end={link.path === "/dashboard"}
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-6 py-2.5 rounded-full transition-all text-sm font-medium ${
+                  isActive
+                    ? "bg-primary text-white shadow-md"
+                    : "text-text-dark hover:bg-gray-50"
+                }`
+              }
+            >
+              <link.icon className="w-4 h-4" />
+              <span>{link.name}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
+    </>
   );
 }
