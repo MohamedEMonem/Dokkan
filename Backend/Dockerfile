@@ -2,16 +2,18 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache bash netcat-openbsd
+RUN apk add --no-cache bash netcat-openbsd dos2unix
 
 COPY package*.json ./
 RUN npm ci
 
-COPY . .
-ENV DATABASE_URL=postgres://dummy:dummy@localhost:5432/dummy
+COPY prisma ./prisma
+COPY prisma.config.js ./
 RUN npx prisma generate
-RUN chmod +x docker/startup.sh
+
+COPY . .
+RUN dos2unix docker/startup.sh && chmod +x docker/startup.sh
 
 EXPOSE 3000
 
-CMD ["sh", "docker/startup.sh"]
+CMD ["bash", "docker/startup.sh"]
