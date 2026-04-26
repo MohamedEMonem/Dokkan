@@ -2,7 +2,12 @@ import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import prisma from "../../config/db.js";
 import { hashPassword, verifyPassword } from "../../utils/password.js";
-import { sendError, sendServerError, sendSuccess } from "../../utils/response.js";
+import {
+  sendError,
+  sendServerError,
+  sendSuccess,
+} from "../../utils/response.js";
+import { UserRole } from "@prisma/client";
 
 function getJwtSecret() {
   const jwtSecret = process.env.JWT_SECRET;
@@ -41,6 +46,71 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+// --- Validation helpers ---
+
+/**
+ * Validates email format using RFC 5322-inspired regex.
+ * Catches obvious malformed addresses (missing @, no TLD, etc.).
+ */
+function isValidEmail(email: string): boolean {
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  return EMAIL_REGEX.test(email);
+}
+
+/**
+ * Validates password strength:
+ *  - At least 8 characters
+ *  - At least one uppercase letter
+ *  - At least one lowercase letter
+ *  - At least one digit
+ *  - At least one special character (!@#$%^&*()_+-=[]{}|;':",.<>?/`~\)
+ */
+function validatePasswordStrength(password: string): string | null {
+  if (password.length < 8) {
+    return "Password must be at least 8 characters long";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "Password must contain at least one uppercase letter";
+  }
+  if (!/[a-z]/.test(password)) {
+    return "Password must contain at least one lowercase letter";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "Password must contain at least one number";
+  }
+  if (!/[!@#$%^&*()\-_=+\[\]{}|;':",.<>?/`~\\]/.test(password)) {
+    return "Password must contain at least one special character";
+  }
+  return null;
+}
+
+/**
+ * Validates a phone/contact number.
+ * Accepts optional leading +, then digits, spaces, dashes, and parentheses.
+ * Must contain between 7 and 15 digits total.
+ */
+function isValidContactNumber(value: string): boolean {
+  const PHONE_REGEX = /^\+?[\d\s\-().]{7,20}$/;
+  const digitsOnly = value.replace(/\D/g, "");
+  return (
+    PHONE_REGEX.test(value) && digitsOnly.length >= 7 && digitsOnly.length <= 15
+  );
+}
+
+/**
+ * Validates that a URL starts with http:// or https:// and has a valid host.
+ */
+function isValidUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+// --- Selects ---
+
 const USER_PUBLIC_SELECT = {
   id: true,
   email: true,
@@ -65,12 +135,18 @@ const AUTH_USER_SELECT = {
   deletedAt: true,
 } as const;
 
-function toPublicUser<T extends { name?: string | null }>(user: T) {
+function toPublicUser<
+  T extends { name?: string | null; password?: string | null },
+>(user: T) {
+  const { password, ...safeUser } = user;
+
   return {
-    ...user,
-    name: user.name?.trim(),
+    ...safeUser,
+    name: safeUser.name?.trim() || undefined,
   };
 }
+
+// --- Handlers ---
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -83,8 +159,23 @@ export const register = async (req: Request, res: Response) => {
     const password = requestData.password;
     const name = requestData.name;
 
-    if (!normalizedEmail || !isNonEmptyString(password) || !isNonEmptyString(name)) {
+    if (
+      !normalizedEmail ||
+      !isNonEmptyString(password) ||
+      !isNonEmptyString(name)
+    ) {
       return sendError(res, "Please provide email, password, and name", 400);
+    }
+
+    // Email format
+    if (!isValidEmail(normalizedEmail)) {
+      return sendError(res, "Please provide a valid email address", 400);
+    }
+
+    // Password strength
+    const passwordError = validatePasswordStrength(password);
+    if (passwordError) {
+      return sendError(res, passwordError, 400);
     }
 
     const normalizedName = name.trim();
@@ -92,6 +183,20 @@ export const register = async (req: Request, res: Response) => {
     if (normalizedName.length > 50) {
       return sendError(res, "Name must be at most 50 characters", 400);
     }
+
+    // Role validation (optional, defaults to Customer)
+    if (
+      requestData.role &&
+      requestData.role !== "Customer" &&
+      requestData.role !== "StoreOwner"
+    ) {
+      return sendError(res, "Cannot assign invalid role", 403);
+    }
+
+    const userRole =
+      requestData.role === "StoreOwner"
+        ? UserRole.StoreOwner
+        : UserRole.Customer;
 
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -112,6 +217,7 @@ export const register = async (req: Request, res: Response) => {
         deletedAt: true,
       },
     });
+
     if (existingUser) {
       if (existingUser.deletedAt) {
         const hashedPassword = await hashPassword(password);
@@ -122,6 +228,7 @@ export const register = async (req: Request, res: Response) => {
             email: normalizedEmail,
             password: hashedPassword,
             name: normalizedName,
+            role: userRole,
             deletedAt: null,
             isVerified: false,
             googleOauthId: null,
@@ -129,7 +236,10 @@ export const register = async (req: Request, res: Response) => {
           select: USER_PUBLIC_SELECT,
         });
 
-        const token = buildToken({ userId: restoredUser.id, email: restoredUser.email });
+        const token = buildToken({
+          userId: restoredUser.id,
+          email: restoredUser.email,
+        });
 
         return sendSuccess(
           res,
@@ -149,13 +259,19 @@ export const register = async (req: Request, res: Response) => {
         email: normalizedEmail,
         password: hashedPassword,
         name: normalizedName,
+        role: userRole,
       },
       select: USER_PUBLIC_SELECT,
     });
 
     const token = buildToken({ userId: user.id, email: user.email });
 
-    return sendSuccess(res, { user: toPublicUser(user), token }, "User created successfully", 201);
+    return sendSuccess(
+      res,
+      { user: toPublicUser(user), token },
+      "User created successfully",
+      201,
+    );
   } catch (error) {
     return sendServerError(res, "Internal server error", error);
   }
@@ -171,8 +287,17 @@ export const login = async (req: Request, res: Response) => {
     const normalizedEmail = normalizeEmail(requestData.email);
     const password = requestData.password;
 
-    if (!normalizedEmail || typeof password !== "string" || password.length === 0) {
+    if (
+      !normalizedEmail ||
+      typeof password !== "string" ||
+      password.length === 0
+    ) {
       return sendError(res, "Please provide email and password", 400);
+    }
+
+    // Email format — avoids a pointless DB round-trip for obviously bad input
+    if (!isValidEmail(normalizedEmail)) {
+      return sendError(res, "Invalid email or password", 401);
     }
 
     const user = await prisma.user.findFirst({
@@ -184,6 +309,7 @@ export const login = async (req: Request, res: Response) => {
       },
       select: AUTH_USER_SELECT,
     });
+
     if (!user) {
       return sendError(res, "Invalid email or password", 401);
     }
@@ -201,10 +327,7 @@ export const login = async (req: Request, res: Response) => {
 
     return sendSuccess(
       res,
-      {
-        user: toPublicUser(user),
-        token,
-      },
+      { user: toPublicUser(user), token },
       "Logged in successfully",
     );
   } catch (error) {
@@ -226,7 +349,11 @@ export const getProfile = async (req: Request, res: Response) => {
       return sendError(res, "User not found", 404);
     }
 
-    return sendSuccess(res, { user: toPublicUser(user) }, "Profile retrieved successfully");
+    return sendSuccess(
+      res,
+      { user: toPublicUser(user) },
+      "Profile retrieved successfully",
+    );
   } catch (error) {
     return sendServerError(res, "Internal server error", error);
   }
@@ -248,7 +375,9 @@ export const patchProfile = async (req: Request, res: Response) => {
       return sendError(res, "No data provided for update", 400);
     }
 
-    const invalidFields = payloadKeys.filter((key) => !allowedFields.includes(key));
+    const invalidFields = payloadKeys.filter(
+      (key) => !allowedFields.includes(key),
+    );
     if (invalidFields.length > 0) {
       return sendError(res, `Invalid fields: ${invalidFields.join(", ")}`, 400);
     }
@@ -275,10 +404,25 @@ export const patchProfile = async (req: Request, res: Response) => {
         data.contactNumber = null;
       } else if (typeof value === "string") {
         const trimmed = value.trim();
-        if (trimmed.length > 20) {
-          return sendError(res, "contactNumber must be at most 20 characters", 400);
+        if (trimmed.length === 0) {
+          data.contactNumber = null;
+        } else {
+          if (!isValidContactNumber(trimmed)) {
+            return sendError(
+              res,
+              "contactNumber must be a valid phone number (7–15 digits, optionally formatted with +, spaces, dashes, or parentheses)",
+              400,
+            );
+          }
+          if (trimmed.length > 20) {
+            return sendError(
+              res,
+              "contactNumber must be at most 20 characters",
+              400,
+            );
+          }
+          data.contactNumber = trimmed;
         }
-        data.contactNumber = trimmed.length ? trimmed : null;
       } else {
         return sendError(res, "contactNumber must be a string or null", 400);
       }
@@ -290,10 +434,25 @@ export const patchProfile = async (req: Request, res: Response) => {
         data.profilePhotoUrl = null;
       } else if (typeof value === "string") {
         const trimmed = value.trim();
-        if (trimmed.length > 255) {
-          return sendError(res, "profilePhotoUrl must be at most 255 characters", 400);
+        if (trimmed.length === 0) {
+          data.profilePhotoUrl = null;
+        } else {
+          if (!isValidUrl(trimmed)) {
+            return sendError(
+              res,
+              "profilePhotoUrl must be a valid URL starting with http:// or https://",
+              400,
+            );
+          }
+          if (trimmed.length > 255) {
+            return sendError(
+              res,
+              "profilePhotoUrl must be at most 255 characters",
+              400,
+            );
+          }
+          data.profilePhotoUrl = trimmed;
         }
-        data.profilePhotoUrl = trimmed.length ? trimmed : null;
       } else {
         return sendError(res, "profilePhotoUrl must be a string or null", 400);
       }
@@ -327,7 +486,11 @@ export const patchProfile = async (req: Request, res: Response) => {
       return sendError(res, "Account not found or already deleted", 404);
     }
 
-    return sendSuccess(res, { user: toPublicUser(updatedUser) }, "Profile updated successfully");
+    return sendSuccess(
+      res,
+      { user: toPublicUser(updatedUser) },
+      "Profile updated successfully",
+    );
   } catch (error) {
     return sendServerError(res, "Internal server error", error);
   }
