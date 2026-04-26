@@ -12,8 +12,8 @@ export interface IPlanInfo {
 }
 
 export interface ISubscriptionInfo {
-  storeId: number;
-  planId: number;
+  storeId: string;
+  planId: string;
   status: string;
   nextBillingDate?: Date;
 }

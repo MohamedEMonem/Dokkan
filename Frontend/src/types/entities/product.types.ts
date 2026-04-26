@@ -14,14 +14,14 @@ export enum EProductStatus {
  * ──────────────────────────────────────────────────────── */
 
 export interface IProductImageInfo {
-  productId: number;
+  productId: string;
   imageUrl: string;
   sortOrder?: number;
 }
 
 export interface IProductInfo {
-  storeId: number;
-  categoryId: number;
+  storeId: string;
+  categoryId: string;
   title: string;
   description?: string;
   price: number; 

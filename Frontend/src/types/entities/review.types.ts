@@ -6,9 +6,9 @@ import { OptionalAudited, SoftDeleted } from '@/types/core/audit.types';
  * ──────────────────────────────────────────────────────── */
 
 export interface IReviewInfo {
-  productId: number;
-  customerId: number;
-  orderId: number;
+  productId: string;
+  customerId: string;
+  orderId: string;
   rating: number;
   reviewText?: string;
   storeResponse?: string;

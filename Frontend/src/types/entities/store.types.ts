@@ -15,17 +15,17 @@ export enum EStoreStatus {
  * ──────────────────────────────────────────────────────── */
 
 export interface IStoreEmployee {
-  userId: number;
-  storeId: number;
+  userId: string;
+  storeId: string;
   permissions?: Record<string, unknown>;
 }
 
 export interface IStoreAnalytics {
-  receiverId: number;
+  receiverId: string;
 }
 
 export interface IStoreInfo {
-  ownerId: number;
+  ownerId: string;
   name: string;
   subdomain: string;
   status: EStoreStatus;
