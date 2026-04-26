@@ -79,26 +79,29 @@ export function DashboardHeader({ userName, storeName }: DashboardHeaderProps) {
     </header>
 
       {/* Navigation Bar */}
-      <div className="container mx-auto px-8 mt-6">
-        <nav className="bg-white border border-gray-200 rounded-full p-1 flex items-center justify-start gap-1 w-fit shadow-sm">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.name}
-              to={link.path}
-              end={link.path === "/dashboard"}
-              className={({ isActive }) =>
-                `flex items-center gap-2 px-6 py-2.5 rounded-full transition-all text-sm font-medium ${
-                  isActive
-                    ? "bg-primary text-white shadow-md"
-                    : "text-text-dark hover:bg-gray-50"
-                }`
-              }
-            >
-              <link.icon className="w-4 h-4" />
-              <span>{link.name}</span>
-            </NavLink>
-          ))}
-        </nav>
+      {/* Navigation Bar */}
+      <div className="container mx-auto px-4 md:px-8 mt-6">
+        <div className="overflow-x-auto pb-2 -mb-2 scrollbar-none">
+          <nav className="bg-white border border-gray-200 rounded-full p-1 flex items-center justify-start gap-1 w-max shadow-sm">
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.name}
+                to={link.path}
+                end={link.path === "/dashboard"}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
+                    isActive
+                      ? "bg-primary text-white shadow-md"
+                      : "text-text-dark hover:bg-gray-50"
+                  }`
+                }
+              >
+                <link.icon className="w-4 h-4" />
+                <span>{link.name}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </div>
       </div>
     </>
   );
