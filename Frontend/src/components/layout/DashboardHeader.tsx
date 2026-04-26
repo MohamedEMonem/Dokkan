@@ -27,8 +27,8 @@ const navLinks = [
 export function DashboardHeader({ userName, storeName }: DashboardHeaderProps) {
   return (
     <>
-    <header className="bg-linear-to-l from-primary to-primary-light text-white py-8 px-4 shadow-lg">
-      <div className="container mx-auto">
+    <header className="bg-linear-to-l from-primary to-primary-light text-white py-8 px-4 md:px-8 shadow-lg">
+      <div className="w-full">
         {/* Top Row: User Info + Actions */}
         <div className="flex items-center justify-between mb-6">
           {/* Right Section: User & Store Info */}
