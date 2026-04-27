@@ -57,7 +57,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
             </div>
 
             {/* Left Section: Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {/* Notification Bell */}
               <div className="relative">
                 <Button
@@ -85,7 +85,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
               <div className="relative group/user">
                 <Button
                   variant="tertiary"
-                  className="relative p-1.5 rounded-xl text-white hover:bg-white/10"
+                  className="relative p-2 rounded-xl text-white hover:bg-white/10"
                 >
                   <UserAvatar
                     name={user?.name}
