@@ -1,21 +1,26 @@
-import { Routes, Route } from 'react-router-dom';
-import HomeLayout from '@/layout/HomeLayout';
-import AuthLayout from '@/layout/AuthLayout';
-import DashboardLayout from '@/layout/DashboardLayout';
+import { Routes, Route } from "react-router-dom";
+import HomeLayout from "@/layout/HomeLayout";
+import AuthLayout from "@/layout/AuthLayout";
+import DashboardLayout from "@/layout/DashboardLayout";
 
-import ProtectedRoutes from './ProtectedRoutes';
-import ErrorPage from '@/pages/ErrorPage';
+import ProtectedRoutes from "./ProtectedRoutes";
+import ErrorPage from "@/pages/ErrorPage";
 
-import { LoginForm } from '@/features/auth/Login';
-import { RegisterForm } from '@/features/auth/Register';
-import Profile from '@/pages/Profile';
+import { LoginForm } from "@/features/auth/Login";
+import { RegisterForm } from "@/features/auth/Register";
+import Profile from "@/pages/Profile";
+import { Products } from "@/features/products/Products";
 
 export default function AppRoutes() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/" element={<HomeLayout />} />
-      <Route path='/auth'  element={<AuthLayout />}>
+      <Route path="/" element={<HomeLayout />}>
+        <Route path="/products" element={<Products />} />
+      </Route>
+
+      {/* <Route path="/products" element={element={<Products />}} /> */}
+      <Route path="/auth" element={<AuthLayout />}>
         <Route path="login" element={<LoginForm />} />
         <Route path="register" element={<RegisterForm />} />
       </Route>

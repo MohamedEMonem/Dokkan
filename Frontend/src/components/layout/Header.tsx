@@ -156,6 +156,7 @@ function MobileMenu({
 }: {
   isOpen: boolean;
   onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any;
   onLogout: () => void;
 }) {
@@ -366,6 +367,7 @@ export default function Header() {
   const isAuthenticated = !!token && !!user?.role;
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileMenuOpen(false);
   }, [location.pathname, location.search]);
 

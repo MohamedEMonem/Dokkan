@@ -2,28 +2,57 @@
 @import "tailwindcss";
 
 :root {
+  --font-size: 16px;
   --toastify-font-family: system-ui, sans-serif;
 }
 
 /* ===== Dokkan Design System - Tailwind v4 Theme ===== */
 @theme {
   /* Primary - Teal/Blue */
-  --color-primary: #005B7F;
-  --color-primary-light: #007AA3;
-  --color-primary-dark: #004A66;
+  --color-primary: #005b7f;
+  --color-primary-light: #007aa3;
+  --color-primary-dark: #004a66;
 
   /* Accent - Gold */
-  --color-accent: #C49A6C;
-  --color-accent-dark: #B08A5C;
-  --color-accent-light: #EBD8B7;
+  --color-accent: #c49a6c;
+  --color-accent-dark: #b08a5c;
+  --color-accent-light: #ebd8b7;
 
   /* Backgrounds */
-  --color-bg-cream: #FAF8F5;
-  --color-bg-warm: #FAF6F0;
+  --color-bg-cream: #faf8f5;
+  --color-bg-warm: #faf6f0;
+  --color-bg-light: #fefdfb;
 
   /* Text */
-  --color-text-dark: #2B2B2B;
-  --color-text-muted: #6B6B6B;
+  --color-text-dark: #2b2b2b;
+  --color-text-muted: #6b6b6b;
+  --color-border-color: #2b2b2b1a;
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem; /* 36px */
+  --text-5xl: 3rem; /* 48px */
+  --text-6xl: 3.75rem; /* 60px */
+
+  /* Border Radius */
+  --radius-sm: 0.125rem; /* 2px */
+  --radius-md: 0.25rem; /* 4px */
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-10: 0.625rem; /* 10px */
+  --radius-xl: 0.75rem; /* 12px */
+  --radius-2xl: 1rem; /* 16px */
 }
 
 /* ===== Base / Reset ===== */
@@ -32,10 +61,71 @@
 *::after {
   box-sizing: border-box;
 }
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
 
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    /* input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    } */
+  }
+}
 body {
-  font-family: "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, "Noto Sans", sans-serif;
+  font-family:
+    "Cairo",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    "Noto Sans",
+    sans-serif;
   line-height: 1.5;
   color: var(--color-text-dark);
   background-color: #ffffff;
@@ -43,4 +133,32 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   direction: rtl;
+}
+
+/* Custom Scrollbar Styling - Subtle and Minimal */
+.filter-scrollbar {
+  overflow: auto;
+}
+
+.filter-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filter-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(235, 216, 183, 0.4);
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(196, 154, 108, 0.6);
+}
+
+/* Hide scrollbar when not scrolling */
+.filter-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: rgba(235, 216, 183, 0.2);
 }
