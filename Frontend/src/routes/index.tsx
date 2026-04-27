@@ -9,12 +9,16 @@ import ErrorPage from '@/pages/ErrorPage';
 import { LoginForm } from '@/features/auth/Login';
 import { RegisterForm } from '@/features/auth/Register';
 import Profile from '@/pages/Profile';
+import Landing from '@/pages/Landing';
 
 export default function AppRoutes() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/" element={<HomeLayout />} />
+      <Route path="/" element={<HomeLayout />}>
+        <Route index element={<Landing />} />
+      </Route>
+      
       <Route path='/auth'  element={<AuthLayout />}>
         <Route path="login" element={<LoginForm />} />
         <Route path="register" element={<RegisterForm />} />
@@ -30,3 +34,4 @@ export default function AppRoutes() {
     </Routes>
   );
 }
+

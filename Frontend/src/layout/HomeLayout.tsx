@@ -7,12 +7,10 @@ export default function HomeLayout() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <div className='container mx-auto px-4'>
-          <p>Hero</p>
-        </div>
+        <Outlet />
       </main>
-      <Outlet />
       <Footer />
     </div>
   );
 }
+
