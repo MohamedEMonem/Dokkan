@@ -77,7 +77,7 @@ model User {
 model Store {
   id              String      @id @default(uuid()) @map("store_id") @db.Uuid
   ownerId         String      @map("owner_id") @db.Uuid
-  name            String      @db.Char(50)
+  name            String      @db.Char(50) @unique
   subdomain       String      @unique @db.VarChar(150)
   status          StoreStatus
   description     String?     @db.Text

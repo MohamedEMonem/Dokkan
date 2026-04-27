@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 import prisma from "../config/db.js";
 import { sendError, sendNotFound, sendServerError, sendSuccess } from "../utils/response.js";
-
+import { deletePublicImg, uploadPublicImg } from "../services/imgStorageService.js";
+import { includes } from "zod";
 const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
   ...product,
   price: Number(product.price),
@@ -45,7 +46,7 @@ export const getProductById = async (req: Request, res: Response) => {
   }
 };
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: any, res: Response) => {
   try {
     const { storeId, categoryId, title, description, price, stockQuantity, status } = req.body;
 
@@ -64,19 +65,44 @@ export const createProduct = async (req: Request, res: Response) => {
       return sendError(res, "stockQuantity must be a non-negative integer", 400);
     }
 
-    const product = await prisma.product.create({
-      data: {
-        storeId,
-        categoryId,
-        title,
-        description: description ?? null,
-        price: numericPrice,
-        stockQuantity: numericStock,
-        status: status ?? "Active",
-      },
-    });
+    let imgUrl: string | null = null;
+    if (req.file) {
+      const clientEmail = req.user?.email ?? "unknown";
+      const clientRole = req.user?.role ?? "user";
+      const subFolder = String(categoryId);
+      const file = req.file;
+      imgUrl = await uploadPublicImg(file, clientEmail, clientRole, subFolder);
+    }
 
-    return sendSuccess(res, mapProduct(product), "Product created successfully", 201);
+    try {
+      const product = await prisma.product.create({
+        data: {
+          storeId,
+          categoryId,
+          title,
+          description: description ?? null,
+          price: numericPrice,
+          stockQuantity: numericStock,
+          status: status ?? "Active",
+          images: imgUrl? {
+            create: { imageUrl: imgUrl},
+          }: undefined,
+
+        },
+        include: { images: true },
+      });
+
+      return sendSuccess(res, mapProduct(product), "Product created successfully", 201);
+    } catch (dbError) {
+      if (imgUrl) {
+        try {
+          await deletePublicImg(imgUrl);
+        } catch (cleanupError) {
+          console.warn("Failed to cleanup uploaded product image after DB error", cleanupError);
+        }
+      }
+      throw dbError;
+    }
   } catch (error) {
     return sendServerError(res, "Failed to create product", error);
   }
@@ -134,11 +160,14 @@ export const deleteProduct = async (req: Request, res: Response) => {
       return sendError(res, "Product id is required", 400);
     }
 
-    const existing = await prisma.product.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.product.findFirst({ where: { id, deletedAt: null },
+     include: { images: true } }
+      
+    );
     if (!existing) {
       return sendNotFound(res, "Product not found");
     }
-
+    await deletePublicImg(existing.images[0]?.imageUrl);
     await prisma.product.update({
       where: { id },
       data: { deletedAt: new Date() },
