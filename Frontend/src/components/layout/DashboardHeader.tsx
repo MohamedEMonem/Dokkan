@@ -39,31 +39,33 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
 
   return (
     <>
-      <header className="bg-linear-to-l from-primary to-primary-light text-white py-8 px-4 md:px-8 shadow-lg">
+      <header className="bg-linear-to-l from-primary to-primary-light text-white py-6 md:py-10 px-4 md:px-8 shadow-lg">
         <div className="w-full">
           {/* Top Row: User Info + Actions */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
             {/* Right Section: User & Store Info */}
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-primary shadow-lg">
-                <Store className="w-9 h-9" />
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-2xl flex items-center justify-center text-primary shadow-lg shrink-0">
+                <Store className="w-6 h-6 md:w-9 md:h-9" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold mb-1">مرحباً، {user.name}</h1>
-                <p className="text-white/90 text-lg">
+                <h1 className="text-xl md:text-3xl font-bold mb-1">
+                  مرحباً، {user?.name}
+                </h1>
+                <p className="text-white/80 text-sm md:text-lg truncate max-w-[200px] md:max-w-none">
                   لوحة تحكم البائع - {storeName}
                 </p>
               </div>
             </div>
 
             {/* Left Section: Actions */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4 self-end sm:self-auto">
               {/* Notification Bell */}
               <div className="relative">
                 <Button
                   variant="tertiary"
                   icon={<Bell className="w-6 h-6" />}
-                  className="relative p-3 rounded-xl text-white hover:bg-white/10"
+                  className="relative p-2 md:p-3 rounded-xl text-white hover:bg-white/10"
                 >
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
                     3
@@ -76,7 +78,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
                 variant="accent"
                 icon={<Sparkles className="w-5 h-5" />}
                 iconPos="right"
-                className="px-6 py-3 rounded-xl shadow-lg hover:shadow-xl"
+                className="px-4 md:px-6 py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl"
               >
                 إنشاء متجري
               </Button>
@@ -90,7 +92,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
                   <UserAvatar
                     name={user?.name}
                     avatarUrl={user?.profilePhotoUrl}
-                    className="w-9 h-9"
+                    className="w-8 h-8 md:w-10 md:h-10"
                   />
                 </Button>
 
