@@ -164,11 +164,12 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
           </div>
 
           {/* Stats Cards Area */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 pb-4 md:pb-0 snap-x snap-mandatory scrollbar-hide">
             <StatCard
               title="إجمالي المبيعات"
               value={`${statsValues.totalSales} ج.م`}
               icon={<DollarSign className="w-8 h-8 text-accent" />}
+              className="min-w-64 md:min-w-0 snap-center shrink-0"
               action={
                 statsValues.isSalesUp ? (
                   <TrendingUp className="w-5 h-5 text-emerald-300" />
@@ -181,6 +182,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
               title="إجمالي الطلبات"
               value={statsValues.totalOrders}
               icon={<ShoppingBag className="w-8 h-8 text-accent-light" />}
+              className="min-w-64 md:min-w-0 snap-center shrink-0"
               action={
                 statsValues.isOrdersUp ? (
                   <span className="text-sm font-medium text-emerald-300">
@@ -197,12 +199,14 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
               title="طلبات قيد التنفيذ"
               value={statsValues.pendingOrders}
               icon={<Clock className="w-8 h-8 text-amber-300" />}
+              className="min-w-64 md:min-w-0 snap-center shrink-0"
               action={<CircleAlert className="w-5 h-5 text-amber-300" />}
             />
             <StatCard
               title="إجمالي المبيعات التاريخية"
               value={statsValues.historicalTotal}
               icon={<Package className="w-8 h-8 text-blue-300" />}
+              className="min-w-64 md:min-w-0 snap-center shrink-0"
               action={
                 <span className="text-sm font-medium text-white/60">
                   {statsValues.itemsCount} منتج
