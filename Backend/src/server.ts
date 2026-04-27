@@ -6,6 +6,8 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import storeRouter from "./routes/storeRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../swagger-output.json" with { type: "json" };
 // @ts-ignore
 import cors from "cors";
 
@@ -13,26 +15,36 @@ dotenv.config();
 const app = express();
 // const uploadRoutes = require('./routes/upload.js');
 
-const allowedOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:5000")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+const allowedOrigins = (
+  process.env.CORS_ORIGIN ||
+  process.env.FRONTEND_URL ||
+  "http://localhost:5000"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //npm install corsconfigured for development, in production we will use nginx to handle cors
-app.use(cors({
+app.use(
+  cors({
     origin: "http://localhost:5000",
     credentials: true,
-    optionsSuccessStatus: 200
-}));
+    optionsSuccessStatus: 200,
+  }),
+);
 
-app.get('/api/health', (req, res) => {
-    return sendSuccess(res, { 
-        status: 'OK', 
-        timestamp: new Date().toISOString() 
-    }, 'Server is healthy');
+app.get("/api/health", (req, res) => {
+  return sendSuccess(
+    res,
+    {
+      status: "OK",
+      timestamp: new Date().toISOString(),
+    },
+    "Server is healthy",
+  );
 });
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
@@ -44,8 +56,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 // Error handling middleware for Multer
 
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
