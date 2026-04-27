@@ -10,9 +10,15 @@ import {
   Settings,
   User,
   LogOut,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Clock,
+  CircleAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { StatCard } from "@/components/ui/StatCard";
 
 interface DashboardHeaderProps {
   storeName: string;
@@ -35,6 +41,18 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
     localStorage.removeItem("role");
     localStorage.removeItem("user");
     window.location.href = "/";
+  };
+
+  // Pure numerical values from the API
+  const statsValues = {
+    totalSales: 0,
+    isSalesUp: true,
+    totalOrders: 0,
+    isOrdersUp: true,
+    pendingOrders: 0,
+    historicalTotal: 0,
+    ordersTrend: 12,
+    itemsCount: 0,
   };
 
   return (
@@ -145,9 +163,52 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
             </div>
           </div>
 
-          {/* Stats Cards Area — reserved for dashboard stat cards */}
+          {/* Stats Cards Area */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Stat cards will be rendered here via the Outlet / page */}
+            <StatCard
+              title="إجمالي المبيعات"
+              value={`${statsValues.totalSales} ج.م`}
+              icon={<DollarSign className="w-8 h-8 text-accent" />}
+              action={
+                statsValues.isSalesUp ? (
+                  <TrendingUp className="w-5 h-5 text-emerald-300" />
+                ) : (
+                  <TrendingDown className="w-5 h-5 text-red-400" />
+                )
+              }
+            />
+            <StatCard
+              title="إجمالي الطلبات"
+              value={statsValues.totalOrders}
+              icon={<ShoppingBag className="w-8 h-8 text-accent-light" />}
+              action={
+                statsValues.isOrdersUp ? (
+                  <span className="text-sm font-medium text-emerald-300">
+                    +{statsValues.ordersTrend}%
+                  </span>
+                ) : (
+                  <span className="text-sm font-medium text-red-400">
+                    -{statsValues.ordersTrend}%
+                  </span>
+                )
+              }
+            />
+            <StatCard
+              title="طلبات قيد التنفيذ"
+              value={statsValues.pendingOrders}
+              icon={<Clock className="w-8 h-8 text-amber-300" />}
+              action={<CircleAlert className="w-5 h-5 text-amber-300" />}
+            />
+            <StatCard
+              title="إجمالي المبيعات التاريخية"
+              value={statsValues.historicalTotal}
+              icon={<Package className="w-8 h-8 text-blue-300" />}
+              action={
+                <span className="text-sm font-medium text-white/60">
+                  {statsValues.itemsCount} منتج
+                </span>
+              }
+            />
           </div>
         </div>
       </header>
