@@ -31,13 +31,12 @@
     "lint:api:fix": "nx lint api -- --fix"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.4.1",
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "express-rate-limit": "^8.4.1",
-    "glob": "^13.0.6",
     "handlebars": "^4.7.9",
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
@@ -56,7 +55,12 @@
     "@types/node": "^25.6.0",
     "@types/nodemailer": "^8.0.0",
     "@types/swagger-ui-express": "^4.1.8",
-    "prisma": "^6.19.3",
+    "prisma": "^7.8.0",
     "tsx": "^4.19.4"
+  },
+  "overrides": {
+    "@hono/node-server": "1.19.13",
+    "glob": "^10.4.5",
+    "inflight": "npm:lru-cache@^11.0.1"
   }
 }

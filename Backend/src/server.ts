@@ -8,6 +8,7 @@ import storeRouter from "./routes/storeRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" with { type: "json" };
+
 // @ts-ignore
 import cors from "cors";
 
