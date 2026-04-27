@@ -3,28 +3,34 @@ import handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
 
+interface MailOptions {
+  to: string;
+  subject: string;
+  template: string; // Name of the .hbs file
+  data: Record<string, any>; // Dynamic data for the template
+  from?: string; // Optional override for the sender
+  attachments?: any[]; // Optional attachments support
+}
+
 class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    // Initialize Nodemailer with environment variables
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "localhost",
       port: parseInt(process.env.SMTP_PORT || "1025"),
-      // If we are in production, use auth. Locally, ignore it.
       auth: process.env.SMTP_USER
         ? {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
           }
         : undefined,
-      // Ignore TLS for local Mailpit testing
       ignoreTLS: !process.env.SMTP_USER,
     });
   }
 
   /**
-   * Helper to read and compile Handlebars templates
+   * Internal helper to compile templates
    */
   private compileTemplate(
     templateName: string,
@@ -38,7 +44,9 @@ class EmailService {
     );
 
     if (!fs.existsSync(filePath)) {
-      throw new Error(`Template ${templateName} not found at ${filePath}`);
+      throw new Error(
+        `Email template "${templateName}" not found at ${filePath}`,
+      );
     }
 
     const htmlSource = fs.readFileSync(filePath, "utf-8");
@@ -47,34 +55,36 @@ class EmailService {
   }
 
   /**
-   * Send the OTP Verification Email
+   * The All-In-One reusable method
    */
-  public async sendOtpEmail(
-    to: string,
-    name: string,
-    otp: string,
-  ): Promise<boolean> {
+  public async sendMail({
+    to,
+    subject,
+    template,
+    data,
+    from,
+    attachments,
+  }: MailOptions): Promise<boolean> {
     try {
-      const htmlContent = this.compileTemplate("otp-verification", {
-        name,
-        otp,
-      });
+      const htmlContent = this.compileTemplate(template, data);
 
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM || '"Dokkan" <noreply@dokkan.com>',
+      const info = await this.transporter.sendMail({
+        from: from || process.env.EMAIL_FROM || '"Dokkan" <noreply@dokkan.com>',
         to,
-        subject: "Your Dokkan Verification Code",
+        subject,
         html: htmlContent,
+        attachments,
       });
 
-      console.log(`[EmailService] OTP successfully sent to ${to}`);
+      console.log(
+        `[EmailService] Email "${subject}" sent to ${to}. ID: ${info.messageId}`,
+      );
       return true;
     } catch (error) {
-      console.error(`[EmailService] Failed to send OTP to ${to}:`, error);
+      console.error(`[EmailService] Failed to send email to ${to}:`, error);
       return false;
     }
   }
 }
 
-// Export a single instance to be used across the app (Singleton pattern)
 export const emailService = new EmailService();
