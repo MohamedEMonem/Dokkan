@@ -14,7 +14,9 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/" element={<HomeLayout />} />
+      <Route path="/" element={<HomeLayout />} >
+        <Route path='/profile' element={<Profile/>} />
+      </Route>
       <Route path='/auth'  element={<AuthLayout />}>
         <Route path="login" element={<LoginForm />} />
         <Route path="register" element={<RegisterForm />} />
@@ -22,9 +24,12 @@ export default function AppRoutes() {
 
       {/* Protected */}
       <Route element={<ProtectedRoutes />}>
-        <Route path="/dashboard" element={<DashboardLayout />} />
-        <Route path="/profile" element={<Profile />} />
+        {/* Dashboard Routes */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route path="profile" element={<Profile />} />
+        </Route>
       </Route>
+
       {/* Catch-all */}
       <Route path="*" element={<ErrorPage />} />
     </Routes>
