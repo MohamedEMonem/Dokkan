@@ -602,7 +602,7 @@ export const resendOtp = async (req: Request, res: Response) => {
     }
 
     // 2. Generate a new 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = GenerateOTP();
 
     // 3. Update Redis with the new OTP and a fresh 15-minute expiration
     // Key: otp:email@example.com, EX: 900 seconds (15 mins)
