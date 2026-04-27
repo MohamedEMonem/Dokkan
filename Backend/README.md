@@ -100,3 +100,11 @@ net start winnat
 ```
 
 If default ports are busy, override values in `.env` before running the command.
+
+## API Documentation with Swagger
+We use **Swagger UI** combined with **Swagger Autogen** to automatically generate and serve our API documentation. This keeps our code clean and our docs perfectly in sync with our actual endpoints.
+### Viewing the Docs
+1. Start the development server (`npm run dev` or `npm start`).
+2. Open your browser and navigate to: **`http://localhost:3000/api/docs`** 
+
+More details on how to document new routes can be found in [swagger.MD](./swagger.MD).
