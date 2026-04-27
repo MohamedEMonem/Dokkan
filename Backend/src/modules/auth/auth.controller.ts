@@ -8,6 +8,23 @@ import {
   sendSuccess,
 } from "../../utils/response.js";
 import { UserRole } from "@prisma/client";
+import { emailService } from "../../services/email.service.js";
+import redis from "../../config/redis.js";
+import { randomInt } from "crypto";
+
+/**
+ * Generates a cryptographically secure numeric OTP.
+ * @param length The number of digits (defaults to 6 for Dokkan auth).
+ * @returns A string representation of the OTP.
+ */
+export const GenerateOTP = (length: number = 6): string => {
+  // Calculate the range based on length (e.g., 6 digits = 100,000 to 999,999)
+  const min = Math.pow(10, length - 1);
+  const max = Math.pow(10, length);
+
+  // randomInt generates a CSPRNG value that is not predictable
+  return randomInt(min, max).toString();
+};
 
 function getJwtSecret() {
   const jwtSecret = process.env.JWT_SECRET;
@@ -150,6 +167,7 @@ function toPublicUser<
 
 export const register = async (req: Request, res: Response) => {
   try {
+    const otp = GenerateOTP();
     const requestData = getPayload(req);
     if (!requestData) {
       return sendError(res, "Invalid request body", 400);
@@ -241,10 +259,19 @@ export const register = async (req: Request, res: Response) => {
           email: restoredUser.email,
         });
 
+        await redis.setex(`otp:${restoredUser.email}`, 900, otp);
+        // Send the email
+        await emailService.sendMail({
+          to: restoredUser.email,
+          subject: "Verify your Dokkan Account",
+          template: "otp-verification",
+          data: { name: restoredUser.name, otp },
+        });
+
         return sendSuccess(
           res,
           { user: toPublicUser(restoredUser), token },
-          "Account restored and registered successfully",
+          "Account restored and registered successfully, Please check your email for the verification code.",
           200,
         );
       }
@@ -266,10 +293,20 @@ export const register = async (req: Request, res: Response) => {
 
     const token = buildToken({ userId: user.id, email: user.email });
 
+    await redis.setex(`otp:${user.email}`, 900, otp);
+
+    // Send the email
+    await emailService.sendMail({
+      to: user.email,
+      subject: "Verify your Dokkan Account",
+      template: "otp-verification",
+      data: { name: user.name, otp },
+    });
+
     return sendSuccess(
       res,
       { user: toPublicUser(user), token },
-      "User created successfully",
+      "User created successfully, Please check your email for the verification code.",
       201,
     );
   } catch (error) {
@@ -515,5 +552,91 @@ export const deleteAccount = async (req: Request, res: Response) => {
     return sendSuccess(res, null, "Account deleted successfully");
   } catch (error) {
     return sendServerError(res, "Internal server error", error);
+  }
+};
+
+export const verifyOtp = async (req: Request, res: Response) => {
+  try {
+    const { otp } = req.body;
+    const user = req.user!;
+
+    if (!otp) return sendError(res, "OTP is required", 400);
+
+    // Get the code from Redis
+    const storedOtp = await redis.get(`otp:${user.email}`);
+
+    if (!storedOtp) {
+      return sendError(
+        res,
+        "OTP expired or not found. Please request a new one.",
+        400,
+      );
+    }
+
+    if (storedOtp !== otp) {
+      return sendError(res, "Invalid OTP code", 400);
+    }
+
+    // Success! Update User in DB
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { isVerified: true },
+    });
+
+    // Delete the OTP from Redis so it can't be used again
+    await redis.del(`otp:${user.email}`);
+
+    return sendSuccess(res, null, "Email verified successfully!");
+  } catch (error) {
+    return sendServerError(res, "Verification failed", error);
+  }
+};
+
+export const resendOtp = async (req: Request, res: Response) => {
+  try {
+    const user = req.user!; // Provided by auth middleware
+
+    // 1. Check if user is already verified
+    if (user.isVerified) {
+      return sendError(res, "This account is already verified.", 400);
+    }
+
+    // 2. Generate a new 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 3. Update Redis with the new OTP and a fresh 15-minute expiration
+    // Key: otp:email@example.com, EX: 900 seconds (15 mins)
+    await redis.setex(`otp:${user.email}`, 900, otp);
+
+    // 4. Send the email using your generic email service
+    const emailSent = await emailService.sendMail({
+      to: user.email,
+      subject: "Your New Verification Code",
+      template: "otp-verification",
+      data: {
+        name: user.name,
+        otp: otp,
+      },
+    });
+
+    if (!emailSent) {
+      return sendError(
+        res,
+        "Failed to send verification email. Please try again.",
+        500,
+      );
+    }
+
+    return sendSuccess(
+      res,
+      null,
+      "A new verification code has been sent to your email.",
+    );
+  } catch (error) {
+    return sendServerError(
+      res,
+      "Internal server error during OTP resend.",
+      error,
+    );
   }
 };
