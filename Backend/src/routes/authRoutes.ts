@@ -14,7 +14,7 @@ router.post(
   "/register",
   /* #swagger.tags = ['Auth']
      #swagger.summary = 'Register a new user'
-     #swagger.description = 'Creates a new user account. If the email belongs to a previously soft-deleted account, it restores the account.'
+     #swagger.description = 'Creates a new user account. If the email belongs to a previously soft-deleted account, it restores the account. Role is optional and defaults to Customer.'
      #swagger.requestBody = {
         required: true,
         content: { 
@@ -25,7 +25,13 @@ router.post(
               properties: { 
                 email: { type: "string", format: "email", example: "user@example.com" },
                 password: { type: "string", format: "password", example: "Secret123!" }, 
-                name: { type: "string", maxLength: 50, example: "John Doe" } 
+                name: { type: "string", maxLength: 50, example: "John Doe" },
+                role: { 
+                  type: "string", 
+                  enum: ["Customer", "StoreOwner"], 
+                  example: "Customer",
+                  description: "Optional. Defaults to Customer."
+                }
               } 
             } 
           } 
@@ -33,7 +39,8 @@ router.post(
      }
      #swagger.responses[201] = { description: 'User created successfully' }
      #swagger.responses[200] = { description: 'Account restored and registered successfully' }
-     #swagger.responses[400] = { description: 'Invalid request body or name exceeds 50 characters' }
+     #swagger.responses[400] = { description: 'Invalid request body or validation failed' }
+     #swagger.responses[403] = { description: 'Cannot assign invalid role' }
      #swagger.responses[409] = { description: 'User already exists' }
      #swagger.responses[500] = { description: 'Internal server error' }
   */
