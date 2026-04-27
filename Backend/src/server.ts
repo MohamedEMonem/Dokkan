@@ -3,8 +3,8 @@ import express from "express";
 import { sendSuccess, sendError } from "./utils/response.js";
 import { productRoutes } from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
-import authRoutes from "./routes/auth.js";
-import storeRouter from "./routes/storeRouters.js";
+import authRoutes from "./routes/authRoutes.js";
+import storeRouter from "./routes/storeRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 // @ts-ignore
 import cors from "cors";
