@@ -422,10 +422,22 @@
           "Auth"
         ],
         "summary": "Register a new user",
-        "description": "",
+        "description": "Creates a new user account. If the email belongs to a previously soft-deleted account, it restores the account.",
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Account restored and registered successfully"
+          },
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Invalid request body or name exceeds 50 characters"
+          },
+          "409": {
+            "description": "User already exists"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
         "requestBody": {
@@ -434,15 +446,26 @@
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "email",
+                  "password",
+                  "name"
+                ],
                 "properties": {
-                  "name": {
-                    "type": "string"
-                  },
                   "email": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "password",
+                    "example": "Secret123!"
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "example": "John Doe"
                   }
                 }
               }
@@ -457,10 +480,45 @@
           "Auth"
         ],
         "summary": "Login user",
-        "description": "",
+        "description": "Authenticates a user and returns a JWT token.",
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Logged in successfully"
+          },
+          "400": {
+            "description": "Please provide email and password"
+          },
+          "401": {
+            "description": "Invalid email/password or account is deleted"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "Secret123!"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -471,7 +529,7 @@
           "Auth"
         ],
         "summary": "Get current user profile",
-        "description": "",
+        "description": "Retrieves the public profile data of the authenticated user.",
         "parameters": [
           {
             "name": "Authorization",
@@ -482,8 +540,17 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Profile retrieved successfully"
+          },
+          "401": {
+            "description": "Access denied. Invalid or missing token."
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
         "security": [
@@ -497,7 +564,7 @@
           "Auth"
         ],
         "summary": "Update user profile",
-        "description": "",
+        "description": "Updates specific fields on the authenticated user profile. Unrecognized fields will be rejected.",
         "parameters": [
           {
             "name": "Authorization",
@@ -508,22 +575,63 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Profile updated successfully"
+          },
+          "400": {
+            "description": "Validation error (e.g., invalid fields, string length exceeded, or no valid fields provided)"
+          },
+          "401": {
+            "description": "Access denied. Invalid or missing token."
+          },
+          "404": {
+            "description": "Account not found or already deleted"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
         "security": [
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "example": "Jane Doe"
+                  },
+                  "contactNumber": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "nullable": true,
+                    "example": "+1234567890"
+                  },
+                  "profilePhotoUrl": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "nullable": true,
+                    "example": "https://example.com/photo.jpg"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "delete": {
         "tags": [
           "Auth"
         ],
         "summary": "Delete user account",
-        "description": "",
+        "description": "Performs a soft delete on the authenticated user account.",
         "parameters": [
           {
             "name": "Authorization",
@@ -534,8 +642,17 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Account deleted successfully"
+          },
+          "401": {
+            "description": "Access denied. Invalid or missing token."
+          },
+          "404": {
+            "description": "Account not found or already deleted"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
         "security": [
