@@ -1,9 +1,10 @@
 import React from 'react';
 import { Store } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 const SellerCTA: React.FC = () => {
   return (
-    <section className="bg-[#00769A] text-white py-20 text-center">
+    <section className="bg-primary text-white py-20 text-center">
       <div className="container mx-auto px-4">
         <div className="max-w-[600px] mx-auto">
           <h2 className="text-4xl font-extrabold mb-5">هل أنت بائع؟</h2>
@@ -11,13 +12,23 @@ const SellerCTA: React.FC = () => {
             افتح متجرك الإلكتروني اليوم وابدأ البيع لملايين العملاء في مصر
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-            <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-lg text-lg font-bold transition-all bg-white text-[#00769A] hover:bg-[#f5f5f5] hover:-translate-y-0.5 hover:shadow-lg">
-              <Store size={20} />
-              ابدأ البيع الآن
-            </button>
-            <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-lg text-lg font-bold transition-all bg-transparent text-white border-2 border-white hover:bg-white/10 hover:-translate-y-0.5">
-              تواصل معنا
-            </button>
+            <div className="w-full sm:w-auto h-12">
+              <Button 
+                variant="hero" 
+                icon={<Store size={20} />}
+                className="px-6 py-3 text-lg font-bold"
+              >
+                ابدأ البيع الآن
+              </Button>
+            </div>
+            <div className="w-full sm:w-auto h-12">
+              <Button 
+                variant="outline-white" 
+                className="px-6 py-3 text-lg font-bold"
+              >
+                تواصل معنا
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -26,3 +37,4 @@ const SellerCTA: React.FC = () => {
 };
 
 export default SellerCTA;
+

@@ -16,30 +16,31 @@ const Features: React.FC = () => {
       icon: <Truck size={32} />,
       title: 'توصيل سريع',
       description: 'شحن لجميع أنحاء مصر',
-      bgColor: 'bg-[#00769A]'
+      bgColor: 'bg-primary'
     },
     {
       id: 2,
       icon: <ShieldCheck size={32} />,
       title: 'دفع آمن',
       description: 'حماية كاملة للمعاملات',
-      bgColor: 'bg-[#C08C5D]'
+      bgColor: 'bg-accent'
     },
     {
       id: 3,
       icon: <RefreshCcw size={32} />,
       title: 'سهولة الإرجاع',
       description: 'إرجاع خلال 14 يوم',
-      bgColor: 'bg-[#00769A]'
+      bgColor: 'bg-primary'
     },
     {
       id: 4,
       icon: <HeadphonesIcon size={32} />,
       title: 'دعم 24/7',
       description: 'فريقنا دائماً متاح',
-      bgColor: 'bg-[#C08C5D]'
+      bgColor: 'bg-accent'
     },
   ];
+
 
   return (
     <section className="py-15 bg-white">

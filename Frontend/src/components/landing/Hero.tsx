@@ -1,13 +1,14 @@
 import React from 'react';
 import { ShoppingCart, Store } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 const Hero: React.FC = () => {
   return (
-    <section className="bg-gradient-to-l from-[#005B7F] via-[#007AA3] to-[#005B7F] text-white py-20">
+    <section className="bg-gradient-to-l from-primary via-primary-light to-primary text-white py-20">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <span className="inline-flex items-center justify-center rounded-md border font-medium w-fit whitespace-nowrap shrink-0 gap-1 overflow-hidden border-transparent bg-[#C49A6C] text-white mb-4 text-base px-4 py-2">
+            <span className="inline-flex items-center justify-center rounded-md border font-medium w-fit whitespace-nowrap shrink-0 gap-1 overflow-hidden border-transparent bg-accent text-white mb-4 text-base px-4 py-2">
               ✨ منصة التجارة الإلكترونية الأولى في مصر
             </span>
             <h1 className="text-4xl md:text-5xl mb-6 leading-tight font-bold">
@@ -17,14 +18,24 @@ const Hero: React.FC = () => {
               انضم إلى آلاف المشترين والبائعين في سوقنا. أنشئ متجرك الخاص، بع منتجاتك، وطوّر عملك بسهولة.
             </p>
             <div className="flex flex-wrap gap-4 mb-8">
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all px-8 py-6 text-lg rounded-xl bg-white text-[#005B7F] hover:bg-[#EBD8B7] outline-none">
-                <ShoppingCart className="w-5 h-5 ml-2" />
-                تسوّق الآن
-              </button>
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all px-8 py-6 text-lg rounded-xl border-2 border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white hover:text-[#005B7F] outline-none">
-                <Store className="w-5 h-5 ml-2" />
-                انضم كبائع
-              </button>
+              <div className="w-full sm:w-auto h-14">
+                <Button 
+                  variant="hero" 
+                  icon={<ShoppingCart className="w-5 h-5 ml-2" />}
+                  className="px-8 py-6 text-lg rounded-xl"
+                >
+                  تسوّق الآن
+                </Button>
+              </div>
+              <div className="w-full sm:w-auto h-14">
+                <Button 
+                  variant="outline-white" 
+                  icon={<Store className="w-5 h-5 ml-2" />}
+                  className="px-8 py-6 text-lg rounded-xl"
+                >
+                  انضم كبائع
+                </Button>
+              </div>
             </div>
           </div>
           
@@ -35,9 +46,9 @@ const Hero: React.FC = () => {
                 alt="سوق المحلات - منصة تجارة إلكترونية مصرية" 
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#005B7F]/70 via-[#005B7F]/20 to-transparent flex flex-col justify-end p-6 text-right">
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/20 to-transparent flex flex-col justify-end p-6 text-right">
                 <div className="flex items-center justify-end gap-2 mb-2">
-                  <span className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 gap-1 overflow-hidden border-transparent bg-[#C49A6C] text-white border-none">
+                  <span className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 gap-1 overflow-hidden border-transparent bg-accent text-white border-none">
                     منصة موثوقة
                   </span>
                   <Store className="w-5 h-5 text-white" />
@@ -56,4 +67,5 @@ const Hero: React.FC = () => {
 };
 
 export default Hero;
+
 

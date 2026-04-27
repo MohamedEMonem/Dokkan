@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShoppingCart, Heart, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 export interface Product {
   id: number;
@@ -66,9 +67,15 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
             <h2 className="text-3xl font-bold mb-2.5">المنتجات المميزة</h2>
             <p className="text-text-muted text-lg">أفضل المنتجات المختارة لك</p>
           </div>
-          <button className="flex items-center gap-2 bg-transparent border border-primary text-primary px-5 py-2 rounded-full font-semibold text-sm transition-colors hover:bg-primary hover:text-white">
-            عرض الكل <ChevronLeft size={16} />
-          </button>
+          <div className="h-10">
+            <Button 
+              variant="secondary" 
+              icon={<ChevronLeft size={16} />}
+              className="px-5 py-2 rounded-full text-sm font-semibold"
+            >
+              عرض الكل
+            </Button>
+          </div>
         </div>
 
         <div className="flex items-center gap-5 relative">
@@ -94,7 +101,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
                   <h3 className="text-base font-bold mb-4 leading-snug h-[2.8em] line-clamp-2">{product.title}</h3>
                   <div className="flex items-center gap-1.25 mb-4 text-sm">
                     <div className="stars">
-                      <Star size={14} fill="#FFD13B" color="#FFD13B" />
+                      <Star size={14} fill="#C49A6C" color="#C49A6C" />
                     </div>
                     <span className="font-bold text-text-dark">{product.rating}</span>
                     <span className="text-text-muted">({product.reviews})</span>
@@ -102,9 +109,16 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
                   
                   <div className="flex items-center justify-between border-t border-[#f0f0f0] pt-4">
                     <span className="text-lg font-bold text-primary">{product.price}</span>
-                    <button className="inline-flex items-center gap-1.25 bg-primary text-white px-4 py-2 rounded-full font-semibold text-sm transition-colors hover:bg-primary-dark" onClick={() => addToCart(product)}>
-                      <ShoppingCart size={18} /> أضف
-                    </button>
+                    <div className="h-10">
+                      <Button 
+                        variant="primary" 
+                        icon={<ShoppingCart size={18} />}
+                        className="px-4 py-2 rounded-full text-sm font-semibold"
+                        onClick={() => addToCart(product)}
+                      >
+                        أضف
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -121,3 +135,4 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
 };
 
 export default FeaturedProducts;
+

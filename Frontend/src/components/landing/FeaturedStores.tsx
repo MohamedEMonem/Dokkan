@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowLeft, ArrowRight, Star } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface Store {
   id: number;
@@ -61,13 +62,18 @@ const FeaturedStores: React.FC = () => {
                   <div className="flex items-center justify-center gap-1.25 mb-4 text-sm">
                     <span className="text-text-muted">({store.reviews})</span>
                     <span className="font-bold">{store.rating}</span>
-                    <Star size={14} fill="#C08C5D" color="#C08C5D" />
+                    <Star size={14} fill="#C49A6C" color="#C49A6C" />
                   </div>
                   <p className="text-text-muted text-[0.95rem] mb-6.25 leading-relaxed h-[2.85em] overflow-hidden">{store.description}</p>
                   
-                  <button className="w-full p-3 bg-transparent border border-primary text-primary rounded-[25px] font-bold text-base transition-colors hover:bg-primary hover:text-white">
-                    زيارة المتجر
-                  </button>
+                  <div className="w-full h-12">
+                    <Button 
+                      variant="secondary" 
+                      className="rounded-[25px] font-bold text-base"
+                    >
+                      زيارة المتجر
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -83,3 +89,4 @@ const FeaturedStores: React.FC = () => {
 };
 
 export default FeaturedStores;
+
