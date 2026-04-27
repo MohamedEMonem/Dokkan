@@ -18,7 +18,7 @@ function getJwtSecret() {
 }
 
 function buildToken(payload: { userId: string; email: string }) {
-  return jwt.sign(payload, getJwtSecret(), { expiresIn: "7d" });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: "15m" });
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

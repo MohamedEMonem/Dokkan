@@ -1,7 +1,14 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import prisma from "../config/db.js";
-import { sendForbidden, sendServerError, sendUnauthorized } from "../utils/response.js";
+import {
+  sendForbidden,
+  sendRateLimitExceeded,
+  sendServerError,
+  sendUnauthorized,
+} from "../utils/response.js";
+import { rateLimit } from "express-rate-limit";
+import { send } from "node:process";
 
 type DecodedToken = JwtPayload & {
   userId: string;
@@ -26,7 +33,10 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
 
     const headerMatch = authorizationHeader.trim().match(/^Bearer\s+([^\s]+)$/);
     if (!headerMatch) {
-      return sendUnauthorized(res, "Malformed authorization header. Expected: Bearer <token>.");
+      return sendUnauthorized(
+        res,
+        "Malformed authorization header. Expected: Bearer <token>.",
+      );
     }
 
     const token = headerMatch[1];
@@ -49,7 +59,10 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     if (!user) {
-      return sendUnauthorized(res, "Account has been deleted or is no longer available.");
+      return sendUnauthorized(
+        res,
+        "Account has been deleted or is no longer available.",
+      );
     }
 
     user.name = user.name?.trim();
@@ -66,11 +79,19 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     if (cause.name === "TokenExpiredError") {
       return sendUnauthorized(res, "Token expired.");
     }
-    return sendServerError(res, "Internal server error during authentication.", error);
+    return sendServerError(
+      res,
+      "Internal server error during authentication.",
+      error,
+    );
   }
 };
 
-export const authAdmin = async (req: Request, res: Response, next: NextFunction) => {
+export const authAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.user) {
       return sendUnauthorized(res, "Authentication required.");
@@ -82,22 +103,48 @@ export const authAdmin = async (req: Request, res: Response, next: NextFunction)
 
     next();
   } catch (error) {
-    return sendServerError(res, "Internal server error during authorization.", error);
+    return sendServerError(
+      res,
+      "Internal server error during authorization.",
+      error,
+    );
   }
 };
 
-export const authStoreOwner = async (req: Request, res: Response, next: NextFunction) => {
+export const authStoreOwner = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.user) {
       return sendUnauthorized(res, "Authentication required.");
     }
 
     if (req.user.role !== "StoreOwner" && req.user.role !== "Admin") {
-      return sendForbidden(res, "Access denied. Store owner privileges required.");
+      return sendForbidden(
+        res,
+        "Access denied. Store owner privileges required.",
+      );
     }
 
     next();
   } catch (error) {
-    return sendServerError(res, "Internal server error during authorization.", error);
+    return sendServerError(
+      res,
+      "Internal server error during authorization.",
+      error,
+    );
   }
 };
+
+export const authLimiter = rateLimit({
+  windowMs: 30 * 60 * 1000, // 30 minutes
+  max: 5, // Strict: Only 5 attempts allowed per IP
+  handler: (req, res) => {
+    sendRateLimitExceeded(
+      res,
+      "Too many attempts, please try again after 30 minutes",
+    );
+  },
+});

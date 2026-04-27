@@ -1,5 +1,5 @@
 import express from "express";
-import { auth } from "../middleware/auth.js";
+import { auth,authLimiter } from "../middleware/auth.js";
 import {
   deleteAccount,
   getProfile,
@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.post(
   "/register",
+  authLimiter,
   /* #swagger.tags = ['Auth']
      #swagger.summary = 'Register a new user'
      #swagger.description = 'Creates a new user account. If the email belongs to a previously soft-deleted account, it restores the account. Role is optional and defaults to Customer.'
@@ -49,6 +50,7 @@ router.post(
 
 router.post(
   "/login",
+  authLimiter,
   /* #swagger.tags = ['Auth']
      #swagger.summary = 'Login user'
      #swagger.description = 'Authenticates a user and returns a JWT token.'
