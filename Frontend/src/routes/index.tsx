@@ -8,6 +8,7 @@ import ErrorPage from '@/pages/ErrorPage';
 
 import { LoginForm } from '@/features/auth/Login';
 import { RegisterForm } from '@/features/auth/Register';
+import { Overview } from '@/features/dashboard/Overview';
 import Profile from '@/pages/Profile';
 
 export default function AppRoutes() {
@@ -26,6 +27,7 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoutes />}>
         {/* Dashboard Routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<Overview />} />
           <Route path="profile" element={<Profile />} />
         </Route>
       </Route>

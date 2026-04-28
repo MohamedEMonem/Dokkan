@@ -12,7 +12,7 @@ export default function DashboardLayout() {
       <DashboardHeader storeName={storeName} />
 
       {/* Dashboard Content */}
-      <main className="flex-1 container mx-auto px-8 py-8">
+      <main className="flex-1 w-full container mx-auto px-4 md:px-8 py-8">
         <Outlet />
       </main>
     </div>
