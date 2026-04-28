@@ -218,7 +218,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
       </header>
 
       {/* Navigation Bar */}
-      <div className="container mx-auto px-4 md:px-8 mt-6">
+      <div className="container mx-auto px-4 md:px-4 mt-6">
         <div className="overflow-x-auto pb-2 -mb-2 scrollbar-none">
           <nav className="bg-white border-2 border-accent-light rounded-full p-1 inline-flex items-center  gap-1 w-max shadow-md">
             {navLinks.map((link) => (
