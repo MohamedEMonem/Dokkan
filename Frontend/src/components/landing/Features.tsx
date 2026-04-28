@@ -1,58 +1,50 @@
 import React from 'react';
-import { Truck, ShieldCheck, RefreshCcw, HeadphonesIcon } from 'lucide-react';
-
-interface Feature {
-  id: number;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  bgColor: string;
-}
+import { Store, Package, Star, ArrowLeft } from 'lucide-react';
 
 const Features: React.FC = () => {
-  const features: Feature[] = [
-    {
-      id: 1,
-      icon: <Truck size={32} />,
-      title: 'توصيل سريع',
-      description: 'شحن لجميع أنحاء مصر',
-      bgColor: 'bg-primary'
-    },
-    {
-      id: 2,
-      icon: <ShieldCheck size={32} />,
-      title: 'دفع آمن',
-      description: 'حماية كاملة للمعاملات',
-      bgColor: 'bg-accent'
-    },
-    {
-      id: 3,
-      icon: <RefreshCcw size={32} />,
-      title: 'سهولة الإرجاع',
-      description: 'إرجاع خلال 14 يوم',
-      bgColor: 'bg-primary'
-    },
-    {
-      id: 4,
-      icon: <HeadphonesIcon size={32} />,
-      title: 'دعم 24/7',
-      description: 'فريقنا دائماً متاح',
-      bgColor: 'bg-accent'
-    },
-  ];
-
-
   return (
-    <section className="py-15 bg-white">
+    <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {features.map((feature) => (
-            <div key={feature.id} className="border border-[#e0e0e0] rounded-xl p-7.5 text-center transition-all bg-white hover:-translate-y-1 hover:shadow-lg hover:border-primary">
-              <div className={`w-15 h-15 rounded-full text-white flex items-center justify-center mx-auto mb-4 ${feature.bgColor}`}>{feature.icon}</div>
-              <h3 className="text-lg font-bold mb-1.5">{feature.title}</h3>
-              <p className="text-sm text-text-muted">{feature.description}</p>
+        <div className="grid md:grid-cols-4 gap-8">
+          <div data-slot="card" className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-[#EBD8B7] hover:border-[#C49A6C] transition-all hover:shadow-lg text-center">
+            <div data-slot="card-content" className="[&:last-child]:pb-6 p-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#005B7F] to-[#007AA3] rounded-full flex items-center justify-center mx-auto mb-4">
+                <Store className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-lg mb-2 text-[#2B2B2B]">توصيل سريع</h3>
+              <p className="text-sm text-[#6B6B6B]">شحن لجميع أنحاء مصر</p>
             </div>
-          ))}
+          </div>
+          
+          <div data-slot="card" className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-[#EBD8B7] hover:border-[#C49A6C] transition-all hover:shadow-lg text-center">
+            <div data-slot="card-content" className="[&:last-child]:pb-6 p-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#C49A6C] to-[#B08A5C] rounded-full flex items-center justify-center mx-auto mb-4">
+                <Package className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-lg mb-2 text-[#2B2B2B]">دفع آمن</h3>
+              <p className="text-sm text-[#6B6B6B]">حماية كاملة للمعاملات</p>
+            </div>
+          </div>
+          
+          <div data-slot="card" className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-[#EBD8B7] hover:border-[#C49A6C] transition-all hover:shadow-lg text-center">
+            <div data-slot="card-content" className="[&:last-child]:pb-6 p-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#005B7F] to-[#007AA3] rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-lg mb-2 text-[#2B2B2B]">سهولة الإرجاع</h3>
+              <p className="text-sm text-[#6B6B6B]">إرجاع خلال 14 يوم</p>
+            </div>
+          </div>
+          
+          <div data-slot="card" className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-[#EBD8B7] hover:border-[#C49A6C] transition-all hover:shadow-lg text-center">
+            <div data-slot="card-content" className="[&:last-child]:pb-6 p-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#C49A6C] to-[#B08A5C] rounded-full flex items-center justify-center mx-auto mb-4">
+                <ArrowLeft className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-lg mb-2 text-[#2B2B2B]">دعم 24/7</h3>
+              <p className="text-sm text-[#6B6B6B]">فريقنا دائماً متاح</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -60,3 +52,4 @@ const Features: React.FC = () => {
 };
 
 export default Features;
+

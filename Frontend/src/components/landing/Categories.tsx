@@ -3,35 +3,43 @@ import { Smartphone, ShoppingBag, Home, Sparkles, Dumbbell, BookOpen } from 'luc
 
 interface Category {
   id: number;
-  icon: React.ReactNode;
+  icon: React.ElementType;
   title: string;
   count: string;
 }
 
 const Categories: React.FC = () => {
   const categories: Category[] = [
-    { id: 1, icon: <Smartphone size={28} />, title: 'الإلكترونيات', count: '24 منتج' },
-    { id: 2, icon: <ShoppingBag size={28} />, title: 'الموضة والأزياء', count: '28 منتج' },
-    { id: 3, icon: <Home size={28} />, title: 'المنزل والمعيشة', count: '20 منتج' },
-    { id: 4, icon: <Sparkles size={28} />, title: 'مستحضرات التجميل', count: '17 منتج' },
-    { id: 5, icon: <Dumbbell size={28} />, title: 'الرياضة', count: '17 منتج' },
-    { id: 6, icon: <BookOpen size={28} />, title: 'الكتب', count: '18 منتج' },
+    { id: 1, icon: Smartphone, title: 'الإلكترونيات', count: '24 منتج' },
+    { id: 2, icon: ShoppingBag, title: 'الموضة والأزياء', count: '28 منتج' },
+    { id: 3, icon: Home, title: 'المنزل والمعيشة', count: '28 منتج' },
+    { id: 4, icon: Sparkles, title: 'مستحضرات التجميل', count: '17 منتج' },
+    { id: 5, icon: Dumbbell, title: 'الرياضة', count: '17 منتج' },
+    { id: 6, icon: BookOpen, title: 'الكتب', count: '18 منتج' },
   ];
 
   return (
-    <section className="py-20 bg-bg-warm">
+    <section className="py-16 bg-gradient-to-br from-[#FAF8F5] to-[#EBD8B7]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-2.5">تسوق حسب التصنيف</h2>
-          <p className="text-text-muted text-lg">اكتشف آلاف المنتجات في تصنيفات متنوعة</p>
+          <h2 className="text-3xl text-[#2B2B2B] mb-4">تسوّق حسب التصنيف</h2>
+          <p className="text-lg text-[#6B6B6B]">اكتشف آلاف المنتجات في تصنيفات متنوعة</p>
         </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
-          {categories.map((cat) => (
-            <div key={cat.id} className="bg-white border border-[#eaeaea] rounded-xl p-7.5 flex flex-col items-center justify-center text-center transition-all cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-primary group">
-              <div className="w-17.5 h-17.5 rounded-full bg-primary text-white flex items-center justify-center mb-4 transition-all group-hover:scale-110">{cat.icon}</div>
-              <h3 className="text-lg font-bold mb-1.5">{cat.title}</h3>
-              <span className="text-sm text-text-muted">{cat.count}</span>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              data-slot="card"
+              className="bg-white text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-[#EBD8B7] hover:border-[#C49A6C] hover:shadow-lg transition-all cursor-pointer group"
+            >
+              <div data-slot="card-content" className="[&:last-child]:pb-6 p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#005B7F] to-[#007AA3] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <category.icon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-sm mb-1 text-[#2B2B2B] group-hover:text-[#005B7F] transition-colors">{category.title}</h3>
+                <p className="text-xs text-[#6B6B6B]">{category.count}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -41,3 +49,4 @@ const Categories: React.FC = () => {
 };
 
 export default Categories;
+
