@@ -3,12 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import { ProductCard } from "./components/ProductCard";
 import FilterAsideBar from "./components/FilterAsideBar";
 import { Select } from "@/components/ui/Select";
-import { useGetProductsQuery } from "./api/product.api";
+import { useGetProductsQuery } from "../../api/product.api";
 import { Button } from "@/components/ui/Button";
 
-export const Products = () => {
+export const ViewProducts = () => {
   const { data, isLoading, error } = useGetProductsQuery();
-  const products = useMemo(() => data?.data ?? [], [data?.data]);
+  const products = data?.data ?? [];
 
   const [searchParams] = useSearchParams();
 
@@ -70,10 +70,10 @@ export const Products = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
+    <div className=" bg-gray-50 py-8" dir="rtl">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="mb-2">كل المنتجات</h1>
+          <h1 className="mb-2 text-2xl">كل المنتجات</h1>
           <p className="text-gray-600">
             تم العثور على {filteredProducts.length} منتج
           </p>

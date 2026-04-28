@@ -2,7 +2,7 @@ import { apiSlice } from "@/store/apiSlice";
 import { IAPIResponse } from "@/types/api/response.types";
 import { IProduct } from "@/types/entities/product.types";
 
-export const authApi = apiSlice.injectEndpoints({
+export const productApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProducts: builder.query<IAPIResponse<IProduct[]>, void>({
       query: () => ({
@@ -10,6 +10,7 @@ export const authApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+
     getProductById: builder.query<IAPIResponse<IProduct>, { id: string }>({
       query: ({ id }) => ({
         url: `/products/${id}`,
@@ -51,4 +52,4 @@ export const {
   useCreateProductMutation,
   useDeleteProductMutation,
   useUpdateProductMutation,
-} = authApi;
+} = productApi;

@@ -9,17 +9,16 @@ import ErrorPage from "@/pages/ErrorPage";
 import { LoginForm } from "@/features/auth/Login";
 import { RegisterForm } from "@/features/auth/Register";
 import Profile from "@/pages/Profile";
-import { Products } from "@/features/products/Products";
+import { ViewProducts } from "@/features/products/ViewProducts";
 
 export default function AppRoutes() {
   return (
     <Routes>
       {/* Public */}
       <Route path="/" element={<HomeLayout />}>
-        <Route path="/products" element={<Products />} />
+        <Route path="/products" element={<ViewProducts />} />
       </Route>
 
-      {/* <Route path="/products" element={element={<Products />}} /> */}
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="login" element={<LoginForm />} />
         <Route path="register" element={<RegisterForm />} />

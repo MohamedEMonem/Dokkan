@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { ICategory } from "@/types/entities/category.types";
+import { Funnel, Search } from "lucide-react";
 // eslint-disable-next-line react-refresh/only-export-components
 export const mockCategories: ICategory[] = [
   { id: "electronics", name: "الإلكترونيات" },
@@ -191,35 +192,10 @@ const FilterAsideBar = ({
 export default FilterAsideBar;
 
 const SearchIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-4 h-4 text-[#6B6B6B]"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <circle cx="11" cy="11" r="8" />
-    <path d="m21 21-4.3-4.3" />
-  </svg>
+  <Search className="w-4 h-4 text-[#6B6B6B]" strokeWidth={2} />
 );
 
-const FilterIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-5 h-5"
-  >
-    <path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z" />
-  </svg>
-);
+const FilterIcon = () => <Funnel className="w-5 h-5" strokeWidth={2} />;
 
 const RadioItem = ({
   label,
