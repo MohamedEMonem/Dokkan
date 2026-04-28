@@ -1,86 +1,101 @@
 import React from 'react';
-import { ArrowLeft, ArrowRight, Star } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Star, ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface Store {
   id: number;
   name: string;
-  description: string;
   rating: number;
   reviews: number;
-  imageColor: string;
+  description: string;
+  image: string;
 }
 
 const FeaturedStores: React.FC = () => {
   const stores: Store[] = [
     {
       id: 1,
-      name: 'راحة المنزل',
-      description: 'أثاث جميل وديكورات منزلية عصرية',
-      rating: 4.7,
-      reviews: 650,
-      imageColor: '#D2D8C6' // Sage green proxy for furniture
+      name: 'متجر التقنية الحديثة',
+      rating: 4.8,
+      reviews: 1250,
+      description: 'متجرك الشامل لأحدث الأجهزة الإلكترونية والتقنية',
+      image: 'https://images.unsplash.com/photo-1717295248494-937c3a5655b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGVjdHJvbmljcyUyMGdhZGdldHN8ZW58MXx8fHwxNzYxOTEwNDA3fDA&ixlib=rb-4.1.0&q=80&w=1080'
     },
     {
       id: 2,
       name: 'الأزياء الراقية',
-      description: 'أزياء وإكسسوارات راقية للشخصية العصرية',
       rating: 4.6,
       reviews: 890,
-      imageColor: '#B0594D' // Rust red proxy for fashion
+      description: 'أزياء وإكسسوارات راقية للشخصية العصرية',
+      image: 'https://images.unsplash.com/photo-1532435109783-fdb8a2be0baa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzbWFydHdhdGNoJTIwZml0bmVzc3xlbnwxfHx8fDE3NjIwOTQxNzZ8MA&ixlib=rb-4.1.0&q=80&w=1080'
     },
     {
       id: 3,
-      name: 'متجر التقنية الحديثة',
-      description: 'متجرك الشامل لأحدث الأجهزة الإلكترونية والتقنية',
-      rating: 4.8,
-      reviews: 1250,
-      imageColor: '#30415D' // Dark blue proxy for tech room
+      name: 'راحة المنزل',
+      rating: 4.7,
+      reviews: 650,
+      description: 'أثاث جميل وديكورات منزلية عصرية',
+      image: 'https://images.unsplash.com/photo-1628630468464-4168a51129f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxob21lJTIwZGVjb3IlMjBmdXJuaXR1cmV8ZW58MXx8fHwxNzYyMDAyODkwfDA&ixlib=rb-4.1.0&q=80&w=1080'
+    },
+    {
+      id: 4,
+      name: 'عالم الإلكترونيات',
+      rating: 4.7,
+      reviews: 890,
+      description: 'أحدث الأجهزة الإلكترونية والتقنية بأسعار منافسة',
+      image: 'https://images.unsplash.com/photo-1749566679636-a9b0f4c52e08?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGVjdHJvbmljcyUyMHN0b3JlJTIwdGVjaHxlbnwxfHx8fDE3NjM5Mjg5OTJ8MA&ixlib=rb-4.1.0&q=80&w=1080'
     }
   ];
 
   return (
-    <section className="py-20 bg-bg-warm">
+    <section className="py-16 bg-[#FAF6F0]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-2.5">المتاجر المميزة</h2>
-          <p className="text-text-muted text-lg">تسوق من أفضل البائعين</p>
+          <h2 className="text-3xl text-[#2B2B2B] mb-2">المتاجر المميزة</h2>
+          <p className="text-lg text-[#6B6B6B]">تسوق من أفضل البائعين</p>
         </div>
 
-        <div className="flex items-center gap-5 relative">
-          <button className="hidden sm:flex w-10 h-10 rounded-full bg-white border border-[#e0e0e0] items-center justify-center text-primary shadow-sm transition-all flex-shrink-0 z-10 hover:bg-primary hover:text-white">
-            <ArrowRight size={24} />
-          </button>
+        <div className="relative px-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {stores.slice(0, 3).map((store) => (
+              <div key={store.id} className="group border-2 border-[#EBD8B7] hover:border-[#C49A6C] hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden h-full flex flex-col bg-white rounded-xl">
+                <div className="relative h-32 w-full overflow-hidden">
+                  <img
+                    src={store.image}
+                    alt={store.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7.5 flex-1">
-            {stores.map((store) => (
-              <div key={store.id} className="bg-white border border-[#e0e0e0] rounded-xl overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg hover:border-primary">
-                <div className="h-[180px] w-full" style={{ backgroundColor: store.imageColor }}></div>
-                
-                <div className="p-6.25 text-center flex flex-col items-center">
-                  <h3 className="text-lg font-bold mb-2.5 text-text-dark">{store.name}</h3>
-                  <div className="flex items-center justify-center gap-1.25 mb-4 text-sm">
-                    <span className="text-text-muted">({store.reviews})</span>
-                    <span className="font-bold">{store.rating}</span>
-                    <Star size={14} fill="#C49A6C" color="#C49A6C" />
+                <div className="flex-1 flex flex-col p-3 pt-8 items-center text-center">
+                  <h3 className="text-[#2B2B2B] mb-2 group-hover:text-[#005B7F] transition-colors line-clamp-1 text-sm font-bold">
+                    {store.name}
+                  </h3>
+
+                  <div className="flex items-center justify-center gap-1.5 mb-2">
+                    <div className="flex items-center gap-0.5">
+                      <Star className="w-3 h-3 fill-[#C49A6C] text-[#C49A6C]" />
+                      <span className="text-[#2B2B2B] text-xs font-bold">{store.rating}</span>
+                    </div>
+                    <span className="text-[#6B6B6B] text-xs">({store.reviews})</span>
                   </div>
-                  <p className="text-text-muted text-[0.95rem] mb-6.25 leading-relaxed h-[2.85em] overflow-hidden">{store.description}</p>
-                  
-                  <div className="w-full h-12">
-                    <Button 
-                      variant="secondary" 
-                      className="rounded-[25px] font-bold text-base"
-                    >
-                      زيارة المتجر
-                    </Button>
-                  </div>
+
+                  <p className="text-[#6B6B6B] text-xs line-clamp-2 mb-3 flex-1 leading-relaxed">
+                    {store.description}
+                  </p>
+
+                  <button className="w-full inline-flex items-center justify-center whitespace-nowrap transition-all outline-none border-2 border-[#005B7F] text-[#005B7F] hover:bg-[#005B7F] hover:text-white rounded-lg h-8 text-xs font-bold">
+                    زيارة المتجر
+                  </button>
                 </div>
               </div>
             ))}
           </div>
 
-          <button className="hidden sm:flex w-10 h-10 rounded-full bg-white border border-[#e0e0e0] items-center justify-center text-primary shadow-sm transition-all flex-shrink-0 z-10 hover:bg-primary hover:text-white">
+          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 right-0 border-2 border-[#005B7F] text-[#005B7F] hover:bg-[#005B7F] hover:text-white shadow-lg flex items-center justify-center transition-all">
             <ArrowLeft size={24} />
+          </button>
+          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 left-0 border-2 border-[#005B7F] text-[#005B7F] hover:bg-[#005B7F] hover:text-white shadow-lg flex items-center justify-center transition-all">
+            <ArrowRight size={24} />
           </button>
         </div>
       </div>
@@ -89,4 +104,5 @@ const FeaturedStores: React.FC = () => {
 };
 
 export default FeaturedStores;
+
 
