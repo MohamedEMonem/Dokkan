@@ -24,7 +24,7 @@ export function Overview() {
           headerAction={
             <Button
               variant="tertiary"
-              className="text-primary hover:text-primary-dark p-0 h-8 text-sm gap-1"
+              className="text-primary hover:text-primary-dark px-3 h-8! text-sm gap-1"
             >
               عرض الكل <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -44,19 +44,19 @@ export function Overview() {
           headerAction={
             <Button
               variant="tertiary"
-              className="text-primary hover:text-primary-dark p-0 h-8 text-sm gap-1"
+              className="text-primary hover:text-primary-dark px-3 h-8! text-sm gap-1"
             >
               عرض الكل <ChevronLeft className="w-4 h-4" />
             </Button>
           }
           className="h-full"
         >
-          <div className="p-8 text-center text-text-muted">
+          <div className="p-8 text-center text-text-muted flex flex-col items-center justify-center">
             <Package className="w-12 h-12 mx-auto mb-4 text-accent-light" />
             <p className="mb-4">لا توجد منتجات حتى الآن</p>
             <Button
               variant="primary"
-              className="px-4 text-sm"
+              className="w-auto! px-4 py-2 text-sm"
               icon={<Plus className="w-4 h-4 ml-2" />}
             >
               إضافة أول منتج
