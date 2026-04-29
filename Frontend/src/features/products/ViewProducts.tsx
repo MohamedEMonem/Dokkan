@@ -5,6 +5,17 @@ import FilterAsideBar from "@/features/products/components/FilterAsideBar";
 import { Select } from "@/components/ui/Select";
 import { useGetProductsQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
+import { sortBy } from "@/utils/sorting";
+
+const sortConfigs: Record<
+  string,
+  { key: string; order: "asc" | "desc"; type?: "number" | "date" }
+> = {
+  newest: { key: "createdAt", order: "desc", type: "date" },
+  price_low_high: { key: "price", order: "asc", type: "number" },
+  price_high_low: { key: "price", order: "desc", type: "number" },
+  highest_rated: { key: "rating", order: "desc", type: "number" },
+};
 
 export const ViewProducts = () => {
   const { data, isLoading, error } = useGetProductsQuery();
@@ -51,6 +62,19 @@ export const ViewProducts = () => {
     });
   }, [products, filters]);
 
+  const applySorting = (products: any[], sortedBy: string) => {
+    const config = sortConfigs[sortedBy];
+    if (!config) return products;
+
+    return [...products].sort(
+      sortBy(config.key as any, config.order, config.type),
+    );
+  };
+  
+  const displayedProducts = useMemo(() => {
+    return applySorting(filteredProducts, sortedBy);
+  }, [filteredProducts, sortedBy]);
+
   const reset = () => {
     setFilters({
       search: "",
@@ -72,10 +96,7 @@ export const ViewProducts = () => {
           </p>
         </div>
         <div className="flex gap-8">
-          <FilterAsideBar
-            filters={filters}
-            setFilters={setFilters}
-          />
+          <FilterAsideBar filters={filters} setFilters={setFilters} />
           <div className="flex-1">
             {/* Bar */}
             <div className="h-18 flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow-sm">
@@ -128,8 +149,8 @@ export const ViewProducts = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {filteredProducts &&
-                  filteredProducts.map(
+                {displayedProducts &&
+                  displayedProducts.map(
                     (p) => p && <ProductCard key={p.id} product={p} />,
                   )}
               </div>
