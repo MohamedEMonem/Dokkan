@@ -1,8 +1,11 @@
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { TrendingUp, ShoppingBag, Package, ChevronLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useNavigate } from "react-router-dom";
 
 export function Overview() {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-6 w-full">
       {/* Sales Growth Card */}
@@ -17,6 +20,7 @@ export function Overview() {
 
       {/* Two Column Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+        
         {/* Latest Orders Card */}
         <DashboardCard
           title="أحدث الطلبات"
@@ -25,6 +29,7 @@ export function Overview() {
             <Button
               variant="tertiary"
               className="text-primary hover:text-primary-dark px-3 h-8! text-sm gap-1"
+              onClick={() => navigate("/dashboard/orders")}
             >
               عرض الكل <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -45,6 +50,7 @@ export function Overview() {
             <Button
               variant="tertiary"
               className="text-primary hover:text-primary-dark px-3 h-8! text-sm gap-1"
+              onClick={() => navigate("/dashboard/products")}
             >
               عرض الكل <ChevronLeft className="w-4 h-4" />
             </Button>
