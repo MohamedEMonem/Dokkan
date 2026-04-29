@@ -8,22 +8,22 @@
 /* ===== Dokkan Design System - Tailwind v4 Theme ===== */
 @theme {
   /* Primary - Teal/Blue */
-  --color-primary: #005b7f;
-  --color-primary-light: #007aa3;
-  --color-primary-dark: #004a66;
+  --color-primary: #005B7F;
+  --color-primary-light: #007AA3;
+  --color-primary-dark: #004A66;
 
   /* Accent - Gold */
-  --color-accent: #c49a6c;
-  --color-accent-dark: #b08a5c;
-  --color-accent-light: #ebd8b7;
+  --color-accent: #C49A6C;
+  --color-accent-dark: #B08A5C;
+  --color-accent-light: #EBD8B7;
 
   /* Backgrounds */
-  --color-bg-cream: #faf8f5;
-  --color-bg-warm: #faf6f0;
+  --color-bg-cream: #FAF8F5;
+  --color-bg-warm: #FAF6F0;
 
   /* Text */
-  --color-text-dark: #2b2b2b;
-  --color-text-muted: #6b6b6b;
+  --color-text-dark: #2B2B2B;
+  --color-text-muted: #6B6B6B;
 }
 
 /* ===== Base / Reset ===== */
@@ -34,16 +34,8 @@
 }
 
 body {
-  font-family:
-    "Cairo",
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    "Helvetica Neue",
-    Arial,
-    "Noto Sans",
-    sans-serif;
+  font-family: "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
   line-height: 1.5;
   color: var(--color-text-dark);
   background-color: #ffffff;
