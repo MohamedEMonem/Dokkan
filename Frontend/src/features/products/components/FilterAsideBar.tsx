@@ -80,15 +80,14 @@ const FilterAsideBar = ({
       <div className="bg-white rounded-lg p-6 shadow-sm sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto filter-scrollbar">
         {/* Header */}
         <div className="flex items-center gap-2 mb-6">
-          <FilterIcon />
-          <h2>الفلاتر</h2>
+          <Funnel className="w-5 h-5" strokeWidth={2} /> <h2>الفلاتر</h2>
         </div>
 
         <div className="space-y-6">
           {/* Search */}
           <FilterSection title="بحث">
             <Input
-              icon={<SearchIcon />}
+              icon={<Search className="w-4 h-4 text-text-muted" strokeWidth={2} />}
               placeholder="ابحث عن منتج..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -190,12 +189,6 @@ const FilterAsideBar = ({
 };
 
 export default FilterAsideBar;
-
-const SearchIcon = () => (
-  <Search className="w-4 h-4 text-[#6B6B6B]" strokeWidth={2} />
-);
-
-const FilterIcon = () => <Funnel className="w-5 h-5" strokeWidth={2} />;
 
 const RadioItem = ({
   label,
