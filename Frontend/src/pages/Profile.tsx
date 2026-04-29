@@ -1,4 +1,5 @@
 import { useState } from "react";
+import clsx from "clsx";
 import {
   CircleUser,
   Camera,
@@ -44,8 +45,10 @@ export default function Profile() {
     : "غير متوفر";
 
   return (
-    <div className={`
-    ${ user.role == EUserRole.Customer && 'bg-linear-to-br from-bg-cream via-bg-cream to-accent-light'} `}>
+    <div className={clsx(
+      "min-h-screen flex flex-col",
+      user.role === EUserRole.Customer && "bg-linear-to-br from-bg-cream via-bg-cream to-accent-light"
+    )}>
 
       <main className="flex-1 py-8 sm:py-12 px-4" dir="rtl">
         <div className="max-w-4xl mx-auto">
