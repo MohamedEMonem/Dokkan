@@ -10,8 +10,8 @@ export function Overview() {
         title="نمو المبيعات - آخر 6 أشهر"
         icon={<TrendingUp className="w-6 h-6 text-primary" />}
       >
-        <div className="h-75 flex items-center justify-center bg-bg-cream rounded-lg border-2 border-dashed border-accent-light w-full">
-          <p className="text-text-muted">مساحة الرسم البياني (Recharts)</p>
+        <div className="h-72 p-6 flex items-center justify-center bg-bg-cream rounded-lg border-2 border-dashed border-accent-light w-full">
+          <p className="text-text-muted">مساحة الرسم البياني (Analytics)</p>
         </div>
       </DashboardCard>
 

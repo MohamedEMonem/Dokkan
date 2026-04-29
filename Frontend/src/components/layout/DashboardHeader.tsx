@@ -85,7 +85,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
                   icon={<Bell className="w-6 h-6" />}
                   className="relative p-2 md:p-3 rounded-xl text-white hover:bg-white/10"
                 >
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                     3
                   </span>
                 </Button>
@@ -164,7 +164,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
           </div>
 
           {/* Stats Cards Area */}
-          <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 pb-4 md:pb-0 snap-x snap-mandatory scrollbar-hide">
+          <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 pb-4 md:pb-0 snap-x snap-mandatory">
             <StatCard
               title="إجمالي المبيعات"
               value={`${statsValues.totalSales} ج.م`}
@@ -219,7 +219,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
 
       {/* Navigation Bar */}
       <div className="container mx-auto px-4 md:px-4 mt-6">
-        <div className="overflow-x-auto pb-2 -mb-2 scrollbar-none">
+        <div className="overflow-x-auto pb-2 -mb-2">
           <nav className="bg-white border-2 border-accent-light rounded-full p-1 inline-flex items-center  gap-1 w-max shadow-md">
             {navLinks.map((link) => (
               <NavLink
