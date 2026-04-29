@@ -6,6 +6,7 @@ import { Select } from "@/components/ui/Select";
 import { useGetProductsQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
 import { sortBy } from "@/utils/sorting";
+import { SlidersHorizontal } from "lucide-react";
 
 const sortConfigs: Record<
   string,
@@ -33,6 +34,7 @@ export const ViewProducts = () => {
   });
 
   const [sortedBy, setSortedBy] = useState("newest");
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     console.log("Current Filters:", filters);
@@ -70,7 +72,7 @@ export const ViewProducts = () => {
       sortBy(config.key as any, config.order, config.type),
     );
   };
-  
+
   const displayedProducts = useMemo(() => {
     return applySorting(filteredProducts, sortedBy);
   }, [filteredProducts, sortedBy]);
@@ -95,16 +97,34 @@ export const ViewProducts = () => {
             تم العثور على {filteredProducts.length} منتج
           </p>
         </div>
-        <div className="flex gap-8">
-          <FilterAsideBar filters={filters} setFilters={setFilters} />
-          <div className="flex-1">
+        <div className="flex gap-8 relative">
+          <FilterAsideBar
+            filters={filters}
+            setFilters={setFilters}
+            isOpen={isMobileFilterOpen}
+            onClose={() => setIsMobileFilterOpen(false)}
+          />
+          <div className="flex-1 w-full lg:w-auto">
             {/* Bar */}
-            <div className="h-18 flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 whitespace-nowrap shrink-0">
-                  الترتيب حسب:
-                </span>
+            <div className="bg-white p-2.5 sm:p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between mb-8 gap-4">
+              {/* Filter Button (Mobile Only) */}
+              <div className="flex items-center lg:hidden">
+                <Button
+                  variant="outline-accent"
+                  onClick={() => setIsMobileFilterOpen(true)}
+                  className="!h-9 items-center gap-2 px-4 py-2.5 border! text-gray-700!"
+                  icon={<SlidersHorizontal size={18} className="text-gray-500" />}
+                  iconPos="right"
+                >
+                  <span className="text-sm font-medium">الفلاتر</span>
+                </Button>
+              </div>
 
+              {/* Desktop Spacer to keep sort on the left */}
+              <div className="hidden lg:block flex-1" />
+
+              {/* Sort Section */}
+              <div className="flex items-center gap-3 shrink-0">
                 <Select
                   value={sortedBy}
                   onChange={(val) => setSortedBy(val.target.value)}
@@ -112,14 +132,15 @@ export const ViewProducts = () => {
                     { value: "newest", label: "الأحدث" },
                     {
                       value: "price_low_high",
-                      label: "السعر من الأقل للأعلى",
+                      label: "السعر: من الأقل",
                     },
                     {
                       value: "price_high_low",
-                      label: "السعر من الأعلى للأقل",
+                      label: "السعر: من الأعلى",
                     },
                     { value: "highest_rated", label: "الأعلى تقييماً" },
                   ]}
+                  className="!h-9 !px-4"
                 />
               </div>
             </div>

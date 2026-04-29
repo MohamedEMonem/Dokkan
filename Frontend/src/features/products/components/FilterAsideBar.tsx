@@ -61,9 +61,11 @@ interface IProps {
       shipping: boolean;
     }>
   >;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const FilterAsideBar = ({ filters, setFilters }: IProps) => {
+const FilterAsideBar = ({ filters, setFilters, isOpen, onClose }: IProps) => {
   const updateFilter = (key: keyof typeof filters, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -79,12 +81,38 @@ const FilterAsideBar = ({ filters, setFilters }: IProps) => {
   };
 
   return (
-    <aside className="hidden lg:block w-64 shrink-0">
-      <div className="bg-white rounded-lg p-6 shadow-sm sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto filter-scrollbar">
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-6">
-          <Funnel className="w-5 h-5" strokeWidth={2} /> <h2>الفلاتر</h2>
-        </div>
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed inset-y-0 right-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out
+          lg:static lg:block lg:translate-x-0 lg:bg-transparent lg:z-auto shrink-0
+          ${isOpen ? "translate-x-0 shadow-2xl" : "translate-x-full"}
+        `}
+      >
+        <div className="bg-white rounded-lg p-6 shadow-sm lg:sticky top-24 max-h-screen lg:max-h-[calc(100vh-7rem)] overflow-y-auto filter-scrollbar h-full lg:h-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-2 mb-6">
+            <div className="flex items-center gap-2">
+              <Funnel className="w-5 h-5" strokeWidth={2} /> <h2>الفلاتر</h2>
+            </div>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="lg:hidden p-2 text-gray-500 hover:text-gray-700 rounded-md"
+              >
+                ✕
+              </button>
+            )}
+          </div>
 
         <div className="space-y-6">
           {/* Search */}
@@ -153,8 +181,9 @@ const FilterAsideBar = ({ filters, setFilters }: IProps) => {
             إعادة تعيين الفلاتر
           </Button>
         </div>
-      </div>
-    </aside>
+        </div>
+      </aside>
+    </>
   );
 };
 
