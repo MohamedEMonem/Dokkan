@@ -120,9 +120,6 @@ export const ViewProducts = () => {
                 </Button>
               </div>
 
-              {/* Desktop Spacer to keep sort on the left */}
-              <div className="hidden lg:block flex-1" />
-
               {/* Sort Section */}
               <div className="flex items-center gap-3 shrink-0">
                 <Select
@@ -140,7 +137,7 @@ export const ViewProducts = () => {
                     },
                     { value: "highest_rated", label: "الأعلى تقييماً" },
                   ]}
-                  className="h-9! px-4!"
+                  className="h-9! px-4! lg:h-12! lg:px-12!"
                 />
               </div>
             </div>
@@ -163,7 +160,7 @@ export const ViewProducts = () => {
                   variant="outline-accent"
                   onClick={() => reset()}
                   data-slot="button"
-                  className="w-fit! h-9! px-4 py-2 rounded-lg text-black! border! outline-none! text-sm!  hover:text-white!"
+                  className="w-fit! h-9! lg:h-12! px-4 py-2 lg:px-6 rounded-lg text-black! border! outline-none! text-sm! lg:text-base! hover:text-white!"
                 >
                   إعادة تعيين الفلاتر
                 </Button>
