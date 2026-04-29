@@ -33,7 +33,7 @@ export const ProductCard = ({ product }: ProductProps) => {
 
   if (!product || !productId) return null;
   return (
-    <Link className="h-full" to={`/product/${productId}`} data-discover="true">
+    <Link className="h-full" to={`/products/${productId}`} data-discover="true">
       <Card>
         <div data-slot="card-content" className="pb-6 p-0 flex flex-col h-full">
           <div className="relative h-32 w-full overflow-hidden bg-bg-cream group">
