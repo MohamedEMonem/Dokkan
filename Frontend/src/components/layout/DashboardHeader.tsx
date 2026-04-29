@@ -70,7 +70,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
                 <h1 className="text-xl md:text-3xl font-bold mb-1">
                   مرحباً، {user?.name}
                 </h1>
-                <p className="text-white/80 text-sm md:text-lg truncate max-w-50 md:max-w-none">
+                <p className="text-white/80 text-sm md:text-lg truncate max-w-48 md:max-w-none">
                   لوحة تحكم البائع - {storeName}
                 </p>
               </div>
