@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ProductCard } from "./components/ProductCard";
-import FilterAsideBar from "./components/FilterAsideBar";
+import { ProductCard } from "@/features/products/components/ProductCard";
+import FilterAsideBar from "@/features/products/components/FilterAsideBar";
 import { Select } from "@/components/ui/Select";
-import { useGetProductsQuery } from "../../api/product.api";
+import { useGetProductsQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
 
 export const ViewProducts = () => {
@@ -121,7 +121,7 @@ export const ViewProducts = () => {
                   variant="outline-accent"
                   onClick={() => reset()}
                   data-slot="button"
-                  className="w-fit! h-9! px-4! py-2! rounded-[10px]! text-black! bg-bg-light! border! outline-none! border-border-color! text-sm! focus:outline-none! focus:ring-0! hover:bg-accent! hover:text-white! transition-colors!"
+                  className="w-fit! h-9! px-4 py-2 rounded-lg text-black! border! outline-none! text-sm!  hover:text-white!"
                 >
                   إعادة تعيين الفلاتر
                 </Button>
