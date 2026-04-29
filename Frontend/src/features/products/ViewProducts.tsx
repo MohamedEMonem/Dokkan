@@ -112,7 +112,7 @@ export const ViewProducts = () => {
                 <Button
                   variant="outline-accent"
                   onClick={() => setIsMobileFilterOpen(true)}
-                  className="!h-9 items-center gap-2 px-4 py-2.5 border! text-gray-700!"
+                  className="h-9! items-center gap-2 px-4 py-2.5 border! text-gray-700!"
                   icon={<SlidersHorizontal size={18} className="text-gray-500" />}
                   iconPos="right"
                 >
@@ -140,7 +140,7 @@ export const ViewProducts = () => {
                     },
                     { value: "highest_rated", label: "الأعلى تقييماً" },
                   ]}
-                  className="!h-9 !px-4"
+                  className="h-9! px-4!"
                 />
               </div>
             </div>
