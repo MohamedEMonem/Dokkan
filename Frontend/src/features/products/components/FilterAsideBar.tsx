@@ -45,40 +45,37 @@ interface FilterSectionProps {
 //////////////////////////////////////////////////////////////////
 
 interface IProps {
-  selectedRating?: string;
-  onRatingChange?: (value: string) => void;
-
-  selectedCity?: string;
-  onCityChange?: (value: string) => void;
-
-  searchValue: string;
-  setSearchValue: (val: string) => void;
-
-  category: string;
-  setCategory: (val: string) => void;
-
-  shippingAvailable?: boolean;
-  setShippingAvailable?: (val: boolean) => void;
+  filters: {
+    search: string;
+    category: string;
+    city: string;
+    rating: string;
+    shipping: boolean;
+  };
+  setFilters: React.Dispatch<
+    React.SetStateAction<{
+      search: string;
+      category: string;
+      city: string;
+      rating: string;
+      shipping: boolean;
+    }>
+  >;
 }
 
-const FilterAsideBar = ({
-  searchValue,
-  setSearchValue,
-  category,
-  setCategory,
-  selectedRating,
-  onRatingChange,
-  selectedCity,
-  onCityChange,
-  shippingAvailable,
-  setShippingAvailable,
-}: IProps) => {
+const FilterAsideBar = ({ filters, setFilters }: IProps) => {
+  const updateFilter = (key: keyof typeof filters, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
   const Reset = () => {
-    onRatingChange?.("all");
-    onCityChange?.("all");
-    setSearchValue("");
-    setCategory("all");
-    setShippingAvailable?.(false);
+    setFilters({
+      search: "",
+      category: "all",
+      city: "all",
+      rating: "all",
+      shipping: false,
+    });
   };
 
   return (
@@ -95,8 +92,8 @@ const FilterAsideBar = ({
             <Input
               icon={<Search className="w-4 h-4 text-text-muted" strokeWidth={2} />}
               placeholder="ابحث عن منتج..."
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
+              value={filters.search}
+              onChange={(e) => updateFilter("search", e.target.value)}
             />
           </FilterSection>
 
@@ -109,8 +106,8 @@ const FilterAsideBar = ({
                   label={cat.name}
                   itemId={cat.id}
                   name="category"
-                  value={category}
-                  setValue={setCategory}
+                  value={filters.category}
+                  setValue={(val) => updateFilter("category", val)}
                 />
               ))}
             </div>
@@ -122,10 +119,8 @@ const FilterAsideBar = ({
               <input
                 type="checkbox"
                 className="w-4 h-4 rounded border-gray-300"
-                checked={shippingAvailable}
-                onChange={(e) =>
-                  setShippingAvailable && setShippingAvailable(e.target.checked)
-                }
+                checked={filters.shipping}
+                onChange={(e) => updateFilter("shipping", e.target.checked)}
               />
               <span className="text-sm">متاح الشحن</span>
             </label>
@@ -134,16 +129,16 @@ const FilterAsideBar = ({
           <FilterSection title="المدينة">
             <Select
               options={cityOptions}
-              value={selectedCity ?? "all"}
-              onChange={(e) => onCityChange?.(e.target.value)}
+              value={filters.city}
+              onChange={(e) => updateFilter("city", e.target.value)}
             />
           </FilterSection>
 
           <FilterSection title="الحد الأدنى للتقييم">
             <Select
               options={ratingOptions}
-              value={selectedRating ?? "all"}
-              onChange={(e) => onRatingChange?.(e.target.value)}
+              value={filters.rating}
+              onChange={(e) => updateFilter("rating", e.target.value)}
             />
           </FilterSection>
 

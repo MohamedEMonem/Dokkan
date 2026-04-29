@@ -11,61 +11,54 @@ export const ViewProducts = () => {
   const products = data?.data ?? [];
 
   const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("cat");
 
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedCity, setSelectedCity] = useState<string>("all");
-  const [selectedRating, setSelectedRating] = useState<string>("all");
-  const [shippingAvailable, setShippingAvailable] = useState(false);
+  const [filters, setFilters] = useState({
+    search: "",
+    category: "all",
+    city: "all",
+    rating: "all",
+    shipping: false,
+  });
+
   const [sortedBy, setSortedBy] = useState("newest");
-  const category = searchParams.get("cat");
 
   useEffect(() => {
-    console.log("Selected Rating:", selectedRating);
-    console.log("Selected City:", selectedCity);
-    console.log("Search Value:", search);
-    console.log("Category:", selectedCategory);
-    console.log("Shipping Available:", shippingAvailable);
+    console.log("Current Filters:", filters);
     console.log("Sorted By:", sortedBy);
-  }, [
-    search,
-    selectedCategory,
-    selectedCity,
-    selectedRating,
-    shippingAvailable,
-    category,
-    sortedBy,
-  ]);
+  }, [filters, sortedBy]);
 
   useEffect(() => {
-    if (category) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedCategory(category);
+    if (categoryParam) {
+      setFilters((prev) => ({ ...prev, category: categoryParam }));
     } else {
-      setSelectedCategory("all");
+      setFilters((prev) => ({ ...prev, category: "all" }));
     }
-  }, [category]);
+  }, [categoryParam]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch =
-        search.trim() === "" ||
-        product.title.includes(search) ||
-        product.description?.includes(search);
+        filters.search.trim() === "" ||
+        product.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+        product.description?.toLowerCase().includes(filters.search.toLowerCase());
 
       const matchesCategory =
-        selectedCategory === "all" || product.categoryId === selectedCategory;
+        filters.category === "all" || product.categoryId === filters.category;
 
+      // Add more filters here as needed (city, rating, etc.)
       return matchesSearch && matchesCategory;
     });
-  }, [products, search, selectedCategory]);
+  }, [products, filters]);
 
   const reset = () => {
-    setSearch("");
-    setSelectedCategory("all");
-    setSelectedCity("all");
-    setSelectedRating("all");
-    setShippingAvailable(false);
+    setFilters({
+      search: "",
+      category: "all",
+      city: "all",
+      rating: "all",
+      shipping: false,
+    });
     setSortedBy("newest");
   };
 
@@ -80,16 +73,8 @@ export const ViewProducts = () => {
         </div>
         <div className="flex gap-8">
           <FilterAsideBar
-            category={selectedCategory}
-            setCategory={setSelectedCategory}
-            searchValue={search}
-            setSearchValue={setSearch}
-            onCityChange={setSelectedCity}
-            onRatingChange={setSelectedRating}
-            shippingAvailable={shippingAvailable}
-            setShippingAvailable={setShippingAvailable}
-            selectedCity={selectedCity}
-            selectedRating={selectedRating}
+            filters={filters}
+            setFilters={setFilters}
           />
           <div className="flex-1">
             {/* Bar */}
