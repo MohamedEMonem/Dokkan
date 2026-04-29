@@ -175,10 +175,11 @@ const FilterAsideBar = ({
 
           {/* Reset */}
           <Button
+            variant="outline-accent"
             onClick={() => {
               Reset();
             }}
-            className="bg-bg-light! text-black! rounded-10 w-full! h-9!  border! outline-none! border-border-color! text-sm! focus:outline-none! focus:ring-0! hover:bg-accent! hover:text-white! transition-colors!"
+            className="text-black! h-9! border! outline-none text-sm! hover:text-white!"
           >
             إعادة تعيين الفلاتر
           </Button>
