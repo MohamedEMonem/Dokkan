@@ -65,19 +65,19 @@ export const ProductCard = ({ product }: ProductProps) => {
           </div>
 
           <div className="flex-1 flex flex-col p-3">
-            <p className="text-xs text-[#6B6B6B] mb-1 line-clamp-1">
+            <p className="text-xs text-text-muted mb-1 line-clamp-1">
               {/* {product.store?.name} */}
               متجر دكان
             </p>
-            <h3 className="text-[#2B2B2B] mb-2 group-hover:text-primary transition-colors line-clamp-2 text-sm leading-tight min-h-10">
+            <h3 className="text-text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2 text-sm leading-tight min-h-10">
               {product.title}
             </h3>
             <div className="flex items-center gap-1.5 mb-2">
               <div className="flex items-center gap-0.5">
                 {<StartIcon />}
-                <span className="text-[#2B2B2B] text-xs">4.8</span>
+                <span className="text-text-dark text-xs">4.8</span>
               </div>
-              <span className="text-[#6B6B6B] text-xs">(165)</span>
+              <span className="text-text-muted text-xs">(165)</span>
             </div>
 
             <div className="flex items-center justify-between gap-2 mt-auto">
