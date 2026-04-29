@@ -74,7 +74,7 @@ export const ProductCard = ({ product }: ProductProps) => {
             </h3>
             <div className="flex items-center gap-1.5 mb-2">
               <div className="flex items-center gap-0.5">
-                {<StartIcon />}
+                {<Star className="w-3 h-3 fill-accent text-accent" />}
                 <span className="text-text-dark text-xs">4.8</span>
               </div>
               <span className="text-text-muted text-xs">(165)</span>
@@ -86,7 +86,7 @@ export const ProductCard = ({ product }: ProductProps) => {
               </span>
 
               <Button
-                icon={<CartIcon />}
+                icon={<ShoppingCart className="w-4 h-4 ml-1 " />}
                 onClick={(e: React.MouseEvent) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -103,7 +103,3 @@ export const ProductCard = ({ product }: ProductProps) => {
     </Link>
   );
 };
-
-const StartIcon = () => <Star className="w-3 h-3 fill-accent text-accent" />;
-
-const CartIcon = () => <ShoppingCart className="w-4 h-4 ml-1 " />;
