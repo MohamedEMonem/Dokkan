@@ -13,6 +13,12 @@ export const mockCategories: ICategory[] = [
   { id: "books", name: "الكتب" },
 ];
 
+const categoryOptions = [
+  { id: "all", name: "كل التصنيفات" },
+  ...mockCategories,
+];
+
+
 const cityOptions = [
   { value: "all", label: "كل المدن" },
   { value: "cairo", label: "القاهرة" },
@@ -97,48 +103,16 @@ const FilterAsideBar = ({
           {/* Category */}
           <FilterSection title="التصنيف">
             <div className="space-y-2">
-              <RadioItem
-                label="كل التصنيفات"
-                name="category"
-                value={category}
-                setValue={setCategory}
-              />
-              <RadioItem
-                label="الإلكترونيات"
-                name="category"
-                value={category}
-                setValue={setCategory}
-              />
-              <RadioItem
-                label="الموضة والأزياء"
-                name="category"
-                value={category}
-                setValue={setCategory}
-              />
-              <RadioItem
-                label="المنزل والمعيشة"
-                name="category"
-                value={category}
-                setValue={setCategory}
-              />
-              <RadioItem
-                label="مستحضرات التجميل"
-                name="category"
-                value={category}
-                setValue={setCategory}
-              />
-              <RadioItem
-                label="الرياضة"
-                name="category"
-                value={category}
-                setValue={setCategory}
-              />
-              <RadioItem
-                label="الكتب"
-                name="category"
-                value={category}
-                setValue={setCategory}
-              />
+              {categoryOptions.map((cat) => (
+                <RadioItem
+                  key={cat.id}
+                  label={cat.name}
+                  itemId={cat.id}
+                  name="category"
+                  value={category}
+                  setValue={setCategory}
+                />
+              ))}
             </div>
           </FilterSection>
 
@@ -195,28 +169,21 @@ const RadioItem = ({
   label,
   name,
   value,
+  itemId,
   setValue,
 }: {
   label: string;
   name: string;
   value: string;
+  itemId: string;
   setValue: (val: string) => void;
 }) => (
   <label className="flex items-center gap-2 cursor-pointer">
     <input
       type="radio"
       name={name}
-      checked={
-        label === "كل التصنيفات"
-          ? value === "all"
-          : value === mockCategories.find((cat) => cat.name === label)?.id
-      }
-      onChange={() => {
-        // console.log(label);
-        const category = mockCategories.find((cat) => cat.name === label);
-        // console.log(category);
-        setValue(category ? category.id : "all");
-      }}
+      checked={value === itemId}
+      onChange={() => setValue(itemId)}
       className="w-4 h-4 outline-none focus:outline-none focus:ring-0"
     />
     <span className="text-sm">{label}</span>
