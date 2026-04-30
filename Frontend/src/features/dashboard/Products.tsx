@@ -1,13 +1,20 @@
+import { useState } from "react";
 import clsx from "clsx";
-import { Package, Plus, Filter, SquarePen, Trash2 } from "lucide-react";
+import { Package, Plus, Filter, SquarePen, Trash2, Search } from "lucide-react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { useGetProductsByStoreIdQuery } from "@/api/product.api";
 
 export function Products() {
+  const [searchQuery, setSearchQuery] = useState("");
   const testStoreId = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // To be changed later
   const { data: response, isLoading } = useGetProductsByStoreIdQuery(testStoreId);
   const products = response?.data || [];
+
+  const filteredProducts = products.filter((product) =>
+    product.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const TABLE_HEADERS = [
     { label: "الصورة" },
@@ -21,7 +28,7 @@ export function Products() {
   return (
     <div className="space-y-6 w-full animate-in fade-in duration-500">
       <DashboardCard
-        title={`جميع المنتجات (${isLoading ? "..." : products.length})`}
+        title={`جميع المنتجات (${isLoading ? "..." : filteredProducts.length})`}
         icon={<Package className="w-6 h-6 text-primary" />}
         headerAction={
           <div className="flex items-center gap-2">
@@ -42,6 +49,16 @@ export function Products() {
           </div>
         }
       >
+        <div className="mb-8 max-w-md">
+          <Input
+            placeholder="بحث باسم المنتج..."
+            icon={<Search className="w-4 h-4" />}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="px-3 py-1 h-12"
+          />
+        </div>
+
         <div className="relative w-full overflow-x-auto">
           <table className="w-full text-sm text-right">
             <thead>
@@ -61,8 +78,19 @@ export function Products() {
                 <tr>
                   <td colSpan={TABLE_HEADERS.length} className="text-center py-4">جاري التحميل...</td>
                 </tr>
+              ) : filteredProducts.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={TABLE_HEADERS.length}
+                    className="text-center py-8 text-text-muted"
+                  >
+                    {searchQuery
+                      ? `لا يوجد نتائج للبحث عن "${searchQuery}"`
+                      : "لا توجد منتجات حالياً"}
+                  </td>
+                </tr>
               ) : (
-                products.map((product) => (
+                filteredProducts.map((product) => (
                   <tr
                     key={product.id}
                     className="group hover:bg-bg-cream/50 transition-colors"
