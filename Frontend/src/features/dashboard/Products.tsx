@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { Package, Plus, Filter, SquarePen, Trash2 } from "lucide-react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
@@ -7,6 +8,15 @@ export function Products() {
   const testStoreId = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // To be changed later
   const { data: response, isLoading } = useGetProductsByStoreIdQuery(testStoreId);
   const products = response?.data || [];
+
+  const TABLE_HEADERS = [
+    { label: "الصورة" },
+    { label: "اسم المنتج" },
+    { label: "السعر" },
+    { label: "المخزون" },
+    { label: "الحالة" },
+    { label: "إجراءات", className: "text-center" },
+  ];
 
   return (
     <div className="space-y-6 w-full animate-in fade-in duration-500">
@@ -36,18 +46,20 @@ export function Products() {
           <table className="w-full text-sm text-right">
             <thead>
               <tr className="border-b-2 border-accent-light/50 text-text-dark font-bold">
-                <th className="pb-4 px-2 whitespace-nowrap">الصورة</th>
-                <th className="pb-4 px-2 whitespace-nowrap">اسم المنتج</th>
-                <th className="pb-4 px-2 whitespace-nowrap">السعر</th>
-                <th className="pb-4 px-2 whitespace-nowrap">المخزون</th>
-                <th className="pb-4 px-2 whitespace-nowrap">الحالة</th>
-                <th className="pb-4 px-2 whitespace-nowrap text-center">إجراءات</th>
+                {TABLE_HEADERS.map((header, index) => (
+                  <th
+                    key={index}
+                    className={clsx("pb-4 px-2 whitespace-nowrap", header.className)}
+                  >
+                    {header.label}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-accent-light/30">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-4">جاري التحميل...</td>
+                  <td colSpan={TABLE_HEADERS.length} className="text-center py-4">جاري التحميل...</td>
                 </tr>
               ) : (
                 products.map((product) => (
@@ -75,11 +87,10 @@ export function Products() {
                     </td>
                     <td className="py-4 px-2">
                       <span
-                        className={`inline-flex items-center justify-center px-2.5 py-1 rounded-xl text-xs font-bold text-white transition-colors ${
-                          product.status === "Active"
-                            ? "bg-green-500"
-                            : "bg-gray-400 md:relative md:left-2"
-                        }`}
+                        className={clsx(
+                          "inline-flex items-center justify-center px-2.5 py-1 rounded-xl text-xs font-bold text-white transition-colors",
+                          product.status === "Active" ? "bg-green-500" : "bg-gray-400 md:relative md:left-2"
+                        )}
                       >
                         {product.status === "Active" ? "نشط" : "غير نشط"}
                       </span>
