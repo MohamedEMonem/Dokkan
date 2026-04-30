@@ -1,34 +1,63 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import clsx from "clsx";
-import { Package, Plus, Filter, SquarePen, Trash2, Search } from "lucide-react";
+import { Package, Plus, Filter, SquarePen, Trash2, Search, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useGetProductsByStoreIdQuery } from "@/api/product.api";
+import { sortBy } from "@/utils/sorting";
 
 export function Products() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    order: "asc" | "desc";
+    type?: "number" | "date";
+  } | null>(null);
+
   const testStoreId = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // To be changed later
   const { data: response, isLoading } = useGetProductsByStoreIdQuery(testStoreId);
   const products = response?.data || [];
 
-  const filteredProducts = products.filter((product) =>
-    product.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) =>
+      product.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [products, searchQuery]);
+
+  const applySorting = (items: any[]) => {
+    if (!sortConfig) return items;
+    return [...items].sort(
+      sortBy(sortConfig.key as any, sortConfig.order, sortConfig.type)
+    );
+  };
+
+  const displayedProducts = useMemo(() => {
+    return applySorting(filteredProducts);
+  }, [filteredProducts, sortConfig]);
+
+  const handleSort = (key: string, type?: "number" | "date") => {
+    setSortConfig((prev) => {
+      if (prev?.key === key) {
+        return { key, order: prev.order === "asc" ? "desc" : "asc", type };
+      }
+      return { key, order: "asc", type };
+    });
+  };
 
   const TABLE_HEADERS = [
     { label: "الصورة" },
-    { label: "اسم المنتج" },
-    { label: "السعر" },
-    { label: "المخزون" },
-    { label: "الحالة" },
+    { label: "اسم المنتج", key: "title" },
+    { label: "السعر", key: "price", type: "number" as const },
+    { label: "المخزون", key: "stockQuantity", type: "number" as const },
+    { label: "الحالة", key: "status" },
     { label: "إجراءات", className: "text-center" },
   ];
 
   return (
     <div className="space-y-6 w-full animate-in fade-in duration-500">
       <DashboardCard
-        title={`جميع المنتجات (${isLoading ? "..." : filteredProducts.length})`}
+        title={`جميع المنتجات (${isLoading ? "..." : displayedProducts.length})`}
         icon={<Package className="w-6 h-6 text-primary" />}
         headerAction={
           <div className="flex items-center gap-2">
@@ -66,9 +95,36 @@ export function Products() {
                 {TABLE_HEADERS.map((header, index) => (
                   <th
                     key={index}
-                    className={clsx("pb-4 px-2 whitespace-nowrap", header.className)}
+                    className={clsx(
+                      "pb-4 px-2 whitespace-nowrap group/header",
+                      header.key && "cursor-pointer hover:text-primary transition-colors",
+                      header.className
+                    )}
+                    onClick={() =>
+                      header.key && handleSort(header.key, header.type)
+                    }
                   >
-                    {header.label}
+                    <div
+                      className={clsx(
+                        "flex items-center gap-1",
+                        header.className?.includes("text-center") && "justify-center"
+                      )}
+                    >
+                      {header.label}
+                      {header.key && (
+                        <span className="text-accent-light group-hover/header:text-primary/50 transition-colors">
+                          {sortConfig?.key === header.key ? (
+                            sortConfig?.order === "asc" ? (
+                              <ArrowUp className="w-3 h-3 text-primary" />
+                            ) : (
+                              <ArrowDown className="w-3 h-3 text-primary" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3 opacity-0 group-hover/header:opacity-100" />
+                          )}
+                        </span>
+                      )}
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -78,7 +134,7 @@ export function Products() {
                 <tr>
                   <td colSpan={TABLE_HEADERS.length} className="text-center py-4">جاري التحميل...</td>
                 </tr>
-              ) : filteredProducts.length === 0 ? (
+              ) : displayedProducts.length === 0 ? (
                 <tr>
                   <td
                     colSpan={TABLE_HEADERS.length}
@@ -90,7 +146,7 @@ export function Products() {
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((product) => (
+                displayedProducts.map((product) => (
                   <tr
                     key={product.id}
                     className="group hover:bg-bg-cream/50 transition-colors"
