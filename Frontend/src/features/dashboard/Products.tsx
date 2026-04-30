@@ -8,7 +8,7 @@ const PRODUCTS_MOCK = [
     name: "ساعة ذكية رياضية",
     price: 250,
     stock: 50,
-    status: "active",
+    status: "Active",
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200",
   },
   {
@@ -16,7 +16,7 @@ const PRODUCTS_MOCK = [
     name: "سماعات لاسلكية",
     price: 180,
     stock: 35,
-    status: "active",
+    status: "Active",
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200",
   },
   {
@@ -24,7 +24,7 @@ const PRODUCTS_MOCK = [
     name: "حقيبة ظهر عصرية",
     price: 120,
     stock: 75,
-    status: "inactive",
+    status: "Inactive",
     image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200",
   },
   {
@@ -32,7 +32,7 @@ const PRODUCTS_MOCK = [
     name: "نظارة شمسية كلاسيكية",
     price: 95,
     stock: 60,
-    status: "active",
+    status: "Active",
     image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200",
   },
 ];
@@ -100,13 +100,13 @@ export function Products() {
                   </td>
                   <td className="py-4 px-2">
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-bold text-white shadow-sm transition-colors ${
-                        product.status === "active"
+                      className={`inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-bold text-white transition-colors ${
+                        product.status === "Active"
                           ? "bg-green-500"
                           : "bg-gray-400"
                       }`}
                     >
-                      {product.status === "active" ? "نشط" : "غير نشط"}
+                      {product.status === "Active" ? "نشط" : "غير نشط"}
                     </span>
                   </td>
                   <td className="py-4 px-2">
