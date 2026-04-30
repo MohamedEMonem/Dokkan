@@ -100,10 +100,10 @@ export function Products() {
                   </td>
                   <td className="py-4 px-2">
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-bold text-white transition-colors ${
+                      className={`inline-flex items-center justify-center px-2.5 py-1 rounded-xl text-xs font-bold text-white transition-colors ${
                         product.status === "Active"
                           ? "bg-green-500"
-                          : "bg-gray-400"
+                          : "bg-gray-400 md:relative md:left-2"
                       }`}
                     >
                       {product.status === "Active" ? "نشط" : "غير نشط"}
