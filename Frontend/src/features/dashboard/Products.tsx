@@ -1,47 +1,17 @@
 import { Package, Plus, Filter, SquarePen, Trash2 } from "lucide-react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
-
-const PRODUCTS_MOCK = [
-  {
-    id: 1,
-    name: "ساعة ذكية رياضية",
-    price: 250,
-    stock: 50,
-    status: "Active",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200",
-  },
-  {
-    id: 2,
-    name: "سماعات لاسلكية",
-    price: 180,
-    stock: 35,
-    status: "Active",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200",
-  },
-  {
-    id: 3,
-    name: "حقيبة ظهر عصرية",
-    price: 120,
-    stock: 75,
-    status: "Inactive",
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200",
-  },
-  {
-    id: 4,
-    name: "نظارة شمسية كلاسيكية",
-    price: 95,
-    stock: 60,
-    status: "Active",
-    image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200",
-  },
-];
+import { useGetProductsByStoreIdQuery } from "@/api/product.api";
 
 export function Products() {
+  const testStoreId = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // To be changed later
+  const { data: response, isLoading } = useGetProductsByStoreIdQuery(testStoreId);
+  const products = response?.data || [];
+
   return (
     <div className="space-y-6 w-full animate-in fade-in duration-500">
       <DashboardCard
-        title={`جميع المنتجات (${PRODUCTS_MOCK.length})`}
+        title={`جميع المنتجات (${isLoading ? "..." : products.length})`}
         icon={<Package className="w-6 h-6 text-primary" />}
         headerAction={
           <div className="flex items-center gap-2">
@@ -75,40 +45,45 @@ export function Products() {
               </tr>
             </thead>
             <tbody className="divide-y divide-accent-light/30">
-              {PRODUCTS_MOCK.map((product) => (
-                <tr
-                  key={product.id}
-                  className="group hover:bg-bg-cream/50 transition-colors"
-                >
-                  <td className="py-4 px-2">
-                    <div className="w-12 h-12 bg-bg-cream rounded-lg overflow-hidden border border-accent-light shadow-sm">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform"
-                      />
-                    </div>
-                  </td>
-                  <td className="py-4 px-2 font-semibold text-text-dark">
-                    {product.name}
-                  </td>
-                  <td className="py-4 px-2 text-primary font-bold">
-                    {product.price} ج.م
-                  </td>
-                  <td className="py-4 px-2 text-text-muted">
-                    {product.stock}
-                  </td>
-                  <td className="py-4 px-2">
-                    <span
-                      className={`inline-flex items-center justify-center px-2.5 py-1 rounded-xl text-xs font-bold text-white transition-colors ${
-                        product.status === "Active"
-                          ? "bg-green-500"
-                          : "bg-gray-400 md:relative md:left-2"
-                      }`}
-                    >
-                      {product.status === "Active" ? "نشط" : "غير نشط"}
-                    </span>
-                  </td>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-4">جاري التحميل...</td>
+                </tr>
+              ) : (
+                products.map((product) => (
+                  <tr
+                    key={product.id}
+                    className="group hover:bg-bg-cream/50 transition-colors"
+                  >
+                    <td className="py-4 px-2">
+                      <div className="w-12 h-12 bg-bg-cream rounded-lg overflow-hidden border border-accent-light shadow-sm">
+                        <img
+                          src={product.images?.[0]?.imageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200"}
+                          alt={product.title}
+                          className="w-full h-full object-cover transition-transform"
+                        />
+                      </div>
+                    </td>
+                    <td className="py-4 px-2 font-semibold text-text-dark">
+                      {product.title}
+                    </td>
+                    <td className="py-4 px-2 text-primary font-bold">
+                      {product.price} ج.م
+                    </td>
+                    <td className="py-4 px-2 text-text-muted">
+                      {product.stockQuantity}
+                    </td>
+                    <td className="py-4 px-2">
+                      <span
+                        className={`inline-flex items-center justify-center px-2.5 py-1 rounded-xl text-xs font-bold text-white transition-colors ${
+                          product.status === "Active"
+                            ? "bg-green-500"
+                            : "bg-gray-400 md:relative md:left-2"
+                        }`}
+                      >
+                        {product.status === "Active" ? "نشط" : "غير نشط"}
+                      </span>
+                    </td>
                   <td className="py-4 px-2">
                     <div className="flex justify-center gap-1">
                       <Button
@@ -125,8 +100,9 @@ export function Products() {
                       />
                     </div>
                   </td>
-                </tr>
-              ))}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

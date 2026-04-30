@@ -10,9 +10,15 @@ const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
 
 export const listProducts = async (req: Request, res: Response) => {
   try {
+    const filters = req.query;
+
     const products = await prisma.product.findMany({
-      where: { deletedAt: null },
+      where: {
+        deletedAt: null,
+        ...filters,
+      },
       orderBy: { createdAt: "desc" },
+      include: { images: true },
     });
 
     return sendSuccess(res, products.map(mapProduct), "Products retrieved successfully");
