@@ -11,7 +11,9 @@ import { RegisterForm } from "@/features/auth/Register";
 import Profile from "@/pages/Profile";
 
 import { ViewProducts } from "@/features/products/ViewProducts";
+
 import { Overview } from "@/features/dashboard/Overview";
+import { Products } from "@/features/dashboard/Products";
 
 export default function AppRoutes() {
   return (
@@ -31,6 +33,7 @@ export default function AppRoutes() {
         {/* Dashboard Routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Overview />} />
+          <Route path="products" element={<Products />} />
           <Route path="profile" element={<Profile />} />
         </Route>
       </Route>
