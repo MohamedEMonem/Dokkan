@@ -14,6 +14,8 @@ import { ViewProducts } from "@/features/products/ViewProducts";
 
 import { Overview } from "@/features/dashboard/Overview";
 import { Products } from "@/features/dashboard/Products";
+import { CreateProductPage } from "@/features/dashboard/CreateProductPage";
+import { UpdateProductPage } from "@/features/dashboard/UpdateProductPage";
 
 export default function AppRoutes() {
   return (
@@ -34,6 +36,8 @@ export default function AppRoutes() {
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Overview />} />
           <Route path="products" element={<Products />} />
+          <Route path="products/create" element={<CreateProductPage />} />
+          <Route path="products/:id/edit" element={<UpdateProductPage />} />
           <Route path="profile" element={<Profile />} />
         </Route>
       </Route>

@@ -40,6 +40,7 @@ export const getProductById = async (req: Request, res: Response) => {
         id,
         deletedAt: null,
       },
+      include: { images: true },
     });
 
     if (!product) {
@@ -150,6 +151,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     const updated = await prisma.product.update({
       where: { id },
       data,
+      include: { images: true },
     });
 
     return sendSuccess(res, mapProduct(updated), "Product updated successfully");

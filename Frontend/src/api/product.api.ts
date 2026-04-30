@@ -9,6 +9,7 @@ export const productApi = apiSlice.injectEndpoints({
         url: "/products",
         method: "GET",
       }),
+      providesTags: ["Product"],
     }),
 
     getProductById: builder.query<IAPIResponse<IProduct>, { id: string }>({
@@ -16,6 +17,7 @@ export const productApi = apiSlice.injectEndpoints({
         url: `/products/${id}`,
         method: "GET",
       }),
+      providesTags: ["Product"],
     }),
 
     getProductsByStoreId: builder.query<IAPIResponse<IProduct[]>, string>({
@@ -23,6 +25,7 @@ export const productApi = apiSlice.injectEndpoints({
         url: `/products?storeId=${storeId}`,
         method: "GET",
       }),
+      providesTags: ["Product"],
     }),
 
     createProduct: builder.mutation<IAPIResponse<IProduct>, Partial<IProduct>>({
@@ -31,6 +34,7 @@ export const productApi = apiSlice.injectEndpoints({
         method: "POST",
         body: productData,
       }),
+      invalidatesTags: ["Product"],
     }),
 
     deleteProduct: builder.mutation<IAPIResponse<null>, { id: string }>({
@@ -38,6 +42,7 @@ export const productApi = apiSlice.injectEndpoints({
         url: `/products/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Product"],
     }),
 
     updateProduct: builder.mutation<
@@ -49,6 +54,7 @@ export const productApi = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
+      invalidatesTags: ["Product"],
     }),
   }),
 });

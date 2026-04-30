@@ -1,13 +1,18 @@
 import { useState, useMemo } from "react";
 import clsx from "clsx";
 import { Package, Plus, SquarePen, Trash2, Search, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { useGetProductsByStoreIdQuery } from "@/api/product.api";
+import { useGetProductsByStoreIdQuery, useDeleteProductMutation } from "@/api/product.api";
 import { sortBy } from "@/utils/sorting";
+import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
+import { IProduct } from "@/types/entities/product.types";
 
 export function Products() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -17,7 +22,30 @@ export function Products() {
 
   const testStoreId = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // To be changed later
   const { data: response, isLoading } = useGetProductsByStoreIdQuery(testStoreId);
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const products = response?.data || [];
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<IProduct | null>(null);
+
+  const handleDeleteClick = (product: IProduct) => {
+    setProductToDelete(product);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
+
+    try {
+      await deleteProduct({ id: productToDelete.id }).unwrap();
+      toast.success("تم حذف المنتج بنجاح");
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
+    } catch (error) {
+      toast.error("فشل في حذف المنتج");
+      console.error("Delete Error:", error);
+    }
+  };
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) =>
@@ -65,6 +93,7 @@ export function Products() {
               variant="primary"
               className="w-auto! h-9! px-4 text-sm"
               icon={<Plus className="w-4 h-4" />}
+              onClick={() => navigate("/dashboard/products/create")}
             >
               إضافة منتج
             </Button>
@@ -179,12 +208,14 @@ export function Products() {
                         className="size-9! p-0"
                         title="تعديل"
                         icon={<SquarePen className="w-4 h-4" />}
+                        onClick={() => navigate(`/dashboard/products/${product.id}/edit`)}
                       />
                       <Button
                         variant="tertiary"
                         className="size-9! p-0 text-red-500 hover:bg-red-50 hover:text-red-600"
                         title="حذف"
                         icon={<Trash2 className="w-4 h-4" />}
+                        onClick={() => handleDeleteClick(product)}
                       />
                     </div>
                   </td>
@@ -195,6 +226,14 @@ export function Products() {
           </table>
         </div>
       </DashboardCard>
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        product={productToDelete}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
