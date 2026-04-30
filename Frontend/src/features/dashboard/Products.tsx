@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import clsx from "clsx";
-import { Package, Plus, Filter, SquarePen, Trash2, Search, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Package, Plus, SquarePen, Trash2, Search, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -61,13 +61,6 @@ export function Products() {
         icon={<Package className="w-6 h-6 text-primary" />}
         headerAction={
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline-accent"
-              className="w-auto! h-9! px-4 text-sm"
-              icon={<Filter className="w-4 h-4" />}
-            >
-              تصفية متقدمة
-            </Button>
             <Button
               variant="primary"
               className="w-auto! h-9! px-4 text-sm"
