@@ -2,21 +2,17 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCreateProductMutation } from "@/api/product.api";
 import { ProductForm } from "./components/ProductForm";
-import { IProduct } from "@/types/entities/product.types";
+
+const TEST_STORE_ID = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // Replace with auth later
 
 export function CreateProductPage() {
   const navigate = useNavigate();
   const [createProduct, { isLoading }] = useCreateProductMutation();
-  const testStoreId = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // Replace with auth logic later
 
-  const handleSubmit = async (data: Partial<IProduct>) => {
+  const handleSubmit = async (formData: FormData) => {
     try {
-      const payload = {
-        ...data,
-        storeId: testStoreId,
-      };
-
-      await createProduct(payload).unwrap();
+      formData.append("storeId", TEST_STORE_ID);
+      await createProduct(formData as any).unwrap();
       toast.success("تم إضافة المنتج بنجاح!");
       navigate("/dashboard/products");
     } catch (error) {

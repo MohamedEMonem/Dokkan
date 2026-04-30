@@ -17,10 +17,19 @@ import { useMemo } from "react";
 
 interface ProductFormProps {
   initialData?: Partial<IProduct>;
-  onSubmit: (data: Partial<IProduct>) => void;
+  onSubmit: (formData: FormData) => void;
+  storeId?: string;
   isLoading?: boolean;
 }
 
+const DEFAULT_VALUES: ProductFormData = {
+  title: "",
+  price: 0,
+  stockQuantity: 0,
+  categoryId: "",
+  status: EProductStatus.Active,
+  description: "",
+};
 
 
 export const ProductForm = ({
@@ -34,7 +43,7 @@ export const ProductForm = ({
   const [selectedFiles, setSelectedFiles] = useState<(File | null)[]>(new Array(6).fill(null));
 
   const { data: categoriesResponse, isLoading: isLoadingCategories } = useGetCategoriesQuery();
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<string[]>(new Array(6).fill(""));
 
   // Cleanup object URLs to avoid memory leaks
   useEffect(() => {
@@ -64,26 +73,24 @@ export const ProductForm = ({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || activeSlot === null) return;
+    if (!e.target.files || activeSlot === null) return;
 
-    const newFiles = Array.from(files);
-    const newPreviews = [...previews];
-    
-    newFiles.forEach((file, i) => {
-      const targetIdx = activeSlot + i;
-      if (targetIdx < 6) {
-        // Revoke old blob if it exists
-        if (newPreviews[targetIdx]?.startsWith("blob:")) {
-          URL.revokeObjectURL(newPreviews[targetIdx]);
-        }
-        newPreviews[targetIdx] = URL.createObjectURL(file);
-      }
-    });
+    const incoming = Array.from(e.target.files).slice(0, 6 - activeSlot);
 
-    setPreviews(newPreviews);
+    setPreviews((prev) =>
+      prev.map((url, i) => {
+        const file = incoming[i - activeSlot];
+        if (!file) return url;
+        if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+        return URL.createObjectURL(file);
+      })
+    );
+
+    setSelectedFiles((prev) =>
+      prev.map((existing, i) => incoming[i - activeSlot] ?? existing)
+    );
+
     setActiveSlot(null);
-    // Reset input so the same file can be picked again if needed
     e.target.value = "";
   };
 
@@ -93,21 +100,21 @@ export const ProductForm = ({
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: {
-      title: initialData?.title || "",
-      price: initialData?.price || 0,
-      stockQuantity: initialData?.stockQuantity || 0,
-      categoryId: initialData?.categoryId || "",
-      status: EProductStatus.Active,
-      description: initialData?.description || "",
-    },
+    defaultValues: { ...DEFAULT_VALUES, ...initialData },
   });
 
   const onFormSubmit = (data: ProductFormData) => {
-    onSubmit({
-      ...initialData,
-      ...data,
+    const formData = new FormData();
+    // Append all scalar fields (skip undefined/null)
+    Object.entries({ ...initialData, ...data }).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
     });
+    // Attach the image file if one was selected
+    const imageFile = selectedFiles[0];
+    if (imageFile) formData.append("image", imageFile);
+    onSubmit(formData);
   };
 
   const isPending = isLoading || isSubmitting;

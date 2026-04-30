@@ -2,7 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetProductByIdQuery, useUpdateProductMutation } from "@/api/product.api";
 import { ProductForm } from "./components/ProductForm";
-import { IProduct } from "@/types/entities/product.types";
 import { Loader2 } from "lucide-react";
 
 export function UpdateProductPage() {
@@ -14,10 +13,10 @@ export function UpdateProductPage() {
 
   const productData = response?.data;
 
-  const handleSubmit = async (data: Partial<IProduct>) => {
+  const handleSubmit = async (formData: FormData) => {
     try {
       if (!id) return;
-      await updateProduct({ id, data }).unwrap();
+      await updateProduct({ id, data: formData as any }).unwrap();
       toast.success("تم تحديث المنتج بنجاح!");
       navigate("/dashboard/products");
     } catch (error) {

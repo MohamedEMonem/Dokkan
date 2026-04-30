@@ -1,7 +1,6 @@
 import { AlertCircle, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { IProduct } from "@/types/entities/product.types";
-import clsx from "clsx";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
