@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { showNotification } from "@/utils/showNotification";
 import { useCreateProductMutation } from "@/api/product.api";
 import { ProductForm } from "./components/ProductForm";
 
@@ -12,11 +12,20 @@ export function CreateProductPage() {
   const handleSubmit = async (formData: FormData) => {
     try {
       formData.append("storeId", TEST_STORE_ID);
-      await createProduct(formData as any).unwrap();
-      toast.success("تم إضافة المنتج بنجاح!");
+      await createProduct(formData as any).unwrap();      
+      
+      const productTitle = formData.get("title") as string;
+      showNotification({
+        message: `${productTitle}\nتم إضافة المنتج بنجاح!`,
+        variant: "success",
+      });
       navigate("/dashboard/products");
     } catch (error) {
-      toast.error("حدث خطأ أثناء إضافة المنتج. حاول مرة أخرى.");
+      const productTitle = formData.get("title") as string;
+      showNotification({
+        message: `${productTitle}\nحدث خطأ أثناء إضافة المنتج. حاول مرة أخرى.`,
+        variant: "error",
+      });
       console.error("Create Product Error:", error);
     }
   };

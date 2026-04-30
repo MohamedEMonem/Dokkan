@@ -1,14 +1,21 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
-import { useGetProductByIdQuery, useUpdateProductMutation } from "@/api/product.api";
+import { showNotification } from "@/utils/showNotification";
+import {
+  useGetProductByIdQuery,
+  useUpdateProductMutation,
+} from "@/api/product.api";
 import { ProductForm } from "./components/ProductForm";
 import { Loader2 } from "lucide-react";
 
 export function UpdateProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-  const { data: response, isLoading: isFetching, isError } = useGetProductByIdQuery({ id: id! }, { skip: !id });
+
+  const {
+    data: response,
+    isLoading: isFetching,
+    isError,
+  } = useGetProductByIdQuery({ id: id! }, { skip: !id });
   const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
 
   const productData = response?.data;
@@ -17,10 +24,19 @@ export function UpdateProductPage() {
     try {
       if (!id) return;
       await updateProduct({ id, data: formData as any }).unwrap();
-      toast.success("تم تحديث المنتج بنجاح!");
+
+      const productTitle = formData.get("title") as string;
+      showNotification({
+        message: `${productTitle}\nتم تحديث المنتج بنجاح!`,
+        variant: "success",
+      });
       navigate("/dashboard/products");
     } catch (error) {
-      toast.error("حدث خطأ أثناء تحديث المنتج. حاول مرة أخرى.");
+      const productTitle = formData.get("title") as string;
+      showNotification({
+        message: `${productTitle}\nحدث خطأ أثناء تحديث المنتج. حاول مرة أخرى.`,
+        variant: "error",
+      });
       console.error("Update Product Error:", error);
     }
   };
@@ -37,7 +53,7 @@ export function UpdateProductPage() {
     return (
       <div className="text-center py-12 text-red-500">
         <p>فشل في تحميل بيانات المنتج أو المنتج غير موجود.</p>
-        <button 
+        <button
           onClick={() => navigate("/dashboard/products")}
           className="mt-4 text-primary underline"
         >
@@ -49,7 +65,11 @@ export function UpdateProductPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-500">
-      <ProductForm initialData={productData} onSubmit={handleSubmit} isLoading={isUpdating} />
+      <ProductForm
+        initialData={productData}
+        onSubmit={handleSubmit}
+        isLoading={isUpdating}
+      />
     </div>
   );
 }

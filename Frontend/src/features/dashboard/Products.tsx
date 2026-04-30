@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import clsx from "clsx";
 import { Package, Plus, SquarePen, Trash2, Search, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { showNotification } from "@/utils/showNotification";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -38,11 +38,17 @@ export function Products() {
 
     try {
       await deleteProduct({ id: productToDelete.id }).unwrap();
-      toast.success("تم حذف المنتج بنجاح");
+      showNotification({ 
+        message: `${productToDelete.title}\nتم حذف المنتج بنجاح`, 
+        variant: "success" 
+      });
       setIsDeleteModalOpen(false);
       setProductToDelete(null);
     } catch (error) {
-      toast.error("فشل في حذف المنتج");
+      showNotification({ 
+        message: `${productToDelete.title}\nفشل في حذف المنتج`, 
+        variant: "error" 
+      });
       console.error("Delete Error:", error);
     }
   };
