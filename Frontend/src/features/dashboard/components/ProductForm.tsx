@@ -1,13 +1,15 @@
 import { useForm } from "react-hook-form";
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
-import { UploadCloud, CheckCircle, Plus } from "lucide-react";
+import { ImageSlot } from "@/features/dashboard/components/ImageSlot";
+import { CheckCircle } from "lucide-react";
 import { IProduct, EProductStatus } from "@/types/entities/product.types";
-import { useNavigate } from "react-router-dom";
 import {
   productSchema,
   type ProductFormData,
@@ -140,88 +142,28 @@ export const ProductForm = ({
           multiple
           onChange={handleFileChange}
         />
-        {/* Image Upload Area (Visual Mock) */}
+        {/* Image Upload */}
         <div className="flex flex-col gap-4">
           <label className="text-sm font-semibold text-text-dark flex items-center gap-2">
             صور المنتج (الحد الأقصى: 6 صور)
             <span className="text-red-500 font-bold">*</span>
           </label>
-
           <div className="space-y-4">
-            {/* Main Image Slot */}
-            <div className="relative group">
-              {previews[0] || initialData?.images?.[0] ? (
-                <div className="relative h-64 w-full rounded-2xl overflow-hidden border border-accent-light bg-accent-light/10 shadow-sm">
-                  <img
-                    src={previews[0] || initialData?.images?.[0]?.imageUrl}
-                    alt="الصورة الأساسية"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div 
-                    onClick={() => handleUploadClick(0)}
-                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <div className="p-3 bg-white/90 text-primary rounded-full shadow-xl transition-transform hover:scale-110">
-                      <UploadCloud className="w-6 h-6" />
-                    </div>
-                    <span className="text-white text-sm font-medium">تغيير الصورة</span>
-                  </div>
-                  <div className="absolute top-4 right-4 bg-primary text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-sm">
-                    الصورة الأساسية
-                  </div>
-                </div>
-              ) : (
-                <div 
-                  onClick={() => handleUploadClick(0)}
-                  className="border-2 border-dashed border-accent-light bg-[#fbf9f4] rounded-2xl h-64 flex flex-col items-center justify-center text-text-muted hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group"
-                >
-                  <div className="p-4 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform">
-                    <UploadCloud className="w-10 h-10 text-primary" />
-                  </div>
-                  <p className="font-medium text-text-dark">
-                    اسحب الصورة الأساسية هنا أو انقر للاختيار
-                  </p>
-                  <p className="text-xs mt-1 opacity-70">PNG, JPG, JPEG</p>
-                </div>
-              )}
-            </div>
-
-            {/* Thumbnail Slots (1-5) */}
+            <ImageSlot
+              index={0}
+              isMain
+              src={previews[0] || initialData?.images?.[0]?.imageUrl}
+              onUpload={handleUploadClick}
+            />
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-              {Array.from({ length: 5 }).map((_, idx) => {
-                const imgIndex = idx + 1;
-                const preview = previews[imgIndex];
-                const initialImg = initialData?.images?.[imgIndex];
-
-                return (
-                  <div key={idx} className="relative group aspect-square">
-                    {preview || initialImg ? (
-                      <div className="relative h-full w-full rounded-xl overflow-hidden border border-accent-light bg-accent-light/5 shadow-sm">
-                        <img
-                          src={preview || initialImg?.imageUrl}
-                          alt={`صورة ${idx + 1}`}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                        />
-                        <div 
-                          onClick={() => handleUploadClick(imgIndex)}
-                          className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center cursor-pointer"
-                        >
-                          <div className="p-2 bg-white/90 text-primary rounded-full shadow-md">
-                            <UploadCloud className="w-4 h-4" />
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div 
-                        onClick={() => handleUploadClick(imgIndex)}
-                        className="h-full w-full border-2 border-dashed border-accent-light bg-[#fbf9f4] rounded-xl flex flex-col items-center justify-center text-accent-light hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group"
-                      >
-                        <Plus className="w-6 h-6 group-hover:scale-110 group-hover:text-primary transition-all" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {[1, 2, 3, 4, 5].map((index) => (
+                <ImageSlot
+                  key={index}
+                  index={index}
+                  src={previews[index] || initialData?.images?.[index]?.imageUrl}
+                  onUpload={handleUploadClick}
+                />
+              ))}
             </div>
           </div>
         </div>
