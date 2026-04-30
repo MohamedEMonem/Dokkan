@@ -18,6 +18,13 @@ export const productApi = apiSlice.injectEndpoints({
       }),
     }),
 
+    getProductsByStoreId: builder.query<IAPIResponse<IProduct[]>, string>({
+      query: (storeId) => ({
+        url: `/products?storeId=${storeId}`,
+        method: "GET",
+      }),
+    }),
+
     createProduct: builder.mutation<IAPIResponse<IProduct>, Partial<IProduct>>({
       query: (productData) => ({
         url: "/products",
