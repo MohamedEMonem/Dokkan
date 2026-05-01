@@ -14,7 +14,7 @@ export const ImageSlot = ({ index, src, isMain, onUpload }: ImageSlotProps) => (
         <img
           src={src}
           alt={isMain ? "الصورة الأساسية" : `صورة ${index}`}
-          className={`w-full h-full object-cover transition-transform ${isMain ? "duration-500 group-hover:scale-105" : "duration-300 group-hover:scale-110"}`}
+          className={`w-full h-full object-contain transition-transform ${isMain ? "duration-500 group-hover:scale-105" : "duration-300 group-hover:scale-110"}`}
         />
         <div
           onClick={() => onUpload(index)}
