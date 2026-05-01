@@ -21,9 +21,14 @@ export function UpdateProduct() {
   const productData = response?.data;
 
   const handleSubmit = async (formData: FormData) => {
+    {/** remove file from formData, Because Backend team is lazy */}
+    const data = Object.fromEntries(
+      Array.from(formData.entries()).filter(([, value]) => !(value instanceof File))
+    );
+
     try {
       if (!id) return;
-      await updateProduct({ id, data: formData as any }).unwrap();
+      await updateProduct({ id, data: data as any }).unwrap();
 
       const productTitle = formData.get("title") as string;
       showNotification({

@@ -108,15 +108,28 @@ export const ProductForm = ({
 
   const onFormSubmit = (data: ProductFormData) => {
     const formData = new FormData();
-    // Append all scalar fields (skip undefined/null)
-    Object.entries({ ...initialData, ...data }).forEach(([key, value]) => {
+    const formFields: Array<keyof ProductFormData> = [
+      "title",
+      "price",
+      "stockQuantity",
+      "categoryId",
+      "description",
+      "status",
+    ];
+
+    formFields.forEach((field) => {
+      const value = data[field];
       if (value !== undefined && value !== null) {
-        formData.append(key, String(value));
+        formData.append(field, String(value));
       }
     });
     // Attach the image file if one was selected
-    const imageFile = selectedFiles[0];
-    if (imageFile) formData.append("image", imageFile);
+    selectedFiles
+      .filter((file): file is File => file !== null)
+      .forEach((file) => {
+        formData.append("image", file);
+      });
+
     onSubmit(formData);
   };
 
