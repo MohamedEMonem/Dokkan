@@ -1,11 +1,6 @@
 import { apiSlice } from "@/store/apiSlice";
 import { IAPIResponse } from "@/types/api/response.types";
-
-export interface ICategory {
-  id: string;
-  name: string;
-  parentCategoryId?: string | null;
-}
+import { ICategory } from "@/types/entities/category.types";
 
 export const categoryApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
