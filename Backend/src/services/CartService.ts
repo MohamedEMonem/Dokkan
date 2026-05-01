@@ -77,8 +77,12 @@ const getCart = async (userId: string) => {
     },
   });
 
-  const productMap = Object.fromEntries(products.map((p) => [p.id, p]));
-
+const productMap = Object.fromEntries(
+  products.map((p: { id: string; title: string; price: any; stockQuantity: number; images: any[] }) => [
+    p.id, 
+    p
+  ])
+);
   const items: Array<{
     productId: string;
     title: string;

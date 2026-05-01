@@ -5,10 +5,10 @@ import { createOrder } from "../controllers/OrderController.js";
 const router = express.Router();
 
 router.post("/", auth, 
-    //  #swagger.tags = ['Orders']
-    //  #swagger.summary = 'Submit a new order'
-    //  #swagger.security = [{ "bearerAuth": [] }] 
-  
+  /* #swagger.tags = ['Orders']
+     #swagger.summary = 'Submit a new order'
+     #swagger.security = [{ "bearerAuth": [] }] 
+  */
   createOrder
 );
 
