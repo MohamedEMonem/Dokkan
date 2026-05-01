@@ -14,6 +14,7 @@ export const categoryApi = apiSlice.injectEndpoints({
         url: "/categories",
         method: "GET",
       }),
+      providesTags: ["Category"],
     }),
   }),
 });
