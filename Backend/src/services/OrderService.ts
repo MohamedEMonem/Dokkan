@@ -1,49 +1,67 @@
-import prisma from "../config/db.js"; // Your initialized PrismaClient[cite: 20]
+import prisma from "../config/db.js";
 import redisClient from "../utils/redisClient.js";
 import { getCart } from "./CartService.js";
 
-// This helper extracts the exact type Prisma expects for the 'tx' parameter
 type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
 export class OrderService {
+
   static async processCheckout(userId: string, storeId: string, shippingAddress: any) {
     const cart = await getCart(userId);
+    
     if (!cart || cart.items.length === 0) {
       throw new Error("CART_EMPTY");
     }
 
-    // Now 'tx' is explicitly and safely typed using the extracted TransactionClient
     const result = await prisma.$transaction(async (tx: TransactionClient) => {
       
-      // Step A: Verify stock availability[cite: 29]
+      // Verify stock availability AND tenant isolation
       for (const item of cart.items) {
         const product = await tx.product.findUnique({
           where: { id: item.productId },
-          select: { title: true, stockQuantity: true }
+          select: { 
+            title: true, 
+            stockQuantity: true, 
+            storeId: true 
+          }
         });
 
-        if (!product || product.stockQuantity < item.quantity) {
-          throw new Error(`OOS: ${product?.title || 'Unknown Product'}`);
+        if (!product) {
+          throw new Error(`PRODUCT_NOT_FOUND: ${item.productId}`);
+        }
+
+        // ISOLATION CHECK
+        if (product.storeId !== storeId) {
+          throw new Error(`TENANT_MISMATCH: Product '${product.title}' does not belong to this store.`);
+        }
+
+        // STOCK CHECK
+        if (product.stockQuantity < item.quantity) {
+          throw new Error(`OOS: ${product.title}`);
         }
       }
 
-      // Step B: Create Order & OrderItems[cite: 29]
+      // Create Order & OrderItems
       const order = await tx.order.create({
-            data: {
-              customerId: userId,
-              storeId: storeId, // Now correctly linked to the isolated Store
-              shippingAddress: shippingAddress,
-              totalAmount: 0, // Calculate this from cart items
-              status: "Pending",
-              orderItems: {
-                create: [
-                  /* Map your cart items here */
-                ]
-              }
-            }
-          });
+        data: {
+          customerId: userId,
+          storeId: storeId,
+          totalAmount: cart.grandTotal,
+          shippingCost: cart.shippingEstimate,
+          shippingAddress: shippingAddress,
+          status: "Pending",
+          paymentStatus: "Pending",
+          orderItems: {
+            create: cart.items.map(item => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              priceAtPurchase: item.unitPrice
+            }))
+          }
+        }
+      });
 
-      // Step C: Decrement Product Stock[cite: 29]
+      // Decrement Product Stock
       for (const item of cart.items) {
         await tx.product.update({
           where: { id: item.productId },
@@ -56,7 +74,7 @@ export class OrderService {
       return order;
     });
 
-    // Step D: Delete Redis Cart key[cite: 16, 25]
+    // Delete Redis Cart key
     await redisClient.del(`cart:${userId}`);
 
     return result.id; 
