@@ -10,7 +10,7 @@ interface ImageSlotProps {
 export const ImageSlot = ({ index, src, isMain, onUpload }: ImageSlotProps) => (
   <div className={`relative group ${!isMain && "aspect-square"}`}>
     {src ? (
-      <div className={`relative ${isMain ? "h-64 w-full" : "h-full w-full"} rounded-${isMain ? "2xl" : "xl"} overflow-hidden border border-accent-light bg-accent-light/10 shadow-sm`}>
+      <div className={`relative ${isMain ? "h-64 w-full" : "h-full w-full"} ${isMain ? "rounded-2xl" : "rounded-xl"} overflow-hidden border border-accent-light bg-accent-light/10 shadow-sm`}>
         <img
           src={src}
           alt={isMain ? "الصورة الأساسية" : `صورة ${index}`}
