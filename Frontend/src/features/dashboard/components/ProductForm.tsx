@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -99,6 +99,7 @@ export const ProductForm = ({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -219,13 +220,20 @@ export const ProductForm = ({
             </div>
           </div>
 
-          <Select
-            label="القسم"
-            required
-            {...register("categoryId")}
-            options={categoryOptions}
-            className="border-accent-light"
-            disabled={isLoadingCategories}
+          <Controller
+            name="categoryId"
+            control={control}
+            render={({ field }) => (
+              <Select
+                label="القسم"
+                required
+                {...field}
+                value={field.value ?? ""}
+                options={categoryOptions}
+                className="border-accent-light"
+                disabled={isLoadingCategories}
+              />
+            )}
           />
           {errors.categoryId && (
             <p className="text-red-500 text-xs mt-1">
