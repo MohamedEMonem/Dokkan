@@ -28,7 +28,7 @@ export function DeleteConfirmModal({
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-md rounded-[32px] p-8 shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col items-center text-center">
+      <div className="relative bg-white w-full max-w-md rounded-4xl p-8 shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col items-center text-center">
         {/* Close Button */}
         <button 
           onClick={onClose}
