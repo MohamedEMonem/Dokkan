@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
-import { ImageSlot } from "@/features/dashboard/components/ImageSlot";
+import { ImageSlot } from "./ImageSlot";
 import { CheckCircle } from "lucide-react";
 import { IProduct, EProductStatus } from "@/types/entities/product.types";
 import {

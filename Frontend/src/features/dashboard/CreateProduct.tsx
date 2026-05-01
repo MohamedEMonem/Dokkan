@@ -5,7 +5,7 @@ import { ProductForm } from "./components/ProductForm";
 
 const TEST_STORE_ID = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // Replace with auth later
 
-export function CreateProductPage() {
+export function CreateProduct() {
   const navigate = useNavigate();
   const [createProduct, { isLoading }] = useCreateProductMutation();
 

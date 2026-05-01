@@ -4,10 +4,10 @@ import {
   useGetProductByIdQuery,
   useUpdateProductMutation,
 } from "@/api/product.api";
-import { ProductForm } from "./components/ProductForm";
+import { ProductForm } from "../components/ProductForm";
 import { Loader2 } from "lucide-react";
 
-export function UpdateProductPage() {
+export function UpdateProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
 
