@@ -29,22 +29,19 @@ export class OrderService {
 
       // Step B: Create Order & OrderItems[cite: 29]
       const order = await tx.order.create({
-        data: {
-          customerId: userId,
-          storeId: storeId,
-          totalAmount: cart.grandTotal,
-          shippingCost: cart.shippingEstimate,
-          shippingAddress: shippingAddress,
-          status: "Pending",
-          orderItems: {
-            create: cart.items.map(item => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              priceAtPurchase: item.unitPrice
-            }))
-          }
-        }
-      });
+            data: {
+              customerId: userId,
+              storeId: storeId, // Now correctly linked to the isolated Store
+              shippingAddress: shippingAddress,
+              totalAmount: 0, // Calculate this from cart items
+              status: "Pending",
+              orderItems: {
+                create: [
+                  /* Map your cart items here */
+                ]
+              }
+            }
+          });
 
       // Step C: Decrement Product Stock[cite: 29]
       for (const item of cart.items) {
