@@ -1,5 +1,4 @@
 import { WithId } from '@/types/core/entity.types';
-import { OptionalAudited, SoftDeleted } from '@/types/core/audit.types';
 
 /* ────────────────────────────────────────────────────────
  * Category Interfaces
@@ -7,9 +6,10 @@ import { OptionalAudited, SoftDeleted } from '@/types/core/audit.types';
 
 export interface ICategoryInfo {
   name: string;
+  parentCategoryId?: string | null;
 }
 
 /* ────────────────────────────────────────────────────────
  * Composition
  * ──────────────────────────────────────────────────────── */
-export type ICategory = WithId<OptionalAudited<SoftDeleted<ICategoryInfo>>>;
+export type ICategory = WithId<ICategoryInfo>;
