@@ -2,7 +2,7 @@ import express from "express";
 import { auth, authAdmin } from "../middleware/auth.js";
 import * as CategoryController from "../controllers/CategoryController.js";
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.get("/", 
   /* #swagger.tags = ['Categories']

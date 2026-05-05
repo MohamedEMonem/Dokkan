@@ -5,7 +5,7 @@ import {upload} from "../middleware/uploadValidator.js";
 import { validateBody } from "../middleware/validate.middleware.js"
 import {productSchema,updateProductSchema} from "../DTO/product.dto.js";
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.get("/", 
   /* #swagger.tags = ['Products']

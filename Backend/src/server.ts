@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
+import { resolveTenant } from "./middleware/tenant.middleware.js";
 import { sendSuccess, sendError } from "./utils/response.js";
 import { productRoutes } from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -57,14 +58,14 @@ app.get("/api/health", (req, res) => {
     "Server is healthy",
   );
 });
-app.use("/api/products", productRoutes);
-app.use("/api/categories", categoryRoutes);
+app.use("/api/stores/:storeSlug/products", resolveTenant, productRoutes);
+app.use("/api/stores/:storeSlug/categories", resolveTenant, categoryRoutes);
+app.use("/api/stores/:storeSlug/cart", resolveTenant, cartRoutes);
 app.use("/api/stores", storeRouter);
 
 // app.use('/uploads',uploadRoutes);
 
 app.use("/api/auth", authRoutes);
-app.use("/api/cart", cartRoutes);
 // Error handling middleware for Multer
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

@@ -2,7 +2,7 @@ import express from "express";
 import * as CartController from "../controllers/CartController.js";
 import { auth } from "../middleware/auth.js";
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.use(auth); // Applies auth to all routes below
 
