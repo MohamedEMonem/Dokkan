@@ -8,7 +8,6 @@ import {
   sendUnauthorized,
 } from "../utils/response.js";
 import { rateLimit } from "express-rate-limit";
-import { send } from "node:process";
 
 type DecodedToken = JwtPayload & {
   userId: string;
@@ -145,6 +144,17 @@ export const authLimiter = rateLimit({
     sendRateLimitExceeded(
       res,
       "Too many attempts, please try again after 30 minutes",
+    );
+  },
+});
+
+export const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30,
+  handler: (req, res) => {
+    sendRateLimitExceeded(
+      res,
+      "Too many refresh attempts, please try again after 15 minutes",
     );
   },
 });
