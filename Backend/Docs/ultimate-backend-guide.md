@@ -44,7 +44,7 @@ Error handling
 
 Auth
 ----
-- See `docs/archived/FEATURE_AUTH_DOCUMENTATION_FULL.md` for full details. Key points:
+- See [archived auth documentation](archived/FEATURE_AUTH_DOCUMENTATION_FULL.md) for full details. Key points:
   - Access tokens (JWT) expire in 15m.
   - Refresh tokens are rotated and stored in Redis keyed by `refresh:<userId>:<sessionId>`.
   - Refresh cookies are HTTP-only and path-scoped to `/api/auth` by default.
@@ -284,11 +284,11 @@ Docs & swagger
 
 Where to add new docs
 ---------------------
-- Add feature-specific docs under `Backend/docs/` and link them from `docs/TOC.md`.
+- Add feature-specific docs under [Backend/Docs/](README.md) and link them from [TOC.md](TOC.md).
 
 Contact / next steps
 ---------------------
 - If you want, I can:
   - Expand per-endpoint examples (request/response JSON)
-  - Extract DTO field-level docs into `docs/types.md`
+  - Extract DTO field-level docs into [types.md](types.md)
   - Add CI linting step to ensure controllers call `next(err)` for errors

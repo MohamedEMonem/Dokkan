@@ -32,7 +32,7 @@ Archived and consolidated docs
 
 Archived docs
 
-- `archived/` contains branch-specific or historical docs moved out of the main index to reduce noise. See `docs/archived/`.
+- `archived/` contains branch-specific or historical docs moved out of the main index to reduce noise. See [archived docs](archived/).
 
 How to use
 

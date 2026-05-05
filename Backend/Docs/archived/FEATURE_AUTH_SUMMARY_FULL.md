@@ -21,6 +21,6 @@ Primary endpoints:
 - `POST /api/auth/logout` — revoke session
 - `GET /api/auth/profile` — authenticated user profile
 
-See `docs/archived/FEATURE_AUTH_DOCUMENTATION_FULL.md` for implementation details.
+See [feature auth documentation](FEATURE_AUTH_DOCUMENTATION_FULL.md) for implementation details.
 
 Back to docs index: [Docs index](../README.md)

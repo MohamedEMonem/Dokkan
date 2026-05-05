@@ -163,7 +163,7 @@ Include this short paragraph in PRs that change tenant resolution:
 
 ```
 Summary: Adds/changes tenant resolution middleware. Key changes: [list files].
-How to test: start backend and call a store-scoped route with a valid and invalid slug (see docs/tenant-resolution.md).
+How to test: start backend and call a store-scoped route with a valid and invalid slug (see [tenant-resolution.md](tenant-resolution.md)).
 Notes for reviewers: ensure `resolveTenant` is applied to all `:storeSlug` routes and controllers forward errors with `next(err)`.
 ```
 
