@@ -1,5 +1,11 @@
 # Global Error Handling & 404 - Changes Summary
 
+Navigation
+
+- [Docs index](README.md)
+- [TOC](TOC.md)
+- [Ultimate guide](ultimate-backend-guide.md)
+
 This document summarizes the recent backend changes that add a centralized Express error handler and a JSON 404 responder, and how to use and test them.
 
 ## Why

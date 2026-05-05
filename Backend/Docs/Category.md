@@ -1,5 +1,11 @@
 # Category API Documentation
 
+Navigation
+
+- [Docs index](README.md)
+- [TOC](TOC.md)
+- [Ultimate guide](ultimate-backend-guide.md)
+
 ## Routes (store-scoped)
 Category routes are registered under `/api/stores/:storeSlug/categories` and are scope-aware via `resolveTenant`.
 

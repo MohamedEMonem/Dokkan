@@ -115,3 +115,6 @@ Centralized JSON error handling and a catch-all 404 were recently added. See the
 ## Developer docs
 Detailed developer docs (tenant resolution, API references, and testing notes) are available under `docs/`:
 - [Backend/docs/README.md](docs/README.md)
+	- Table of Contents: [Backend/docs/TOC.md](docs/TOC.md)
+	- Ultimate Guide: [Backend/docs/ultimate-backend-guide.md](docs/ultimate-backend-guide.md)
+	- Archived auth docs: [Backend/docs/archived/FEATURE_AUTH_DOCUMENTATION_FULL.md](docs/archived/FEATURE_AUTH_DOCUMENTATION_FULL.md)

@@ -1,5 +1,11 @@
 # Product API Documentation
 
+Navigation
+
+- [Docs index](README.md)
+- [TOC](TOC.md)
+- [Ultimate guide](ultimate-backend-guide.md)
+
 ## Overview
 This document describes the Product Controller and Product Routes for the Backend API.
 
