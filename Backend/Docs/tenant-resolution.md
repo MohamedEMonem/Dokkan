@@ -191,10 +191,13 @@ Review & integration notes
 - Consider creating a typed `Tenant` interface in `src/types/` and extending the Express `Request` type (e.g., in `src/types/express.d.ts`) for better TypeScript safety.
 - Be conservative about doing DB writes in the middleware; prefer to fetch only the minimal tenant metadata required for routing/authorization.
 
+
 Related links
 -------------
 - GitHub commit: https://github.com/MohamedEMonem/Dokkan/commit/5d03b6354a488ca239d144dd9272a965de538e27
 - See `src/middleware/tenant.middleware.ts` for the implementation details.
+
+Back to index: [Docs index](README.md)
 
 Rollback
 --------

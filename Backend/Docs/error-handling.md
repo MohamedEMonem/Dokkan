@@ -15,9 +15,11 @@ This document summarizes the recent backend changes that add a centralized Expre
 - [Backend/src/utils/response.ts](Backend/src/utils/response.ts): Existing helpers `sendError`, `sendNotFound`, `sendServerError` are reused by the new global handler and the 404 responder. (No API change to these helpers.)
 
 ## Behavior
-- Unknown routes now return a JSON 404 response: { success: false, message: "Route /api/nonexistent not found", code: 404 }
+- Unknown routes now return a JSON 404 response: `{ success: false, message: "Route /api/nonexistent not found", code: 404 }`
 - Any thrown error or rejected promise that reaches the global handler will result in a JSON response whose status code is `err.status || err.statusCode || 500` and message is either the error message (in development) or `Internal Server Error` (in production).
 - The global handler logs the error to the server console: `console.error(`[ERROR] ${req.method} ${req.originalUrl} >>`, err);`
+
+Back to index: [Docs index](README.md)
 
 ## How to test locally
 1. From repository root:
