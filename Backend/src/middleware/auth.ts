@@ -27,15 +27,19 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     const authorizationHeader = req.header("Authorization");
 
     if (!authorizationHeader) {
-      return sendUnauthorized(res, "Access denied. No token provided.");
+      const err: any = new Error("Access denied. No token provided.");
+      err.status = 401;
+      return next(err);
     }
 
     const headerMatch = authorizationHeader.trim().match(/^Bearer\s+([^\s]+)$/);
+
     if (!headerMatch) {
-      return sendUnauthorized(
-        res,
+      const err: any = new Error(
         "Malformed authorization header. Expected: Bearer <token>.",
       );
+      err.status = 401;
+      return next(err);
     }
 
     const token = headerMatch[1];
@@ -57,11 +61,13 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
       },
     });
 
+
     if (!user) {
-      return sendUnauthorized(
-        res,
+      const err: any = new Error(
         "Account has been deleted or is no longer available.",
       );
+      err.status = 401;
+      return next(err);
     }
 
     user.name = user.name?.trim();
@@ -69,20 +75,20 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     req.user = user;
     req.token = token;
 
-    next();
+    return next();
   } catch (error) {
     const cause = error as Error;
     if (cause.name === "JsonWebTokenError") {
-      return sendUnauthorized(res, "Invalid token.");
+      const err: any = new Error("Invalid token.");
+      err.status = 401;
+      return next(err);
     }
     if (cause.name === "TokenExpiredError") {
-      return sendUnauthorized(res, "Token expired.");
+      const err: any = new Error("Token expired.");
+      err.status = 401;
+      return next(err);
     }
-    return sendServerError(
-      res,
-      "Internal server error during authentication.",
-      error,
-    );
+    return next(error);
   }
 };
 
@@ -93,20 +99,20 @@ export const authAdmin = async (
 ) => {
   try {
     if (!req.user) {
-      return sendUnauthorized(res, "Authentication required.");
+      const err: any = new Error("Authentication required.");
+      err.status = 401;
+      return next(err);
     }
 
     if (req.user.role !== "Admin") {
-      return sendForbidden(res, "Access denied. Admin privileges required.");
+      const err: any = new Error("Access denied. Admin privileges required.");
+      err.status = 403;
+      return next(err);
     }
 
-    next();
+    return next();
   } catch (error) {
-    return sendServerError(
-      res,
-      "Internal server error during authorization.",
-      error,
-    );
+    return next(error);
   }
 };
 
@@ -117,23 +123,22 @@ export const authStoreOwner = async (
 ) => {
   try {
     if (!req.user) {
-      return sendUnauthorized(res, "Authentication required.");
+      const err: any = new Error("Authentication required.");
+      err.status = 401;
+      return next(err);
     }
 
     if (req.user.role !== "StoreOwner" && req.user.role !== "Admin") {
-      return sendForbidden(
-        res,
+      const err: any = new Error(
         "Access denied. Store owner privileges required.",
       );
+      err.status = 403;
+      return next(err);
     }
 
-    next();
+    return next();
   } catch (error) {
-    return sendServerError(
-      res,
-      "Internal server error during authorization.",
-      error,
-    );
+    return next(error);
   }
 };
 

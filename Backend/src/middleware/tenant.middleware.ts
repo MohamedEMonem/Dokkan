@@ -2,12 +2,14 @@ import type { NextFunction, Request, Response } from "express";
 import prisma from "../config/db.js";
 import { sendError, sendServerError } from "../utils/response.js";
 
-export const resolveTenant = async (req: Request, res: Response, next: NextFunction) => {
+export const resolveTenant = async (req: Request, _res: Response, next: NextFunction) => {
 	try {
 		const { storeSlug } = req.params as { storeSlug?: string };
 
 		if (!storeSlug) {
-			return sendError(res, "Store slug is required", 400);
+			const err: any = new Error("Store slug is required");
+			err.status = 400;
+			return next(err);
 		}
 
 		const store = await prisma.store.findFirst({
@@ -18,13 +20,15 @@ export const resolveTenant = async (req: Request, res: Response, next: NextFunct
 		});
 
 		if (!store) {
-			return sendError(res, "Store not found", 404);
+			const err: any = new Error("Store not found");
+			err.status = 404;
+			return next(err);
 		}
 
 		(req as Request & { store?: typeof store }).store = store;
 
 		return next();
 	} catch (error) {
-		return sendServerError(res, "Failed to resolve store tenant", error);
+		return next(error);
 	}
 };

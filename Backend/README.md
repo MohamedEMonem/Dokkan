@@ -111,3 +111,7 @@ More details on how to document new routes can be found in [swagger.MD](./swagge
 
 ## Error handling
 Centralized JSON error handling and a catch-all 404 were recently added. See the operational notes and testing steps in [docs/error-handling.md](docs/error-handling.md).
+
+## Developer docs
+Detailed developer docs (tenant resolution, API references, and testing notes) are available under `docs/`:
+- [Backend/docs/README.md](docs/README.md)
