@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import prisma from "../config/db.js";
 import { sendError, sendNotFound, sendServerError, sendSuccess } from "../utils/response.js";
 import { deletePublicImg, uploadPublicImg } from "../services/imgStorageService.js";
@@ -8,7 +8,7 @@ const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
   price: Number(product.price),
 });
 
-export const listProducts = async (req: Request, res: Response) => {
+export const listProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const filters = req.query;
 
@@ -23,11 +23,11 @@ export const listProducts = async (req: Request, res: Response) => {
 
     return sendSuccess(res, products.map(mapProduct), "Products retrieved successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to retrieve products", error);
+    return next(error);
   }
 };
 
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -49,11 +49,11 @@ export const getProductById = async (req: Request, res: Response) => {
 
     return sendSuccess(res, mapProduct(product), "Product retrieved successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to retrieve product", error);
+    return next(error);
   }
 };
 
-export const createProduct = async (req: any, res: Response) => {
+export const createProduct = async (req: any, res: Response, next: NextFunction) => {
   try {
     const { storeId, categoryId, title, description, price, stockQuantity, status } = req.body;
 
@@ -111,11 +111,11 @@ export const createProduct = async (req: any, res: Response) => {
       throw dbError;
     }
   } catch (error) {
-    return sendServerError(res, "Failed to create product", error);
+    return next(error);
   }
 };
 
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -156,11 +156,11 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     return sendSuccess(res, mapProduct(updated), "Product updated successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to update product", error);
+    return next(error);
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -183,6 +183,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
     return sendSuccess(res, null, "Product deleted successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to delete product", error);
+    return next(error);
   }
 };

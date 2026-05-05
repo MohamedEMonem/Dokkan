@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import prisma from "../config/db.js";
 import { sendError, sendNotFound, sendServerError, sendSuccess, sendValidationError } from "../utils/response.js";
 import { z } from "zod";
@@ -18,7 +18,7 @@ const normalizeCategory = (category: { [key: string]: unknown }) => ({
   name: typeof category.name === "string" ? category.name.trimEnd() : category.name,
 });
 
-export const listCategories = async (_req: Request, res: Response) => {
+export const listCategories = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const categories = await prisma.category.findMany({
       orderBy: [{ parentCategoryId: "asc" }, { name: "asc" }],
@@ -26,11 +26,11 @@ export const listCategories = async (_req: Request, res: Response) => {
 
     return sendSuccess(res, categories.map(normalizeCategory), "Categories retrieved successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to retrieve categories", error);
+    return next(error);
   }
 };
 
-export const getCategoryById = async (req: Request, res: Response) => {
+export const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -48,11 +48,11 @@ export const getCategoryById = async (req: Request, res: Response) => {
 
     return sendSuccess(res, normalizeCategory(category), "Category retrieved successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to retrieve category", error);
+    return next(error);
   }
 };
 
-export const createCategory = async (req: Request, res: Response) => {
+export const createCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validation = createCategorySchema.safeParse(req.body);
     if (!validation.success) {
@@ -77,11 +77,11 @@ export const createCategory = async (req: Request, res: Response) => {
 
     return sendSuccess(res, normalizeCategory(category), "Category created successfully", 201);
   } catch (error) {
-    return sendServerError(res, "Failed to create category", error);
+    return next(error);
   }
 };
 
-export const updateCategory = async (req: Request, res: Response) => {
+export const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
     if (!id) {
@@ -146,11 +146,11 @@ export const updateCategory = async (req: Request, res: Response) => {
 
     return sendSuccess(res, normalizeCategory(updatedCategory), "Category updated successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to update category", error);
+    return next(error);
   }
 };
 
-export const deleteCategory = async (req: Request, res: Response) => {
+export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
     if (!id) {
@@ -179,6 +179,6 @@ export const deleteCategory = async (req: Request, res: Response) => {
 
     return sendSuccess(res, null, "Category deleted successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to delete category", error);
+    return next(error);
   }
 };
