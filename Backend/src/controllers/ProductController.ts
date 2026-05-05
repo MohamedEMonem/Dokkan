@@ -10,9 +10,15 @@ const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
 
 export const listProducts = async (req: Request, res: Response) => {
   try {
+    const filters = req.query;
+
     const products = await prisma.product.findMany({
-      where: { deletedAt: null },
+      where: {
+        deletedAt: null,
+        ...filters,
+      },
       orderBy: { createdAt: "desc" },
+      include: { images: true },
     });
 
     return sendSuccess(res, products.map(mapProduct), "Products retrieved successfully");
@@ -34,6 +40,7 @@ export const getProductById = async (req: Request, res: Response) => {
         id,
         deletedAt: null,
       },
+      include: { images: true },
     });
 
     if (!product) {
@@ -144,6 +151,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     const updated = await prisma.product.update({
       where: { id },
       data,
+      include: { images: true },
     });
 
     return sendSuccess(res, mapProduct(updated), "Product updated successfully");
