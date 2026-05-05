@@ -108,3 +108,6 @@ We use **Swagger UI** combined with **Swagger Autogen** to automatically generat
 2. Open your browser and navigate to: **`http://localhost:3000/api/docs`** 
 
 More details on how to document new routes can be found in [swagger.MD](./swagger.MD).
+
+## Error handling
+Centralized JSON error handling and a catch-all 404 were recently added. See the operational notes and testing steps in [docs/error-handling.md](docs/error-handling.md).
