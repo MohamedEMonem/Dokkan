@@ -1,10 +1,12 @@
 import express from "express";
-import { auth,authLimiter } from "../middleware/auth.js";
+import { auth, authLimiter, refreshLimiter } from "../middleware/auth.js";
 import {
   deleteAccount,
   getProfile,
   login,
+  logout,
   patchProfile,
+  refresh,
   register,
 } from "../modules/auth/auth.controller.js";
 
@@ -12,7 +14,7 @@ const router = express.Router();
 
 router.post(
   "/register",
-  authLimiter,
+  // authLimiter,
   /* #swagger.tags = ['Auth']
      #swagger.summary = 'Register a new user'
      #swagger.description = 'Creates a new user account. If the email belongs to a previously soft-deleted account, it restores the account. Role is optional and defaults to Customer.'
@@ -50,7 +52,7 @@ router.post(
 
 router.post(
   "/login",
-  authLimiter,
+  // authLimiter,
   /* #swagger.tags = ['Auth']
      #swagger.summary = 'Login user'
      #swagger.description = 'Authenticates a user and returns a JWT token.'
@@ -75,6 +77,31 @@ router.post(
      #swagger.responses[500] = { description: 'Internal server error' }
   */
   login,
+);
+
+router.post(
+  "/refresh",
+  // refreshLimiter,
+  /* #swagger.tags = ['Auth']
+     #swagger.summary = 'Refresh access token'
+     #swagger.description = 'Rotates the refresh token (from HTTP-only cookie) and returns a fresh access token.'
+     #swagger.responses[200] = { description: 'Token refreshed successfully' }
+     #swagger.responses[401] = { description: 'Missing, invalid, expired, or revoked refresh token' }
+     #swagger.responses[429] = { description: 'Too many refresh attempts' }
+     #swagger.responses[500] = { description: 'Internal server error' }
+  */
+  refresh,
+);
+
+router.post(
+  "/logout",
+  /* #swagger.tags = ['Auth']
+     #swagger.summary = 'Logout user'
+     #swagger.description = 'Revokes current refresh token session (if present) and clears refresh cookie.'
+     #swagger.responses[200] = { description: 'Logged out successfully' }
+     #swagger.responses[500] = { description: 'Internal server error' }
+  */
+  logout,
 );
 
 // Authenticated profile endpoints

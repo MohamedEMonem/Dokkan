@@ -30,7 +30,14 @@ app.use(express.urlencoded({ extended: true }));
 //npm install corsconfigured for development, in production we will use nginx to handle cors
 app.use(
   cors({
-    origin: "http://localhost:5000",
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     optionsSuccessStatus: 200,
   }),
