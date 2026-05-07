@@ -16,11 +16,13 @@ export function ProductDetailsPage() {
   const [activeTab, setActiveTab] = useState<
     "description" | "reviews" | "shipping"
   >("description");
+
   const { data, isLoading, isError } = useGetProductByIdQuery(
     { id: id ?? "" },
     { skip: !id },
   );
-  const productreviews = 187;
+  const productreviews = 187; // mock number, replace with actual count from API when available
+
   const TABS = [
     { id: "description", label: "الوصف" },
     { id: "reviews", label: `التقييمات (${productreviews})` },
