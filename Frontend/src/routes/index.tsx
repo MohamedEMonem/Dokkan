@@ -11,6 +11,7 @@ import { RegisterForm } from "@/features/auth/Register";
 import Profile from "@/pages/Profile";
 
 import { ViewProducts } from "@/features/products/ViewProducts";
+import { ProductDetailsPage } from "@/features/products/ProductDetailsPage";
 
 import { Overview } from "@/features/dashboard/Overview";
 import { Products } from "@/features/dashboard/Products";
@@ -23,6 +24,7 @@ export default function AppRoutes() {
       {/* Public */}
       <Route path="/" element={<HomeLayout />}>
         <Route path="/products" element={<ViewProducts />} />
+        <Route path="/products/:id" element={<ProductDetailsPage />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>

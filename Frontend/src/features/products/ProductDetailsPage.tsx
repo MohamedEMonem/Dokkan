@@ -1,0 +1,388 @@
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useGetProductByIdQuery } from "@/api/product.api";
+import { Button } from "@/components/ui/Button";
+import { useState } from "react";
+import { Store, Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
+import { showNotification } from "@/utils/showNotification";
+import { mockReviewsData, mockRelatedProducts } from "./MockData";
+import ReviewCard from "./components/ReviewCard";
+import { Card } from "@/components/ui/Card";
+
+export function ProductDetailsPage() {
+  const navigate = useNavigate();
+  const [cartCount, setCartCount] = useState(1);
+  const { id } = useParams<{ id: string }>();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [activeTab, setActiveTab] = useState<
+    "description" | "reviews" | "shipping"
+  >("description");
+  const { data, isLoading, isError } = useGetProductByIdQuery(
+    { id: id ?? "" },
+    { skip: !id },
+  );
+  const productreviews = 187;
+  const TABS = [
+    { id: "description", label: "الوصف" },
+    { id: "reviews", label: `التقييمات (${productreviews})` },
+    { id: "shipping", label: "معلومات الشحن" },
+  ] as const;
+
+  type TabId = (typeof TABS)[number]["id"];
+  // Handlers
+
+  const handleAddToCart = () => {
+    showNotification({
+      variant: "success",
+      message: `تمت إضافة ${cartCount} منتج للسلة!`,
+    });
+    console.log("handle Add To Cart");
+  };
+
+  const handleToggleFavorite = () => {
+    setIsFavorite((prev) => !prev);
+    if (!isFavorite) {
+      showNotification({
+        variant: "success",
+        message: "تم إضافة المنتج إلى المفضلة!",
+      });
+    } else {
+      showNotification({
+        variant: "error",
+        message: "تم إزالة المنتج من المفضلة",
+      });
+    }
+    console.log("handle Toggle Favorite");
+  };
+
+  const handleViewStore = (storeId?: string) => {
+    console.log("handle View Store");
+    if (storeId) navigate(`/store/${storeId}`);
+  };
+
+  if (!id) {
+    return (
+      <section className="container mx-auto px-4 py-10" dir="rtl">
+        <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-red-700">
+          معرف المنتج غير صالح.
+        </div>
+      </section>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <section className="container mx-auto px-4 py-10" dir="rtl">
+        <div className="rounded-lg border border-gray-100 bg-white p-6 text-center">
+          جاري تحميل تفاصيل المنتج...
+        </div>
+      </section>
+    );
+  }
+
+  if (isError || !data?.data) {
+    return (
+      <section className="container mx-auto px-4 py-10" dir="rtl">
+        <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-red-700">
+          تعذر تحميل تفاصيل المنتج.
+        </div>
+      </section>
+    );
+  }
+
+  const product = data.data;
+  console.log(product);
+  return (
+    <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
+      <div className="container mx-auto px-4">
+        {/* Breadcrumbs */}
+        <div className="mb-6 flex items-center gap-2 text-sm text-gray-600">
+          <Link className="hover:text-blue-600" to="/">
+            الرئيسية
+          </Link>
+          <span>/</span>
+          <Link className="hover:text-blue-600" to="/products">
+            المنتجات
+          </Link>
+          <span>/</span>
+          <span className="text-gray-900">{product.title}</span>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          {/** Product Image and Details */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Product Image */}
+            <div>
+              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
+                <img
+                  src={
+                    product.images?.[0]?.imageUrl ||
+                    "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg"
+                  }
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+            {/* Product Details */}
+            <div>
+              <div className="mb-4">
+                <Link
+                  className="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-2"
+                  to="/products"
+                >
+                  <Store size={16} className="text-blue-600" />
+                  راحة المنزل
+                </Link>
+
+                <h1 className="mb-2">{product.title}</h1>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    {starsComponent(4, 20)}
+                  </div>
+                  <div className="text-sm text-gray-600">4.5 (82 تقييم)</div>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="text-3xl text-blue-600 mb-2">
+                  {product.price?.toLocaleString()} ج.م
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-green-600">
+                    متوفر ( {product.stockQuantity} قطعة )
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-gray-600 mb-6">
+                {/* {product.description || "لا يوجد وصف لهذا المنتج حالياً."} */}
+                ساعة بتصميم مينيمال، صامتة، أرقام واضحة، مناسبة لأي ديكور.
+              </p>
+
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center border rounded-lg border-gray-200">
+                  <Button
+                    onClick={() => cartCount > 1 && setCartCount(cartCount - 1)}
+                    className={`w-9! h-9! border-0! ${cartCount === 1 ? "cursor-not-allowed opacity-50" : ""}`}
+                    variant="outline-accent"
+                    icon={<Minus size={16} />}
+                  ></Button>
+                  <span className="px-4 py-2 min-w-12 text-center">
+                    {cartCount}
+                  </span>
+                  <Button
+                    onClick={() => setCartCount(cartCount + 1)}
+                    className="w-9! h-9! border-0!"
+                    variant="outline-accent"
+                    icon={<Plus size={16} />}
+                  ></Button>
+                </div>
+                <Button
+                  className="h-10! flex-1"
+                  icon={<ShoppingCart size={20} />}
+                  onClick={() => handleAddToCart()}
+                >
+                  أضف للسلة
+                </Button>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => handleToggleFavorite()}
+                  variant={isFavorite ? "primary" : "outline-accent"}
+                  className={`h-10! flex-1`}
+                >
+                  <Heart
+                    size={16}
+                    className={`ml-2 ${isFavorite ? "fill-current" : ""}`}
+                  />
+                  {isFavorite ? "في المفضلة" : "المفضلة"}
+                </Button>
+
+                <Button
+                  onClick={() => handleViewStore(product.storeId)}
+                  variant="outline-accent"
+                  className="h-10! flex-1"
+                >
+                  <Store size={16} className="ml-2" />
+                  عرض المتجر
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          {/* Interactive tabs: description / reviews / shipping */}
+          <div
+            dir="ltr"
+            className="flex flex-col gap-2"
+            onKeyDown={(e) => {
+              // basic keyboard support: left/right arrows
+              if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                const order = ["description", "reviews", "shipping"] as const;
+                const idx = order.indexOf(activeTab);
+                const next =
+                  e.key === "ArrowRight"
+                    ? (idx + 1) % order.length
+                    : (idx - 1 + order.length) % order.length;
+                setActiveTab(order[next]);
+              }
+            }}
+          >
+            <div
+              role="tablist"
+              aria-orientation="horizontal"
+              className="bg-accent-light flex h-9 w-fit items-center justify-center rounded-2xl p-0.75 text-sm"
+            >
+              {TABS.map(({ id, label }) => {
+                const isActive = activeTab === id;
+                return (
+                  <Button
+                    key={id}
+                    variant={isActive ? "hero" : "outline-accent"}
+                    type="button"
+                    role="tab"
+                    id={`tab-trigger-${id}`}
+                    aria-selected={isActive}
+                    onClick={() => setActiveTab(id as TabId)}
+                    tabIndex={isActive ? 0 : -1}
+                    className={[
+                      "mx-1! px-1! text-black! border-none! focus:outline-none! focus:ring-0! focus-visible:outline-none! focus-visible:ring-0!",
+                      isActive
+                        ? "bg-white! outline! outline-primary! shadow-sm!"
+                        : "border-none! outline-none! ",
+                    ].join(" ")}
+                  >
+                    {label}
+                  </Button>
+                );
+              })}
+            </div>
+            <div
+              dir="rtl"
+              role="tabpanel"
+              aria-labelledby="tab-trigger-description"
+              id="tab-content-description"
+              hidden={activeTab !== "description"}
+              className="flex-1 outline-none mt-6"
+            >
+              <h3 className="mb-4">تفاصيل المنتج</h3>
+              <p className="text-gray-600">
+                USB 3.0، نقل سريع، تصميم مدمج ومقاوم للصدمات.
+              </p>
+              <div className="mt-6 space-y-2">
+                <p>
+                  <span className="text-gray-600">التصنيف:</span> الإلكترونيات
+                </p>
+                <p>
+                  <span className="text-gray-600">المخزون:</span> 47 قطعة
+                </p>
+                <p>
+                  <span className="text-gray-600">رقم المنتج:</span> prod-e14
+                </p>
+              </div>
+            </div>
+
+            <div
+              dir="rtl"
+              role="tabpanel"
+              aria-labelledby="tab-trigger-reviews"
+              id="tab-content-reviews"
+              hidden={activeTab !== "reviews"}
+              className="flex-1 outline-none mt-6"
+            >
+              <h3 className="mb-6">تقييمات العملاء</h3>
+              <div className="space-y-4">
+                {mockReviewsData.length === 0 ? (
+                  <p className="text-gray-600">لا توجد تقييمات حالياً.</p>
+                ) : (
+                  mockReviewsData.map((review) => (
+                    <ReviewCard key={review.id} review={review} starSize={16} />
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div
+              dir="rtl"
+              role="tabpanel"
+              aria-labelledby="tab-trigger-shipping"
+              id="tab-content-shipping"
+              hidden={activeTab !== "shipping"}
+              className="flex-1 outline-none mt-6"
+            >
+              <h3 className="mb-4">معلومات الشحن</h3>
+              <div className="space-y-4 text-gray-600">
+                <p>• الشحن العادي: 5-7 أيام عمل</p>
+                <p>• الشحن السريع: 2-3 أيام عمل</p>
+                <p>• شحن مجاني للطلبات فوق 500 ج.م</p>
+                <p>• سياسة إرجاع خلال 30 يوم</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Sections (e.g., Similar Products) */}
+        <div>
+          <h2 className="mb-6">منتجات ذات صلة</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {mockRelatedProducts.map((item) => (
+              <Card
+                key={item.id}
+                variant="default"
+                className="border-none! shadow-md hover:shadow-lg"
+              >
+                <Link to={`/product/${item.id}`}>
+                  <div className="bg-white rounded-lg transition-shadow overflow-hidden">
+                    <div className="aspect-square bg-gray-100">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-sm mb-2 line-clamp-2">
+                        {item.title}
+                      </h3>
+                      <div className="text-blue-600">
+                        {item.price.toLocaleString()} ج.م
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const starsComponent = (rating: number, size: number = 20) => {
+  const fullStars = Math.floor(rating);
+  const halfStar = rating - fullStars >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+  return (
+    <>
+      {[...Array(fullStars)].map((_, i) => (
+        <Star
+          key={`full-${i}`}
+          size={size}
+          fill="currentColor"
+          className="text-yellow-400"
+        />
+      ))}
+      {halfStar && (
+        <Star size={size} fill="currentColor" className="text-yellow-400" />
+      )}
+      {[...Array(emptyStars)].map((_, i) => (
+        <Star key={`empty-${i}`} size={size} className="text-yellow-400" />
+      ))}
+    </>
+  );
+};
