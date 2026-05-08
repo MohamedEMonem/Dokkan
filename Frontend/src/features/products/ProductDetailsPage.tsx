@@ -131,7 +131,7 @@ export function ProductDetailsPage() {
               <div className="mb-4">
                 <Link
                   className="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-2"
-                  to="/products"
+                  to={`/store/${product.storeId}`}
                 >
                   <Store size={16} className="text-blue-600" />
                   راحة المنزل
