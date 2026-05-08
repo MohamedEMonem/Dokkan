@@ -92,6 +92,7 @@ export function ProductDetailsPage() {
   }
 
   const product = data.data;
+
   console.log(product);
   return (
     <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
@@ -139,7 +140,7 @@ export function ProductDetailsPage() {
                 <h1 className="mb-2">{product.title}</h1>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1">
-                    {starsComponent(4, 20)}
+                    {starsComponent(4.5, 20)}
                   </div>
                   <div className="text-sm text-gray-600">4.5 (82 تقييم)</div>
                 </div>
@@ -157,13 +158,13 @@ export function ProductDetailsPage() {
               </div>
 
               <p className="text-gray-600 mb-6">
-                {/* {product.description || "لا يوجد وصف لهذا المنتج حالياً."} */}
-                ساعة بتصميم مينيمال، صامتة، أرقام واضحة، مناسبة لأي ديكور.
+                {product.description || "لا يوجد وصف لهذا المنتج حالياً."}
               </p>
 
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center border rounded-lg border-gray-200">
                   <Button
+                    disabled={cartCount === 1}
                     onClick={() => cartCount > 1 && setCartCount(cartCount - 1)}
                     className={`w-9! h-9! border-0! ${cartCount === 1 ? "cursor-not-allowed opacity-50" : ""}`}
                     variant="outline-accent"
@@ -173,6 +174,7 @@ export function ProductDetailsPage() {
                     {cartCount}
                   </span>
                   <Button
+                    disabled={cartCount === product.stockQuantity}
                     onClick={() => setCartCount(cartCount + 1)}
                     className="w-9! h-9! border-0!"
                     variant="outline-accent"
@@ -335,7 +337,7 @@ export function ProductDetailsPage() {
                 variant="default"
                 className="border-none! shadow-md hover:shadow-lg"
               >
-                <Link to={`/product/${item.id}`}>
+                <Link to={`/products/${item.id}`}>
                   <div className="bg-white rounded-lg transition-shadow overflow-hidden">
                     <div className="aspect-square bg-gray-100">
                       <img
@@ -380,7 +382,15 @@ export const starsComponent = (rating: number, size: number = 20) => {
         />
       ))}
       {halfStar && (
-        <Star size={size} fill="currentColor" className="text-yellow-400" />
+        <div className="relative inline-flex">
+          <Star size={size} className="text-yellow-400" />
+          <div
+            className="absolute inset-0 overflow-hidden"
+            style={{ width: "50%" }}
+          >
+            <Star size={size} fill="currentColor" className="text-yellow-400" />
+          </div>
+        </div>
       )}
       {[...Array(emptyStars)].map((_, i) => (
         <Star key={`empty-${i}`} size={size} className="text-yellow-400" />
