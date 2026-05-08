@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useGetProductByIdQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Store, Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
 import { showNotification } from "@/utils/showNotification";
 import { mockReviewsData, mockRelatedProducts } from "./MockData";
@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/Card";
 
 export function ProductDetailsPage() {
   const navigate = useNavigate();
-  const [cartCount, setCartCount] = useState(1);
+  const [cartCount, setCartCount] = useState<number>(1);
   const { id } = useParams<{ id: string }>();
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState<
@@ -32,7 +32,26 @@ export function ProductDetailsPage() {
   type TabId = (typeof TABS)[number]["id"];
   // Handlers
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (stock?: number) => {
+    if (!stock || stock <= 0) {
+      showNotification({
+        variant: "error",
+        message: "المنتج غير متوفر حالياً.",
+      });
+      return;
+    }
+    if (cartCount < 1) {
+      showNotification({ variant: "error", message: "الكمية غير صالحة." });
+      return;
+    }
+    if (cartCount > stock) {
+      showNotification({
+        variant: "error",
+        message: `الكمية المطلوبة تتجاوز المخزون المتوفر (${stock}).`,
+      });
+      return;
+    }
+
     showNotification({
       variant: "success",
       message: `تمت إضافة ${cartCount} منتج للسلة!`,
@@ -93,7 +112,17 @@ export function ProductDetailsPage() {
 
   const product = data.data;
 
-  console.log(product);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (product) {
+      const stock = product.stockQuantity ?? 0;
+      setCartCount(stock > 0 ? 1 : 0);
+    }
+  }, [product, product.stockQuantity]);
+
+  const minCount = product.stockQuantity > 0 ? 1 : 0;
+  const maxCount = product.stockQuantity ?? 0;
+
   return (
     <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
       <div className="container mx-auto px-4">
@@ -164,27 +193,32 @@ export function ProductDetailsPage() {
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center border rounded-lg border-gray-200">
                   <Button
-                    disabled={cartCount === 1}
-                    onClick={() => cartCount > 1 && setCartCount(cartCount - 1)}
-                    className={`w-9! h-9! border-0! ${cartCount === 1 ? "cursor-not-allowed opacity-50" : ""}`}
+                    onClick={() =>
+                      cartCount > minCount && setCartCount(cartCount - 1)
+                    }
+                    className={`w-9! h-9! border-0! ${cartCount <= minCount ? "cursor-not-allowed opacity-50" : ""}`}
                     variant="outline-accent"
                     icon={<Minus size={16} />}
-                  ></Button>
+                    disabled={cartCount <= minCount}
+                  />
                   <span className="px-4 py-2 min-w-12 text-center">
                     {cartCount}
                   </span>
                   <Button
-                    disabled={cartCount === product.stockQuantity}
-                    onClick={() => setCartCount(cartCount + 1)}
-                    className="w-9! h-9! border-0!"
+                    onClick={() =>
+                      cartCount < maxCount && setCartCount(cartCount + 1)
+                    }
+                    className={`w-9! h-9! border-0! ${cartCount >= maxCount ? "cursor-not-allowed opacity-50" : ""}`}
                     variant="outline-accent"
                     icon={<Plus size={16} />}
-                  ></Button>
+                    disabled={cartCount >= maxCount}
+                  />
                 </div>
                 <Button
                   className="h-10! flex-1"
                   icon={<ShoppingCart size={20} />}
-                  onClick={() => handleAddToCart()}
+                  onClick={() => handleAddToCart(product.stockQuantity)}
+                  disabled={product.stockQuantity <= 0}
                 >
                   أضف للسلة
                 </Button>
