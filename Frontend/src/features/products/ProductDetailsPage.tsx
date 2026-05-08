@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useGetProductByIdQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Store, Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
 import { showNotification } from "@/utils/showNotification";
 import { mockReviewsData, mockRelatedProducts } from "./MockData";
@@ -21,37 +21,18 @@ export function ProductDetailsPage() {
     { id: id ?? "" },
     { skip: !id },
   );
-  const productreviews = 187; // mock number, replace with actual count from API when available
+  const productReviews = 187; // mock number, replace with actual count from API when available
 
   const TABS = [
     { id: "description", label: "الوصف" },
-    { id: "reviews", label: `التقييمات (${productreviews})` },
+    { id: "reviews", label: `التقييمات (${productReviews})` },
     { id: "shipping", label: "معلومات الشحن" },
   ] as const;
 
   type TabId = (typeof TABS)[number]["id"];
   // Handlers
 
-  const handleAddToCart = (stock?: number) => {
-    if (!stock || stock <= 0) {
-      showNotification({
-        variant: "error",
-        message: "المنتج غير متوفر حالياً.",
-      });
-      return;
-    }
-    if (cartCount < 1) {
-      showNotification({ variant: "error", message: "الكمية غير صالحة." });
-      return;
-    }
-    if (cartCount > stock) {
-      showNotification({
-        variant: "error",
-        message: `الكمية المطلوبة تتجاوز المخزون المتوفر (${stock}).`,
-      });
-      return;
-    }
-
+  const handleAddToCart = () => {
     showNotification({
       variant: "success",
       message: `تمت إضافة ${cartCount} منتج للسلة!`,
@@ -111,14 +92,6 @@ export function ProductDetailsPage() {
   }
 
   const product = data.data;
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    if (product) {
-      const stock = product.stockQuantity ?? 0;
-      setCartCount(stock > 0 ? 1 : 0);
-    }
-  }, [product, product.stockQuantity]);
 
   const minCount = product.stockQuantity > 0 ? 1 : 0;
   const maxCount = product.stockQuantity ?? 0;
@@ -217,7 +190,7 @@ export function ProductDetailsPage() {
                 <Button
                   className="h-10! flex-1"
                   icon={<ShoppingCart size={20} />}
-                  onClick={() => handleAddToCart(product.stockQuantity)}
+                  onClick={() => handleAddToCart()}
                   disabled={product.stockQuantity <= 0}
                 >
                   أضف للسلة
