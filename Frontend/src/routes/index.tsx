@@ -23,6 +23,9 @@ export default function AppRoutes() {
       {/* Public */}
       <Route path="/" element={<HomeLayout />}>
         <Route path="/products" element={<ViewProducts />} />
+        <Route element={<ProtectedRoutes />}>
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>
