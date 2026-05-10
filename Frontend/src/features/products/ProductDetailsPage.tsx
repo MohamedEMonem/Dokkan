@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useGetProductByIdQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Store, Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
 import { showNotification } from "@/utils/showNotification";
 import { mockReviewsData, mockRelatedProducts } from "./MockData";
@@ -21,6 +21,20 @@ export function ProductDetailsPage() {
     { id: id ?? "" },
     { skip: !id },
   );
+
+  useEffect(() => {
+    if (data?.data) {
+      if (data.data.stockQuantity <= 0) {
+        setCartCount(0);
+      } else if (cartCount <= 0) {
+        setCartCount(1);
+      } else if (cartCount > data.data.stockQuantity) {
+        setCartCount(data.data.stockQuantity);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.data?.stockQuantity]);
+
   const productReviews = 187; // mock number, replace with actual count from API when available
 
   const TABS = [
@@ -193,7 +207,7 @@ export function ProductDetailsPage() {
                   onClick={() => handleAddToCart()}
                   disabled={product.stockQuantity <= 0}
                 >
-                  أضف للسلة
+                  {product.stockQuantity <= 0 ? "غير متوفر" : "أضف للسلة"}
                 </Button>
               </div>
 
