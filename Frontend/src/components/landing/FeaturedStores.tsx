@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Button } from '../ui/Button';
 
 interface Store {
   id: number;
@@ -83,20 +84,27 @@ const FeaturedStores: React.FC = () => {
                     {store.description}
                   </p>
 
-                  <button className="w-full inline-flex items-center justify-center whitespace-nowrap transition-all outline-none border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-lg h-8 text-xs font-bold">
+                  <Button
+                    variant="secondary"
+                    className="h-8! text-xs font-bold w-full"
+                  >
                     زيارة المتجر
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
 
-          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 right-0 border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-lg flex items-center justify-center transition-all">
-            <ArrowLeft size={24} />
-          </button>
-          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 left-0 border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-lg flex items-center justify-center transition-all">
-            <ArrowRight size={24} />
-          </button>
+          <Button
+            variant="secondary"
+            className="absolute size-12! rounded-full! top-1/2 -translate-y-1/2 right-0 shadow-lg p-0!"
+            icon={<ArrowRight size={24} />}
+          />
+          <Button
+            variant="secondary"
+            className="absolute size-12! rounded-full! top-1/2 -translate-y-1/2 left-0 shadow-lg p-0!"
+            icon={<ArrowLeft size={24} />}
+          />
         </div>
       </div>
     </section>

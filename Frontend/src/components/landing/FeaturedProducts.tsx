@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShoppingCart, Heart, Star, ChevronLeft, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Button } from '../ui/Button';
 
 export interface Product {
   id: number;
@@ -101,10 +102,16 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
             <h2 className="text-3xl text-text-dark mb-2">المنتجات المميزة</h2>
             <p className="text-lg text-text-muted">أفضل المنتجات المختارة لك</p>
           </div>
-          <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all outline-none border-2 border-primary text-primary hover:bg-primary hover:text-white h-9 px-4 py-2">
-            عرض الكل
-            <ChevronLeft className="w-5 h-5 mr-2" />
-          </button>
+          <div className="flex">
+            <Button
+              variant="secondary"
+              className="h-9! px-4 text-sm"
+              icon={<ChevronLeft className="w-5 h-5" />}
+              iconPos='left'
+            >
+              عرض الكل
+            </Button>
+          </div>
         </div>
 
         <div className="relative px-16">
@@ -119,18 +126,19 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
                       alt={product.title} 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                    <button 
-                      className="absolute top-2 left-2 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors"
+                    <Button                       
+                      variant="secondary"
+                      className="absolute top-2 left-2 w-7! h-7! bg-white/90! hover:bg-white! rounded-full! shadow-md transition-colors p-0! border-0!"
                       onClick={() => toggleFavorite(product)}
                       aria-label={isFav ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
                       aria-pressed={isFav}
-                    >
-                      <Heart 
+                      icon={<Heart 
                         size={14} 
                         className={isFav ? "text-[#ff4757] fill-[#ff4757]" : "text-accent"} 
                         aria-hidden="true"
-                      />
-                    </button>
+                      />}
+                      iconPos='right'
+                    />
                   </div>
                   
                   <div className="flex-1 flex flex-col p-3">
@@ -149,13 +157,16 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
                     
                     <div className="flex items-center justify-between gap-2 mt-auto">
                       <span className="text-primary text-sm">{product.price}</span>
-                      <button 
-                        className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-all bg-primary hover:bg-primary-dark text-white h-8 px-3 text-xs rounded-lg gap-1.5"
-                        onClick={() => addToCart(product)}
-                      >
-                        <ShoppingCart className="w-3.5 h-3.5 ml-1" />
-                        أضف
-                      </button>
+                      <div className="flex">
+                        <Button 
+                          className="h-8! px-3 text-xs gap-1.5"
+                          onClick={() => addToCart(product)}
+                          icon={<ShoppingCart className="w-3.5 h-3.5" />}
+                          iconPos='right'
+                        >
+                          أضف
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -163,12 +174,16 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
             })}
           </div>
           
-          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 right-0 border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-lg flex items-center justify-center transition-all">
-            <ArrowLeft size={24} />
-          </button>
-          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 left-0 border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-lg flex items-center justify-center transition-all">
-            <ArrowRight size={24} />
-          </button>
+          <Button 
+            variant="secondary"
+            className="absolute size-12! rounded-full! top-1/2 -translate-y-1/2 right-0 shadow-lg p-0!"
+            icon={<ArrowRight size={24} />}
+          />
+          <Button 
+            variant="secondary"
+            className="absolute size-12! rounded-full! top-1/2 -translate-y-1/2 left-0 shadow-lg p-0!"
+            icon={<ArrowLeft size={24} />}
+          />
         </div>
       </div>
     </section>
