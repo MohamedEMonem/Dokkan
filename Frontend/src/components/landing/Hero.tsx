@@ -1,8 +1,11 @@
 import React from 'react';
 import { ShoppingCart, Store } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useNavigate } from 'react-router-dom';
 
 const Hero: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="bg-linear-to-l from-primary via-primary-light to-primary text-white py-20">
       <div className="container mx-auto px-4">
@@ -23,6 +26,7 @@ const Hero: React.FC = () => {
                   variant="hero" 
                   icon={<ShoppingCart className="w-5 h-5 ml-2" />}
                   className="px-8 py-6 text-lg rounded-xl"
+                  onClick={() => navigate('/products')}
                 >
                   تسوّق الآن
                 </Button>
@@ -32,6 +36,7 @@ const Hero: React.FC = () => {
                   variant="outline-white" 
                   icon={<Store className="w-5 h-5 ml-2" />}
                   className="px-8 py-6 text-lg rounded-xl"
+                  onClick={() => navigate('/auth/register')}
                 >
                   انضم كبائع
                 </Button>
