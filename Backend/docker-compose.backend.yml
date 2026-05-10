@@ -10,11 +10,7 @@ services:
     volumes:
       - frontend_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-root} -d ${POSTGRES_DB:-mydb}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-root} -d ${POSTGRES_DB:-mydb}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -52,18 +48,6 @@ services:
     volumes:
       - frontend_minio_data:/data
     restart: unless-stopped
-
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: nx_mailpit
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-    environment:
-      - MP_MAX_MESSAGES=500
-    networks:
-      - nx_network
-    restart: always
 
   backend:
     build:

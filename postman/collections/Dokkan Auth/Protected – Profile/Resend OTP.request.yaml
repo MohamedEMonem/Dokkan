@@ -1,8 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/auth/resend-otp"
-method: POST
-auth:
-  type: bearer
-  credentials:
-    token: "{{token}}"
-order: 12000

@@ -9,9 +9,7 @@
     "outDir": "./dist",
     "allowJs": true,            // Essential for incremental migration
     "checkJs": false,
-    "types": ["node"],
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

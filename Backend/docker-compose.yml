@@ -68,22 +68,6 @@ services:
       - nx_network
     restart: always
 
-  # -----------------------------
-  # Mailpit (Local Email Testing)
-  # -----------------------------
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: nx_mailpit
-    ports:
-      - "8025:8025" # Web UI (View your emails in the browser)
-      - "1025:1025" # SMTP Port (What your Backend connects to)
-    environment:
-      # Optional: Keep the container lightweight by only storing the last 500 emails
-      - MP_MAX_MESSAGES=500
-    networks:
-      - nx_network
-    restart: always
-
 # -----------------------------
 # Volumes & Networks
 # -----------------------------

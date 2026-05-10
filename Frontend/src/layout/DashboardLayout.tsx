@@ -1,20 +1,23 @@
 import { Outlet } from "react-router-dom";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
 
 export default function DashboardLayout() {
-  const storeName = "storey"; // To be changed
-
+  const userName = "Store Owner"; // To be changed
   return (
-    <div
-      className="min-h-screen flex flex-col bg-linear-to-br from-bg-cream via-bg-cream to-accent-light"
-      dir="rtl"
-    >
-      <DashboardHeader storeName={storeName} />
+    <div className="min-h-screen bg-bg-cream" dir="rtl">
+      {/* Top banner */}
+      <div className="bg-primary text-white py-4 px-8">
+        <p className="text-sm">لوحة تحكم صاحب المتجر</p>
+      </div>
 
-      {/* Dashboard Content */}
-      <main className="flex-1 w-full container mx-auto px-4 md:px-4 py-8">
-        <Outlet />
-      </main>
+      {/* Dashboard content */}
+      <div className="container mx-auto px-8 py-12">
+        <div className="text-2xl font-semibold text-text-dark">
+          مرحباً، {userName} 👋
+        </div>
+      </div>
+
+      <Outlet />
     </div>
+
   );
 }
