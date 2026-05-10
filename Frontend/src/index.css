@@ -44,31 +44,3 @@ body {
   min-height: 100vh;
   direction: rtl;
 }
-
-/* Custom Scrollbar Styling - Subtle and Minimal */
-.filter-scrollbar {
-  overflow: auto;
-}
-
-.filter-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.filter-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.filter-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(235, 216, 183, 0.4);
-  border-radius: 10px;
-  transition: background-color 0.2s ease;
-}
-
-.filter-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(196, 154, 108, 0.6);
-}
-
-/* Hide scrollbar when not scrolling */
-.filter-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
-  background-color: rgba(235, 216, 183, 0.2);
-}

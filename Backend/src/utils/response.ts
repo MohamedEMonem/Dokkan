@@ -78,19 +78,6 @@ export const sendForbidden = (res: Response, message = "Access forbidden") => {
   } as ResponsePayload<null>);
 };
 
-export const sendRateLimitExceeded = (
-  res: Response,
-  message = "Rate limit exceeded",
-) => {
-  return res.status(429).json({
-    success: false,
-    data: null,
-    message,
-    error: message,
-    code: 429,
-  } as ResponsePayload<null>);
-};
-
 export const sendServerError = (
   res: Response,
   message = "Internal server error",
@@ -104,8 +91,7 @@ export const sendServerError = (
     success: false,
     data: null,
     message,
-    error:
-      process.env.NODE_ENV === "development" ? error : "Internal server error",
+    error: process.env.NODE_ENV === "development" ? error : "Internal server error",
     code: 500,
   } as ResponsePayload<null>);
 };

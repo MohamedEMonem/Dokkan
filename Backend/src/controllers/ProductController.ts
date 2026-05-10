@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response } from "express";
 import prisma from "../config/db.js";
 import { sendError, sendNotFound, sendServerError, sendSuccess } from "../utils/response.js";
 import { deletePublicImg, uploadPublicImg } from "../services/imgStorageService.js";
@@ -8,26 +8,20 @@ const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
   price: Number(product.price),
 });
 
-export const listProducts = async (req: Request, res: Response, next: NextFunction) => {
+export const listProducts = async (req: Request, res: Response) => {
   try {
-    const filters = req.query;
-
     const products = await prisma.product.findMany({
-      where: {
-        deletedAt: null,
-        ...filters,
-      },
+      where: { deletedAt: null },
       orderBy: { createdAt: "desc" },
-      include: { images: true },
     });
 
     return sendSuccess(res, products.map(mapProduct), "Products retrieved successfully");
   } catch (error) {
-    return next(error);
+    return sendServerError(res, "Failed to retrieve products", error);
   }
 };
 
-export const getProductById = async (req: Request, res: Response, next: NextFunction) => {
+export const getProductById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -40,7 +34,6 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
         id,
         deletedAt: null,
       },
-      include: { images: true },
     });
 
     if (!product) {
@@ -49,11 +42,11 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 
     return sendSuccess(res, mapProduct(product), "Product retrieved successfully");
   } catch (error) {
-    return next(error);
+    return sendServerError(res, "Failed to retrieve product", error);
   }
 };
 
-export const createProduct = async (req: any, res: Response, next: NextFunction) => {
+export const createProduct = async (req: any, res: Response) => {
   try {
     const { storeId, categoryId, title, description, price, stockQuantity, status } = req.body;
 
@@ -111,11 +104,11 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
       throw dbError;
     }
   } catch (error) {
-    return next(error);
+    return sendServerError(res, "Failed to create product", error);
   }
 };
 
-export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+export const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -151,16 +144,15 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
     const updated = await prisma.product.update({
       where: { id },
       data,
-      include: { images: true },
     });
 
     return sendSuccess(res, mapProduct(updated), "Product updated successfully");
   } catch (error) {
-    return next(error);
+    return sendServerError(res, "Failed to update product", error);
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -183,6 +175,6 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
 
     return sendSuccess(res, null, "Product deleted successfully");
   } catch (error) {
-    return next(error);
+    return sendServerError(res, "Failed to delete product", error);
   }
 };

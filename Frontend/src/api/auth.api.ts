@@ -14,7 +14,6 @@ export const authApi = apiSlice.injectEndpoints({
         method: "POST",
         body: credentials,
       }),
-      invalidatesTags: ["Auth"],
     }),
     login: builder.mutation<
       IAPIResponse<{ token: string; user: IUser }>,
@@ -25,7 +24,6 @@ export const authApi = apiSlice.injectEndpoints({
         method: "POST",
         body: credentials,
       }),
-      invalidatesTags: ["Auth"],
     }),
   }),
 });

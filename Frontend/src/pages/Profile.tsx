@@ -1,5 +1,4 @@
 import { useState } from "react";
-import clsx from "clsx";
 import {
   CircleUser,
   Camera,
@@ -12,8 +11,8 @@ import {
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Input } from "@/components/ui/Input";
-import { EUserRole } from "@/types/entities/user.types";
-
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 export default function Profile() {
   // Read auth data from localStorage
@@ -45,10 +44,8 @@ export default function Profile() {
     : "غير متوفر";
 
   return (
-    <div className={clsx(
-      "min-h-screen flex flex-col",
-      user.role === EUserRole.Customer && "bg-linear-to-br from-bg-cream via-bg-cream to-accent-light"
-    )}>
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-bg-cream via-bg-cream to-accent-light overflow-x-hidden">
+      <Header />
 
       <main className="flex-1 py-8 sm:py-12 px-4" dir="rtl">
         <div className="max-w-4xl mx-auto">
@@ -180,10 +177,8 @@ export default function Profile() {
                       }
                     />
                   </div>
-
-                  <div
-                    className={`pt-6 border-t-2 border-accent-light mt-10 ${isEditing ? "" : "hidden"}`}
-                  >
+                  
+                  <div className={`pt-6 border-t-2 border-accent-light mt-10 ${isEditing ? "" : "hidden"}`}>
                     <h3 className="text-lg text-text-dark mb-6 flex items-center gap-2">
                       <Lock className="w-5 h-5 text-primary" />
                       تغيير كلمة المرور
@@ -271,6 +266,7 @@ export default function Profile() {
         </div>
       </main>
 
+      <Footer />
     </div>
   );
 }
