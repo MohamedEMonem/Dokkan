@@ -19,11 +19,11 @@ const Categories: React.FC = () => {
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-br from-[#FAF8F5] to-[#EBD8B7]">
+    <section className="py-16 bg-linear-to-br from-bg-cream to-accent-light">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl text-[#2B2B2B] mb-4">تسوّق حسب التصنيف</h2>
-          <p className="text-lg text-[#6B6B6B]">اكتشف آلاف المنتجات في تصنيفات متنوعة</p>
+          <h2 className="text-3xl text-text-dark mb-4">تسوّق حسب التصنيف</h2>
+          <p className="text-lg text-text-muted">اكتشف آلاف المنتجات في تصنيفات متنوعة</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
@@ -31,14 +31,14 @@ const Categories: React.FC = () => {
             <div
               key={category.id}
               data-slot="card"
-              className="bg-white text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-[#EBD8B7] hover:border-[#C49A6C] hover:shadow-lg transition-all cursor-pointer group"
+              className="bg-white text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-accent-light hover:border-accent hover:shadow-lg transition-all cursor-pointer group"
             >
-              <div data-slot="card-content" className="[&:last-child]:pb-6 p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#005B7F] to-[#007AA3] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+              <div data-slot="card-content" className="last:pb-6 p-6 text-center">
+                <div className="w-16 h-16 bg-linear-to-br from-primary to-primary-light rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                   <category.icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-sm mb-1 text-[#2B2B2B] group-hover:text-[#005B7F] transition-colors">{category.title}</h3>
-                <p className="text-xs text-[#6B6B6B]">{category.count}</p>
+                <h3 className="text-sm mb-1 text-text-dark group-hover:text-primary transition-colors">{category.title}</h3>
+                <p className="text-xs text-text-muted">{category.count}</p>
               </div>
             </div>
           ))}

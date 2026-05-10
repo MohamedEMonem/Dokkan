@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 
 const Hero: React.FC = () => {
   return (
-    <section className="bg-gradient-to-l from-primary via-primary-light to-primary text-white py-20">
+    <section className="bg-linear-to-l from-primary via-primary-light to-primary text-white py-20">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -40,13 +40,13 @@ const Hero: React.FC = () => {
           </div>
           
           <div className="relative hidden md:block">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl h-[450px]">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl h-110">
               <img 
                 src="https://images.unsplash.com/photo-1758522484646-c8694d1784fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYXB0b3AlMjBvbmxpbmUlMjBzaG9wcGluZ3xlbnwxfHx8fDE3NjIxMTQ1NDZ8MA&ixlib=rb-4.1.0&q=80&w=1080" 
                 alt="سوق المحلات - منصة تجارة إلكترونية مصرية" 
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/20 to-transparent flex flex-col justify-end p-6 text-right">
+              <div className="absolute inset-0 bg-linear-to-t from-primary/70 via-primary/20 to-transparent flex flex-col justify-end p-6 text-right">
                 <div className="flex items-center justify-end gap-2 mb-2">
                   <span className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 gap-1 overflow-hidden border-transparent bg-accent text-white border-none">
                     منصة موثوقة

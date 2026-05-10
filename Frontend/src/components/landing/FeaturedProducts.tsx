@@ -98,10 +98,10 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-3xl text-[#2B2B2B] mb-2">المنتجات المميزة</h2>
-            <p className="text-lg text-[#6B6B6B]">أفضل المنتجات المختارة لك</p>
+            <h2 className="text-3xl text-text-dark mb-2">المنتجات المميزة</h2>
+            <p className="text-lg text-text-muted">أفضل المنتجات المختارة لك</p>
           </div>
-          <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all outline-none border-2 border-[#005B7F] text-[#005B7F] hover:bg-[#005B7F] hover:text-white h-9 px-4 py-2">
+          <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all outline-none border-2 border-primary text-primary hover:bg-primary hover:text-white h-9 px-4 py-2">
             عرض الكل
             <ChevronLeft className="w-5 h-5 mr-2" />
           </button>
@@ -112,8 +112,8 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
             {products.slice(0, 4).map((product) => {
               const isFav = favoriteItems?.some(fav => fav.id === product.id);
               return (
-                <div key={product.id} className="group border-2 border-[#EBD8B7] hover:border-[#C49A6C] hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col bg-white rounded-xl">
-                  <div className="relative h-32 w-full overflow-hidden bg-[#FAF8F5]">
+                <div key={product.id} className="group border-2 border-accent-light hover:border-accent transition-all hover:shadow-xl duration-300 overflow-hidden h-full flex flex-col bg-white rounded-xl">
+                  <div className="relative h-32 w-full overflow-hidden bg-bg-cream">
                     <img 
                       src={product.image} 
                       alt={product.title} 
@@ -125,29 +125,29 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
                     >
                       <Heart 
                         size={14} 
-                        className={isFav ? "text-[#ff4757] fill-[#ff4757]" : "text-[#C49A6C]"} 
+                        className={isFav ? "text-[#ff4757] fill-[#ff4757]" : "text-accent"} 
                       />
                     </button>
                   </div>
                   
                   <div className="flex-1 flex flex-col p-3">
-                    <p className="text-xs text-[#6B6B6B] mb-1 line-clamp-1">{product.name}</p>
-                    <h3 className="text-[#2B2B2B] mb-2 group-hover:text-[#005B7F] transition-colors line-clamp-2 text-sm leading-tight min-h-[2.5rem]">
+                    <p className="text-xs text-text-muted mb-1 line-clamp-1">{product.name}</p>
+                    <h3 className="text-text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2 text-sm leading-tight min-h-10">
                       {product.title}
                     </h3>
                     
                     <div className="flex items-center gap-1.5 mb-2">
                       <div className="flex items-center gap-0.5">
-                        <Star className="w-3 h-3 fill-[#C49A6C] text-[#C49A6C]" />
-                        <span className="text-[#2B2B2B] text-xs">{product.rating}</span>
+                        <Star className="w-3 h-3 fill-accent text-accent" />
+                        <span className="text-text-dark text-xs">{product.rating}</span>
                       </div>
-                      <span className="text-[#6B6B6B] text-xs">({product.reviews})</span>
+                      <span className="text-text-muted text-xs">({product.reviews})</span>
                     </div>
                     
                     <div className="flex items-center justify-between gap-2 mt-auto">
-                      <span className="text-[#005B7F] text-sm">{product.price}</span>
+                      <span className="text-primary text-sm">{product.price}</span>
                       <button 
-                        className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-all bg-[#005B7F] hover:bg-[#004A66] text-white h-8 px-3 text-xs rounded-lg gap-1.5"
+                        className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-all bg-primary hover:bg-primary-dark text-white h-8 px-3 text-xs rounded-lg gap-1.5"
                         onClick={() => addToCart(product)}
                       >
                         <ShoppingCart className="w-3.5 h-3.5 ml-1" />
@@ -160,10 +160,10 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
             })}
           </div>
           
-          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 right-0 border-2 border-[#005B7F] text-[#005B7F] hover:bg-[#005B7F] hover:text-white shadow-lg flex items-center justify-center transition-all">
+          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 right-0 border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-lg flex items-center justify-center transition-all">
             <ArrowLeft size={24} />
           </button>
-          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 left-0 border-2 border-[#005B7F] text-[#005B7F] hover:bg-[#005B7F] hover:text-white shadow-lg flex items-center justify-center transition-all">
+          <button className="absolute size-12 rounded-full top-1/2 -translate-y-1/2 left-0 border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-lg flex items-center justify-center transition-all">
             <ArrowRight size={24} />
           </button>
         </div>
