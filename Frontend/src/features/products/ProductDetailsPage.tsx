@@ -215,7 +215,9 @@ export function ProductDetailsPage() {
                 <Button
                   onClick={() => handleToggleFavorite()}
                   variant={isFavorite ? "primary" : "outline-accent"}
-                  className={`h-10! flex-1`}
+                  className={`h-10! flex-1 rounded-lg border! outline-none! text-sm! lg:text-base! ${
+                    isFavorite ? "text-white!" : "text-black! hover:text-white!"
+                  }`}
                 >
                   <Heart
                     size={16}
@@ -227,7 +229,7 @@ export function ProductDetailsPage() {
                 <Button
                   onClick={() => handleViewStore(product.storeId)}
                   variant="outline-accent"
-                  className="h-10! flex-1"
+                  className="h-10! flex-1 rounded-lg text-black! border! outline-none! text-sm! lg:text-base! hover:text-white!"
                 >
                   <Store size={16} className="ml-2" />
                   عرض المتجر
