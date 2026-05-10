@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/profile"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      const json = pm.response.json();
+      pm.test('Status 200', () => pm.response.to.have.status(200));
+      pm.test('Has all fields', () => {
+          const u = json.data.user;
+          pm.expect(u).to.have.all.keys('id','email','name','role','contactNumber','profilePhotoUrl','isVerified','createdAt');
+      });
+    language: text/javascript
+order: 1000
