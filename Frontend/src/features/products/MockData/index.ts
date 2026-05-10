@@ -185,3 +185,14 @@ export const mockRelatedProducts: RelatedProductItem[] = [
       "https://images.unsplash.com/photo-1640955014216-75201056c829?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnYW1pbmclMjBsYXB0b3B8ZW58MXx8fHwxNzYyMDk4NzM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
   },
 ];
+
+/* ────────────────────────────────────────────────────────
+ * Shipping Info Mock Data
+ * ──────────────────────────────────────────────────────── */
+
+export const mockShippingInfo = {
+  standardShipping: "5-7",
+  expressShipping: "2-3",
+  freeShippingThreshold: 500,
+  returnPolicyDays: 30,
+};

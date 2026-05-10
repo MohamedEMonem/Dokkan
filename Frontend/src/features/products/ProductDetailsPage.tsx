@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/Button";
 import { useState, useEffect } from "react";
 import { Store, Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
 import { showNotification } from "@/utils/showNotification";
-import { mockReviewsData, mockRelatedProducts } from "./MockData";
+import {
+  mockReviewsData,
+  mockRelatedProducts,
+  mockShippingInfo,
+} from "./MockData";
 import ReviewCard from "./components/ReviewCard";
 import { Card } from "@/components/ui/Card";
 
@@ -340,10 +344,12 @@ export function ProductDetailsPage() {
             >
               <h3 className="mb-4">معلومات الشحن</h3>
               <div className="space-y-4 text-gray-600">
-                <p>• الشحن العادي: 5-7 أيام عمل</p>
-                <p>• الشحن السريع: 2-3 أيام عمل</p>
-                <p>• شحن مجاني للطلبات فوق 500 ج.م</p>
-                <p>• سياسة إرجاع خلال 30 يوم</p>
+                <p>• الشحن العادي: {mockShippingInfo.standardShipping} أيام عمل</p>
+                <p>• الشحن السريع: {mockShippingInfo.expressShipping} أيام عمل</p>
+                <p>
+                  • شحن مجاني للطلبات فوق {mockShippingInfo.freeShippingThreshold} ج.م
+                </p>
+                <p>• سياسة إرجاع خلال {mockShippingInfo.returnPolicyDays} يوم</p>
               </div>
             </div>
           </div>
