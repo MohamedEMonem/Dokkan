@@ -1,8 +1,11 @@
 import React from 'react';
 import { Store } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useNavigate } from 'react-router-dom';
 
 const SellerCTA: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="py-20 bg-linear-to-l from-primary to-primary-light text-white">
       <div className="container mx-auto px-4 text-center">
@@ -17,6 +20,7 @@ const SellerCTA: React.FC = () => {
                 variant="hero"
                 icon={<Store className="w-6 h-6 ml-2" />}
                 className="px-12 text-xl rounded-xl hover:bg-accent-light"
+                onClick={() => navigate('/auth/register')}
               >
                 ابدأ البيع الآن
               </Button>
@@ -25,6 +29,7 @@ const SellerCTA: React.FC = () => {
               <Button
                 variant="outline-white"
                 className="px-12 text-xl rounded-xl transition-all duration-300 bg-white! text-primary! hover:bg-primary! hover:text-white!"
+                onClick={() => navigate('/contact')}
               >
                 تواصل معنا
               </Button>
