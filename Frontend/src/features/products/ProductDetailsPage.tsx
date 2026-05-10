@@ -15,7 +15,7 @@ export function ProductDetailsPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "description" | "reviews" | "shipping"
-  >("description");
+  >("shipping");
 
   const { data, isLoading, isError } = useGetProductByIdQuery(
     { id: id ?? "" },
@@ -38,9 +38,9 @@ export function ProductDetailsPage() {
   const productReviews = 187; // mock number, replace with actual count from API when available
 
   const TABS = [
-    { id: "description", label: "الوصف" },
-    { id: "reviews", label: `التقييمات (${productReviews})` },
     { id: "shipping", label: "معلومات الشحن" },
+    { id: "reviews", label: `التقييمات (${productReviews})` },
+    { id: "description", label: "الوصف" },
   ] as const;
 
   type TabId = (typeof TABS)[number]["id"];
@@ -183,7 +183,7 @@ export function ProductDetailsPage() {
                     onClick={() =>
                       cartCount > minCount && setCartCount(cartCount - 1)
                     }
-                    className={`w-9! h-9! border-0! ${cartCount <= minCount ? "cursor-not-allowed opacity-50" : ""}`}
+                    className={`w-9! h-9! border-0! text-black ${cartCount <= minCount ? "cursor-not-allowed opacity-50" : ""}`}
                     variant="outline-accent"
                     icon={<Minus size={16} />}
                     disabled={cartCount <= minCount}
@@ -195,7 +195,7 @@ export function ProductDetailsPage() {
                     onClick={() =>
                       cartCount < maxCount && setCartCount(cartCount + 1)
                     }
-                    className={`w-9! h-9! border-0! ${cartCount >= maxCount ? "cursor-not-allowed opacity-50" : ""}`}
+                    className={`w-9! h-9! border-0! text-black ${cartCount >= maxCount ? "cursor-not-allowed opacity-50" : ""}`}
                     variant="outline-accent"
                     icon={<Plus size={16} />}
                     disabled={cartCount >= maxCount}
@@ -245,7 +245,7 @@ export function ProductDetailsPage() {
             onKeyDown={(e) => {
               // basic keyboard support: left/right arrows
               if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-                const order = ["description", "reviews", "shipping"] as const;
+                const order = ["shipping", "reviews", "description"] as const;
                 const idx = order.indexOf(activeTab);
                 const next =
                   e.key === "ArrowRight"
@@ -258,7 +258,7 @@ export function ProductDetailsPage() {
             <div
               role="tablist"
               aria-orientation="horizontal"
-              className="bg-accent-light flex h-9 w-fit items-center justify-center rounded-2xl p-0.75 text-sm"
+              className="bg-accent-light flex h-11 w-fit items-center justify-center rounded-2xl p-1 text-sm ml-auto"
             >
               {TABS.map(({ id, label }) => {
                 const isActive = activeTab === id;
@@ -273,10 +273,10 @@ export function ProductDetailsPage() {
                     onClick={() => setActiveTab(id as TabId)}
                     tabIndex={isActive ? 0 : -1}
                     className={[
-                      "mx-1! px-1! text-black! border-none! focus:outline-none! focus:ring-0! focus-visible:outline-none! focus-visible:ring-0!",
+                      "mx-1! px-4! h-full! text-black! border-none! focus:outline-none! focus:ring-0! focus-visible:outline-none! focus-visible:ring-0! transition-all duration-200",
                       isActive
                         ? "bg-white! outline! outline-primary! shadow-sm!"
-                        : "border-none! outline-none! ",
+                        : "border-none! outline-none! hover:bg-white/30! ",
                     ].join(" ")}
                   >
                     {label}
