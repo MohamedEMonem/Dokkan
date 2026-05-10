@@ -122,10 +122,13 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
                     <button 
                       className="absolute top-2 left-2 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors"
                       onClick={() => toggleFavorite(product)}
+                      aria-label={isFav ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                      aria-pressed={isFav}
                     >
                       <Heart 
                         size={14} 
                         className={isFav ? "text-[#ff4757] fill-[#ff4757]" : "text-accent"} 
+                        aria-hidden="true"
                       />
                     </button>
                   </div>
