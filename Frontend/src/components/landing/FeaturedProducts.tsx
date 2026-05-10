@@ -117,14 +117,14 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
           </div>
         </div>
 
-        <div className="relative px-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="relative md:px-16 px-0">
+          <div className="flex overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 pb-4 md:pb-0 snap-x snap-mandatory">
             {products.slice(0, 4).map((product) => {
               const isFav = favoriteItems?.some(fav => fav.id === product.id);
               return (
                 <Card 
                   key={product.id} 
-                  className="group hover:shadow-xl duration-300 h-full flex flex-col cursor-pointer"
+                  className="group hover:shadow-xl duration-300 h-full flex flex-col cursor-pointer min-w-72 md:min-w-0 snap-center shrink-0"
                   onClick={() => navigate(`/products/${product.id}`)}
                 >
                   <div className="relative h-32 w-full overflow-hidden bg-bg-cream">
@@ -189,12 +189,12 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
           
           <Button 
             variant="secondary"
-            className="absolute size-12! rounded-full! top-1/2 -translate-y-1/2 right-0 shadow-lg p-0!"
+            className="hidden md:flex absolute size-12! rounded-full! top-1/2 -translate-y-1/2 right-0 shadow-lg p-0!"
             icon={<ArrowRight size={24} />}
           />
           <Button 
             variant="secondary"
-            className="absolute size-12! rounded-full! top-1/2 -translate-y-1/2 left-0 shadow-lg p-0!"
+            className="hidden md:flex absolute size-12! rounded-full! top-1/2 -translate-y-1/2 left-0 shadow-lg p-0!"
             icon={<ArrowLeft size={24} />}
           />
         </div>
