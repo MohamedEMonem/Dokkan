@@ -1,11 +1,13 @@
 import express from "express";
-import { auth, authLimiter } from "../middleware/auth.js";
+import { auth, authLimiter, refreshLimiter } from "../middleware/auth.js";
 import {
   deleteAccount,
   getProfile,
   login,
   patchProfile,
   register,
+  refresh,
+  logout,
   verifyOtp,
   resendOtp,
 } from "../modules/auth/auth.controller.js";
@@ -77,6 +79,31 @@ router.post(
      #swagger.responses[500] = { description: 'Internal server error' }
   */
   login,
+);
+
+router.post(
+  "/refresh",
+  refreshLimiter,
+  /* #swagger.tags = ['Auth']
+     #swagger.summary = 'Refresh access token'
+     #swagger.description = 'Rotates the refresh token (from HTTP-only cookie) and returns a fresh access token.'
+     #swagger.responses[200] = { description: 'Token refreshed successfully' }
+     #swagger.responses[401] = { description: 'Missing, invalid, expired, or revoked refresh token' }
+     #swagger.responses[429] = { description: 'Too many refresh attempts' }
+     #swagger.responses[500] = { description: 'Internal server error' }
+  */
+  refresh,
+);
+
+router.post(
+  "/logout",
+  /* #swagger.tags = ['Auth']
+     #swagger.summary = 'Logout user'
+     #swagger.description = 'Revokes current refresh token session (if present) and clears refresh cookie.'
+     #swagger.responses[200] = { description: 'Logged out successfully' }
+     #swagger.responses[500] = { description: 'Internal server error' }
+  */
+  logout,
 );
 
 // Authenticated profile endpoints

@@ -13,13 +13,13 @@ export const validateBody = (schema: ZodTypeAny) => {
           message: issue.message,
         }));
 
-        return res.status(400).json({
-          message: 'Validation failed',
-          errors: formattedErrors,
-        });
+        const err: any = new Error('Validation failed');
+        err.status = 422;
+        err.details = formattedErrors;
+        return next(err);
       }
 
-      next(error);
+      return next(error);
     }
   };
 };
