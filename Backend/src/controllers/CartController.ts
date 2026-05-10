@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import * as CartService from "../services/CartService.js";
 import {
   sendError,
@@ -18,16 +18,16 @@ const updateItemSchema = z.object({
   quantity: z.coerce.number().int().min(0, "quantity must be 0 or more"),
 });
 
-export const getCart = async (req: Request, res: Response) => {
+export const getCart = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const cart = await CartService.getCart(req.user!.id);
     return sendSuccess(res, cart, "Cart retrieved successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to retrieve cart", error);
+    return next(error);
   }
 };
 
-export const addItem = async (req: Request, res: Response) => {
+export const addItem = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validation = addItemSchema.safeParse(req.body);
     if (!validation.success) {
@@ -41,16 +41,20 @@ export const addItem = async (req: Request, res: Response) => {
   } catch (error) {
     const cause = error as Error;
     if (cause.message === "PRODUCT_NOT_FOUND") {
-      return sendNotFound(res, "Product not found or no longer available");
+      const err: any = new Error("Product not found or no longer available");
+      err.status = 404;
+      return next(err);
     }
     if (cause.message === "OUT_OF_STOCK") {
-      return sendError(res, "Product is out of stock", 409);
+      const err: any = new Error("Product is out of stock");
+      err.status = 409;
+      return next(err);
     }
-    return sendServerError(res, "Failed to add item to cart", error);
+    return next(error);
   }
 };
 
-export const updateItem = async (req: Request, res: Response) => {
+export const updateItem = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { productId } = req.params as { productId?: string };
 
@@ -70,11 +74,11 @@ export const updateItem = async (req: Request, res: Response) => {
     const message = quantity === 0 ? "Item removed from cart" : "Cart item updated";
     return sendSuccess(res, { productId, quantity }, message);
   } catch (error) {
-    return sendServerError(res, "Failed to update cart item", error);
+    return next(error);
   }
 };
 
-export const removeItem = async (req: Request, res: Response) => {
+export const removeItem = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { productId } = req.params as { productId?: string };
 
@@ -90,15 +94,15 @@ export const removeItem = async (req: Request, res: Response) => {
 
     return sendSuccess(res, null, "Item removed from cart");
   } catch (error) {
-    return sendServerError(res, "Failed to remove item from cart", error);
+    return next(error);
   }
 };
 
-export const clearCart = async (req: Request, res: Response) => {
+export const clearCart = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await CartService.clearCart(req.user!.id);
     return sendSuccess(res, null, "Cart cleared successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to clear cart", error);
+    return next(error);
   }
 };

@@ -1,0 +1,11 @@
+$kind: collection
+description: User authentication & profile CRUD endpoints for the Dokkan backend.
+variables:
+  baseUrl: http://localhost:3000/api
+  token: ""
+auth:
+  - id: 4d5d46a4-36fa-4d3a-b320-98ffe36379b7
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"

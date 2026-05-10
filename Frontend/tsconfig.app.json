@@ -23,6 +23,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "allowSyntheticDefaultImports": true,
+    "ignoreDeprecations": "6.0",
 
     "rootDir": "src",
     "outDir": "build",
