@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/profile"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "contactNumber": null
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 4000
