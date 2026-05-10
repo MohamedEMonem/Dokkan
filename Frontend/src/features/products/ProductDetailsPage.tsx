@@ -32,7 +32,6 @@ export function ProductDetailsPage() {
         setCartCount(data.data.stockQuantity);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.data?.stockQuantity]);
 
   const productReviews = 187; // mock number, replace with actual count from API when available
@@ -388,7 +387,6 @@ export function ProductDetailsPage() {
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const starsComponent = (rating: number, size: number = 20) => {
   const fullStars = Math.floor(rating);
   const halfStar = rating - fullStars >= 0.5;
