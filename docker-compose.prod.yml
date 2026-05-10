@@ -23,7 +23,7 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
       args:
-        VITE_SERVER_DEV_API_URL: ${VITE_SERVER_DEV_API_URL}
+        VITE_SERVER_API_URL: ${VITE_SERVER_API_URL}
     ports:
       - "${FRONTEND_PORT:-80}:80"
     depends_on:
