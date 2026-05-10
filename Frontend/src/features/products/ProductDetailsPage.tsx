@@ -11,6 +11,7 @@ import {
 } from "./MockData";
 import ReviewCard from "./components/ReviewCard";
 import { Card } from "@/components/ui/Card";
+import { Stars } from "./components/Stars";
 
 export function ProductDetailsPage() {
   const navigate = useNavigate();
@@ -159,7 +160,7 @@ export function ProductDetailsPage() {
                 <h1 className="mb-2">{product.title}</h1>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1">
-                    {starsComponent(4.5, 20)}
+                    <Stars rating={4.5} size={20} />
                   </div>
                   <div className="text-sm text-gray-600">4.5 (82 تقييم)</div>
                 </div>
@@ -392,36 +393,3 @@ export function ProductDetailsPage() {
     </div>
   );
 }
-
-export const starsComponent = (rating: number, size: number = 20) => {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating - fullStars >= 0.5;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
-  return (
-    <>
-      {[...Array(fullStars)].map((_, i) => (
-        <Star
-          key={`full-${i}`}
-          size={size}
-          fill="currentColor"
-          className="text-yellow-400"
-        />
-      ))}
-      {halfStar && (
-        <div className="relative inline-flex">
-          <Star size={size} className="text-yellow-400" />
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ width: "50%" }}
-          >
-            <Star size={size} fill="currentColor" className="text-yellow-400" />
-          </div>
-        </div>
-      )}
-      {[...Array(emptyStars)].map((_, i) => (
-        <Star key={`empty-${i}`} size={size} className="text-yellow-400" />
-      ))}
-    </>
-  );
-};
