@@ -1,12 +1,25 @@
 import { IReview } from "@/types/entities/review.types";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Star } from "lucide-react";
 import { formatReviewDate } from "../MockData";
-import { starsComponent } from "../ProductDetailsPage";
 
 type Props = {
   review: IReview;
   starSize?: number;
 };
+
+function starsComponent(rating: number, starSize: number) {
+  return Array.from({ length: 5 }, (_, index) => (
+    <Star
+      key={index}
+      size={starSize}
+      className={
+        index < rating
+          ? "fill-yellow-400 text-yellow-400"
+          : "text-gray-300"
+      }
+    />
+  ));
+}
 
 export default function ReviewCard({ review, starSize = 14 }: Props) {
   return (
