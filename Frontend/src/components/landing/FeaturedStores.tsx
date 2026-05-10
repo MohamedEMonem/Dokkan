@@ -1,7 +1,7 @@
 import React from 'react';
 import { Star, ArrowLeft, ArrowRight } from 'lucide-react';
-import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 interface Store {
   id: number;

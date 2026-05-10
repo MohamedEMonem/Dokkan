@@ -1,6 +1,6 @@
 import React from 'react';
 import { Smartphone, ShoppingBag, Home, Sparkles, Dumbbell, BookOpen } from 'lucide-react';
-import { Card } from '../ui/Card';
+import { Card } from '@/components/ui/Card';
 import { useNavigate } from 'react-router-dom';
 
 interface Category {
