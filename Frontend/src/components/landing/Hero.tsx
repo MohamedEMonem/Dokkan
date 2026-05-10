@@ -8,7 +8,7 @@ const Hero: React.FC = () => {
 
   return (
     <section className="bg-linear-to-l from-primary via-primary-light to-primary text-white py-20">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <span className="inline-flex items-center justify-center rounded-md border font-medium w-fit whitespace-nowrap shrink-0 gap-1 overflow-hidden border-transparent bg-accent text-white mb-4 text-base px-4 py-2">
@@ -52,11 +52,11 @@ const Hero: React.FC = () => {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-linear-to-t from-primary/70 via-primary/20 to-transparent flex flex-col justify-end p-6 text-right">
-                <div className="flex items-center justify-end gap-2 mb-2">
-                  <span className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 gap-1 overflow-hidden border-transparent bg-accent text-white border-none">
+                <div className="flex items-center justify-start gap-2 mb-2">                  
+                  <Store className="w-5 h-5 text-white" />
+                  <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 gap-1 overflow-hidden bg-linear-to-br from-accent to-accent-dark text-white border-none">
                     منصة موثوقة
                   </span>
-                  <Store className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-white text-xl mb-1 font-bold">انضم لآلاف البائعين</h3>
                 <p className="text-white/90 text-sm">

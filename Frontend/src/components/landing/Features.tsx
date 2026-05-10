@@ -5,7 +5,7 @@ import { Card } from '../ui/Card';
 const Features: React.FC = () => {
   return (
     <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="grid md:grid-cols-4 gap-8">
           <Card className="text-card-foreground flex flex-col gap-6 text-center">
             <div data-slot="card-content" className="last:pb-6 p-8">
@@ -19,7 +19,7 @@ const Features: React.FC = () => {
           
           <Card className="text-card-foreground flex flex-col gap-6 text-center">
             <div data-slot="card-content" className="last:pb-6 p-8">
-              <div className="w-16 h-16 bg-linear-to-br from-accent to-accent-light rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-linear-to-br from-accent to-accent-dark rounded-full flex items-center justify-center mx-auto mb-4">
                 <Package className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-lg mb-2 text-text-dark">دفع آمن</h3>
@@ -39,7 +39,7 @@ const Features: React.FC = () => {
           
           <Card className="text-card-foreground flex flex-col gap-6 text-center">
             <div data-slot="card-content" className="last:pb-6 p-8">
-              <div className="w-16 h-16 bg-linear-to-br from-accent to-accent-light rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-linear-to-br from-accent to-accent-dark rounded-full flex items-center justify-center mx-auto mb-4">
                 <ArrowLeft className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-lg mb-2 text-text-dark">دعم 24/7</h3>
