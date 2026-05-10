@@ -106,7 +106,7 @@ function NavItem({ label, href, route }: NavItemProps) {
 // ─── Footer ──────────────────────────────────────────────────────────────────
 export default function Footer() {
   return (
-    <footer className="bg-text-dark text-white border-t mt-auto" dir="rtl">
+    <footer className="bg-text-dark text-white border-t border-gray-800 mt-auto" dir="rtl">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand column */}

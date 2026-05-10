@@ -62,6 +62,10 @@ app.get("/api/health", (req, res) => {
 app.use("/api/stores/:storeSlug/products", resolveTenant, productRoutes);
 app.use("/api/stores/:storeSlug/categories", resolveTenant, categoryRoutes);
 app.use("/api/stores/:storeSlug/cart", resolveTenant, cartRoutes);
+// Legacy non-tenant aliases for existing clients
+app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/cart", cartRoutes);
 app.use("/api/stores", storeRouter);
 
 // app.use('/uploads',uploadRoutes);
