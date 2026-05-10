@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
 
 interface Store {
   id: number;
@@ -58,7 +59,7 @@ const FeaturedStores: React.FC = () => {
         <div className="relative px-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {stores.slice(0, 3).map((store) => (
-              <div key={store.id} className="group border-2 border-accent-light hover:border-accent transition-all hover:shadow-xl duration-300 cursor-pointer overflow-hidden h-full flex flex-col bg-white rounded-xl">
+              <Card key={store.id} className="group hover:shadow-xl duration-300 cursor-pointer h-full flex flex-col">
                 <div className="relative h-32 w-full overflow-hidden">
                   <img
                     src={store.image}
@@ -91,7 +92,7 @@ const FeaturedStores: React.FC = () => {
                     زيارة المتجر
                   </Button>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 

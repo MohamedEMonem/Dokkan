@@ -1,5 +1,7 @@
 import React from 'react';
 import { Smartphone, ShoppingBag, Home, Sparkles, Dumbbell, BookOpen } from 'lucide-react';
+import { Card } from '../ui/Card';
+import { useNavigate } from 'react-router-dom';
 
 interface Category {
   id: number;
@@ -9,6 +11,7 @@ interface Category {
 }
 
 const Categories: React.FC = () => {
+  const navigate = useNavigate();
   const categories: Category[] = [
     { id: 1, icon: Smartphone, title: 'الإلكترونيات', count: '24 منتج' },
     { id: 2, icon: ShoppingBag, title: 'الموضة والأزياء', count: '28 منتج' },
@@ -28,10 +31,10 @@ const Categories: React.FC = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {categories.map((category) => (
-            <div
+            <Card
               key={category.id}
-              data-slot="card"
-              className="bg-white text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-accent-light hover:border-accent hover:shadow-lg transition-all cursor-pointer group"
+              className="text-card-foreground flex flex-col gap-6 cursor-pointer group hover:shadow-lg"
+              onClick={() => navigate(`/products?cat=${category.id}`)}
             >
               <div data-slot="card-content" className="last:pb-6 p-6 text-center">
                 <div className="w-16 h-16 bg-linear-to-br from-primary to-primary-light rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
@@ -40,7 +43,7 @@ const Categories: React.FC = () => {
                 <h3 className="text-sm mb-1 text-text-dark group-hover:text-primary transition-colors">{category.title}</h3>
                 <p className="text-xs text-text-muted">{category.count}</p>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </div>

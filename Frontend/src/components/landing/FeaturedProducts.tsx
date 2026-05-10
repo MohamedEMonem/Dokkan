@@ -1,9 +1,11 @@
 import React from 'react';
 import { ShoppingCart, Heart, Star, ChevronLeft, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { useNavigate } from 'react-router-dom';
 
 export interface Product {
-  id: number;
+  id: string | number;
   name: string;
   title: string;
   price: string;
@@ -19,6 +21,7 @@ export interface FeaturedProductsProps {
 }
 
 const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFavorite, favoriteItems }) => {
+  const navigate = useNavigate();
   const products: Product[] = [
     {
       id: 1,
@@ -119,7 +122,11 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
             {products.slice(0, 4).map((product) => {
               const isFav = favoriteItems?.some(fav => fav.id === product.id);
               return (
-                <div key={product.id} className="group border-2 border-accent-light hover:border-accent transition-all hover:shadow-xl duration-300 overflow-hidden h-full flex flex-col bg-white rounded-xl">
+                <Card 
+                  key={product.id} 
+                  className="group hover:shadow-xl duration-300 h-full flex flex-col cursor-pointer"
+                  onClick={() => navigate(`/products/${product.id}`)}
+                >
                   <div className="relative h-32 w-full overflow-hidden bg-bg-cream">
                     <img 
                       src={product.image} 
@@ -129,7 +136,10 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
                     <Button                       
                       variant="secondary"
                       className="absolute top-2 left-2 w-7! h-7! bg-white/90! hover:bg-white! rounded-full! shadow-md transition-colors p-0! border-0!"
-                      onClick={() => toggleFavorite(product)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(product);
+                      }}
                       aria-label={isFav ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
                       aria-pressed={isFav}
                       icon={<Heart 
@@ -160,7 +170,10 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
                       <div className="flex">
                         <Button 
                           className="h-8! px-3 text-xs gap-1.5"
-                          onClick={() => addToCart(product)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(product);
+                          }}
                           icon={<ShoppingCart className="w-3.5 h-3.5" />}
                           iconPos='right'
                         >
@@ -169,7 +182,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ addToCart, toggleFa
                       </div>
                     </div>
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
