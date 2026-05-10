@@ -1,5 +1,6 @@
 node_modules
 dist
+dist-ssr
 .env
 .env.*
 npm-debug.log*
@@ -9,6 +10,3 @@ yarn-error.log*
 .git
 .gitignore
 .vscode
-docker-compose*.yml
-README.md
-docs
