@@ -2,7 +2,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useGetProductByIdQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
 import { useState, useEffect } from "react";
-import { Store, Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
+import { Store, Heart, ShoppingCart, Minus, Plus } from "lucide-react";
 import { showNotification } from "@/utils/showNotification";
 import {
   mockReviewsData,
