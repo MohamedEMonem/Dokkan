@@ -11,6 +11,7 @@ COPY prisma ./prisma
 COPY prisma.config.js ./
 RUN npx prisma generate
 
+COPY swagger-output.json ./
 COPY . .
 RUN npm run build
 RUN dos2unix docker/startup.sh && chmod +x docker/startup.sh
@@ -33,6 +34,7 @@ COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+COPY --from=build /app/swagger-output.json ./swagger-output.json
 COPY --from=build /app/docker ./docker
 
 RUN dos2unix docker/startup.sh && chmod +x docker/startup.sh
