@@ -1,6 +1,24 @@
 #!/usr/bin/env sh
 set -eu
 
+POSTGRES_HOST="${POSTGRES_HOST:-}"
+POSTGRES_PORT="${POSTGRES_PORT:-}"
+
+if [ -z "$POSTGRES_HOST" ] || [ -z "$POSTGRES_PORT" ]; then
+  if [ -n "${DATABASE_URL:-}" ]; then
+    HOSTPORT=$(printf '%s' "$DATABASE_URL" | sed -E 's|^[^@]+@||' | sed -E 's|/.*$||')
+    if [ -z "$POSTGRES_HOST" ]; then
+      POSTGRES_HOST=$(printf '%s' "$HOSTPORT" | sed -E 's|:.*$||')
+    fi
+    if [ -z "$POSTGRES_PORT" ]; then
+      PORT_PART=$(printf '%s' "$HOSTPORT" | sed -E 's|^[^:]+:?||')
+      if [ -n "$PORT_PART" ] && [ "$PORT_PART" != "$HOSTPORT" ]; then
+        POSTGRES_PORT="$PORT_PART"
+      fi
+    fi
+  fi
+fi
+
 POSTGRES_HOST="${POSTGRES_HOST:-postgres}"
 POSTGRES_PORT="${POSTGRES_PORT:-5432}"
 RETRIES="${DB_WAIT_RETRIES:-60}"
@@ -24,8 +42,7 @@ if find prisma/migrations -type f -name '*.sql' | grep -q '.'; then
   printf '%s\n' "Applying committed Prisma migrations..."
   npx prisma migrate deploy
 else
-  printf '%s\n' "No committed Prisma SQL migrations found. Syncing schema with prisma db push..."
-  npx prisma db push
+  printf '%s\n' "No committed Prisma SQL migrations found. Skipping migrate deploy."
 fi
 
 if [ "${AUTO_SEED:-true}" = "true" ]; then
@@ -36,4 +53,4 @@ else
 fi
 
 printf '%s\n' "Starting backend server..."
-exec npm run dev
+exec npm run start

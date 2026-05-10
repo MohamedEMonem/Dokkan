@@ -1,1 +1,3 @@
 docs/
+.env*
+docker-compose.smoke.yml
