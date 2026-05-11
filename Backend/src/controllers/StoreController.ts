@@ -27,8 +27,27 @@ try{
     return next(err);
 }
 }
-export const getStore = async (req: Request, res: Response)=>{
+export const getStore = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const currentUserId = (req as Request & { user?: { id: string } }).user?.id;
+        
+        if (!currentUserId) {
+            return sendError(res, "Unauthorized", 401);
+        }
 
+        const userWithStores = await storeService.getUserwithStores(currentUserId);
+        
+        if (!userWithStores || userWithStores.ownedStores.length === 0) {
+            return sendError(res, "No store found for this user", 404);
+        }
 
-
+        const storeInfo = userWithStores.ownedStores[0];
+        
+        return sendSuccess(res, { store: storeInfo }, "Store fetched successfully", 200);
+    } catch (error) {
+        const cause = error as Error & { statusCode?: number };
+        const err: any = new Error(cause.message || "Failed to fetch store");
+        err.status = cause.statusCode || 500;
+        return next(err);
+    }
 }
