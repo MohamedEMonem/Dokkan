@@ -45,6 +45,8 @@ jobs:
           context: ./Frontend
           file: ./Frontend/Dockerfile
           push: true
+          build-args: |
+            VITE_SERVER_API_URL=${{ secrets.VITE_SERVER_API_URL }}
           tags: |
             ${{ env.GHCR_REPOSITORY_FRONTEND }}:${{ github.sha }}
             ${{ env.GHCR_REPOSITORY_FRONTEND }}:latest
