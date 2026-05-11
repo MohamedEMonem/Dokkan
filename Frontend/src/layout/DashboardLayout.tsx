@@ -1,8 +1,14 @@
 import { Outlet } from "react-router-dom";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import { useGetStoreQuery } from "@/api/store.api";
 
 export default function DashboardLayout() {
-  const storeName = "storey"; // To be changed
+  const { data, isLoading } = useGetStoreQuery();
+  const storeName = data?.data?.store?.name || "متجري";
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">جاري التحميل...</div>;
+  }
 
   return (
     <div
