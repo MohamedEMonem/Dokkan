@@ -19,6 +19,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -64,3 +69,20 @@ jobs:
             docker compose -f docker-compose.prod.yml up -d
             docker compose -f docker-compose.prod.yml exec -T backend npx prisma migrate deploy
             docker image prune -f
+
+      - name: Rollback on failure
+        if: failure()
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_SSH_PORT }}
+          script: |
+            cd /opt/dokkan
+            BACKEND_IMAGE=${{ env.GHCR_REPOSITORY_BACKEND }}:${{ github.event.before }} \
+            FRONTEND_IMAGE=${{ env.GHCR_REPOSITORY_FRONTEND }}:${{ github.event.before }} \
+            docker compose -f docker-compose.prod.yml pull
+            BACKEND_IMAGE=${{ env.GHCR_REPOSITORY_BACKEND }}:${{ github.event.before }} \
+            FRONTEND_IMAGE=${{ env.GHCR_REPOSITORY_FRONTEND }}:${{ github.event.before }} \
+            docker compose -f docker-compose.prod.yml up -d
