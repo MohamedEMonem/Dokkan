@@ -7,6 +7,7 @@ import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useGetProductsByStoreIdQuery, useDeleteProductMutation } from "@/api/product.api";
+import { useGetStoreQuery } from "@/api/store.api";
 import { sortBy } from "@/utils/sorting";
 import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
 import { IProduct } from "@/types/entities/product.types";
@@ -20,10 +21,13 @@ export function Products() {
     type?: "number" | "date";
   } | null>(null);
 
-  const testStoreId = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // To be changed later
-  const { data: response, isLoading } = useGetProductsByStoreIdQuery(testStoreId);
+  const { data: storeData, isLoading: isStoreLoading } = useGetStoreQuery();
+  const storeId = storeData?.data?.store?.id || "";
+
+  const { data: response, isLoading: isProductsLoading } = useGetProductsByStoreIdQuery(storeId, { skip: !storeId });
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const products = response?.data || [];
+  const isLoading = isStoreLoading || isProductsLoading;
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<IProduct | null>(null);
