@@ -60,30 +60,47 @@ jobs:
 
       - name: SSH deploy
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_SSH_PORT }}
+          envs: GITHUB_TOKEN,GITHUB_ACTOR
           script: |
+            # 1. Login to GHCR on the EC2 server
+            echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+            
             cd /opt/dokkan
-            # Export image names so docker-compose can use them
+            
+            # 2. Set image names
             export BACKEND_IMAGE=${{ env.GHCR_REPOSITORY_BACKEND }}:latest
             export FRONTEND_IMAGE=${{ env.GHCR_REPOSITORY_FRONTEND }}:latest
+            
+            # 3. Pull and Start
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d
+            
+            # 4. Cleanup and Migrations
             docker compose -f docker-compose.prod.yml exec -T backend npx prisma migrate deploy
             docker image prune -f
 
       - name: Rollback on failure
         if: failure()
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_SSH_PORT }}
+          envs: GITHUB_TOKEN,GITHUB_ACTOR
           script: |
+            echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
             cd /opt/dokkan
             export BACKEND_IMAGE=${{ env.GHCR_REPOSITORY_BACKEND }}:${{ github.event.before }}
             export FRONTEND_IMAGE=${{ env.GHCR_REPOSITORY_FRONTEND }}:${{ github.event.before }}
