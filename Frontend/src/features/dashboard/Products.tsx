@@ -21,13 +21,14 @@ export function Products() {
     type?: "number" | "date";
   } | null>(null);
 
-  const { data: storeData, isLoading: isStoreLoading } = useGetStoreQuery();
+  const { data: storeData, isLoading: isStoreLoading, isError: isStoreError } = useGetStoreQuery();
   const storeId = storeData?.data?.store?.id || "";
 
   const { data: response, isLoading: isProductsLoading } = useGetProductsByStoreIdQuery(storeId, { skip: !storeId });
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const products = response?.data || [];
-  const isLoading = isStoreLoading || isProductsLoading;
+  // Only show loading if store is loading AND hasn't errored — avoids infinite spinner
+  const isLoading = (isStoreLoading && !isStoreError) || isProductsLoading;
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<IProduct | null>(null);

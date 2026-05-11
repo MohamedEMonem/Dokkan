@@ -3,10 +3,11 @@ import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { useGetStoreQuery } from "@/api/store.api";
 
 export default function DashboardLayout() {
-  const { data, isLoading } = useGetStoreQuery();
+  const { data, isLoading, isError } = useGetStoreQuery();
   const storeName = data?.data?.store?.name || "متجري";
 
-  if (isLoading) {
+  // Only block on first load — never block if there's an error (e.g. 401, 404)
+  if (isLoading && !isError) {
     return <div className="min-h-screen flex items-center justify-center">جاري التحميل...</div>;
   }
 
