@@ -38,11 +38,12 @@ while [ "$i" -le "$RETRIES" ]; do
   sleep 2
 done
 
-if find prisma/migrations -type f -name '*.sql' | grep -q '.'; then
+if [ -d "prisma/migrations" ] && find prisma/migrations -type f -name '*.sql' | grep -q '.'; then
   printf '%s\n' "Applying committed Prisma migrations..."
   npx prisma migrate deploy
 else
-  printf '%s\n' "No committed Prisma SQL migrations found. Skipping migrate deploy."
+  printf '%s\n' "No committed Prisma SQL migrations found. Pushing schema directly..."
+  npx prisma db push --accept-data-loss
 fi
 
 if [ "${AUTO_SEED:-true}" = "true" ]; then
