@@ -144,7 +144,7 @@ export const authStoreOwner = async (
 
 export const authLimiter = rateLimit({
   windowMs: 30 * 60 * 1000, // 30 minutes
-  max: 5, // Strict: Only 5 attempts allowed per IP
+  max: 15, // Strict: Only 15 attempts allowed per IP
   handler: (req, res) => {
     sendRateLimitExceeded(
       res,
