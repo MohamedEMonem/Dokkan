@@ -10,8 +10,9 @@ permissions:
   packages: write
 
 env:
-  GHCR_REPOSITORY_BACKEND: ghcr.io/${{ github.repository_owner }}/dokkan-backend
-  GHCR_REPOSITORY_FRONTEND: ghcr.io/${{ github.repository_owner }}/dokkan-frontend
+  # Docker requires lowercase repository names
+  GHCR_REPOSITORY_BACKEND: ghcr.io/abdelrahmanmnaser/dokkan-backend
+  GHCR_REPOSITORY_FRONTEND: ghcr.io/abdelrahmanmnaser/dokkan-frontend
 
 jobs:
   build-and-deploy:
@@ -66,6 +67,9 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT }}
           script: |
             cd /opt/dokkan
+            # Export image names so docker-compose can use them
+            export BACKEND_IMAGE=${{ env.GHCR_REPOSITORY_BACKEND }}:latest
+            export FRONTEND_IMAGE=${{ env.GHCR_REPOSITORY_FRONTEND }}:latest
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d
             docker compose -f docker-compose.prod.yml exec -T backend npx prisma migrate deploy
@@ -81,9 +85,7 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT }}
           script: |
             cd /opt/dokkan
-            BACKEND_IMAGE=${{ env.GHCR_REPOSITORY_BACKEND }}:${{ github.event.before }} \
-            FRONTEND_IMAGE=${{ env.GHCR_REPOSITORY_FRONTEND }}:${{ github.event.before }} \
+            export BACKEND_IMAGE=${{ env.GHCR_REPOSITORY_BACKEND }}:${{ github.event.before }}
+            export FRONTEND_IMAGE=${{ env.GHCR_REPOSITORY_FRONTEND }}:${{ github.event.before }}
             docker compose -f docker-compose.prod.yml pull
-            BACKEND_IMAGE=${{ env.GHCR_REPOSITORY_BACKEND }}:${{ github.event.before }} \
-            FRONTEND_IMAGE=${{ env.GHCR_REPOSITORY_FRONTEND }}:${{ github.event.before }} \
             docker compose -f docker-compose.prod.yml up -d
