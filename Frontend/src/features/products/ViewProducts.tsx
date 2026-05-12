@@ -43,6 +43,7 @@ export const ViewProducts = () => {
 
   useEffect(() => {
     if (categoryParam) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilters((prev) => ({ ...prev, category: categoryParam }));
     } else {
       setFilters((prev) => ({ ...prev, category: "all" }));

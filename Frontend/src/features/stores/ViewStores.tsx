@@ -13,41 +13,56 @@ const sortConfigs: Record<
   { key: string; order: "asc" | "desc"; type?: "number" | "date" }
 > = {
   special: { key: "isFeatured", order: "desc", type: "number" },
-  newest: { key: "createdAt", order: "desc", type: "date" },
-  highest_rated: { key: "rating", order: "desc", type: "number" },
+  new: { key: "createdAt", order: "desc", type: "date" },
+  top: { key: "rating", order: "desc", type: "number" },
   best_selling: { key: "salesCount", order: "desc", type: "number" },
   most_popular: { key: "popularity", order: "desc", type: "number" },
 };
 
 const ViewStores = () => {
   const [searchParams] = useSearchParams();
-  const categoryParam = searchParams.get("cat");
+  const filterParam = searchParams.get("filter");
+  const sortParam = searchParams.get("sort");
+  // Initialize filters.sort from query params when present
 
   const stores = mockStoresData; // Replace with actual data fetching logic
+
   type Store = (typeof mockStoresData)[number];
-  const [filters, setFilters] = useState({
+
+  type FiltersType = {
+    search: string;
+    category: string;
+    city: string;
+    rating: string;
+    shipping: boolean;
+    sort?: string;
+    filter?: string;
+  };
+
+  const initialFilters: FiltersType = {
     search: "",
     category: "all",
     city: "all",
     rating: "all",
     shipping: false,
-  });
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [sortedBy, setSortedBy] = useState("newest");
-
+    sort: sortParam ?? "",
+    filter: filterParam ?? "",
+  };
   useEffect(() => {
-    console.log("Current Filters:", filters);
-    console.log("Sorted By:", sortedBy);
-  }, [filters, sortedBy]);
-
-  useEffect(() => {
-    if (categoryParam) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFilters((prev) => ({ ...prev, category: categoryParam }));
-    } else {
-      setFilters((prev) => ({ ...prev, category: "all" }));
+    if (sortParam) {
+      // eslint-disable-next-line react-hooks/immutability
+      setFilters((prev) => ({ ...prev, sort: sortParam }));
     }
-  }, [categoryParam]);
+  }, [sortParam]); // Run only on mount to check initial filters
+  const [filters, setFilters] = useState<FiltersType>(initialFilters);
+
+  useEffect(() => {
+    console.log("filters:", filters);
+    console.log("stores:", stores);
+
+  }, [filters, stores]);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
   const filteredStores = useMemo(() => {
     return stores.filter((store) => {
       const matchesSearch =
@@ -55,11 +70,10 @@ const ViewStores = () => {
         store.name.toLowerCase().includes(filters.search.toLowerCase()) ||
         store.description?.toLowerCase().includes(filters.search.toLowerCase());
 
-      const matchesCategory = filters.category === "all";
-      // filters.category === "all" || store.categoryId === filters.category;
+      // Category filter placeholder - will use when categories are added to mock data
+      // const matchesCategory = filters.category === "all";
 
-      // Add more filters here as needed (city, rating, etc.)
-      return matchesSearch && matchesCategory;
+      return matchesSearch;
     });
   }, [stores, filters]);
 
@@ -75,8 +89,10 @@ const ViewStores = () => {
   }, []);
 
   const displayedStores = useMemo(() => {
-    return applySorting(filteredStores, sortedBy);
-  }, [filteredStores, sortedBy, applySorting]);
+    const currentSort = filters.sort || "new";
+    console.log("current sort: " + currentSort);
+    return applySorting(filteredStores, currentSort);
+  }, [filteredStores, filters.sort, applySorting]);
 
   return (
     <>
@@ -86,12 +102,14 @@ const ViewStores = () => {
             {filters.search.length > 0 ? (
               <p className="mb-2 text-2xl">
                 نتائج البحث عن
-                <span className="font-semibold">{` "${filters.search}"` }</span>
+                <span className="font-semibold">{` "${filters.search}"`}</span>
               </p>
             ) : (
               <h1 className="mb-2 text-2xl">كل المحلات</h1>
             )}
-            <p className="text-gray-600">تم العثور على {displayedStores.length} متجر</p>
+            <p className="text-gray-600">
+              تم العثور على {displayedStores.length} متجر
+            </p>
           </div>
 
           <div className="flex gap-8">
@@ -123,12 +141,17 @@ const ViewStores = () => {
                 {/* Sort Section */}
                 <div className="flex items-center gap-3 shrink-0">
                   <Select
-                    value={sortedBy}
-                    onChange={(val) => setSortedBy(val.target.value)}
+                    value={filters.sort || "new"}
+                    onChange={(val) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        sort: val.target.value,
+                      }))
+                    }
                     options={[
                       { value: "special", label: "مميز" },
-                      { value: "newest", label: "الأحدث" },
-                      { value: "highest_rated", label: "الأعلى تقييماً" },
+                      { value: "new", label: "الأحدث" },
+                      { value: "top", label: "الأعلى تقييماً" },
                       {
                         value: "best_selling",
                         label: "الأكثر مبيعاً",
@@ -143,7 +166,7 @@ const ViewStores = () => {
                 </div>
               </div>
 
-              {/* Products Grid */}
+              {/* stores Grid */}
               {/* {isLoading ? (
                 <div className="bg-white rounded-lg p-12 text-center shadow-sm">
                   <p className="text-gray-600">جاري تحميل المحلات...</p>

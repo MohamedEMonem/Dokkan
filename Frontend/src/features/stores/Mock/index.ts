@@ -1,6 +1,6 @@
 import { IStore, EStoreStatus } from "@/types/entities/store.types";
 
-export const mockStoresData: IStore[] = [
+const baseStores: IStore[] = [
   {
     id: "store-001",
     ownerId: "user-001",
@@ -262,3 +262,15 @@ export const mockStoresData: IStore[] = [
       "https://images.unsplash.com/photo-1517048676732-d65bc937f952?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&w=1200&h=500",
   },
 ];
+
+// Attach a random createdAt date to each mock store (within the past 2 years)
+function randomPastDate(maxDays = 365 * 2, offsetMs = 0) {
+  const days = Math.floor(Math.random() * maxDays);
+  const ms = days * 24 * 60 * 60 * 1000 + offsetMs;
+  return new Date(Date.now() - ms);
+}
+
+export const mockStoresData: IStore[] = baseStores.map((s, i) => ({
+  ...s,
+  createdAt: randomPastDate(365 * 2, i * 1000),
+}));
