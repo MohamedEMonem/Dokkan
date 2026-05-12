@@ -94,6 +94,7 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-root}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-rootpassword}
       AUTO_SEED: ${AUTO_SEED:-true}
+      DB_PUSH_ACCEPT_DATA_LOSS: ${DB_PUSH_ACCEPT_DATA_LOSS:-true}
       DB_WAIT_RETRIES: ${DB_WAIT_RETRIES:-60}
     ports:
       - "${PORT:-3000}:3000"
