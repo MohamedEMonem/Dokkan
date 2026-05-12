@@ -104,3 +104,7 @@ volumes:
   frontend_redis_data:
   frontend_meili_data:
   frontend_minio_data:
+  
+networks:
+  nx_network:
+    driver: bridge

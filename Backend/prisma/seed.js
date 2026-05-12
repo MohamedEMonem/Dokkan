@@ -1,12 +1,17 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
 import prismaClientPkg from "@prisma/client";
 import { randomUUID } from "crypto";
 import { randomBytes, pbkdf2 as pbkdf2Callback } from "crypto";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
 import { promisify } from "util";
 
 const { PrismaClient } = prismaClientPkg;
 const pbkdf2 = promisify(pbkdf2Callback);
+
+const currentDir = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: resolve(currentDir, "../.env") });
 
 // ─── Password helpers ───────────────────────────────────────────────────────
 const PASSWORD_ALGORITHM  = "pbkdf2";
