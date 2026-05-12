@@ -108,3 +108,13 @@ We use **Swagger UI** combined with **Swagger Autogen** to automatically generat
 2. Open your browser and navigate to: **`http://localhost:3000/api/docs`** 
 
 More details on how to document new routes can be found in [swagger.MD](./swagger.MD).
+
+## Error handling
+Centralized JSON error handling and a catch-all 404 were recently added. See the operational notes and testing steps in [Docs/error-handling.md](Docs/error-handling.md).
+
+## Developer docs
+Detailed developer docs (tenant resolution, API references, and testing notes) are available under `Docs/`:
+- [Backend/Docs/README.md](Docs/README.md)
+	- Table of Contents: [Backend/Docs/TOC.md](Docs/TOC.md)
+	- Ultimate Guide: [Backend/Docs/ultimate-backend-guide.md](Docs/ultimate-backend-guide.md)
+	- Archived auth docs: [Backend/Docs/archived/FEATURE_AUTH_DOCUMENTATION_FULL.md](Docs/archived/FEATURE_AUTH_DOCUMENTATION_FULL.md)

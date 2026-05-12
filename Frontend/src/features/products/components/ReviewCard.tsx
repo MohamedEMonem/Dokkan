@@ -1,7 +1,7 @@
 import { IReview } from "@/types/entities/review.types";
 import { MessageCircle } from "lucide-react";
 import { formatReviewDate } from "../MockData";
-import { starsComponent } from "../ProductDetailsPage";
+import { Stars } from "./Stars";
 
 type Props = {
   review: IReview;
@@ -29,7 +29,7 @@ export default function ReviewCard({ review, starSize = 14 }: Props) {
         </div>
 
         <div className="flex gap-0.5">
-          {starsComponent(review.rating, starSize)}
+          <Stars rating={review.rating} size={starSize} />
         </div>
       </div>
 

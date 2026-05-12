@@ -1,30 +1,50 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useGetProductByIdQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
-import { useState } from "react";
-import { Store, Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Store, Heart, ShoppingCart, Minus, Plus } from "lucide-react";
 import { showNotification } from "@/utils/showNotification";
-import { mockReviewsData, mockRelatedProducts } from "./MockData";
+import {
+  mockReviewsData,
+  mockRelatedProducts,
+  mockShippingInfo,
+} from "./MockData";
 import ReviewCard from "./components/ReviewCard";
 import { Card } from "@/components/ui/Card";
+import { Stars } from "./components/Stars";
 
 export function ProductDetailsPage() {
   const navigate = useNavigate();
-  const [cartCount, setCartCount] = useState(1);
+  const [cartCount, setCartCount] = useState<number>(1);
   const { id } = useParams<{ id: string }>();
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "description" | "reviews" | "shipping"
-  >("description");
+  >("shipping");
+
   const { data, isLoading, isError } = useGetProductByIdQuery(
     { id: id ?? "" },
     { skip: !id },
   );
-  const productreviews = 187;
+
+  useEffect(() => {
+    if (data?.data) {
+      if (data.data.stockQuantity <= 0) {
+        setCartCount(0);
+      } else if (cartCount <= 0) {
+        setCartCount(1);
+      } else if (cartCount > data.data.stockQuantity) {
+        setCartCount(data.data.stockQuantity);
+      }
+    }
+  }, [data?.data?.stockQuantity]);
+
+  const productReviews = 187; // mock number, replace with actual count from API when available
+
   const TABS = [
-    { id: "description", label: "الوصف" },
-    { id: "reviews", label: `التقييمات (${productreviews})` },
     { id: "shipping", label: "معلومات الشحن" },
+    { id: "reviews", label: `التقييمات (${productReviews})` },
+    { id: "description", label: "الوصف" },
   ] as const;
 
   type TabId = (typeof TABS)[number]["id"];
@@ -90,7 +110,10 @@ export function ProductDetailsPage() {
   }
 
   const product = data.data;
-  console.log(product);
+
+  const minCount = product.stockQuantity > 0 ? 1 : 0;
+  const maxCount = product.stockQuantity ?? 0;
+
   return (
     <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
       <div className="container mx-auto px-4">
@@ -128,7 +151,7 @@ export function ProductDetailsPage() {
               <div className="mb-4">
                 <Link
                   className="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-2"
-                  to="/products"
+                  to={`/store/${product.storeId}`}
                 >
                   <Store size={16} className="text-blue-600" />
                   راحة المنزل
@@ -137,7 +160,7 @@ export function ProductDetailsPage() {
                 <h1 className="mb-2">{product.title}</h1>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1">
-                    {starsComponent(4, 20)}
+                    <Stars rating={4.5} size={20} />
                   </div>
                   <div className="text-sm text-gray-600">4.5 (82 تقييم)</div>
                 </div>
@@ -155,34 +178,40 @@ export function ProductDetailsPage() {
               </div>
 
               <p className="text-gray-600 mb-6">
-                {/* {product.description || "لا يوجد وصف لهذا المنتج حالياً."} */}
-                ساعة بتصميم مينيمال، صامتة، أرقام واضحة، مناسبة لأي ديكور.
+                {product.description || "لا يوجد وصف لهذا المنتج حالياً."}
               </p>
 
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center border rounded-lg border-gray-200">
                   <Button
-                    onClick={() => cartCount > 1 && setCartCount(cartCount - 1)}
-                    className={`w-9! h-9! border-0! ${cartCount === 1 ? "cursor-not-allowed opacity-50" : ""}`}
+                    onClick={() =>
+                      cartCount > minCount && setCartCount(cartCount - 1)
+                    }
+                    className={`w-9! h-9! border-0! text-black ${cartCount <= minCount ? "cursor-not-allowed opacity-50" : ""}`}
                     variant="outline-accent"
                     icon={<Minus size={16} />}
-                  ></Button>
+                    disabled={cartCount <= minCount}
+                  />
                   <span className="px-4 py-2 min-w-12 text-center">
                     {cartCount}
                   </span>
                   <Button
-                    onClick={() => setCartCount(cartCount + 1)}
-                    className="w-9! h-9! border-0!"
+                    onClick={() =>
+                      cartCount < maxCount && setCartCount(cartCount + 1)
+                    }
+                    className={`w-9! h-9! border-0! text-black ${cartCount >= maxCount ? "cursor-not-allowed opacity-50" : ""}`}
                     variant="outline-accent"
                     icon={<Plus size={16} />}
-                  ></Button>
+                    disabled={cartCount >= maxCount}
+                  />
                 </div>
                 <Button
                   className="h-10! flex-1"
                   icon={<ShoppingCart size={20} />}
                   onClick={() => handleAddToCart()}
+                  disabled={product.stockQuantity <= 0}
                 >
-                  أضف للسلة
+                  {product.stockQuantity <= 0 ? "غير متوفر" : "أضف للسلة"}
                 </Button>
               </div>
 
@@ -190,7 +219,9 @@ export function ProductDetailsPage() {
                 <Button
                   onClick={() => handleToggleFavorite()}
                   variant={isFavorite ? "primary" : "outline-accent"}
-                  className={`h-10! flex-1`}
+                  className={`h-10! flex-1 rounded-lg border! outline-none! text-sm! lg:text-base! ${
+                    isFavorite ? "text-white!" : "text-black! hover:text-white!"
+                  }`}
                 >
                   <Heart
                     size={16}
@@ -202,7 +233,7 @@ export function ProductDetailsPage() {
                 <Button
                   onClick={() => handleViewStore(product.storeId)}
                   variant="outline-accent"
-                  className="h-10! flex-1"
+                  className="h-10! flex-1 rounded-lg text-black! border! outline-none! text-sm! lg:text-base! hover:text-white!"
                 >
                   <Store size={16} className="ml-2" />
                   عرض المتجر
@@ -220,7 +251,7 @@ export function ProductDetailsPage() {
             onKeyDown={(e) => {
               // basic keyboard support: left/right arrows
               if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-                const order = ["description", "reviews", "shipping"] as const;
+                const order = ["shipping", "reviews", "description"] as const;
                 const idx = order.indexOf(activeTab);
                 const next =
                   e.key === "ArrowRight"
@@ -233,7 +264,7 @@ export function ProductDetailsPage() {
             <div
               role="tablist"
               aria-orientation="horizontal"
-              className="bg-accent-light flex h-9 w-fit items-center justify-center rounded-2xl p-0.75 text-sm"
+              className="bg-accent-light flex h-11 w-fit items-center justify-center rounded-2xl p-1 text-sm ml-auto"
             >
               {TABS.map(({ id, label }) => {
                 const isActive = activeTab === id;
@@ -248,10 +279,10 @@ export function ProductDetailsPage() {
                     onClick={() => setActiveTab(id as TabId)}
                     tabIndex={isActive ? 0 : -1}
                     className={[
-                      "mx-1! px-1! text-black! border-none! focus:outline-none! focus:ring-0! focus-visible:outline-none! focus-visible:ring-0!",
+                      "mx-1! px-4! h-full! text-black! border-none! focus:outline-none! focus:ring-0! focus-visible:outline-none! focus-visible:ring-0! transition-all duration-200",
                       isActive
                         ? "bg-white! outline! outline-primary! shadow-sm!"
-                        : "border-none! outline-none! ",
+                        : "border-none! outline-none! hover:bg-white/30! ",
                     ].join(" ")}
                   >
                     {label}
@@ -314,10 +345,12 @@ export function ProductDetailsPage() {
             >
               <h3 className="mb-4">معلومات الشحن</h3>
               <div className="space-y-4 text-gray-600">
-                <p>• الشحن العادي: 5-7 أيام عمل</p>
-                <p>• الشحن السريع: 2-3 أيام عمل</p>
-                <p>• شحن مجاني للطلبات فوق 500 ج.م</p>
-                <p>• سياسة إرجاع خلال 30 يوم</p>
+                <p>• الشحن العادي: {mockShippingInfo.standardShipping} أيام عمل</p>
+                <p>• الشحن السريع: {mockShippingInfo.expressShipping} أيام عمل</p>
+                <p>
+                  • شحن مجاني للطلبات فوق {mockShippingInfo.freeShippingThreshold} ج.م
+                </p>
+                <p>• سياسة إرجاع خلال {mockShippingInfo.returnPolicyDays} يوم</p>
               </div>
             </div>
           </div>
@@ -333,7 +366,7 @@ export function ProductDetailsPage() {
                 variant="default"
                 className="border-none! shadow-md hover:shadow-lg"
               >
-                <Link to={`/product/${item.id}`}>
+                <Link to={`/products/${item.id}`}>
                   <div className="bg-white rounded-lg transition-shadow overflow-hidden">
                     <div className="aspect-square bg-gray-100">
                       <img
@@ -360,29 +393,3 @@ export function ProductDetailsPage() {
     </div>
   );
 }
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const starsComponent = (rating: number, size: number = 20) => {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating - fullStars >= 0.5;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
-  return (
-    <>
-      {[...Array(fullStars)].map((_, i) => (
-        <Star
-          key={`full-${i}`}
-          size={size}
-          fill="currentColor"
-          className="text-yellow-400"
-        />
-      ))}
-      {halfStar && (
-        <Star size={size} fill="currentColor" className="text-yellow-400" />
-      )}
-      {[...Array(emptyStars)].map((_, i) => (
-        <Star key={`empty-${i}`} size={size} className="text-yellow-400" />
-      ))}
-    </>
-  );
-};

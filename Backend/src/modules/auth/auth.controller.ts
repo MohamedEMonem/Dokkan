@@ -1,16 +1,17 @@
 import type { Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { type JwtPayload, type SignOptions } from "jsonwebtoken";
 import prisma from "../../config/db.js";
 import { hashPassword, verifyPassword } from "../../utils/password.js";
 import {
   sendError,
   sendServerError,
   sendSuccess,
+  sendUnauthorized,
 } from "../../utils/response.js";
 import { UserRole } from "@prisma/client";
 import { emailService } from "../../services/email.service.js";
 import redis from "../../config/redis.js";
-import { randomInt } from "crypto";
+import { randomInt, randomUUID } from "crypto";
 
 /**
  * Generates a cryptographically secure numeric OTP.
@@ -36,6 +37,202 @@ function getJwtSecret() {
 
 function buildToken(payload: { userId: string; email: string }) {
   return jwt.sign(payload, getJwtSecret(), { expiresIn: "15m" });
+}
+
+type RefreshTokenPayload = JwtPayload & {
+  userId: string;
+  email: string;
+  sessionId: string;
+};
+
+function getRefreshTokenSecret() {
+  const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+  if (!refreshTokenSecret) {
+    throw new Error("REFRESH_TOKEN_SECRET is not configured");
+  }
+  return refreshTokenSecret;
+}
+
+function getRefreshTokenExpiry() {
+  return process.env.REFRESH_TOKEN_EXPIRES_IN || "7d";
+}
+
+function getRefreshCookieName() {
+  return process.env.REFRESH_COOKIE_NAME || "refreshToken";
+}
+
+function getRefreshKeyPrefix() {
+  return process.env.REFRESH_TOKEN_PREFIX || "refresh";
+}
+
+function parseDurationToSeconds(value: string): number {
+  const match = value.trim().match(/^(\d+)([smhd])$/i);
+  if (!match) return 7 * 24 * 60 * 60;
+
+  const amount = Number(match[1]);
+  const unit = match[2].toLowerCase();
+  const multiplierMap: Record<string, number> = {
+    s: 1,
+    m: 60,
+    h: 60 * 60,
+    d: 24 * 60 * 60,
+  };
+
+  return amount * (multiplierMap[unit] || 1);
+}
+
+function getRefreshTtlSeconds() {
+  const ttlSeconds = parseDurationToSeconds(getRefreshTokenExpiry());
+  return ttlSeconds > 0 ? ttlSeconds : 7 * 24 * 60 * 60;
+}
+
+function getRefreshCookieOptions() {
+  const sameSiteRaw =
+    process.env.REFRESH_COOKIE_SAMESITE?.toLowerCase() || "lax";
+  const sameSite =
+    sameSiteRaw === "strict" || sameSiteRaw === "none" ? sameSiteRaw : "lax";
+
+  const secureFromEnv = process.env.REFRESH_COOKIE_SECURE;
+  const secure =
+    secureFromEnv !== undefined
+      ? secureFromEnv === "true"
+      : process.env.NODE_ENV === "production";
+
+  const baseOptions = {
+    httpOnly: true,
+    secure,
+    sameSite,
+    path: process.env.REFRESH_COOKIE_PATH || "/api/auth",
+    maxAge: getRefreshTtlSeconds() * 1000,
+  } as const;
+
+  if (process.env.REFRESH_COOKIE_DOMAIN) {
+    return {
+      ...baseOptions,
+      domain: process.env.REFRESH_COOKIE_DOMAIN,
+    };
+  }
+
+  return baseOptions;
+}
+
+function parseCookies(req: Request): Record<string, string> {
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return {};
+
+  const parsedCookies: Record<string, string> = {};
+  for (const rawPart of cookieHeader.split(";")) {
+    const part = rawPart.trim();
+    if (!part) continue;
+
+    const separatorIndex = part.indexOf("=");
+    if (separatorIndex === -1) continue;
+
+    const key = part.slice(0, separatorIndex).trim();
+    const value = part.slice(separatorIndex + 1).trim();
+    if (!key) continue;
+
+    parsedCookies[key] = decodeURIComponent(value);
+  }
+
+  return parsedCookies;
+}
+
+function getRefreshTokenFromRequest(req: Request): string | null {
+  const cookies = parseCookies(req);
+  const token = cookies[getRefreshCookieName()];
+  return token && token.length > 0 ? token : null;
+}
+
+function getRefreshSessionKey(userId: string, sessionId: string) {
+  return `${getRefreshKeyPrefix()}:${userId}:${sessionId}`;
+}
+
+function buildRefreshToken(payload: {
+  userId: string;
+  email: string;
+  sessionId: string;
+}) {
+  const expiresIn = getRefreshTokenExpiry() as SignOptions["expiresIn"];
+  return jwt.sign(payload, getRefreshTokenSecret(), {
+    expiresIn,
+  });
+}
+
+async function saveRefreshSession(
+  userId: string,
+  sessionId: string,
+  refreshToken: string,
+) {
+  await redis.setex(
+    getRefreshSessionKey(userId, sessionId),
+    getRefreshTtlSeconds(),
+    refreshToken,
+  );
+}
+
+async function isRefreshSessionValid(
+  userId: string,
+  sessionId: string,
+  refreshToken: string,
+) {
+  const storedToken = await redis.get(getRefreshSessionKey(userId, sessionId));
+  return storedToken === refreshToken;
+}
+
+async function rotateRefreshSession(
+  oldUserId: string,
+  oldSessionId: string,
+  newUserId: string,
+  newSessionId: string,
+  newRefreshToken: string,
+) {
+  const multi = redis.multi();
+  multi.del(getRefreshSessionKey(oldUserId, oldSessionId));
+  multi.setex(
+    getRefreshSessionKey(newUserId, newSessionId),
+    getRefreshTtlSeconds(),
+    newRefreshToken,
+  );
+  await multi.exec();
+}
+
+async function revokeRefreshSession(userId: string, sessionId: string) {
+  await redis.del(getRefreshSessionKey(userId, sessionId));
+}
+
+async function revokeAllRefreshSessionsForUser(userId: string) {
+  const pattern = `${getRefreshKeyPrefix()}:${userId}:*`;
+  const keys = await redis.keys(pattern);
+  if (keys.length > 0) {
+    await redis.del(...keys);
+  }
+}
+
+function setRefreshCookie(res: Response, refreshToken: string) {
+  res.cookie(getRefreshCookieName(), refreshToken, getRefreshCookieOptions());
+}
+
+function clearRefreshCookie(res: Response) {
+  const cookieOptions = getRefreshCookieOptions();
+  res.clearCookie(getRefreshCookieName(), {
+    httpOnly: cookieOptions.httpOnly,
+    secure: cookieOptions.secure,
+    sameSite: cookieOptions.sameSite,
+    path: cookieOptions.path,
+    domain: "domain" in cookieOptions ? cookieOptions.domain : undefined,
+  });
+}
+
+async function issueRefreshToken(userId: string, email: string) {
+  const sessionId = randomUUID();
+  const refreshToken = buildRefreshToken({ userId, email, sessionId });
+  await saveRefreshSession(userId, sessionId, refreshToken);
+  return { refreshToken };
+}
+
+function verifyRefreshToken(refreshToken: string): RefreshTokenPayload {
+  return jwt.verify(refreshToken, getRefreshTokenSecret()) as RefreshTokenPayload;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -258,6 +455,11 @@ export const register = async (req: Request, res: Response) => {
           userId: restoredUser.id,
           email: restoredUser.email,
         });
+        const { refreshToken } = await issueRefreshToken(
+          restoredUser.id,
+          restoredUser.email,
+        );
+        setRefreshCookie(res, refreshToken);
 
         await redis.setex(`otp:${restoredUser.email}`, 900, otp);
         // Send the email
@@ -292,6 +494,8 @@ export const register = async (req: Request, res: Response) => {
     });
 
     const token = buildToken({ userId: user.id, email: user.email });
+    const { refreshToken } = await issueRefreshToken(user.id, user.email);
+    setRefreshCookie(res, refreshToken);
 
     await redis.setex(`otp:${user.email}`, 900, otp);
 
@@ -361,12 +565,115 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const token = buildToken({ userId: user.id, email: user.email });
+    const { refreshToken } = await issueRefreshToken(user.id, user.email);
+    setRefreshCookie(res, refreshToken);
 
     return sendSuccess(
       res,
       { user: toPublicUser(user), token },
       "Logged in successfully",
     );
+  } catch (error) {
+    return sendServerError(res, "Internal server error", error);
+  }
+};
+
+export const refresh = async (req: Request, res: Response) => {
+  try {
+    const refreshToken = getRefreshTokenFromRequest(req);
+    if (!refreshToken) {
+      clearRefreshCookie(res);
+      return sendUnauthorized(res, "Refresh token is missing.");
+    }
+
+    const decoded = verifyRefreshToken(refreshToken);
+    const userId = decoded.userId;
+    const sessionId = decoded.sessionId;
+
+    if (!userId || !decoded.email || !sessionId) {
+      clearRefreshCookie(res);
+      return sendUnauthorized(res, "Invalid refresh token payload.");
+    }
+
+    const isSessionValid = await isRefreshSessionValid(
+      userId,
+      sessionId,
+      refreshToken,
+    );
+    if (!isSessionValid) {
+      clearRefreshCookie(res);
+      return sendUnauthorized(res, "Invalid or revoked refresh token.");
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        id: userId,
+        deletedAt: null,
+      },
+      select: USER_PUBLIC_SELECT,
+    });
+
+    if (!user) {
+      await revokeRefreshSession(userId, sessionId);
+      clearRefreshCookie(res);
+      return sendUnauthorized(res, "Account has been deleted or disabled.");
+    }
+
+    const newSessionId = randomUUID();
+    const newRefreshToken = buildRefreshToken({
+      userId,
+      email: user.email,
+      sessionId: newSessionId,
+    });
+
+    await rotateRefreshSession(
+      userId,
+      sessionId,
+      userId,
+      newSessionId,
+      newRefreshToken,
+    );
+
+    const token = buildToken({ userId: user.id, email: user.email });
+    setRefreshCookie(res, newRefreshToken);
+
+    return sendSuccess(
+      res,
+      { user: toPublicUser(user), token },
+      "Token refreshed successfully",
+    );
+  } catch (error) {
+    const cause = error as Error;
+    clearRefreshCookie(res);
+
+    if (cause.name === "JsonWebTokenError") {
+      return sendUnauthorized(res, "Invalid refresh token.");
+    }
+    if (cause.name === "TokenExpiredError") {
+      return sendUnauthorized(res, "Refresh token expired.");
+    }
+
+    return sendServerError(res, "Internal server error", error);
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    const refreshToken = getRefreshTokenFromRequest(req);
+
+    if (refreshToken) {
+      try {
+        const decoded = verifyRefreshToken(refreshToken);
+        if (decoded.userId && decoded.sessionId) {
+          await revokeRefreshSession(decoded.userId, decoded.sessionId);
+        }
+      } catch {
+        // If token is invalid or expired, cookie clear still logs user out.
+      }
+    }
+
+    clearRefreshCookie(res);
+    return sendSuccess(res, null, "Logged out successfully");
   } catch (error) {
     return sendServerError(res, "Internal server error", error);
   }
@@ -548,6 +855,9 @@ export const deleteAccount = async (req: Request, res: Response) => {
     if (result.count === 0) {
       return sendError(res, "Account not found or already deleted", 404);
     }
+
+    await revokeAllRefreshSessionsForUser(userId);
+    clearRefreshCookie(res);
 
     return sendSuccess(res, null, "Account deleted successfully");
   } catch (error) {

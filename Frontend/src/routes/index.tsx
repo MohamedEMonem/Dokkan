@@ -8,6 +8,8 @@ import ErrorPage from "@/pages/ErrorPage";
 
 import { LoginForm } from "@/features/auth/Login";
 import { RegisterForm } from "@/features/auth/Register";
+
+import Landing from "@/pages/Landing";
 import Profile from "@/pages/Profile";
 
 import { ViewProducts } from "@/features/products/ViewProducts";
@@ -24,10 +26,14 @@ export default function AppRoutes() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<HomeLayout />}>
+        <Route index element={<Landing />} />
         <Route path="/products" element={<ViewProducts />} />
         <Route path="/products/:id" element={<ProductDetailsPage />} />
         <Route path="/stores" element={<ViewStores />} />
         {/* <Route path="/store/:id" element={<ViewStores />} /> */}
+        <Route element={<ProtectedRoutes />}>
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>
@@ -52,3 +58,4 @@ export default function AppRoutes() {
     </Routes>
   );
 }
+
