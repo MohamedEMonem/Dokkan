@@ -62,7 +62,7 @@ model User {
   deletedAt       DateTime? @map("deleted_at") @db.Timestamp(0)
 
   // Relations
-  ownedStores      Store[]         @relation("StoreOwner")
+  ownedStores      Store?          @relation("StoreOwner") 
   orders           Order[]
   reviews          Review[]
   cart             Cart?
@@ -76,7 +76,7 @@ model User {
 
 model Store {
   id              String      @id @default(uuid()) @map("store_id") @db.Uuid
-  ownerId         String      @map("owner_id") @db.Uuid
+  ownerId         String      @unique @map("owner_id") @db.Uuid
   name            String      @db.Char(50) @unique
   subdomain       String      @unique @db.VarChar(150)
   status          StoreStatus
