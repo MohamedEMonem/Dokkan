@@ -1,13 +1,14 @@
 import express from "express";
-import { createStore, getStore } from "../controllers/StoreController.js";
-import { createStoreSchema } from "../DTO/store.dto.js";
+import { createStore, getUserStore,updateUser } from "../controllers/StoreController.js";
+import { createStoreSchema ,updatestoreSchema} from "../DTO/store.dto.js";
 import { validateBody } from "../middleware/validate.middleware.js";
-import { auth } from "../middleware/auth.js";
+import { auth, authStoreOwner } from "../middleware/auth.js";
 const router = express.Router();
 
 router.post(
   "/create",
   auth,
+
   validateBody(createStoreSchema),
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Create a new store'
@@ -17,13 +18,22 @@ router.post(
 );
 
 router.get(
-  "/store",
+  "/mystore",
   auth,
+  authStoreOwner,
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Get store details'
      #swagger.security = [{ "bearerAuth": [] }] 
   */
-  getStore,
+  getUserStore,
 );
+
+router.put(
+  "/update",
+  auth,
+  authStoreOwner,
+  validateBody(updatestoreSchema),
+  updateUser
+)
 
 export default router;

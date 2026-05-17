@@ -16,7 +16,7 @@
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f",
     "infra:clean": "docker compose down -v",
-    "infra:FullClean": "docker system prune -a --volumes",
+    "infra:FullClean":"docker system prune -a --volumes",
     "backend:up": "docker compose -f docker-compose.backend.yml -p dokkan_backend up -d --build",
     "backend:down": "docker compose -f docker-compose.backend.yml -p dokkan_backend down",
     "backend:logs": "docker compose -f docker-compose.backend.yml -p dokkan_backend logs -f",

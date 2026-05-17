@@ -16,10 +16,9 @@ try{
     }
 
     const newStore = await storeService.createStore(dto, currentUserId);
-    const userWithStores = await storeService.getUserwithStores(currentUserId);
-    const userStoreCount = userWithStores?.ownedStores.length
 
-    return sendSuccess(res, { newStore, userStoreCount,userWithStores }, "Store created successfully", 201);
+
+    return sendSuccess(res, { newStore }, "Store created successfully", 201);
 }catch(error){
     const cause = error as Error & { statusCode?: number };
     const err: any = new Error(cause.message || "Failed to create store");
@@ -27,8 +26,32 @@ try{
     return next(err);
 }
 }
-export const getStore = async (req: Request, res: Response)=>{
+export const getUserStore = async (req: Request, res: Response)=>{
+try {
+    const currentUserId = req.user?.id
+    if (!currentUserId){
+        return sendError(res,"Unauthorized",401)
+    }
+    const userWithStore = await storeService.getUserwithStores(currentUserId);
 
+    return sendSuccess(res,{userWithStore:userWithStore},"retrived successfully",200)
+} catch (error) {
+    sendError(res, "Failed to retrieve store", 500);
+}
 
+}
+
+export const updateUser = async (req: Request, res:Response)=>{
+try {
+    const currentUserId = req.user!.id
+    const updateData = req.body.data
+
+    const updatedStore = await storeService.updateStore(currentUserId, updateData);
+    return sendSuccess(res,{updatedStore}, "Store updated successfully", 200)
+    
+} catch (error) {
+    sendError(res, "Failed to update store", 500);
+    
+}
 
 }
