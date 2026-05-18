@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { OrderService } from "../services/OrderService.js";
+import prisma from "../config/db.js";
 import { sendSuccess, sendError, sendServerError } from "../utils/response.js";
 
 export const createOrder = async (req: Request, res: Response) => {
@@ -25,5 +26,92 @@ export const createOrder = async (req: Request, res: Response) => {
       return sendError(res, `Item out of stock: ${error.message.split(":")[1]}`, 409);
     }
     return sendServerError(res, "Failed to create order", error);
+  }
+};
+
+export const getOrders = async (req: Request, res: Response) => {
+  try {
+    const page = Math.max(1, Number(req.query.page || 1));
+    const limit = Math.min(100, Number(req.query.limit || 20));
+    const status = req.query.status as string | undefined;
+
+    const skip = (page - 1) * limit;
+
+    const result = await OrderService.getAllOrders(skip, limit, status);
+
+    return sendSuccess(res, { orders: result.orders, total: result.total }, "Orders fetched");
+  } catch (error) {
+    return sendServerError(res, "Failed to fetch orders", error);
+  }
+};
+
+export const getOrderById = async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const order = await OrderService.getOrderById(id as string);
+    if (!order) return sendError(res, "Order not found", 404);
+
+    // Allow admin or the owning customer
+    if (req.user!.role !== "Admin" && req.user!.id !== order.customerId) {
+      return sendError(res, "Access denied", 403);
+    }
+
+    return sendSuccess(res, { order }, "Order fetched");
+  } catch (error) {
+    return sendServerError(res, "Failed to fetch order", error);
+  }
+};
+
+export const getOrdersByStoreId = async (req: Request, res: Response) => {
+  try {
+    const storeId = String(req.params.storeId);
+    const page = Math.max(1, Number(req.query.page || 1));
+    const limit = Math.min(100, Number(req.query.limit || 20));
+    const status = req.query.status as string | undefined;
+
+    const skip = (page - 1) * limit;
+
+    // If not admin, ensure the requester owns the store
+    if (req.user!.role !== "Admin") {
+      const store = await prisma.store.findUnique({ where: { id: storeId } });
+      if (!store) return sendError(res, "Store not found", 404);
+      if (store.ownerId !== req.user!.id) return sendError(res, "Access denied", 403);
+    }
+
+    const result = await OrderService.getOrdersByStoreId(storeId as string, skip, limit, status as string | undefined);
+    return sendSuccess(res, { orders: result.orders, total: result.total }, "Store orders fetched");
+  } catch (error) {
+    return sendServerError(res, "Failed to fetch store orders", error);
+  }
+};
+
+export const updateOrderStatus = async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const status = String(req.body.status || "");
+
+    if (!status) return sendError(res, "status is required", 400);
+
+    // Basic enum validation
+    const allowed = ["Pending", "Shipped", "Delivered", "Cancelled"];
+    if (!allowed.includes(status)) return sendError(res, "Invalid status", 400);
+
+    const order = await OrderService.getOrderById(id as string);
+    if (!order) return sendError(res, "Order not found", 404);
+
+    // Permission: admin or store owner of the order
+    if (req.user!.role !== "Admin") {
+      // store owner must be owner of the order's store
+      if (order.store?.ownerId && req.user!.id !== order.store.ownerId) {
+        return sendError(res, "Access denied", 403);
+      }
+    }
+
+    const updated = await OrderService.updateOrderStatus(id as string, status as string);
+
+    return sendSuccess(res, { order: updated }, "Order status updated");
+  } catch (error: any) {
+    if (error.code === "P2025") return sendError(res, "Order not found", 404);
+    return sendServerError(res, "Failed to update order status", error);
   }
 };

@@ -81,6 +81,7 @@ CREATE TABLE "Category" (
     "category_id" UUID NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "parent_category_id" UUID,
+    "store_id" UUID NOT NULL,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("category_id")
 );
@@ -230,10 +231,16 @@ CREATE TABLE "StoreAnalytics" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Store_owner_id_key" ON "Store"("owner_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Store_name_key" ON "Store"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Store_subdomain_key" ON "Store"("subdomain");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Category_name_store_id_key" ON "Category"("name", "store_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Cart_customer_id_key" ON "Cart"("customer_id");
@@ -246,6 +253,9 @@ ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_store_id_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_plan_id_fkey" FOREIGN KEY ("plan_id") REFERENCES "Plan"("plan_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Category" ADD CONSTRAINT "Category_store_id_fkey" FOREIGN KEY ("store_id") REFERENCES "Store"("store_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Category" ADD CONSTRAINT "Category_parent_category_id_fkey" FOREIGN KEY ("parent_category_id") REFERENCES "Category"("category_id") ON DELETE SET NULL ON UPDATE CASCADE;

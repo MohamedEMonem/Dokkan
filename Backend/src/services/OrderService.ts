@@ -79,4 +79,73 @@ export class OrderService {
 
     return result.id; 
   }
+
+  static async getAllOrders(skip = 0, take = 20, status?: string) {
+    const where: any = {};
+    if (status) where.status = status;
+
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+        include: {
+          customer: { select: { id: true, name: true, email: true } },
+          store: { select: { id: true, name: true, ownerId: true } },
+        },
+      }),
+      prisma.order.count({ where }),
+    ]);
+
+    return { orders, total };
+  }
+
+  static async getOrderById(orderId: string) {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        customer: { select: { id: true, name: true, email: true } },
+        store: { select: { id: true, name: true, ownerId: true } },
+        orderItems: { include: { product: { select: { id: true, title: true, price: true } } } },
+        reviews: true,
+      },
+    });
+
+    return order;
+  }
+
+  static async getOrdersByStoreId(storeId: string, skip = 0, take = 20, status?: string) {
+    const where: any = { storeId };
+    if (status) where.status = status;
+
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+        include: {
+          customer: { select: { id: true, name: true, email: true } },
+        },
+      }),
+      prisma.order.count({ where }),
+    ]);
+
+    return { orders, total };
+  }
+
+  static async updateOrderStatus(orderId: string, status: string) {
+    const updated = await prisma.order.update({
+      where: { id: orderId },
+      data: { status: status as any },
+      include: {
+        customer: { select: { id: true, name: true, email: true } },
+        store: { select: { id: true, name: true, ownerId: true } },
+        orderItems: { include: { product: { select: { id: true, title: true } } } },
+      },
+    });
+
+    return updated;
+  }
 }
