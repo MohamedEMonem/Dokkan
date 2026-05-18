@@ -1,5 +1,5 @@
 import express from "express";
-import { createStore, getUserStore,updateUser } from "../controllers/StoreController.js";
+import { createStore, getUserStore,updateUser, deleteStore } from "../controllers/StoreController.js";
 import { createStoreSchema ,updatestoreSchema} from "../DTO/store.dto.js";
 import { validateBody } from "../middleware/validate.middleware.js";
 import { auth, authStoreOwner } from "../middleware/auth.js";
@@ -35,5 +35,16 @@ router.put(
   validateBody(updatestoreSchema),
   updateUser
 )
+
+router.delete(
+  "/delete",
+  auth,
+  authStoreOwner,
+  /* #swagger.tags = ['Stores']
+     #swagger.summary = 'Soft-delete the authenticated user\'s store'
+     #swagger.security = [{ "bearerAuth": [] }] 
+  */
+  deleteStore,
+);
 
 export default router;

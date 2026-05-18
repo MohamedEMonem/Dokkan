@@ -159,5 +159,29 @@ export class StoreServices {
 }
 
     // async deleteStore()
+        // soft deleteStore
+    async deleteStore(userId: string) {
+        const owner = await this.getUserwithStores(userId);
 
+        if (!owner) {
+                const error = new Error("User not found") as Error & { statusCode?: number };
+                error.statusCode = 404;
+                throw error;
+        }
+
+        const store = owner.ownedStores;
+
+        if (!store) {
+                const error = new Error("Store not found") as Error & { statusCode?: number };
+                error.statusCode = 404;
+                throw error;
+        }
+
+        const deletedStore = await prisma.store.update({
+                where: { id: store.id },
+                data: { deletedAt: new Date() },
+        });
+
+        return deletedStore;
+    }
 }
