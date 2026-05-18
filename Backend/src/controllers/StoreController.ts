@@ -48,6 +48,31 @@ export const getUserStore = async (req: Request, res: Response) => {
   }
 };
 
+export const listStores = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10));
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(String(req.query.limit ?? "20"), 10)),
+    );
+
+    const result = await storeService.listStores(page, limit);
+
+    return sendSuccess(
+      res,
+      { stores: result.stores, meta: result.meta },
+      "Stores retrieved successfully",
+      200,
+    );
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const currentUserId = req.user!.id;

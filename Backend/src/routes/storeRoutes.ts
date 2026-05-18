@@ -1,6 +1,12 @@
 import express from "express";
-import { createStore, getUserStore,updateUser, deleteStore } from "../controllers/StoreController.js";
-import { createStoreSchema ,updatestoreSchema} from "../DTO/store.dto.js";
+import {
+  createStore,
+  getUserStore,
+  updateUser,
+  deleteStore,
+  listStores,
+} from "../controllers/StoreController.js";
+import { createStoreSchema, updatestoreSchema } from "../DTO/store.dto.js";
 import { validateBody } from "../middleware/validate.middleware.js";
 import { auth, authStoreOwner } from "../middleware/auth.js";
 const router = express.Router();
@@ -28,13 +34,21 @@ router.get(
   getUserStore,
 );
 
+router.get(
+  "/browse",
+  /* #swagger.tags = ['Stores']
+     #swagger.summary = 'Browse active stores with pagination'
+  */
+  listStores,
+);
+
 router.put(
   "/update",
   auth,
   authStoreOwner,
   validateBody(updatestoreSchema),
-  updateUser
-)
+  updateUser,
+);
 
 router.delete(
   "/delete",
