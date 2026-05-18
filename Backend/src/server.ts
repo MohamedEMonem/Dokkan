@@ -10,6 +10,8 @@ import storeRouter from "./routes/storeRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" with { type: "json" };
+import orderRoutes from "./routes/orderRoutes.js";
+
 
 // @ts-ignore
 import cors from "cors";
@@ -74,6 +76,9 @@ app.use("/api/auth", authRoutes);
 // Error handling middleware for Multer
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.use("/api/orders", orderRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 
