@@ -86,6 +86,14 @@ model Store {
   businessAddress String?     @map("business_address") @db.Text
   vatNumber       String?     @map("vat_number") @db.VarChar(100)
   themeSettings   Json?       @map("theme_settings")
+  
+  // --- NEW FIELDS ADDED HERE ---
+  supportEmail    String?     @map("support_email") @db.VarChar(150)
+  phoneNumber     String?     @map("phone_number") @db.VarChar(20)
+  operatingHours  Json?       @map("operating_hours")
+  socialMediaLinks Json?      @map("social_media_links")
+  // -----------------------------
+
   createdAt       DateTime?   @default(now()) @map("created_at") @db.Timestamp(0)
   deletedAt       DateTime?   @map("deleted_at") @db.Timestamp(0)
 

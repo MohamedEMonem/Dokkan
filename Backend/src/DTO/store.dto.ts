@@ -1,6 +1,7 @@
 // @ts-ignore - zod type resolution may fail in this environment while runtime import remains valid
 import { z } from "zod";
 
+
 export const createStoreSchema = z.object({
   data: z.object({
     name: z.string(),
@@ -16,7 +17,15 @@ export const createStoreSchema = z.object({
     businessAddress: z.string().optional(),
     vatNumber: z.string().optional(),
     themeSettings: z.any().optional(),
+    supportEmail: z.string().email().optional(),    
+  phoneNumber: z.string().optional(),   
+  operatingHours: z.string().optional(),       
+  socialMediaLinks: z.string().optional(),
   }),
 });
 
+export const updatestoreSchema = z.object({
+  data: createStoreSchema.shape.data.partial(),
+});
+export type updateStoreDto = z.infer<typeof updatestoreSchema>["data"];
 export type CreateStoreDto = z.infer<typeof createStoreSchema>["data"];
