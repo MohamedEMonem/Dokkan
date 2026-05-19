@@ -154,7 +154,7 @@ export function ProductDetailsPage() {
                   to={`/store/${product.storeId}`}
                 >
                   <Store size={16} className="text-blue-600" />
-                  راحة المنزل
+                  {product.store?.name || "متجر دكان"}
                 </Link>
 
                 <h1 className="mb-2">{product.title}</h1>

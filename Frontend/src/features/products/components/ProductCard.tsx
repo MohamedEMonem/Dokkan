@@ -66,8 +66,7 @@ export const ProductCard = ({ product }: ProductProps) => {
 
           <div className="flex-1 flex flex-col p-3">
             <p className="text-xs text-text-muted mb-1 line-clamp-1">
-              {/* {product.store?.name} */}
-              متجر دكان
+              {product.store?.name || "متجر دكان"}
             </p>
             <h3 className="text-text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2 text-sm leading-tight min-h-10">
               {product.title}

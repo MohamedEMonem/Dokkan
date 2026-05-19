@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  // previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "postgresql"
 }
+
 // Enums
 enum UserRole {
   Customer
@@ -62,7 +62,7 @@ model User {
   deletedAt       DateTime? @map("deleted_at") @db.Timestamp(0)
 
   // Relations
-  ownedStores      Store[]         @relation("StoreOwner")
+  ownedStores      Store?          @relation("StoreOwner") 
   orders           Order[]
   reviews          Review[]
   cart             Cart?
@@ -76,7 +76,7 @@ model User {
 
 model Store {
   id              String      @id @default(uuid()) @map("store_id") @db.Uuid
-  ownerId         String      @map("owner_id") @db.Uuid
+  ownerId         String      @unique @map("owner_id") @db.Uuid
   name            String      @db.Char(50) @unique
   subdomain       String      @unique @db.VarChar(150)
   status          StoreStatus
@@ -86,11 +86,20 @@ model Store {
   businessAddress String?     @map("business_address") @db.Text
   vatNumber       String?     @map("vat_number") @db.VarChar(100)
   themeSettings   Json?       @map("theme_settings")
+  
+  // --- NEW FIELDS ADDED HERE ---
+  supportEmail    String?     @map("support_email") @db.VarChar(150)
+  phoneNumber     String?     @map("phone_number") @db.VarChar(20)
+  operatingHours  Json?       @map("operating_hours")
+  socialMediaLinks Json?      @map("social_media_links")
+  // -----------------------------
+
   createdAt       DateTime?   @default(now()) @map("created_at") @db.Timestamp(0)
   deletedAt       DateTime?   @map("deleted_at") @db.Timestamp(0)
 
   // Relations
   owner         User            @relation("StoreOwner", fields: [ownerId], references: [id])
+  categories    Category[] // New relation for isolation
   products      Product[]
   orders        Order[]
   subscriptions Subscription[]
@@ -131,11 +140,17 @@ model Category {
   name             String  @db.VarChar(100)
   parentCategoryId String? @map("parent_category_id") @db.Uuid
 
+  // Foreign key and relation to Store for tenant isolation
+  storeId String @map("store_id") @db.Uuid
+  store   Store  @relation(fields: [storeId], references: [id])
+
   // Relations
   parent   Category?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
   children Category[] @relation("CategoryHierarchy")
   products Product[]
 
+  // Ensures category names are unique only within the same store
+  @@unique([name, storeId])
   @@map("Category")
 }
 
