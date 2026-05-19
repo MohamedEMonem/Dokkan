@@ -8,11 +8,11 @@ export const storeApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Get details for the authenticated user's store
     getUserStore: builder.query<
-      IAPIResponse<{ userWithStore: IUser & { ownedStores: IStore[] } }>,
+      IAPIResponse<{ store: IStore }>,
       void
     >({
       query: () => ({
-        url: "/stores/mystore",
+        url: "/stores/me",
         method: "GET",
       }),
       providesTags: ["Store"],
@@ -24,7 +24,7 @@ export const storeApi = apiSlice.injectEndpoints({
       { page?: number; limit?: number } | void
     >({
       query: (params) => ({
-        url: "/stores/browse",
+        url: "/stores",
         method: "GET",
         params: params || undefined,
       }),
@@ -37,7 +37,7 @@ export const storeApi = apiSlice.injectEndpoints({
       CreateStoreDTO
     >({
       query: (storeData) => ({
-        url: "/stores/create",
+        url: "/stores",
         method: "POST",
         body: storeData,
       }),
@@ -50,7 +50,7 @@ export const storeApi = apiSlice.injectEndpoints({
       UpdateStoreDTO
     >({
       query: (storeData) => ({
-        url: "/stores/update",
+        url: "/stores/me",
         method: "PUT",
         body: storeData,
       }),
@@ -63,7 +63,7 @@ export const storeApi = apiSlice.injectEndpoints({
       void
     >({
       query: () => ({
-        url: "/stores/delete",
+        url: "/stores/me",
         method: "DELETE",
       }),
       invalidatesTags: ["Store"],
