@@ -14,7 +14,7 @@ const StoreCard = ({ store }: IStoreProps) => {
     <>
       <Link
         className="h-full"
-        to={`/stores/${store.id}`} // Change to store details page when implemented
+        to={`/@${store.subdomain}`} // Change to store details page when implemented
         data-discover="true"
       >
         <Card>
