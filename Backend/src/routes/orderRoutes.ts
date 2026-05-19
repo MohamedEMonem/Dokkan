@@ -81,8 +81,7 @@ router.post("/", auth,
              required: ["items", "shippingAddress"],
              properties: {
                items: { type: "array", items: { type: "object", properties: { productId: { type: "string" }, quantity: { type: "integer" } } }, example: [{ productId: "prd_1", quantity: 2 }] },
-               shippingAddress: { type: "object", example: { street: "123 Main St", city: "Cairo", postalCode: "11511" } },
-               paymentMethod: { type: "string", example: "card" }
+                shippingAddress: { type: "object", example: { street: "123 Main St", city: "Cairo", postalCode: "11511" } }
              }
            }
          }

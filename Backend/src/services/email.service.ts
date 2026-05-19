@@ -114,6 +114,16 @@ class EmailService {
       },
     });
   }
+
+  public async sendOrderConfirmation(
+    customerEmail: string,
+    orderData: Omit<OrderConfirmationEmailData, "customerEmail">,
+  ): Promise<boolean> {
+    return this.sendOrderConfirmationEmail({
+      ...orderData,
+      customerEmail,
+    });
+  }
 }
 
 export const emailService = new EmailService();
