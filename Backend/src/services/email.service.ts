@@ -1,7 +1,8 @@
-import nodemailer from "nodemailer";
+import "dotenv/config";
 import handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
+import { mailTransporter } from "../config/mailer.js";
 
 interface MailOptions {
   to: string;
@@ -12,22 +13,25 @@ interface MailOptions {
   attachments?: any[]; // Optional attachments support
 }
 
-class EmailService {
-  private transporter: nodemailer.Transporter;
+interface OrderConfirmationItem {
+  name: string;
+  quantity: number;
+  unitPrice: string;
+  lineTotal?: string;
+}
 
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || "localhost",
-      port: parseInt(process.env.SMTP_PORT || "1025"),
-      auth: process.env.SMTP_USER
-        ? {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-          }
-        : undefined,
-      ignoreTLS: !process.env.SMTP_USER,
-    });
-  }
+interface OrderConfirmationEmailData {
+  customerName: string;
+  customerEmail: string;
+  orderNumber: string;
+  totalAmount: string;
+  items: OrderConfirmationItem[];
+  orderDate?: string;
+  storeName?: string;
+}
+
+class EmailService {
+  private transporter = mailTransporter;
 
   /**
    * Internal helper to compile templates
@@ -84,6 +88,31 @@ class EmailService {
       console.error(`[EmailService] Failed to send email to ${to}:`, error);
       return false;
     }
+  }
+
+  public async sendOrderConfirmationEmail(
+    orderData: OrderConfirmationEmailData,
+  ): Promise<boolean> {
+    const normalizedItems = orderData.items.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      lineTotal: item.lineTotal || item.unitPrice,
+    }));
+
+    return this.sendMail({
+      to: orderData.customerEmail,
+      subject: `Your Dokkan order ${orderData.orderNumber} is confirmed`,
+      template: "order-confirmed",
+      data: {
+        customerName: orderData.customerName,
+        orderNumber: orderData.orderNumber,
+        totalAmount: orderData.totalAmount,
+        orderDate: orderData.orderDate || new Date().toLocaleDateString(),
+        items: normalizedItems,
+        storeName: orderData.storeName || "Dokkan",
+      },
+    });
   }
 }
 
