@@ -1,8 +1,10 @@
 import { Outlet } from "react-router-dom";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import { useGetUserStoreQuery } from "@/api/store.api";
 
 export default function DashboardLayout() {
-  const storeName = "storey"; // To be changed
+  const { data: storeResponse } = useGetUserStoreQuery();
+  const storeName = storeResponse?.data?.userWithStore?.ownedStores?.[0]?.name || "جاري التحميل...";
 
   return (
     <div

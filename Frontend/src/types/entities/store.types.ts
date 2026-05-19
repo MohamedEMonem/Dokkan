@@ -35,6 +35,10 @@ export interface IStoreInfo {
   businessAddress?: string;
   vatNumber?: string;
   themeSettings?: Record<string, unknown>;
+  supportEmail?: string;
+  phoneNumber?: string;
+  operatingHours?: string | Record<string, unknown>;
+  socialMediaLinks?: string | Record<string, unknown>;
 }
 
 /* ────────────────────────────────────────────────────────
