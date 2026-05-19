@@ -8,7 +8,7 @@ export const storeApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Get details for the authenticated user's store
     getUserStore: builder.query<
-      IAPIResponse<{ userWithStore: IUser & { ownedStores: IStore | null } }>,
+      IAPIResponse<{ userWithStore: IUser & { ownedStores: IStore[] } }>,
       void
     >({
       query: () => ({
