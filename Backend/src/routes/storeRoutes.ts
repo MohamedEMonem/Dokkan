@@ -1,9 +1,9 @@
 import express from "express";
 import {
   createStore,
-  getUserStore,
-  updateUser,
-  deleteStore,
+  getOwnerStore,
+  updateOwnerStore,
+  deleteOwnerStore,
   listStores,
 } from "../controllers/StoreController.js";
 import { createStoreSchema, updatestoreSchema } from "../DTO/store.dto.js";
@@ -12,9 +12,9 @@ import { auth, authStoreOwner } from "../middleware/auth.js";
 const router = express.Router();
 
 router.post(
-  "/create",
+  "/",
   auth,
-
+  authStoreOwner,
   validateBody(createStoreSchema),
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Create a new store'
@@ -24,18 +24,18 @@ router.post(
 );
 
 router.get(
-  "/mystore",
+  "/me",
   auth,
   authStoreOwner,
   /* #swagger.tags = ['Stores']
-     #swagger.summary = 'Get store details'
+     #swagger.summary = 'Get the authenticated owner\'s store'
      #swagger.security = [{ "bearerAuth": [] }] 
   */
-  getUserStore,
+  getOwnerStore,
 );
 
 router.get(
-  "/browse",
+  "/",
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Browse active stores with pagination'
   */
@@ -43,22 +43,30 @@ router.get(
 );
 
 router.put(
-  "/update",
+  "/me",
   auth,
   authStoreOwner,
   validateBody(updatestoreSchema),
-  updateUser,
+  updateOwnerStore,
+);
+
+router.patch(
+  "/me",
+  auth,
+  authStoreOwner,
+  validateBody(updatestoreSchema),
+  updateOwnerStore,
 );
 
 router.delete(
-  "/delete",
+  "/me",
   auth,
   authStoreOwner,
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Soft-delete the authenticated user\'s store'
      #swagger.security = [{ "bearerAuth": [] }] 
   */
-  deleteStore,
+  deleteOwnerStore,
 );
 
 export default router;
