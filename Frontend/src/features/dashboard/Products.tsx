@@ -22,7 +22,7 @@ export function Products() {
   } | null>(null);
 
   const { data: storeResponse, isLoading: isLoadingStore } = useGetUserStoreQuery();
-  const storeId = storeResponse?.data?.userWithStore?.ownedStores?.[0]?.id || "";
+  const storeId = storeResponse?.data?.store?.id || "";
 
   const { data: response, isLoading: isLoadingProducts } = useGetProductsByStoreIdQuery(storeId, {
     skip: !storeId,

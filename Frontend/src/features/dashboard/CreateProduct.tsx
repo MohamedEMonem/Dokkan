@@ -7,7 +7,7 @@ import { ProductForm } from "./components/ProductForm";
 export function CreateProduct() {
   const navigate = useNavigate();
   const { data: storeResponse } = useGetUserStoreQuery();
-  const storeId = storeResponse?.data?.userWithStore?.ownedStores?.[0]?.id || "";
+  const storeId = storeResponse?.data?.store?.id || "";
   const [createProduct, { isLoading }] = useCreateProductMutation();
 
   const handleSubmit = async (formData: FormData) => {

@@ -4,7 +4,7 @@ import { useGetUserStoreQuery } from "@/api/store.api";
 
 export default function DashboardLayout() {
   const { data: storeResponse } = useGetUserStoreQuery();
-  const storeName = storeResponse?.data?.userWithStore?.ownedStores?.[0]?.name || "جاري التحميل...";
+  const storeName = storeResponse?.data?.store?.name || "جاري التحميل...";
 
   return (
     <div
