@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ProductCard } from "@/features/products/components/ProductCard";
-import FilterAsideBar from "@/features/products/components/FilterAsideBar";
+import FilterAsideBar from "@/components/ui/FilterAsideBar";
 import { Select } from "@/components/ui/Select";
 import { useGetProductsQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
@@ -55,7 +55,9 @@ export const ViewProducts = () => {
       const matchesSearch =
         filters.search.trim() === "" ||
         product.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        product.description?.toLowerCase().includes(filters.search.toLowerCase());
+        product.description
+          ?.toLowerCase()
+          .includes(filters.search.toLowerCase());
 
       const matchesCategory =
         filters.category === "all" || product.categoryId === filters.category;
@@ -114,7 +116,9 @@ export const ViewProducts = () => {
                   variant="outline-accent"
                   onClick={() => setIsMobileFilterOpen(true)}
                   className="h-9! items-center gap-2 px-4 py-2.5 border! text-gray-700!"
-                  icon={<SlidersHorizontal size={18} className="text-gray-500" />}
+                  icon={
+                    <SlidersHorizontal size={18} className="text-gray-500" />
+                  }
                   iconPos="right"
                 >
                   <span className="text-sm font-medium">الفلاتر</span>

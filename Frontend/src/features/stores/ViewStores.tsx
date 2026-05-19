@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import FilterAsideBar from "../products/components/FilterAsideBar";
+import FilterAsideBar from "../../components/ui/FilterAsideBar";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { mockStoresData } from "./Mock";
 import StoreCard from "./Components/StoreCard";
 import { sortBy } from "@/utils/sorting";
+import { useListStoresQuery } from "@/api/store.api";
+import { IStore } from "@/types/entities/store.types";
 
 const sortConfigs: Record<
   string,
@@ -20,14 +21,13 @@ const sortConfigs: Record<
 };
 
 const ViewStores = () => {
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
   const [searchParams] = useSearchParams();
   const filterParam = searchParams.get("filter");
   const sortParam = searchParams.get("sort");
-  // Initialize filters.sort from query params when present
 
-  const stores = mockStoresData; // Replace with actual data fetching logic
-
-  type Store = (typeof mockStoresData)[number];
+  const { data: stores, isLoading, error } = useListStoresQuery();
 
   type FiltersType = {
     search: string;
@@ -39,6 +39,8 @@ const ViewStores = () => {
     filter?: string;
   };
 
+  type StoreItem = Partial<IStore>;
+
   const initialFilters: FiltersType = {
     search: "",
     category: "all",
@@ -48,49 +50,68 @@ const ViewStores = () => {
     sort: sortParam ?? "",
     filter: filterParam ?? "",
   };
-  useEffect(() => {
-    if (sortParam) {
-      // eslint-disable-next-line react-hooks/immutability
-      setFilters((prev) => ({ ...prev, sort: sortParam }));
-    }
-  }, [sortParam]); // Run only on mount to check initial filters
+
   const [filters, setFilters] = useState<FiltersType>(initialFilters);
 
   useEffect(() => {
-    console.log("filters:", filters);
-    console.log("stores:", stores);
+    if (sortParam) {
+      // eslint-disable-next-line react-hooks/immutability, react-hooks/set-state-in-effect
+      setFilters((prev) => ({ ...prev, sort: sortParam }));
+    } else if (filterParam) {
+      // eslint-disable-next-line react-hooks/immutability
+      setFilters((prev) => ({ ...prev, filter: filterParam }));
+    }
+  }, [sortParam, filterParam]); // Run only on mount to check initial filters
 
-  }, [filters, stores]);
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  // debounce search to avoid filtering on every keystroke
+  const [debouncedSearch, setDebouncedSearch] = useState(
+    initialFilters.search.trim().toLowerCase(),
+  );
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(filters.search.trim().toLowerCase());
+    }, 250);
+    return () => clearTimeout(t);
+  }, [filters.search]);
 
   const filteredStores = useMemo(() => {
-    return stores.filter((store) => {
-      const matchesSearch =
-        filters.search.trim() === "" ||
-        store.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        store.description?.toLowerCase().includes(filters.search.toLowerCase());
+    const allStores = (stores?.data?.stores ?? []) as StoreItem[];
+    const q = debouncedSearch;
 
-      // Category filter placeholder - will use when categories are added to mock data
-      // const matchesCategory = filters.category === "all";
+    return allStores.filter((store) => {
+      const name = store.name?.toLowerCase() ?? "";
+      const desc = (store.description ?? "").toLowerCase();
+
+      const matchesSearch = q === "" || name.includes(q) || desc.includes(q);
 
       return matchesSearch;
     });
-  }, [stores, filters]);
+  }, [stores, debouncedSearch]);
 
   const applySorting = useMemo(() => {
-    return (stores: Store[], sortedBy: string): Store[] => {
+    return (storesArr: StoreItem[], sortedBy: string): StoreItem[] => {
       const config = sortConfigs[sortedBy];
-      if (!config) return stores;
+      if (!config) return storesArr;
 
-      return [...stores].sort(
-        sortBy(config.key as never, config.order, config.type),
+      if (!storesArr || storesArr.length <= 1) return storesArr;
+
+      return [...storesArr].sort(
+        // cast to any because store shape may be partial at runtime
+        sortBy<StoreItem>(
+          config.key as keyof StoreItem,
+          config.order,
+          config.type,
+        ),
       );
     };
   }, []);
 
+  const reset = () => setFilters(initialFilters);
+
   const displayedStores = useMemo(() => {
-    const currentSort = filters.sort || "new";
-    console.log("current sort: " + currentSort);
+    const currentSort =
+      filters.sort && sortConfigs[filters.sort] ? filters.sort : "new";
     return applySorting(filteredStores, currentSort);
   }, [filteredStores, filters.sort, applySorting]);
 
@@ -167,7 +188,7 @@ const ViewStores = () => {
               </div>
 
               {/* stores Grid */}
-              {/* {isLoading ? (
+              {isLoading ? (
                 <div className="bg-white rounded-lg p-12 text-center shadow-sm">
                   <p className="text-gray-600">جاري تحميل المحلات...</p>
                 </div>
@@ -192,18 +213,10 @@ const ViewStores = () => {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {displayedStores.map((s) =>
-                    s ? <StoreCard key={s.id} {...s} /> : null,
+                    s ? <StoreCard key={s.id} store={s} /> : null,
                   )}
                 </div>
-              )} */}
-
-              {/*Temp */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {displayedStores &&
-                  displayedStores.map(
-                    (s) => s && <StoreCard key={s.id} store={s} />,
-                  )}
-              </div>
+              )}
             </div>
           </div>
         </div>

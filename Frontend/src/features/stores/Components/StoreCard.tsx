@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface IStoreProps {
-  store: IStore;
+  store: Partial<IStore>;
 }
 
 const StoreCard = ({ store }: IStoreProps) => {

@@ -6,14 +6,6 @@ import { CreateStoreDTO, UpdateStoreDTO } from "@/types/dto/store.dto";
 
 export const storeApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getStores: builder.query<IAPIResponse<IStore[]>, void>({
-      query: () => ({
-        url: "/stores",
-        method: "GET",
-      }),
-      providesTags: ["Store"],
-    }),
-
     // Get details for the authenticated user's store
     getUserStore: builder.query<
       IAPIResponse<{ userWithStore: IUser & { ownedStores: IStore[] } }>,
@@ -32,7 +24,7 @@ export const storeApi = apiSlice.injectEndpoints({
       { page?: number; limit?: number } | void
     >({
       query: (params) => ({
-        url: "/stores/browse",
+        url: "/stores",
         method: "GET",
         params: params || undefined,
       }),
@@ -79,11 +71,9 @@ export const storeApi = apiSlice.injectEndpoints({
 });
 
 export const {
-  useGetStoresQuery,
   useGetUserStoreQuery,
   useListStoresQuery,
   useCreateStoreMutation,
   useUpdateStoreMutation,
   useDeleteStoreMutation,
 } = storeApi;
-
