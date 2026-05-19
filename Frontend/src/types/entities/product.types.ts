@@ -1,5 +1,6 @@
 import { WithId } from '@/types/core/entity.types';
 import { SoftDeleted, OptionalAudited } from '@/types/core/audit.types';
+import { IStore } from './store.types';
 
 /* ────────────────────────────────────────────────────────
  * Product Enums
@@ -28,6 +29,7 @@ export interface IProductInfo {
   stockQuantity: number;
   status: EProductStatus;  
   images?: IProductImage[];
+  store?: Pick<IStore, "id" | "name">;
 }
 
 /* ────────────────────────────────────────────────────────

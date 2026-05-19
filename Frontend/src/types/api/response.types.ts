@@ -11,9 +11,13 @@ export interface IAPIResponse<T> {
  * Paginated Response
  * ──────────────────────────────────────────────────────── */
 
-export interface IPaginatedResponse<T> extends IAPIResponse<T[]> {
-  totalCount: number;
+export interface IPaginatedMeta {
+  total: number;
   totalPages: number;
-  page?: number;
-  limit?: number;
+  page: number;
+  limit: number;
 }
+
+export type IPaginatedResponse<T, K extends string = "items"> = IAPIResponse<
+  { meta: IPaginatedMeta } & Record<K, T[]>
+>;
