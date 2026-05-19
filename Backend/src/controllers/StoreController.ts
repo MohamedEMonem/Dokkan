@@ -20,7 +20,7 @@ export const createStore = async (
 
     const newStore = await storeService.createStore(dto, currentUserId);
 
-    return sendSuccess(res, { newStore }, "Store created successfully", 201);
+    return sendSuccess(res, { store: newStore.store }, "Store created successfully", 201);
   } catch (error) {
     const cause = error as Error & { statusCode?: number };
     const err: any = new Error(cause.message || "Failed to create store");
@@ -29,22 +29,22 @@ export const createStore = async (
   }
 };
 
-export const getUserStore = async (req: Request, res: Response) => {
+export const getOwnerStore = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const currentUserId = req.user?.id;
     if (!currentUserId) {
       return sendError(res, "Unauthorized", 401);
     }
-    const userWithStore = await storeService.getUserwithStores(currentUserId);
+    const store = await storeService.getOwnerStore(currentUserId);
 
     return sendSuccess(
       res,
-      { userWithStore: userWithStore },
-      "retrived successfully",
+      { store },
+      "Store retrieved successfully",
       200,
     );
   } catch (error) {
-    sendError(res, "Failed to retrieve store", 500);
+    return next(error);
   }
 };
 
@@ -73,9 +73,16 @@ export const listStores = async (
   }
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateOwnerStore = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const currentUserId = req.user!.id;
+    const currentUserId = req.user?.id;
+    if (!currentUserId) {
+      return sendError(res, "Unauthorized", 401);
+    }
     const updateData = req.body.data;
 
     const updatedStore = await storeService.updateStore(
@@ -84,16 +91,16 @@ export const updateUser = async (req: Request, res: Response) => {
     );
     return sendSuccess(
       res,
-      { updatedStore },
+      { store: updatedStore },
       "Store updated successfully",
       200,
     );
   } catch (error) {
-    sendError(res, "Failed to update store", 500);
+    return next(error);
   }
 };
 
-export const deleteStore = async (
+export const deleteOwnerStore = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -108,7 +115,7 @@ export const deleteStore = async (
 
     return sendSuccess(
       res,
-      { deletedStore },
+      { store: deletedStore },
       "Store deleted successfully",
       200,
     );
