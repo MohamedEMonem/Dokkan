@@ -1,7 +1,26 @@
 import type { Request, Response } from "express";
+import { z } from "zod";
 import { OrderService } from "../services/OrderService.js";
 import prisma from "../config/db.js";
 import { sendSuccess, sendError, sendServerError } from "../utils/response.js";
+import { emailService } from "../services/email.service.js";
+
+const testOrderItemSchema = z.object({
+  name: z.string().trim().min(1).max(150),
+  quantity: z.coerce.number().int().min(1),
+  unitPrice: z.string().trim().min(1).max(32),
+  lineTotal: z.string().trim().max(32).optional(),
+});
+
+const testOrderConfirmationSchema = z.object({
+  customerName: z.string().trim().min(1).max(100),
+  customerEmail: z.string().trim().email(),
+  orderNumber: z.string().trim().min(1).max(50),
+  totalAmount: z.string().trim().min(1).max(32),
+  orderDate: z.string().trim().max(50).optional(),
+  storeName: z.string().trim().max(100).optional(),
+  items: z.array(testOrderItemSchema).min(1),
+});
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
@@ -113,5 +132,40 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
   } catch (error: any) {
     if (error.code === "P2025") return sendError(res, "Order not found", 404);
     return sendServerError(res, "Failed to update order status", error);
+  }
+};
+
+export const sendOrderConfirmationTestEmail = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const validation = testOrderConfirmationSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return sendError(res, "Invalid order confirmation payload", 400, validation.error.flatten());
+    }
+
+    const sent = await emailService.sendOrderConfirmationEmail(validation.data);
+
+    if (!sent) {
+      return sendError(res, "Failed to send order confirmation email", 502);
+    }
+
+    return sendSuccess(
+      res,
+      {
+        to: validation.data.customerEmail,
+        orderNumber: validation.data.orderNumber,
+      },
+      "Order confirmation email sent successfully",
+      200,
+    );
+  } catch (error) {
+    return sendServerError(
+      res,
+      "Failed to send order confirmation email",
+      error,
+    );
   }
 };
