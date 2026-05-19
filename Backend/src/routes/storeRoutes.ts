@@ -1,9 +1,9 @@
 import express from "express";
 import {
   createStore,
-  getUserStore,
-  updateUser,
-  deleteStore,
+  getOwnerStore,
+  updateOwnerStore,
+  deleteOwnerStore,
   listStores,
 } from "../controllers/StoreController.js";
 import { createStoreSchema, updatestoreSchema } from "../DTO/store.dto.js";
@@ -12,9 +12,9 @@ import { auth, authStoreOwner } from "../middleware/auth.js";
 const router = express.Router();
 
 router.post(
-  "/create",
+  "/",
   auth,
-
+  authStoreOwner,
   validateBody(createStoreSchema),
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Create a new store'
@@ -44,22 +44,22 @@ router.post(
 );
 
 router.get(
-  "/mystore",
+  "/me",
   auth,
   authStoreOwner,
   /* #swagger.tags = ['Stores']
-     #swagger.summary = 'Get store details'
+     #swagger.summary = 'Get the authenticated owner\'s store'
      #swagger.description = 'Returns details for the authenticated user\'s store.'
      #swagger.security = [{ "bearerAuth": [] }]
-     #swagger.responses[200] = { description: 'Store retrieved successfully' }
-     #swagger.responses[401] = { description: 'Unauthorized' }
-     #swagger.responses[404] = { description: 'Store not found' }
+     #swagger.responses[200] = { description = 'Store retrieved successfully' }
+     #swagger.responses[401] = { description = 'Unauthorized' }
+     #swagger.responses[404] = { description = 'Store not found' }
   */
-  getUserStore,
+  getOwnerStore,
 );
 
 router.get(
-  "/browse",
+  "/",
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Browse active stores with pagination'
      #swagger.description = 'List active stores with optional query params for page and limit.'
@@ -69,7 +69,7 @@ router.get(
 );
 
 router.put(
-  "/update",
+  "/me",
   auth,
   authStoreOwner,
   validateBody(updatestoreSchema),
@@ -97,18 +97,18 @@ router.put(
      #swagger.responses[401] = { description: 'Unauthorized' }
      #swagger.responses[404] = { description: 'Store not found' }
   */
-  updateUser,
+  updateOwnerStore,
 );
 
 router.delete(
-  "/delete",
+  "/me",
   auth,
   authStoreOwner,
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Soft-delete the authenticated user\'s store'
      #swagger.security = [{ "bearerAuth": [] }] 
   */
-  deleteStore,
+  deleteOwnerStore,
 );
 
 export default router;
