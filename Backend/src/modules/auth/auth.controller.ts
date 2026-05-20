@@ -12,6 +12,13 @@ import { UserRole } from "@prisma/client";
 import { emailService } from "../../services/email.service.js";
 import redis from "../../config/redis.js";
 import { randomInt, randomUUID } from "crypto";
+import rateLimit from 'express-rate-limit'
+
+export const searchLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 25,             // 30 requests per minute per IP
+    message: "Too many search requests, slow down"
+})
 
 /**
  * Generates a cryptographically secure numeric OTP.

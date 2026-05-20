@@ -4,10 +4,14 @@ import { auth, authStoreOwner } from "../middleware/auth.js";
 import {upload} from "../middleware/uploadValidator.js";
 import { validateBody } from "../middleware/validate.middleware.js"
 import {productSchema,updateProductSchema} from "../DTO/product.dto.js";
+import { searchProducts } from "../controllers/meilisearch.controller.js";
+import { searchLimiter } from "../modules/auth/auth.controller.js";
+
 
 const router = express.Router({ mergeParams: true });
 
-router.get("/", 
+router.get("/",
+  searchLimiter,
   /* #swagger.tags = ['Products']
      #swagger.summary = 'List all products'
      #swagger.description = 'Returns a paginated list of products with optional filters (category, price range, search).'
@@ -94,6 +98,8 @@ router.delete("/:id", auth, authStoreOwner,
   */
   deleteProduct
 );
+
+router.get("/search", searchLimiter, searchProducts);
 
 export const productRoutes = router;
 export default router;

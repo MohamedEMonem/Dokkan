@@ -3,6 +3,8 @@ import prisma from "../config/db.js";
 import { sendError, sendNotFound, sendServerError, sendSuccess } from "../utils/response.js";
 import { deletePublicImg, uploadPublicImg } from "../services/imgStorageService.js";
 import { includes } from "zod";
+import { meilisearchService } from "../services/meilisearchService.js";
+
 const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
   ...product,
   price: Number(product.price),
@@ -20,6 +22,7 @@ export const listProducts = async (req: Request, res: Response, next: NextFuncti
       orderBy: { createdAt: "desc" },
       include: { images: true, store: true },
     });
+
 
     return sendSuccess(res, products.map(mapProduct), "Products retrieved successfully");
   } catch (error) {
@@ -80,10 +83,9 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
       const file = req.file;
       imgUrl = await uploadPublicImg(file, clientEmail, clientRole, subFolder);
     }
-
+   
     try {
-      const product = await prisma.product.create({
-        data: {
+       const data={
           storeId,
           categoryId,
           title,
@@ -95,9 +97,14 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
             create: { imageUrl: imgUrl},
           }: undefined,
 
-        },
+        }
+      const product = await prisma.product.create({
+        data: data,
         include: { images: true },
       });
+      const {images,stockQuantity, ...limiteddata} = data 
+      meilisearchService.add("products", limiteddata)
+
 
       return sendSuccess(res, mapProduct(product), "Product created successfully", 201);
     } catch (dbError) {
@@ -154,6 +161,8 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       include: { images: true },
     });
 
+    meilisearchService.update("products", { id, ...data })
+
     return sendSuccess(res, mapProduct(updated), "Product updated successfully");
   } catch (error) {
     return next(error);
@@ -180,6 +189,7 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
       where: { id },
       data: { deletedAt: new Date() },
     });
+    meilisearchService.delete("products", existing.id);
 
     return sendSuccess(res, null, "Product deleted successfully");
   } catch (error) {
