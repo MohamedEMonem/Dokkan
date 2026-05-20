@@ -512,7 +512,7 @@ async function main() {
     });
   }
 
-  // ── 13. Notifications ───────────────────────────────────────────────────────
+  // ── 12. Notifications ───────────────────────────────────────────────────────
   console.log("Creating notifications...");
   const allUsers = [...customers, ...owners, adminUser];
   for (let n = 0; n < 80; n++) {
