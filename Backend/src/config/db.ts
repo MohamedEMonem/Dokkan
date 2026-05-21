@@ -10,4 +10,11 @@ if (!connectionString) {
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
+prisma.$connect()
+  .then(() => console.log("Connected to PostgreSQL via Prisma"))
+  .catch((err) => {
+    console.error("Error connecting to PostgreSQL:", err);
+    process.exit(1);
+  });
+
 export default prisma;

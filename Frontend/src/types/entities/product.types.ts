@@ -1,12 +1,13 @@
-import { WithId } from '@/types/core/entity.types';
-import { SoftDeleted, OptionalAudited } from '@/types/core/audit.types';
+import { WithId } from "@/types/core/entity.types";
+import { SoftDeleted, OptionalAudited } from "@/types/core/audit.types";
+import { IStore } from "./store.types";
 
 /* ────────────────────────────────────────────────────────
  * Product Enums
  * ──────────────────────────────────────────────────────── */
 export enum EProductStatus {
-  Active = 'Active',
-  Inactive = 'Inactive'
+  Active = "Active",
+  Inactive = "Inactive",
 }
 
 /* ────────────────────────────────────────────────────────
@@ -24,10 +25,11 @@ export interface IProductInfo {
   categoryId: string;
   title: string;
   description?: string;
-  price: number; 
+  price: number;
   stockQuantity: number;
-  status: EProductStatus;  
+  status: EProductStatus;
   images?: IProductImage[];
+  store?: Pick<IStore, "id" | "name" | "subdomain">;
 }
 
 /* ────────────────────────────────────────────────────────

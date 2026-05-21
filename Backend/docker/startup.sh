@@ -25,15 +25,26 @@ if find prisma/migrations -type f -name '*.sql' | grep -q '.'; then
   npx prisma migrate deploy
 else
   printf '%s\n' "No committed Prisma SQL migrations found. Syncing schema with prisma db push..."
-  npx prisma db push
+  DB_PUSH_ACCEPT_DATA_LOSS="${DB_PUSH_ACCEPT_DATA_LOSS:-false}"
+  if [ "$DB_PUSH_ACCEPT_DATA_LOSS" = "true" ]; then
+    printf '%s\n' "Running 'prisma db push --accept-data-loss' (DB_PUSH_ACCEPT_DATA_LOSS=true)."
+    npx prisma db push --accept-data-loss
+  else
+    npx prisma db push
+  fi
 fi
 
 if [ "${AUTO_SEED:-true}" = "true" ]; then
   printf '%s\n' "Seeding database..."
-  node prisma/seed.js
+  npx tsx prisma/seed.js
 else
   printf '%s\n' "AUTO_SEED is false. Skipping seed step."
 fi
 
 printf '%s\n' "Starting backend server..."
-exec npm run dev
+if [ "${NODE_ENV:-production}" = "development" ]; then
+  printf '%s\n' "Development mode detected. Starting watch server..."
+  exec npm run dev
+else
+  exec npm run start
+fi

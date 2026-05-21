@@ -1,12 +1,16 @@
 import dotenv from "dotenv";
 import express from "express";
-import { sendSuccess, sendError } from "./utils/response.js";
+import type { Request, Response, NextFunction } from "express";
+import { resolveTenant } from "./middleware/tenant.middleware.js";
+import { sendSuccess, sendError, sendNotFound } from "./utils/response.js";
 import { productRoutes } from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import storeRouter from "./routes/storeRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
-import orderRoutes from "./routes/orderRoutes.js"; // ← NEW
+import emailTestRoutes from "./routes/emailTestRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" with { type: "json" };
 
@@ -33,7 +37,17 @@ app.use(express.urlencoded({ extended: true }));
 //npm install corsconfigured for development, in production we will use nginx to handle cors
 app.use(
   cors({
-    origin: "http://localhost:5000",
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     optionsSuccessStatus: 200,
   }),
@@ -49,20 +63,41 @@ app.get("/api/health", (req, res) => {
     "Server is healthy",
   );
 });
+app.use("/api/stores/:storeSlug/products", resolveTenant, productRoutes);
+app.use("/api/stores/:storeSlug/categories", resolveTenant, categoryRoutes);
+app.use("/api/stores/:storeSlug/cart", resolveTenant, cartRoutes);
+// Legacy non-tenant aliases for existing clients
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/cart", cartRoutes);
 app.use("/api/stores", storeRouter);
+app.use("/api/test/email", emailTestRoutes);
 
 // app.use('/uploads',uploadRoutes);
 
 app.use("/api/auth", authRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/orders", orderRoutes);
 // Error handling middleware for Multer
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+app.use("/api/orders", orderRoutes);
+app.use("/api/user", userRoutes);
+
+
 const PORT = process.env.PORT || 3000;
+
+/* 404 handler — catch unknown routes and return JSON 404 */
+app.use((req, res) => {
+  sendNotFound(res, `Route ${req.originalUrl} not found`);
+});
+
+/* Global error handler (exactly 4 args so Express recognizes it) */
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(`[ERROR] ${req.method} ${req.originalUrl} >>`, err);
+  const statusCode = err?.status || err?.statusCode || 500;
+  const message = process.env.NODE_ENV === "production" ? "Internal Server Error" : err?.message || "Internal Server Error";
+  return sendError(res, message, statusCode);
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

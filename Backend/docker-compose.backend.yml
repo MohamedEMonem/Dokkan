@@ -32,7 +32,7 @@ services:
   meilisearch:
     image: getmeili/meilisearch:latest
     environment:
-      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-masterKey}
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-root}
       MEILI_NO_ANALYTICS: "true"
     ports:
       - "${MEILI_PORT:-7700}:7700"
@@ -61,14 +61,28 @@ services:
       - "1025:1025"
     environment:
       - MP_MAX_MESSAGES=500
-    networks:
-      - nx_network
     restart: always
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    restart: unless-stopped
 
   backend:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -79,21 +93,40 @@ services:
       minio:
         condition: service_started
     environment:
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "100"
       NODE_ENV: development
       PORT: ${PORT:-3000}
       JWT_SECRET: ${JWT_SECRET:-admin}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-super-refresh-secret}
+      REFRESH_TOKEN_EXPIRES_IN: ${REFRESH_TOKEN_EXPIRES_IN:-7d}
+      REFRESH_TOKEN_PREFIX: ${REFRESH_TOKEN_PREFIX:-refresh}
+      REFRESH_COOKIE_NAME: ${REFRESH_COOKIE_NAME:-refreshToken}
+      REFRESH_COOKIE_SAMESITE: ${REFRESH_COOKIE_SAMESITE:-lax}
+      REFRESH_COOKIE_SECURE: ${REFRESH_COOKIE_SECURE:-false}
+      REFRESH_COOKIE_PATH: ${REFRESH_COOKIE_PATH:-/api/auth}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5000}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
       DATABASE_URL: postgres://${POSTGRES_USER:-root}:${POSTGRES_PASSWORD:-root}@postgres:5432/${POSTGRES_DB:-mydb}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       MEILI_HOST: meilisearch
       MEILI_PORT: 7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-root}
+      MEILI_SEARCH_KEY: ${MEILI_SEARCH_KEY}
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_USE_SSL: "false"
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-root}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-rootpassword}
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      EMAIL_FROM: ${EMAIL_FROM:-"Dokkan Security <noreply@dokkan.com>"}
       AUTO_SEED: ${AUTO_SEED:-true}
+      DB_PUSH_ACCEPT_DATA_LOSS: ${DB_PUSH_ACCEPT_DATA_LOSS:-true}
       DB_WAIT_RETRIES: ${DB_WAIT_RETRIES:-60}
     ports:
       - "${PORT:-3000}:3000"
@@ -104,3 +137,7 @@ volumes:
   frontend_redis_data:
   frontend_meili_data:
   frontend_minio_data:
+  
+networks:
+  nx_network:
+    driver: bridge

@@ -49,12 +49,12 @@ const navItems: NavItemData[] = [
   },
   {
     label: "المحلات",
-    href: "/marketplace",
+    href: "/stores",
     icon: <Store className="w-5 h-5 text-primary" />,
     subItems: [
-      { label: "أفضل المتاجر", href: "/marketplace?sort=top" },
-      { label: "المتاجر الجديدة", href: "/marketplace?sort=new" },
-      { label: "متاجر موثوقة", href: "/marketplace?filter=verified" },
+      { label: "أفضل المتاجر", href: "/stores?sort=top" },
+      { label: "المتاجر الجديدة", href: "/stores?sort=new" },
+      { label: "متاجر موثوقة", href: "/stores?filter=verified" },
     ],
   },
 ];

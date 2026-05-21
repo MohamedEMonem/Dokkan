@@ -1,27 +1,64 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
+import { Prisma } from "@prisma/client";
 import prisma from "../config/db.js";
 import { sendError, sendNotFound, sendServerError, sendSuccess } from "../utils/response.js";
 import { deletePublicImg, uploadPublicImg } from "../services/imgStorageService.js";
-import { includes } from "zod";
+import { listProductsQuerySchema } from "../DTO/product.dto.js";
 const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
   ...product,
   price: Number(product.price),
 });
 
-export const listProducts = async (req: Request, res: Response) => {
+export const listProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const products = await prisma.product.findMany({
-      where: { deletedAt: null },
-      orderBy: { createdAt: "desc" },
-    });
+    const parsedQuery = listProductsQuerySchema.safeParse(req.query);
 
-    return sendSuccess(res, products.map(mapProduct), "Products retrieved successfully");
+    if (!parsedQuery.success) {
+      return sendError(res, "Invalid query parameters", 400, parsedQuery.error.flatten());
+    }
+
+    const { page, limit, status, sortBy, sortDir } = parsedQuery.data;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.ProductWhereInput = {
+      deletedAt: null,
+      ...(status ? { status } : {}),
+    };
+
+    const orderBy = {
+      [sortBy]: sortDir,
+    } as Prisma.ProductOrderByWithRelationInput;
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy,
+        include: { images: true, store: true },
+      }),
+      prisma.product.count({ where }),
+    ]);
+
+    return sendSuccess(
+      res,
+      {
+        products: products.map(mapProduct),
+        meta: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+      "Products retrieved successfully",
+    );
   } catch (error) {
-    return sendServerError(res, "Failed to retrieve products", error);
+    return next(error);
   }
 };
 
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -34,6 +71,7 @@ export const getProductById = async (req: Request, res: Response) => {
         id,
         deletedAt: null,
       },
+      include: { images: true, store: true },
     });
 
     if (!product) {
@@ -42,11 +80,11 @@ export const getProductById = async (req: Request, res: Response) => {
 
     return sendSuccess(res, mapProduct(product), "Product retrieved successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to retrieve product", error);
+    return next(error);
   }
 };
 
-export const createProduct = async (req: any, res: Response) => {
+export const createProduct = async (req: any, res: Response, next: NextFunction) => {
   try {
     const { storeId, categoryId, title, description, price, stockQuantity, status } = req.body;
 
@@ -104,11 +142,11 @@ export const createProduct = async (req: any, res: Response) => {
       throw dbError;
     }
   } catch (error) {
-    return sendServerError(res, "Failed to create product", error);
+    return next(error);
   }
 };
 
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -144,15 +182,16 @@ export const updateProduct = async (req: Request, res: Response) => {
     const updated = await prisma.product.update({
       where: { id },
       data,
+      include: { images: true },
     });
 
     return sendSuccess(res, mapProduct(updated), "Product updated successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to update product", error);
+    return next(error);
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
 
@@ -175,6 +214,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
     return sendSuccess(res, null, "Product deleted successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to delete product", error);
+    return next(error);
   }
 };

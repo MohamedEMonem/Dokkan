@@ -1,11 +1,10 @@
 import express from "express";
-import { auth, authLimiter } from "../middleware/auth.js";
+import { auth, authLimiter, refreshLimiter } from "../middleware/auth.js";
 import {
-  deleteAccount,
-  getProfile,
   login,
-  patchProfile,
   register,
+  refresh,
+  logout,
   verifyOtp,
   resendOtp,
 } from "../modules/auth/auth.controller.js";
@@ -79,66 +78,29 @@ router.post(
   login,
 );
 
-// Authenticated profile endpoints
-router.get(
-  "/profile",
-  auth,
+router.post(
+  "/refresh",
+  refreshLimiter,
   /* #swagger.tags = ['Auth']
-     #swagger.summary = 'Get current user profile'
-     #swagger.description = 'Retrieves the public profile data of the authenticated user.'
-     #swagger.security = [{ "bearerAuth": [] }] 
-     #swagger.responses[200] = { description: 'Profile retrieved successfully' }
-     #swagger.responses[401] = { description: 'Access denied. Invalid or missing token.' }
-     #swagger.responses[404] = { description: 'User not found' }
+     #swagger.summary = 'Refresh access token'
+     #swagger.description = 'Rotates the refresh token (from HTTP-only cookie) and returns a fresh access token.'
+     #swagger.responses[200] = { description: 'Token refreshed successfully' }
+     #swagger.responses[401] = { description: 'Missing, invalid, expired, or revoked refresh token' }
+     #swagger.responses[429] = { description: 'Too many refresh attempts' }
      #swagger.responses[500] = { description: 'Internal server error' }
   */
-  getProfile,
+  refresh,
 );
 
-router.patch(
-  "/profile",
-  auth,
+router.post(
+  "/logout",
   /* #swagger.tags = ['Auth']
-     #swagger.summary = 'Update user profile'
-     #swagger.description = 'Updates specific fields on the authenticated user profile. Unrecognized fields will be rejected.'
-     #swagger.security = [{ "bearerAuth": [] }] 
-     #swagger.requestBody = {
-        required: true,
-        content: { 
-          "application/json": { 
-            schema: { 
-              type: "object",
-              properties: { 
-                name: { type: "string", maxLength: 50, example: "Jane Doe" },
-                contactNumber: { type: "string", maxLength: 20, nullable: true, example: "+1234567890" },
-                profilePhotoUrl: { type: "string", maxLength: 255, nullable: true, example: "https://example.com/photo.jpg" }
-              } 
-            } 
-          } 
-        }
-     }
-     #swagger.responses[200] = { description: 'Profile updated successfully' }
-     #swagger.responses[400] = { description: 'Validation error (e.g., invalid fields, string length exceeded, or no valid fields provided)' }
-     #swagger.responses[401] = { description: 'Access denied. Invalid or missing token.' }
-     #swagger.responses[404] = { description: 'Account not found or already deleted' }
+     #swagger.summary = 'Logout user'
+     #swagger.description = 'Revokes current refresh token session (if present) and clears refresh cookie.'
+     #swagger.responses[200] = { description: 'Logged out successfully' }
      #swagger.responses[500] = { description: 'Internal server error' }
   */
-  patchProfile,
-);
-
-router.delete(
-  "/profile",
-  auth,
-  /* #swagger.tags = ['Auth']
-     #swagger.summary = 'Delete user account'
-     #swagger.description = 'Performs a soft delete on the authenticated user account.'
-     #swagger.security = [{ "bearerAuth": [] }] 
-     #swagger.responses[200] = { description: 'Account deleted successfully' }
-     #swagger.responses[401] = { description: 'Access denied. Invalid or missing token.' }
-     #swagger.responses[404] = { description: 'Account not found or already deleted' }
-     #swagger.responses[500] = { description: 'Internal server error' }
-  */
-  deleteAccount,
+  logout,
 );
 
 router.post(
