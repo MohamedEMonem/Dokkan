@@ -1,6 +1,5 @@
 import prisma from "../config/db.js";
 import redis from "../config/redis.js";
-import type { PatchProfileDto } from "../DTO/user.dto.js";
 
 type PublicUser = {
   id: string;
@@ -44,6 +43,12 @@ async function revokeAllRefreshSessionsForUser(userId: string) {
   }
 }
 
+type PatchProfileInput = {
+  name?: string;
+  contactNumber?: string | null;
+  profilePhotoUrl?: string | null;
+};
+
 export const userService = {
   async getProfile(userId: string) {
     const user = await prisma.user.findFirst({
@@ -61,7 +66,7 @@ export const userService = {
     return toPublicUser(user);
   },
 
-  async patchProfile(userId: string, input: PatchProfileDto) {
+  async patchProfile(userId: string, input: PatchProfileInput) {
     const data: Record<string, string | null> = {};
 
     if (Object.prototype.hasOwnProperty.call(input, "name")) {
