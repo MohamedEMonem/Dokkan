@@ -62,7 +62,7 @@ router.get(
   "/",
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Browse active stores with pagination'
-     #swagger.description = 'List active stores with optional query params for page and limit.'
+     #swagger.description = 'List stores with optional pagination, status filter, and sorting.'
      #swagger.responses[200] = { description: 'Stores retrieved successfully' }
   */
   listStores,
