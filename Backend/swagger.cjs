@@ -13,11 +13,12 @@ const doc = {
     }
   ],
   tags: [
-    { name: 'Auth', description: 'User Registration, Login, and Profile Management' },
-    { name: 'Stores', description: 'Store Creation and Management' },
+    { name: 'Auth',       description: 'User Registration, Login, and Profile Management' },
+    { name: 'Stores',     description: 'Store Creation and Management' },
     { name: 'Categories', description: 'Product Categories' },
-    { name: 'Products', description: 'Product Catalog and Inventory' },
-    { name: 'Cart', description: 'Shopping Cart Operations' }
+    { name: 'Products',   description: 'Product Catalog and Inventory' },
+    { name: 'Cart',       description: 'Shopping Cart Operations' },
+    { name: 'Orders',     description: 'Order Placement, Tracking, and Status Management' }
   ],
   components: {
     securitySchemes: {

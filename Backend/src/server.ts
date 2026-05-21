@@ -6,9 +6,9 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import storeRouter from "./routes/storeRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js"; // ← NEW
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" with { type: "json" };
-import orderRoutes from "./routes/orderRoutes.js";
 
 
 // @ts-ignore
@@ -42,9 +42,9 @@ app.use(
 app.get("/api/health", (req, res) => {
   return sendSuccess(
     res,
-    {
+    { 
       status: "OK",
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString() 
     },
     "Server is healthy",
   );
@@ -57,12 +57,10 @@ app.use("/api/stores", storeRouter);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
 // Error handling middleware for Multer
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-app.use("/api/orders", orderRoutes);
-
 
 const PORT = process.env.PORT || 3000;
 
