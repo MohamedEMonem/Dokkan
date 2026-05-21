@@ -17,6 +17,10 @@
       "description": "User Registration, Login, and Profile Management"
     },
     {
+      "name": "User",
+      "description": "Authenticated User Profile Management"
+    },
+    {
       "name": "Stores",
       "description": "Store Creation and Management"
     },
@@ -50,7 +54,7 @@
           "Products"
         ],
         "summary": "List all products",
-        "description": "Returns a paginated list of products with optional filters (category, price range, search).",
+        "description": "Returns a paginated list of products with optional status and sort filters.",
         "parameters": [
           {
             "name": "storeSlug",
@@ -855,7 +859,7 @@
           "Products"
         ],
         "summary": "List all products",
-        "description": "Returns a paginated list of products with optional filters (category, price range, search).",
+        "description": "Returns a paginated list of products with optional status and sort filters.",
         "responses": {
           "200": {
             "description": "Products retrieved successfully"
@@ -1522,7 +1526,7 @@
         ]
       }
     },
-    "/api/stores/create": {
+    "/api/stores/": {
       "post": {
         "tags": [
           "Stores"
@@ -1585,14 +1589,26 @@
             }
           }
         }
-      }
-    },
-    "/api/stores/mystore": {
+      },
       "get": {
         "tags": [
           "Stores"
         ],
-        "summary": "Get store details",
+        "summary": "Browse active stores with pagination",
+        "description": "List stores with optional pagination, status filter, and sorting.",
+        "responses": {
+          "200": {
+            "description": "Stores retrieved successfully"
+          }
+        }
+      }
+    },
+    "/api/stores/me": {
+      "get": {
+        "tags": [
+          "Stores"
+        ],
+        "summary": "Get the authenticated owner\\'s store",
         "description": "Returns details for the authenticated user\\'s store.",
         "parameters": [
           {
@@ -1604,14 +1620,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Store retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Store not found"
+          "default": {
+            "description": ""
           }
         },
         "security": [
@@ -1619,39 +1629,7 @@
             "bearerAuth": []
           }
         ]
-      }
-    },
-    "/api/stores/browse": {
-      "get": {
-        "tags": [
-          "Stores"
-        ],
-        "summary": "Browse active stores with pagination",
-        "description": "List active stores with optional query params for page and limit.",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Stores retrieved successfully"
-          }
-        }
-      }
-    },
-    "/api/stores/update": {
+      },
       "put": {
         "tags": [
           "Stores"
@@ -1707,15 +1685,41 @@
             }
           }
         }
-      }
-    },
-    "/api/stores/delete": {
+      },
       "delete": {
         "tags": [
           "Stores"
         ],
         "summary": "Soft-delete the authenticated user\\'s store",
         "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/test/email/order-confirmation": {
+      "post": {
+        "tags": [
+          "Test Email"
+        ],
+        "summary": "Send a test order confirmation email",
+        "description": "Sends a compiled Handlebars order confirmation email using provided order data.",
         "parameters": [
           {
             "name": "Authorization",
@@ -1894,145 +1898,6 @@
             "description": "Internal server error"
           }
         }
-      }
-    },
-    "/api/auth/profile": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Get current user profile",
-        "description": "Retrieves the public profile data of the authenticated user.",
-        "parameters": [
-          {
-            "name": "Authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Profile retrieved successfully"
-          },
-          "401": {
-            "description": "Access denied. Invalid or missing token."
-          },
-          "404": {
-            "description": "User not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "patch": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Update user profile",
-        "description": "Updates specific fields on the authenticated user profile. Unrecognized fields will be rejected.",
-        "parameters": [
-          {
-            "name": "Authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Profile updated successfully"
-          },
-          "400": {
-            "description": "Validation error (e.g., invalid fields, string length exceeded, or no valid fields provided)"
-          },
-          "401": {
-            "description": "Access denied. Invalid or missing token."
-          },
-          "404": {
-            "description": "Account not found or already deleted"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "example": "Jane Doe"
-                  },
-                  "contactNumber": {
-                    "type": "string",
-                    "maxLength": 20,
-                    "nullable": true,
-                    "example": "+1234567890"
-                  },
-                  "profilePhotoUrl": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "nullable": true,
-                    "example": "https://example.com/photo.jpg"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Delete user account",
-        "description": "Performs a soft delete on the authenticated user account.",
-        "parameters": [
-          {
-            "name": "Authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Account deleted successfully"
-          },
-          "401": {
-            "description": "Access denied. Invalid or missing token."
-          },
-          "404": {
-            "description": "Account not found or already deleted"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
       }
     },
     "/api/auth/verify-otp": {
@@ -2214,27 +2079,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -2320,10 +2164,6 @@
                       "city": "Cairo",
                       "postalCode": "11511"
                     }
-                  },
-                  "paymentMethod": {
-                    "type": "string",
-                    "example": "card"
                   }
                 }
               }
@@ -2354,27 +2194,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -2386,6 +2205,37 @@
           },
           "404": {
             "description": "Store not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/orders/me": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get the authenticated customer\\'s orders",
+        "description": "Returns a paginated list of orders placed by the signed-in user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2502,6 +2352,173 @@
             }
           }
         }
+      }
+    },
+    "/api/user/profile": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get current user profile",
+        "description": "Retrieves the public profile data of the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile retrieved successfully"
+          },
+          "401": {
+            "description": "Access denied. Invalid or missing token."
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Update user profile",
+        "description": "Updates specific fields on the authenticated user profile. Unrecognized fields will be rejected.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully"
+          },
+          "400": {
+            "description": "Validation error (e.g., invalid fields, string length exceeded, or no valid fields provided)"
+          },
+          "401": {
+            "description": "Access denied. Invalid or missing token."
+          },
+          "404": {
+            "description": "Account not found or already deleted"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "example": "Jane Doe"
+                  },
+                  "contactNumber": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "nullable": true,
+                    "example": "+1234567890"
+                  },
+                  "profilePhotoUrl": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "nullable": true,
+                    "example": "https://example.com/photo.jpg"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete user account",
+        "description": "Performs a soft delete on the authenticated user account.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account deleted successfully"
+          },
+          "401": {
+            "description": "Access denied. Invalid or missing token."
+          },
+          "404": {
+            "description": "Account not found or already deleted"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/user/profilegetRefreshSessionKey(userId": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get current user profile",
+        "description": "Retrieves the public profile data of the authenticated user.",
+        "responses": {
+          "200": {
+            "description": "Profile retrieved successfully"
+          },
+          "401": {
+            "description": "Access denied. Invalid or missing token."
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     }
   },
