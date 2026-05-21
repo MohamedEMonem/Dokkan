@@ -4,6 +4,7 @@ import { OrderService } from "../services/OrderService.js";
 import prisma from "../config/db.js";
 import { sendSuccess, sendError, sendServerError } from "../utils/response.js";
 import { emailService } from "../services/email.service.js";
+import { getOrdersQuerySchema } from "../DTO/order.dto.js";
 
 const testOrderItemSchema = z.object({
   name: z.string().trim().min(1).max(150),
@@ -50,15 +51,74 @@ export const createOrder = async (req: Request, res: Response) => {
 
 export const getOrders = async (req: Request, res: Response) => {
   try {
-    const page = Math.max(1, Number(req.query.page || 1));
-    const limit = Math.min(100, Number(req.query.limit || 20));
-    const status = req.query.status as string | undefined;
+    const parsedQuery = getOrdersQuerySchema.safeParse(req.query);
+
+    if (!parsedQuery.success) {
+      return sendError(res, "Invalid query parameters", 400, parsedQuery.error.flatten());
+    }
+
+    const { page, limit, status, sortBy, sortDir } = parsedQuery.data;
 
     const skip = (page - 1) * limit;
 
-    const result = await OrderService.getAllOrders(skip, limit, status);
+    const result = await OrderService.getAllOrders({
+      skip,
+      take: limit,
+      status,
+      sortBy,
+      sortDir,
+    });
 
-    return sendSuccess(res, { orders: result.orders, total: result.total }, "Orders fetched");
+    return sendSuccess(
+      res,
+      {
+        orders: result.orders,
+        meta: {
+          page,
+          limit,
+          total: result.total,
+          totalPages: Math.ceil(result.total / limit),
+        },
+      },
+      "Orders fetched",
+    );
+  } catch (error) {
+    return sendServerError(res, "Failed to fetch orders", error);
+  }
+};
+
+export const getMyOrders = async (req: Request, res: Response) => {
+  try {
+    const parsedQuery = getOrdersQuerySchema.safeParse(req.query);
+
+    if (!parsedQuery.success) {
+      return sendError(res, "Invalid query parameters", 400, parsedQuery.error.flatten());
+    }
+
+    const { page, limit, status, sortBy, sortDir } = parsedQuery.data;
+    const skip = (page - 1) * limit;
+
+    const result = await OrderService.getOrdersByCustomerId(req.user!.id, {
+      skip,
+      take: limit,
+      status,
+      sortBy,
+      sortDir,
+    });
+
+    return sendSuccess(
+      res,
+      {
+        orders: result.orders,
+        meta: {
+          page,
+          limit,
+          total: result.total,
+          totalPages: Math.ceil(result.total / limit),
+        },
+      },
+      "Orders fetched",
+    );
   } catch (error) {
     return sendServerError(res, "Failed to fetch orders", error);
   }
@@ -84,9 +144,13 @@ export const getOrderById = async (req: Request, res: Response) => {
 export const getOrdersByStoreId = async (req: Request, res: Response) => {
   try {
     const storeId = String(req.params.storeId);
-    const page = Math.max(1, Number(req.query.page || 1));
-    const limit = Math.min(100, Number(req.query.limit || 20));
-    const status = req.query.status as string | undefined;
+    const parsedQuery = getOrdersQuerySchema.safeParse(req.query);
+
+    if (!parsedQuery.success) {
+      return sendError(res, "Invalid query parameters", 400, parsedQuery.error.flatten());
+    }
+
+    const { page, limit, status, sortBy, sortDir } = parsedQuery.data;
 
     const skip = (page - 1) * limit;
 
@@ -97,8 +161,27 @@ export const getOrdersByStoreId = async (req: Request, res: Response) => {
       if (store.ownerId !== req.user!.id) return sendError(res, "Access denied", 403);
     }
 
-    const result = await OrderService.getOrdersByStoreId(storeId as string, skip, limit, status as string | undefined);
-    return sendSuccess(res, { orders: result.orders, total: result.total }, "Store orders fetched");
+    const result = await OrderService.getOrdersByStoreId(storeId as string, {
+      skip,
+      take: limit,
+      status,
+      sortBy,
+      sortDir,
+    });
+
+    return sendSuccess(
+      res,
+      {
+        orders: result.orders,
+        meta: {
+          page,
+          limit,
+          total: result.total,
+          totalPages: Math.ceil(result.total / limit),
+        },
+      },
+      "Store orders fetched",
+    );
   } catch (error) {
     return sendServerError(res, "Failed to fetch store orders", error);
   }
