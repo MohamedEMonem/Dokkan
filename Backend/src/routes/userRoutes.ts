@@ -1,5 +1,6 @@
 import express from "express";
 import { auth } from "../middleware/auth.js";
+import { upload } from "../middleware/uploadValidator.js";
 import {
   deleteAccount,
   getProfile,
@@ -26,20 +27,21 @@ router.get(
 router.patch(
   "/profile",
   auth,
+  upload.single("image"),
   /* #swagger.tags = ['User']
      #swagger.summary = 'Update user profile'
-     #swagger.description = 'Updates specific fields on the authenticated user profile. Unrecognized fields will be rejected.'
+     #swagger.description = 'Updates specific fields on the authenticated user profile. Send multipart/form-data and attach the profile photo in the image field.'
      #swagger.security = [{ "bearerAuth": [] }]
      #swagger.requestBody = {
         required: true,
         content: {
-          "application/json": {
+          "multipart/form-data": {
             schema: {
               type: "object",
               properties: {
                 name: { type: "string", maxLength: 50, example: "Jane Doe" },
                 contactNumber: { type: "string", maxLength: 20, nullable: true, example: "+1234567890" },
-                profilePhotoUrl: { type: "string", maxLength: 255, nullable: true, example: "https://example.com/photo.jpg" }
+                image: { type: "string", format: "binary", description: "Profile photo image file" }
               }
             }
           }
