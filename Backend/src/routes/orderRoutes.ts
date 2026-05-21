@@ -1,6 +1,6 @@
 import express from "express";
 import { auth, authAdmin, authStoreOwner } from "../middleware/auth.js";
-import { createOrder, getOrders, getOrderById, getOrdersByStoreId, updateOrderStatus } from "../controllers/OrderController.js";
+import { createOrder, getMyOrders, getOrders, getOrderById, getOrdersByStoreId, updateOrderStatus } from "../controllers/OrderController.js";
 
 const router = express.Router();
 
@@ -25,6 +25,17 @@ router.get("/store/:storeId", auth, authStoreOwner,
      #swagger.responses[404] = { description: 'Store not found' }
   */
   getOrdersByStoreId
+);
+
+router.get("/me", auth,
+  /* #swagger.tags = ['Orders']
+     #swagger.summary = 'Get the authenticated customer\'s orders'
+     #swagger.description = 'Returns a paginated list of orders placed by the signed-in user.'
+     #swagger.security = [{ "bearerAuth": [] }]
+     #swagger.responses[200] = { description: 'Orders retrieved successfully' }
+     #swagger.responses[401] = { description: 'Unauthorized' }
+  */
+  getMyOrders
 );
 
 router.get("/:id", auth,
