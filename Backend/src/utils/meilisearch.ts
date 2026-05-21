@@ -37,3 +37,10 @@ export const meilisearch = new Meilisearch({
   host: meilisearchHost,
   apiKey: searchKey,
 })
+
+meili.getVersion().then((version) => {
+  console.log(`Connected to Meilisearch version ${version.pkgVersion}`)
+}).catch((error) => {
+  console.error('Failed to connect to Meilisearch:', error)
+  process.exit(1)
+})
