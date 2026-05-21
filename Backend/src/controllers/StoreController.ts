@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { StoreServices } from "../services/StoreServices.js";
 import { sendSuccess, sendError } from "../utils/response.js";
-import { CreateStoreDto } from "../DTO/store.dto.js";
+import { CreateStoreDto, listStoresQuerySchema } from "../DTO/store.dto.js";
 
 const storeService = new StoreServices();
 
@@ -54,13 +54,13 @@ export const listStores = async (
   next: NextFunction,
 ) => {
   try {
-    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10));
-    const limit = Math.min(
-      100,
-      Math.max(1, parseInt(String(req.query.limit ?? "20"), 10)),
-    );
+    const parsedQuery = listStoresQuerySchema.safeParse(req.query);
 
-    const result = await storeService.listStores(page, limit);
+    if (!parsedQuery.success) {
+      return sendError(res, "Invalid query parameters", 400, parsedQuery.error.flatten());
+    }
+
+    const result = await storeService.listStores(parsedQuery.data);
 
     return sendSuccess(
       res,
