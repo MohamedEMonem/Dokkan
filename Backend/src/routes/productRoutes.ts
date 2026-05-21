@@ -10,7 +10,7 @@ const router = express.Router({ mergeParams: true });
 router.get("/", 
   /* #swagger.tags = ['Products']
      #swagger.summary = 'List all products'
-     #swagger.description = 'Returns a paginated list of products with optional filters (category, price range, search).'
+     #swagger.description = 'Returns a paginated list of products with optional status and sort filters.'
      #swagger.responses[200] = { description: 'Products retrieved successfully' }
      #swagger.responses[500] = { description: 'Internal server error' }
   */
