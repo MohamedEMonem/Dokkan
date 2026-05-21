@@ -1,8 +1,17 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../config/db.js";
 import redisClient from "../utils/redisClient.js";
 import { getCart } from "./CartService.js";
 
 type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
+type OrderListOptions = {
+  skip: number;
+  take: number;
+  status?: "Pending" | "Shipped" | "Delivered" | "Cancelled";
+  sortBy: "createdAt" | "status" | "totalAmount";
+  sortDir: "asc" | "desc";
+};
 
 export class OrderService {
 
@@ -80,14 +89,20 @@ export class OrderService {
     return result.id; 
   }
 
-  static async getAllOrders(skip = 0, take = 20, status?: string) {
-    const where: any = {};
-    if (status) where.status = status;
+  private static async listOrders(where: Prisma.OrderWhereInput, options: OrderListOptions) {
+    const { skip, take, sortBy, sortDir } = options;
+
+    const orderBy = {
+      [sortBy]: sortDir,
+    } as Prisma.OrderOrderByWithRelationInput;
 
     const [orders, total] = await Promise.all([
       prisma.order.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
+        where: {
+          deletedAt: null,
+          ...where,
+        },
+        orderBy,
         skip,
         take,
         include: {
@@ -95,10 +110,32 @@ export class OrderService {
           store: { select: { id: true, name: true, ownerId: true } },
         },
       }),
-      prisma.order.count({ where }),
+      prisma.order.count({
+        where: {
+          deletedAt: null,
+          ...where,
+        },
+      }),
     ]);
 
     return { orders, total };
+  }
+
+  static async getAllOrders(options: OrderListOptions) {
+    const where: Prisma.OrderWhereInput = options.status
+      ? { status: options.status }
+      : {};
+
+    return this.listOrders(where, options);
+  }
+
+  static async getOrdersByCustomerId(customerId: string, options: OrderListOptions) {
+    const where: Prisma.OrderWhereInput = {
+      customerId,
+      ...(options.status ? { status: options.status } : {}),
+    };
+
+    return this.listOrders(where, options);
   }
 
   static async getOrderById(orderId: string) {
@@ -115,24 +152,13 @@ export class OrderService {
     return order;
   }
 
-  static async getOrdersByStoreId(storeId: string, skip = 0, take = 20, status?: string) {
-    const where: any = { storeId };
-    if (status) where.status = status;
+  static async getOrdersByStoreId(storeId: string, options: OrderListOptions) {
+    const where: Prisma.OrderWhereInput = {
+      storeId,
+      ...(options.status ? { status: options.status } : {}),
+    };
 
-    const [orders, total] = await Promise.all([
-      prisma.order.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take,
-        include: {
-          customer: { select: { id: true, name: true, email: true } },
-        },
-      }),
-      prisma.order.count({ where }),
-    ]);
-
-    return { orders, total };
+    return this.listOrders(where, options);
   }
 
   static async updateOrderStatus(orderId: string, status: string) {
