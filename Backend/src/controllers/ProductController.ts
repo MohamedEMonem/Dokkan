@@ -1,8 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
+import { Prisma } from "@prisma/client";
 import prisma from "../config/db.js";
 import { sendError, sendNotFound, sendServerError, sendSuccess } from "../utils/response.js";
 import { deletePublicImg, uploadPublicImg } from "../services/imgStorageService.js";
-import { includes } from "zod";
+import { listProductsQuerySchema } from "../DTO/product.dto.js";
 const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
   ...product,
   price: Number(product.price),
@@ -10,18 +11,48 @@ const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
 
 export const listProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filters = req.query;
+    const parsedQuery = listProductsQuerySchema.safeParse(req.query);
 
-    const products = await prisma.product.findMany({
-      where: {
-        deletedAt: null,
-        ...filters,
+    if (!parsedQuery.success) {
+      return sendError(res, "Invalid query parameters", 400, parsedQuery.error.flatten());
+    }
+
+    const { page, limit, status, sortBy, sortDir } = parsedQuery.data;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.ProductWhereInput = {
+      deletedAt: null,
+      ...(status ? { status } : {}),
+    };
+
+    const orderBy = {
+      [sortBy]: sortDir,
+    } as Prisma.ProductOrderByWithRelationInput;
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy,
+        include: { images: true, store: true },
+      }),
+      prisma.product.count({ where }),
+    ]);
+
+    return sendSuccess(
+      res,
+      {
+        products: products.map(mapProduct),
+        meta: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
       },
-      orderBy: { createdAt: "desc" },
-      include: { images: true, store: true },
-    });
-
-    return sendSuccess(res, products.map(mapProduct), "Products retrieved successfully");
+      "Products retrieved successfully",
+    );
   } catch (error) {
     return next(error);
   }
