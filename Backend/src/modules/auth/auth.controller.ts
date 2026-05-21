@@ -7,6 +7,7 @@ import {
 } from "../../utils/response.js";
 import { authService } from "../../services/AuthService.js";
 import { userService } from "../../services/UserService.js";
+import { deletePublicImg, uploadPublicImg } from "../../services/imgStorageService.js";
 import {
   loginAuthSchema,
   otpSchema,
@@ -28,6 +29,11 @@ function getPayload(req: Request): Record<string, unknown> | null {
 
   return req.body;
 }
+
+type UploadedImage = {
+  buffer: Buffer;
+  originalname: string;
+};
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -146,6 +152,7 @@ export const getProfile = async (req: Request, res: Response) => {
 export const patchProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
+    const uploadRequest = req as Request & { file?: UploadedImage };
     const payload = getPayload(req);
 
     if (!payload) {
@@ -156,8 +163,48 @@ export const patchProfile = async (req: Request, res: Response) => {
       return sendError(res, validation.error.issues[0]?.message || "Invalid request body", 400, validation.error.format());
     }
 
-    const user = await userService.patchProfile(userId, validation.data);
-    return sendSuccess(res, { user }, "Profile updated successfully");
+    const existingUser = await userService.getProfile(userId);
+    const updateData: {
+      name?: string;
+      contactNumber?: string | null;
+      profilePhotoUrl?: string | null;
+    } = { ...validation.data };
+
+    let uploadedImageUrl: string | null = null;
+
+    try {
+      if (uploadRequest.file) {
+        uploadedImageUrl = await uploadPublicImg(
+          uploadRequest.file,
+          req.user?.email ?? "unknown",
+          req.user?.role ?? "user",
+          "profile",
+        );
+        updateData.profilePhotoUrl = uploadedImageUrl;
+      }
+
+      const user = await userService.patchProfile(userId, updateData);
+
+      if (uploadedImageUrl && existingUser.profilePhotoUrl && existingUser.profilePhotoUrl !== uploadedImageUrl) {
+        try {
+          await deletePublicImg(existingUser.profilePhotoUrl);
+        } catch (cleanupError) {
+          console.warn("Failed to delete previous profile image after update", cleanupError);
+        }
+      }
+
+      return sendSuccess(res, { user }, "Profile updated successfully");
+    } catch (updateError) {
+      if (uploadedImageUrl) {
+        try {
+          await deletePublicImg(uploadedImageUrl);
+        } catch (cleanupError) {
+          console.warn("Failed to cleanup uploaded profile image after update error", cleanupError);
+        }
+      }
+
+      throw updateError;
+    }
   } catch (error) {
     const typedError = error as Error & { statusCode?: number };
     if (typedError.statusCode) {
