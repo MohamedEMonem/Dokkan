@@ -20,6 +20,8 @@ router.get("/",
   */
   listProducts
 );
+router.get("/search", searchLimiter, searchProducts);
+
 
 router.get("/:id", 
   /* #swagger.tags = ['Products']
@@ -99,7 +101,6 @@ router.delete("/:id", auth, authStoreOwner,
   deleteProduct
 );
 
-router.get("/search", searchLimiter, searchProducts);
 
 export const productRoutes = router;
 export default router;
