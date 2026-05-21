@@ -39,7 +39,7 @@ const ViewStores = () => {
     filter?: string;
   };
 
-  type StoreItem = Partial<IStore>;
+  type StoreItem = Partial<IStore> & Pick<IStore, "id">;
 
   const initialFilters: FiltersType = {
     search: "",
@@ -196,7 +196,7 @@ const ViewStores = () => {
                 <div className="bg-white rounded-lg p-12 text-center shadow-sm">
                   <p className="text-red-600">حدث خطأ أثناء تحميل المحلات.</p>
                 </div>
-              ) : filteredStores.length === 0 ? (
+              ) : displayedStores.length === 0 ? (
                 <div className="bg-white rounded-lg p-12 text-center shadow-sm flex flex-col items-center">
                   <p className="text-gray-600 mb-4">
                     لم يتم العثور على محلات تطابق معاييرك.
@@ -212,9 +212,9 @@ const ViewStores = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {displayedStores.map((s) =>
-                    s ? <StoreCard key={s.id} store={s} /> : null,
-                  )}
+                  {displayedStores.map((store) => (
+                    <StoreCard key={store.id} store={store} />
+                  ))}
                 </div>
               )}
             </div>
