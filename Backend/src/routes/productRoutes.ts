@@ -17,6 +17,7 @@ router.get("/",
   listProducts
 );
 
+
 router.get("/:id", 
   /* #swagger.tags = ['Products']
      #swagger.summary = 'Get product by ID'
