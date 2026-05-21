@@ -8,4 +8,17 @@ const minioClient = new Minio.Client({
   secretKey: process.env.MINIO_ROOT_PASSWORD || "rootpassword",
 });
 
+minioClient
+  .bucketExists("dokkan")
+  .then((exists) => {
+    if (!exists) {
+      return minioClient.makeBucket("dokkan");
+    }
+  })
+  .then(() => console.log("MinIO bucket 'dokkan' is ready"))
+  .catch((err) => {
+    console.error("Error setting up MinIO bucket:", err);
+    process.exit(1);
+  });
+
 export default minioClient;
