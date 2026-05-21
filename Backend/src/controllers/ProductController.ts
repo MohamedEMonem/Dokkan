@@ -20,7 +20,7 @@ export const listProducts = async (req: Request, res: Response, next: NextFuncti
         ...filters,
       },
       orderBy: { createdAt: "desc" },
-      include: { images: true },
+      include: { images: true, store: true },
     });
 
 
@@ -43,7 +43,7 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
         id,
         deletedAt: null,
       },
-      include: { images: true },
+      include: { images: true, store: true },
     });
 
     if (!product) {

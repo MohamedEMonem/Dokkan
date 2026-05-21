@@ -108,6 +108,7 @@ services:
       REDIS_PORT: 6379
       MEILI_HOST: meilisearch
       MEILI_PORT: 7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-root}
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_USE_SSL: "false"

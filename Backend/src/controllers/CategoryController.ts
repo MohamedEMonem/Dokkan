@@ -60,6 +60,11 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
     }
 
     const { name, parentCategoryId } = validation.data;
+    const storeId = req.store?.id;
+
+    if (!storeId) {
+      return sendError(res, "Store context is required", 400);
+    }
 
     if (parentCategoryId) {
       const parent = await prisma.category.findUnique({ where: { id: parentCategoryId } });
@@ -72,6 +77,7 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
       data: {
         name,
         parentCategoryId: parentCategoryId ?? null,
+        storeId,
       },
     });
 

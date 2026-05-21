@@ -42,4 +42,4 @@ else
 fi
 
 printf '%s\n' "Starting backend server..."
-exec npm run dev
+exec npm run start

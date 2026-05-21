@@ -6,7 +6,7 @@ import { randomBytes, pbkdf2 as pbkdf2Callback } from "crypto";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
-import { meilisearchService } from "../src/services/meilisearchService.js";
+import { meilisearchService } from "../dist/services/meilisearchService.js";
 
 const { PrismaClient } = prismaClientPkg;
 const pbkdf2 = promisify(pbkdf2Callback);
@@ -159,26 +159,6 @@ async function main() {
     finalPlans.push(plan);
   }
 
-  // ── 2. Categories (tree) ────────────────────────────────────────────────────
-  console.log("Creating categories...");
-  const categoryMap = {}; // name → category record
-
-  for (const node of CATEGORY_TREE) {
-    let parent = await prisma.category.findFirst({ where: { name: node.name, parentCategoryId: null } });
-    if (!parent) {
-      parent = await prisma.category.create({ data: { id: randomUUID(), name: node.name } });
-    }
-    categoryMap[node.name] = parent;
-
-    for (const childName of node.children) {
-      let child = await prisma.category.findFirst({ where: { name: childName } });
-      if (!child) {
-        child = await prisma.category.create({ data: { id: randomUUID(), name: childName, parentCategoryId: parent.id } });
-      }
-      categoryMap[childName] = child;
-    }
-  }
-
   // ── 3. Admin user ───────────────────────────────────────────────────────────
   console.log("Creating admin user...");
   let adminUser = await prisma.user.findUnique({ where: { email: "admin@test.com" } });
@@ -244,7 +224,39 @@ async function main() {
     }
   }
 
-  // ── 5. Customers ─────────────────────────────────────────────────────────────
+  // ── 5. Categories (tree) ────────────────────────────────────────────────────
+  console.log("Creating categories...");
+  const categoryMap = new Map(); // storeId → (category name → category record)
+  let categoryCount = 0;
+
+  for (const store of stores) {
+    const storeCategoryMap = new Map();
+
+    for (const node of CATEGORY_TREE) {
+      let parent = await prisma.category.findFirst({ where: { name: node.name, storeId: store.id } });
+      if (!parent) {
+        parent = await prisma.category.create({
+          data: { id: randomUUID(), name: node.name, storeId: store.id },
+        });
+      }
+      storeCategoryMap.set(node.name, parent);
+
+      for (const childName of node.children) {
+        let child = await prisma.category.findFirst({ where: { name: childName, storeId: store.id } });
+        if (!child) {
+          child = await prisma.category.create({
+            data: { id: randomUUID(), name: childName, parentCategoryId: parent.id, storeId: store.id },
+          });
+        }
+        storeCategoryMap.set(childName, child);
+      }
+    }
+
+    categoryMap.set(store.id, storeCategoryMap);
+    categoryCount += storeCategoryMap.size;
+  }
+
+  // ── 6. Customers ─────────────────────────────────────────────────────────────
   console.log("Creating customers...");
   const customers = [];
 
@@ -267,7 +279,7 @@ async function main() {
     customers.push(customer);
   }
 
-  // ── 6. Store employees ───────────────────────────────────────────────────────
+  // ── 7. Store employees ───────────────────────────────────────────────────────
   console.log("Creating store employees...");
   for (const store of stores.slice(0, 3)) {
     for (const customer of customers.slice(0, 3)) {
@@ -285,17 +297,18 @@ async function main() {
     }
   }
 
-  // ── 7. Products ──────────────────────────────────────────────────────────────
+  // ── 8. Products ──────────────────────────────────────────────────────────────
   console.log("Creating products...");
   const products = [];
-  const allCategoryNames = Object.keys(categoryMap);
 
   for (const store of stores) {
+    const storeCategories = categoryMap.get(store.id);
+    const allCategoryNames = [...storeCategories.keys()];
     const productCount = randInt(12, 20);
     for (let i = 0; i < productCount; i++) {
       const template   = PRODUCT_TEMPLATES[i % PRODUCT_TEMPLATES.length];
       const catName    = template.category;
-      const category   = categoryMap[catName] ?? categoryMap[pick(allCategoryNames)];
+      const category   = storeCategories.get(catName) ?? storeCategories.get(pick(allCategoryNames));
       const titleSuffix = i >= PRODUCT_TEMPLATES.length ? ` v${Math.ceil(i / PRODUCT_TEMPLATES.length)}` : "";
 
       // Avoid duplicate title+store combos
@@ -329,7 +342,7 @@ async function main() {
     }
   }
 
-  // ── 8. Orders + order items + payment transactions ───────────────────────────
+  // ── 9. Orders + order items + payment transactions ───────────────────────────
   console.log("Creating orders...");
   const orders = [];
 
@@ -388,7 +401,7 @@ async function main() {
     }
   }
 
-  // ── 9. Reviews ───────────────────────────────────────────────────────────────
+  // ── 10. Reviews ──────────────────────────────────────────────────────────────
   console.log("Creating reviews...");
   const reviewedCombos = new Set(); // prevent duplicate (product, customer, order)
 
@@ -413,7 +426,7 @@ async function main() {
     }
   }
 
-  // ── 10. Carts ────────────────────────────────────────────────────────────────
+  // ── 11. Carts ────────────────────────────────────────────────────────────────
   console.log("Creating carts...");
   for (const customer of customers.slice(0, 12)) {
     const existing = await prisma.cart.findUnique({ where: { customerId: customer.id } });
@@ -445,14 +458,16 @@ async function main() {
   // ── 10.5. Seed Meilisearch for Products ──────────────────────────────────────
   console.log("Seeding Meilisearch for products...");
   try {
-    const productDocs = products.map(product => ({
+    const meiliprod = await prisma.product.findMany({
+      include: { category: true, store: true },
+    });
+    const productDocs = meiliprod.map(product => ({
       id: product.id,
       title: product.title,
       description: product.description,
       price: Number(product.price),
-      categoryId: product.categoryId,
-      storeId: product.storeId,
-      status: product.status,
+      categoryName: product.category.name,
+      storeName: product.store.name,
     }));
     await meilisearchService.seedMeilisearch("products", productDocs);
     console.log("✅ Products seeded to Meilisearch");
@@ -499,7 +514,7 @@ async function main() {
     });
   }
 
-  // ── 12. Notifications ────────────────────────────────────────────────────────
+  // ── 13. Notifications ───────────────────────────────────────────────────────
   console.log("Creating notifications...");
   const allUsers = [...customers, ...owners, adminUser];
   for (let n = 0; n < 80; n++) {
@@ -519,7 +534,7 @@ async function main() {
   // ── Summary ──────────────────────────────────────────────────────────────────
   console.log("\n✅  Bulk seed complete!\n");
   console.log("  Plans       :", finalPlans.length);
-  console.log("  Categories  :", Object.keys(categoryMap).length);
+  console.log("  Categories  :", categoryCount);
   console.log("  Users       :", 1 + owners.length + customers.length, "(1 admin + owners + customers)");
   console.log("  Stores      :", stores.length);
   console.log("  Products    :", products.length, "(with images)");

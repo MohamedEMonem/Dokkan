@@ -6,14 +6,20 @@ const router = express.Router({ mergeParams: true });
 
 router.get("/", 
   /* #swagger.tags = ['Categories']
-     #swagger.summary = 'List all categories'
+    #swagger.summary = 'List all categories'
+    #swagger.description = 'Returns a paginated list of product categories. Supports query params for pagination and filtering.'
+    #swagger.responses[200] = { description: 'Categories retrieved successfully' }
+    #swagger.responses[500] = { description: 'Internal server error' }
   */
   CategoryController.listCategories
 );
 
 router.get("/:id", 
   /* #swagger.tags = ['Categories']
-     #swagger.summary = 'Get category by ID'
+    #swagger.summary = 'Get category by ID'
+    #swagger.description = 'Retrieves a single category by its unique identifier.'
+    #swagger.responses[200] = { description: 'Category retrieved successfully' }
+    #swagger.responses[404] = { description: 'Category not found' }
   */
   CategoryController.getCategoryById
 );
@@ -24,7 +30,26 @@ router.use(authAdmin);
 router.post("/", 
   /* #swagger.tags = ['Categories']
      #swagger.summary = 'Create a category (Admin only)'
-     #swagger.security = [{ "bearerAuth": [] }] 
+     #swagger.description = 'Creates a new product category. Admin access required.'
+     #swagger.security = [{ "bearerAuth": [] }]
+     #swagger.requestBody = {
+       required: true,
+       content: {
+         "application/json": {
+           schema: {
+             type: "object",
+             required: ["name"],
+             properties: {
+               name: { type: "string", example: "Electronics" },
+               description: { type: "string", example: "Gadgets and devices" }
+             }
+           }
+         }
+       }
+     }
+     #swagger.responses[201] = { description: 'Category created successfully' }
+     #swagger.responses[400] = { description: 'Invalid request' }
+     #swagger.responses[401] = { description: 'Unauthorized' }
   */
   CategoryController.createCategory
 );
@@ -32,7 +57,26 @@ router.post("/",
 router.patch("/:id", 
   /* #swagger.tags = ['Categories']
      #swagger.summary = 'Update a category (Admin only)'
-     #swagger.security = [{ "bearerAuth": [] }] 
+     #swagger.description = 'Updates category fields by ID. Admin access required.'
+     #swagger.security = [{ "bearerAuth": [] }]
+     #swagger.requestBody = {
+       required: true,
+       content: {
+         "application/json": {
+           schema: {
+             type: "object",
+             properties: {
+               name: { type: "string", example: "Updated Name" },
+               description: { type: "string", example: "Updated description" }
+             }
+           }
+         }
+       }
+     }
+     #swagger.responses[200] = { description: 'Category updated successfully' }
+     #swagger.responses[400] = { description: 'Invalid request' }
+     #swagger.responses[401] = { description: 'Unauthorized' }
+     #swagger.responses[404] = { description: 'Category not found' }
   */
   CategoryController.updateCategory
 );
@@ -40,7 +84,11 @@ router.patch("/:id",
 router.delete("/:id", 
   /* #swagger.tags = ['Categories']
      #swagger.summary = 'Delete a category (Admin only)'
-     #swagger.security = [{ "bearerAuth": [] }] 
+     #swagger.description = 'Soft-deletes a category by ID. Admin access required.'
+     #swagger.security = [{ "bearerAuth": [] }]
+     #swagger.responses[200] = { description: 'Category deleted successfully' }
+     #swagger.responses[401] = { description: 'Unauthorized' }
+     #swagger.responses[404] = { description: 'Category not found' }
   */
   CategoryController.deleteCategory
 );

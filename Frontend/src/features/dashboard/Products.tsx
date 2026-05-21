@@ -7,6 +7,7 @@ import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useGetProductsByStoreIdQuery, useDeleteProductMutation } from "@/api/product.api";
+import { useGetUserStoreQuery } from "@/api/store.api";
 import { sortBy } from "@/utils/sorting";
 import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
 import { IProduct } from "@/types/entities/product.types";
@@ -20,8 +21,15 @@ export function Products() {
     type?: "number" | "date";
   } | null>(null);
 
-  const testStoreId = "9aef3ee0-b640-4cfe-8e19-581326ceddac"; // To be changed later
-  const { data: response, isLoading } = useGetProductsByStoreIdQuery(testStoreId);
+  const { data: storeResponse, isLoading: isLoadingStore } = useGetUserStoreQuery();
+  const storeId = storeResponse?.data?.store?.id || "";
+
+  const { data: response, isLoading: isLoadingProducts } = useGetProductsByStoreIdQuery(storeId, {
+    skip: !storeId,
+  });
+
+  const isLoading = isLoadingStore || isLoadingProducts;
+
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const products = response?.data || [];
 

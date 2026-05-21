@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  // previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "postgresql"
 }
+
 // Enums
 enum UserRole {
   Customer
@@ -99,6 +99,7 @@ model Store {
 
   // Relations
   owner         User            @relation("StoreOwner", fields: [ownerId], references: [id])
+  categories    Category[] // New relation for isolation
   products      Product[]
   orders        Order[]
   subscriptions Subscription[]
@@ -139,11 +140,17 @@ model Category {
   name             String  @db.VarChar(100)
   parentCategoryId String? @map("parent_category_id") @db.Uuid
 
+  // Foreign key and relation to Store for tenant isolation
+  storeId String @map("store_id") @db.Uuid
+  store   Store  @relation(fields: [storeId], references: [id])
+
   // Relations
   parent   Category?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
   children Category[] @relation("CategoryHierarchy")
   products Product[]
 
+  // Ensures category names are unique only within the same store
+  @@unique([name, storeId])
   @@map("Category")
 }
 
