@@ -43,7 +43,6 @@ export const ViewProducts = () => {
 
   useEffect(() => {
     if (categoryParam) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilters((prev) => ({ ...prev, category: categoryParam }));
     } else {
       setFilters((prev) => ({ ...prev, category: "all" }));
@@ -55,9 +54,7 @@ export const ViewProducts = () => {
       const matchesSearch =
         filters.search.trim() === "" ||
         product.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        product.description
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase());
+        product.description?.toLowerCase().includes(filters.search.toLowerCase());
 
       const matchesCategory =
         filters.category === "all" || product.categoryId === filters.category;
@@ -116,9 +113,7 @@ export const ViewProducts = () => {
                   variant="outline-accent"
                   onClick={() => setIsMobileFilterOpen(true)}
                   className="h-9! items-center gap-2 px-4 py-2.5 border! text-gray-700!"
-                  icon={
-                    <SlidersHorizontal size={18} className="text-gray-500" />
-                  }
+                  icon={<SlidersHorizontal size={18} className="text-gray-500" />}
                   iconPos="right"
                 >
                   <span className="text-sm font-medium">الفلاتر</span>
