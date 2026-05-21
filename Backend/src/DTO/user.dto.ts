@@ -32,24 +32,10 @@ const contactNumberSchema = z.preprocess((value) => {
   z.null(),
 ]));
 
-const profilePhotoUrlSchema = z.preprocess((value) => {
-  if (typeof value === "string" && value.trim().length === 0) {
-    return null;
-  }
-
-  return value;
-}, z.union([
-  z.string().trim().max(255, "profilePhotoUrl must be at most 255 characters").refine(isValidUrl, {
-    message: "profilePhotoUrl must be a valid URL starting with http:// or https://",
-  }),
-  z.null(),
-]));
-
 export const patchProfileSchema = z
   .object({
     name: z.string().trim().min(1, "name must be a non-empty string").max(50, "name must be at most 50 characters").optional(),
     contactNumber: contactNumberSchema.optional(),
-    profilePhotoUrl: profilePhotoUrlSchema.optional(),
   })
   .strict();
 
