@@ -14,6 +14,7 @@ const doc = {
   ],
   tags: [
     { name: 'Auth', description: 'User Registration, Login, and Profile Management' },
+    { name: 'User', description: 'Authenticated User Profile Management' },
     { name: 'Stores', description: 'Store Creation and Management' },
     { name: 'Categories', description: 'Product Categories' },
     { name: 'Products', description: 'Product Catalog and Inventory' },
