@@ -74,9 +74,9 @@ export function ProductDetailsPage() {
     console.log("handle Toggle Favorite");
   };
 
-  const handleViewStore = (storeId?: string) => {
+  const handleViewStore = (storeSubdomain?: string) => {
     console.log("handle View Store");
-    if (storeId) navigate(`/store/${storeId}`);
+    if (storeSubdomain) navigate(`/@${storeSubdomain}`);
   };
 
   if (!id) {
@@ -151,7 +151,7 @@ export function ProductDetailsPage() {
               <div className="mb-4">
                 <Link
                   className="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-2"
-                  to={`/store/${product.storeId}`}
+                  to={`/@${product.store?.subdomain}`}
                 >
                   <Store size={16} className="text-blue-600" />
                   {product.store?.name || "متجر دكان"}
@@ -231,7 +231,7 @@ export function ProductDetailsPage() {
                 </Button>
 
                 <Button
-                  onClick={() => handleViewStore(product.storeId)}
+                  onClick={() => handleViewStore(product.store?.subdomain)}
                   variant="outline-accent"
                   className="h-10! flex-1 rounded-lg text-black! border! outline-none! text-sm! lg:text-base! hover:text-white!"
                 >
@@ -345,12 +345,19 @@ export function ProductDetailsPage() {
             >
               <h3 className="mb-4">معلومات الشحن</h3>
               <div className="space-y-4 text-gray-600">
-                <p>• الشحن العادي: {mockShippingInfo.standardShipping} أيام عمل</p>
-                <p>• الشحن السريع: {mockShippingInfo.expressShipping} أيام عمل</p>
                 <p>
-                  • شحن مجاني للطلبات فوق {mockShippingInfo.freeShippingThreshold} ج.م
+                  • الشحن العادي: {mockShippingInfo.standardShipping} أيام عمل
                 </p>
-                <p>• سياسة إرجاع خلال {mockShippingInfo.returnPolicyDays} يوم</p>
+                <p>
+                  • الشحن السريع: {mockShippingInfo.expressShipping} أيام عمل
+                </p>
+                <p>
+                  • شحن مجاني للطلبات فوق{" "}
+                  {mockShippingInfo.freeShippingThreshold} ج.م
+                </p>
+                <p>
+                  • سياسة إرجاع خلال {mockShippingInfo.returnPolicyDays} يوم
+                </p>
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ProductCard } from "@/features/products/components/ProductCard";
-import FilterAsideBar from "@/features/products/components/FilterAsideBar";
+import FilterAsideBar from "@/components/ui/FilterAsideBar";
 import { Select } from "@/components/ui/Select";
 import { useGetProductsQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
