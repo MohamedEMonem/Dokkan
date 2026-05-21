@@ -1,4 +1,4 @@
-import { meili } from '../utils/meilisearch.js'
+import { meili,meilisearch } from '../utils/meilisearch.js'
 
 export const meilisearchService = {
 
@@ -15,7 +15,13 @@ export const meilisearchService = {
   },
 
   search: async (index: string, query: string) => {
-    return await meili.index(index).search(query)
+    try{
+    return await meilisearch.index(index).search(query)
+    }catch(error){ // fallback to master key if search key fails
+      console.error('Search key failed, falling back to master key:', error)
+      return await meili.index(index).search(query)
+    }
+
   },
   seedMeilisearch: async (index: string, docs: Record<string, unknown>[]) => {
     await meili.index(index).addDocuments(docs)

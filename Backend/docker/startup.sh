@@ -36,10 +36,15 @@ fi
 
 if [ "${AUTO_SEED:-true}" = "true" ]; then
   printf '%s\n' "Seeding database..."
-  node prisma/seed.js
+  npx tsx prisma/seed.js
 else
   printf '%s\n' "AUTO_SEED is false. Skipping seed step."
 fi
 
 printf '%s\n' "Starting backend server..."
-exec npm run start
+if [ "${NODE_ENV:-production}" = "development" ]; then
+  printf '%s\n' "Development mode detected. Starting watch server..."
+  exec npm run dev
+else
+  exec npm run start
+fi

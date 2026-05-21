@@ -6,7 +6,11 @@ import { randomBytes, pbkdf2 as pbkdf2Callback } from "crypto";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
-import { meilisearchService } from "../dist/services/meilisearchService.js";
+
+const isdev = process.env.NODE_ENV === "development";
+const { meilisearchService } = isdev
+  ? await import("../src/services/meilisearchService.js")
+  : await import("../dist/services/meilisearchService.js");
 
 const { PrismaClient } = prismaClientPkg;
 const pbkdf2 = promisify(pbkdf2Callback);
