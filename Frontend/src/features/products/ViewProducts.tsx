@@ -111,6 +111,11 @@ export const ViewProducts = () => {
     setSortedBy("newest");
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className=" bg-gray-50 py-8" dir="rtl">
       <div className="container mx-auto px-4">
@@ -199,7 +204,7 @@ export const ViewProducts = () => {
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  onPageChange={setCurrentPage}
+                  onPageChange={handlePageChange}
                 />
               </div>
             )}
