@@ -11,6 +11,8 @@ import { RegisterForm } from "@/features/auth/Register";
 
 import Landing from "@/pages/Landing";
 import Profile from "@/pages/Profile";
+import Cart from "@/features/cart/CartPage";
+import Checkout from "@/features/checkout/CheckoutPage";
 
 import { ViewProducts } from "@/features/products/ViewProducts";
 import { ProductDetailsPage } from "@/features/products/ProductDetailsPage";
@@ -28,7 +30,9 @@ export default function AppRoutes() {
         <Route index element={<Landing />} />
         <Route path="/products" element={<ViewProducts />} />
         <Route path="/products/:id" element={<ProductDetailsPage />} />
+        <Route path="/cart" element={<Cart />} />
         <Route element={<ProtectedRoutes />}>
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
@@ -55,4 +59,3 @@ export default function AppRoutes() {
     </Routes>
   );
 }
-
