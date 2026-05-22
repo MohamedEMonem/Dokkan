@@ -1,10 +1,11 @@
 import {
   updatestoreSchema,
   type CreateStoreDto,
+  type ListStoresQueryDto,
   type updateStoreDto,
 } from "../DTO/store.dto.js";
 import prisma from "../config/db.js";
-import { Prisma } from "@prisma/client";
+import { Prisma, type StoreStatus } from "@prisma/client";
 
 export class StoreServices {
   async createStore(dto: CreateStoreDto, ownerId: string) {
@@ -108,23 +109,28 @@ export class StoreServices {
     return store;
   }
 
-  async listStores(page: number, limit: number) {
+  async listStores(query: ListStoresQueryDto) {
+    const { page, limit, status, sortBy, sortDir } = query;
     const skip = (page - 1) * limit;
+    const storeStatus: StoreStatus = status ?? "Active";
     const where = {
       deletedAt: null,
-      status: "Active" as const,
+      status: storeStatus,
     };
+
+    const orderBy = {
+      [sortBy]: sortDir,
+    } as Prisma.StoreOrderByWithRelationInput;
 
     const [stores, total] = await Promise.all([
       prisma.store.findMany({
         where,
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy,
         skip,
         take: limit,
         select: {
           id: true,
+          status: true,
           name: true,
           subdomain: true,
           description: true,

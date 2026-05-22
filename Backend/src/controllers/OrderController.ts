@@ -1,9 +1,19 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { OrderService } from "../services/OrderService.js";
-import prisma from "../config/db.js";
-import { sendSuccess, sendError, sendServerError } from "../utils/response.js";
 import { emailService } from "../services/email.service.js";
+import {
+  createOrderSchema,
+  getOrdersQuerySchema,
+  updateOrderStatusSchema,
+} from "../DTO/order.dto.js";
+import {
+  sendError,
+  sendNotFound,
+  sendServerError,
+  sendSuccess,
+  sendValidationError,
+} from "../utils/response.js";
 
 const testOrderItemSchema = z.object({
   name: z.string().trim().min(1).max(150),
@@ -24,113 +34,206 @@ const testOrderConfirmationSchema = z.object({
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const { storeId, shippingAddress } = req.body;
+    const validation = createOrderSchema.safeParse(req.body);
 
-    if (!storeId || !shippingAddress) {
-      return sendError(res, "storeId and shippingAddress are required", 400);
+    if (!validation.success) {
+      return sendValidationError(res, validation.error.format());
     }
 
-    const orderId = await OrderService.processCheckout(
-      req.user!.id, 
-      storeId, 
-      shippingAddress
+    const { storeId, shippingAddress } = validation.data;
+    const order = await OrderService.createOrder(
+      req.user!.id,
+      storeId,
+      shippingAddress,
     );
 
-    return sendSuccess(res, { orderId }, "Order placed successfully", 201);
-  } catch (error: any) {
-    if (error.message === "CART_EMPTY") {
-      return sendError(res, "Your cart is empty", 400);
+    return sendSuccess(res, order, "Order placed successfully", 201);
+  } catch (error) {
+    const cause = error as Error & { statusCode?: number };
+
+    if (cause.statusCode) {
+      return sendError(res, cause.message, cause.statusCode);
     }
-    if (error.message.startsWith("OOS:")) {
-      return sendError(res, `Item out of stock: ${error.message.split(":")[1]}`, 409);
-    }
-    return sendServerError(res, "Failed to create order", error);
+
+    return sendServerError(res, "Failed to place order", error);
   }
 };
 
 export const getOrders = async (req: Request, res: Response) => {
   try {
-    const page = Math.max(1, Number(req.query.page || 1));
-    const limit = Math.min(100, Number(req.query.limit || 20));
-    const status = req.query.status as string | undefined;
+    const validation = getOrdersQuerySchema.safeParse(req.query);
 
-    const skip = (page - 1) * limit;
+    if (!validation.success) {
+      return sendValidationError(res, validation.error.format());
+    }
 
-    const result = await OrderService.getAllOrders(skip, limit, status);
+    const result = await OrderService.getOrders(validation.data);
 
-    return sendSuccess(res, { orders: result.orders, total: result.total }, "Orders fetched");
+    return sendSuccess(
+      res,
+      {
+        orders: result.orders,
+        meta: {
+          page: result.page,
+          limit: result.limit,
+          total: result.total,
+          totalPages: result.totalPages,
+        },
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
+      },
+      "Orders retrieved successfully",
+    );
   } catch (error) {
-    return sendServerError(res, "Failed to fetch orders", error);
+    return sendServerError(res, "Failed to retrieve orders", error);
+  }
+};
+
+export const getMyOrders = async (req: Request, res: Response) => {
+  try {
+    const validation = getOrdersQuerySchema.safeParse(req.query);
+
+    if (!validation.success) {
+      return sendValidationError(res, validation.error.format());
+    }
+
+    const { page, limit, status, sortBy, sortDir } = validation.data;
+    const result = await OrderService.getOrdersByCustomerId(req.user!.id, {
+      skip: (page - 1) * limit,
+      take: limit,
+      status,
+      sortBy,
+      sortDir,
+    });
+
+    return sendSuccess(
+      res,
+      {
+        orders: result.orders,
+        meta: {
+          page,
+          limit,
+          total: result.total,
+          totalPages: Math.ceil(result.total / limit),
+        },
+        page,
+        limit,
+        total: result.total,
+        totalPages: Math.ceil(result.total / limit),
+      },
+      "Orders retrieved successfully",
+    );
+  } catch (error) {
+    return sendServerError(res, "Failed to retrieve orders", error);
   }
 };
 
 export const getOrderById = async (req: Request, res: Response) => {
   try {
-    const id = String(req.params.id);
-    const order = await OrderService.getOrderById(id as string);
-    if (!order) return sendError(res, "Order not found", 404);
+    const { id } = req.params as { id?: string };
 
-    // Allow admin or the owning customer
-    if (req.user!.role !== "Admin" && req.user!.id !== order.customerId) {
-      return sendError(res, "Access denied", 403);
+    if (!id) {
+      return sendError(res, "Order id is required", 400);
     }
 
-    return sendSuccess(res, { order }, "Order fetched");
+    const order = await OrderService.getOrderById(id, req.user!.id, req.user!.role!);
+
+    if (!order) {
+      return sendNotFound(res, "Order not found");
+    }
+
+    return sendSuccess(res, { order }, "Order retrieved successfully");
   } catch (error) {
-    return sendServerError(res, "Failed to fetch order", error);
+    return sendServerError(res, "Failed to retrieve order", error);
   }
 };
 
 export const getOrdersByStoreId = async (req: Request, res: Response) => {
   try {
-    const storeId = String(req.params.storeId);
-    const page = Math.max(1, Number(req.query.page || 1));
-    const limit = Math.min(100, Number(req.query.limit || 20));
-    const status = req.query.status as string | undefined;
+    const { storeId } = req.params as { storeId?: string };
 
-    const skip = (page - 1) * limit;
-
-    // If not admin, ensure the requester owns the store
-    if (req.user!.role !== "Admin") {
-      const store = await prisma.store.findUnique({ where: { id: storeId } });
-      if (!store) return sendError(res, "Store not found", 404);
-      if (store.ownerId !== req.user!.id) return sendError(res, "Access denied", 403);
+    if (!storeId) {
+      return sendError(res, "storeId is required", 400);
     }
 
-    const result = await OrderService.getOrdersByStoreId(storeId as string, skip, limit, status as string | undefined);
-    return sendSuccess(res, { orders: result.orders, total: result.total }, "Store orders fetched");
+    const validation = getOrdersQuerySchema.safeParse(req.query);
+
+    if (!validation.success) {
+      return sendValidationError(res, validation.error.format());
+    }
+
+    const result = await OrderService.getOrdersByStoreId(
+      storeId,
+      req.user!.id,
+      req.user!.role!,
+      validation.data,
+    );
+
+    const totalPages = Math.ceil(result.total / validation.data.limit);
+
+    return sendSuccess(
+      res,
+      {
+        orders: result.orders,
+        meta: {
+          page: validation.data.page,
+          limit: validation.data.limit,
+          total: result.total,
+          totalPages,
+        },
+        page: validation.data.page,
+        limit: validation.data.limit,
+        total: result.total,
+        totalPages,
+      },
+      "Store orders retrieved successfully",
+    );
   } catch (error) {
-    return sendServerError(res, "Failed to fetch store orders", error);
+    const cause = error as Error & { statusCode?: number };
+
+    if (cause.statusCode) {
+      return sendError(res, cause.message, cause.statusCode);
+    }
+
+    return sendServerError(res, "Failed to retrieve store orders", error);
   }
 };
 
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
-    const id = String(req.params.id);
-    const status = String(req.body.status || "");
+    const { id } = req.params as { id?: string };
 
-    if (!status) return sendError(res, "status is required", 400);
-
-    // Basic enum validation
-    const allowed = ["Pending", "Shipped", "Delivered", "Cancelled"];
-    if (!allowed.includes(status)) return sendError(res, "Invalid status", 400);
-
-    const order = await OrderService.getOrderById(id as string);
-    if (!order) return sendError(res, "Order not found", 404);
-
-    // Permission: admin or store owner of the order
-    if (req.user!.role !== "Admin") {
-      // store owner must be owner of the order's store
-      if (order.store?.ownerId && req.user!.id !== order.store.ownerId) {
-        return sendError(res, "Access denied", 403);
-      }
+    if (!id) {
+      return sendError(res, "Order id is required", 400);
     }
 
-    const updated = await OrderService.updateOrderStatus(id as string, status as string);
+    const validation = updateOrderStatusSchema.safeParse(req.body);
 
-    return sendSuccess(res, { order: updated }, "Order status updated");
-  } catch (error: any) {
-    if (error.code === "P2025") return sendError(res, "Order not found", 404);
+    if (!validation.success) {
+      return sendValidationError(res, validation.error.format());
+    }
+
+    const updated = await OrderService.updateOrderStatus(
+      id,
+      validation.data.status,
+      req.user!.id,
+      req.user!.role!,
+    );
+
+    if (!updated) {
+      return sendNotFound(res, "Order not found or access denied");
+    }
+
+    return sendSuccess(res, { order: updated }, "Order status updated successfully");
+  } catch (error) {
+    const cause = error as Error & { statusCode?: number };
+
+    if (cause.statusCode) {
+      return sendError(res, cause.message, cause.statusCode);
+    }
+
     return sendServerError(res, "Failed to update order status", error);
   }
 };
@@ -143,7 +246,12 @@ export const sendOrderConfirmationTestEmail = async (
     const validation = testOrderConfirmationSchema.safeParse(req.body);
 
     if (!validation.success) {
-      return sendError(res, "Invalid order confirmation payload", 400, validation.error.flatten());
+      return sendError(
+        res,
+        "Invalid order confirmation payload",
+        400,
+        validation.error.flatten(),
+      );
     }
 
     const sent = await emailService.sendOrderConfirmationEmail(validation.data);

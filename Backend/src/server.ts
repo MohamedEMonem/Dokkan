@@ -6,12 +6,13 @@ import { sendSuccess, sendError, sendNotFound } from "./utils/response.js";
 import { productRoutes } from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import storeRouter from "./routes/storeRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import emailTestRoutes from "./routes/emailTestRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" with { type: "json" };
-import orderRoutes from "./routes/orderRoutes.js";
 
 
 // @ts-ignore
@@ -55,9 +56,9 @@ app.use(
 app.get("/api/health", (req, res) => {
   return sendSuccess(
     res,
-    {
+    { 
       status: "OK",
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString() 
     },
     "Server is healthy",
   );
@@ -80,6 +81,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use("/api/orders", orderRoutes);
+app.use("/api/user", userRoutes);
 
 
 const PORT = process.env.PORT || 3000;

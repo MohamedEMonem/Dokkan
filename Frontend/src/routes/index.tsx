@@ -11,7 +11,7 @@ import { RegisterForm } from "@/features/auth/Register";
 
 import Landing from "@/pages/Landing";
 import Profile from "@/pages/Profile";
-import Cart from "@/features/cart/CartPage";
+
 import Checkout from "@/features/checkout/CheckoutPage";
 
 import { ViewProducts } from "@/features/products/ViewProducts";
@@ -21,6 +21,7 @@ import { Overview } from "@/features/dashboard/Overview";
 import { Products } from "@/features/dashboard/Products";
 import { CreateProduct } from "@/features/dashboard/CreateProduct";
 import { UpdateProduct } from "@/features/dashboard/UpdateProduct";
+import ViewStores from "@/features/stores/ViewStores";
 
 export default function AppRoutes() {
   return (
@@ -30,7 +31,9 @@ export default function AppRoutes() {
         <Route index element={<Landing />} />
         <Route path="/products" element={<ViewProducts />} />
         <Route path="/products/:id" element={<ProductDetailsPage />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/stores" element={<ViewStores />} />
+        {/* <Route path="/store/:id" element={<ViewStores />} /> */}
+        
         <Route element={<ProtectedRoutes />}>
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />

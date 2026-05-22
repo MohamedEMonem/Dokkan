@@ -7,6 +7,11 @@ import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
 
+const isdev = process.env.NODE_ENV === "development";
+const { meilisearchService } = isdev
+  ? await import("../src/services/meilisearchService.js")
+  : await import("../dist/services/meilisearchService.js");
+
 const { PrismaClient } = prismaClientPkg;
 const pbkdf2 = promisify(pbkdf2Callback);
 
@@ -454,7 +459,46 @@ async function main() {
     }
   }
 
-  // ── 12. Messages ─────────────────────────────────────────────────────────────
+  // ── 10.5. Seed Meilisearch for Products ──────────────────────────────────────
+  console.log("Seeding Meilisearch for products...");
+  try {
+    const meiliprod = await prisma.product.findMany({
+      include: { category: true, store: true },
+    });
+    const productDocs = meiliprod.map(product => ({
+      id: product.id,
+      title: product.title,
+      description: product.description,
+      price: Number(product.price),
+      categoryName: product.category.name,
+      storeName: product.store.name,
+    }));
+    await meilisearchService.seedMeilisearch("products", productDocs);
+    console.log("✅ Products seeded to Meilisearch");
+  } catch (err) {
+    console.error("⚠️  Failed to seed products to Meilisearch:", err.message);
+  }
+
+  // ── 10.6. Seed Meilisearch for Stores ────────────────────────────────────────
+  console.log("Seeding Meilisearch for stores...");
+  try {
+    const storeDocs = stores.map(store => ({
+      id: store.id,
+      name: store.name,
+      description: store.description,
+      subdomain: store.subdomain,
+      status: store.status,
+      ownerId: store.ownerId,
+      logoUrl: store.logoUrl,
+      coverBannerUrl: store.coverBannerUrl,
+    }));
+    await meilisearchService.seedMeilisearch("stores", storeDocs);
+    console.log("✅ Stores seeded to Meilisearch");
+  } catch (err) {
+    console.error("⚠️  Failed to seed stores to Meilisearch:", err.message);
+  }
+
+  // ── 11. Messages ─────────────────────────────────────────────────────────────
   console.log("Creating messages...");
   for (let m = 0; m < 40; m++) {
     const customer = pick(customers);

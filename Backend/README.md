@@ -8,6 +8,7 @@
 ## Frontend Team One-Shot Setup
 
 Use this path if you want the full backend stack (API + PostgreSQL + Redis + Meilisearch + MinIO) in one command.
+The backend service is bind-mounted in development so local source changes are picked up automatically.
 
 ### 1. Install dependencies
 

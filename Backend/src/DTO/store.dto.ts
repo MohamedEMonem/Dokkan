@@ -1,6 +1,14 @@
 // @ts-ignore - zod type resolution may fail in this environment while runtime import remains valid
 import { z } from "zod";
 
+export const listStoresQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional().default(1),
+  limit: z.coerce.number().int().min(1).max(100).optional().default(20),
+  status: z.enum(["Pending", "Active", "Suspended"]).optional(),
+  sortBy: z.enum(["createdAt", "name", "status"]).optional().default("createdAt"),
+  sortDir: z.enum(["asc", "desc"]).optional().default("desc"),
+});
+
 const storePayloadSchema = z.object({
   name: z.string().min(1, "Store name is required"),
   subdomain: z
@@ -50,6 +58,7 @@ export const storeResponseSchema = z.object({
   deletedAt: z.date().nullable(),
 });
 
+export type ListStoresQueryDto = z.infer<typeof listStoresQuerySchema>;
 export type StoreResponseDto = z.infer<typeof storeResponseSchema>;
 export type updateStoreDto = z.infer<typeof updatestoreSchema>["data"];
 export type CreateStoreDto = z.infer<typeof createStoreSchema>["data"];

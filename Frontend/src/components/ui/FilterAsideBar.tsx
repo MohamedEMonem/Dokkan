@@ -18,7 +18,6 @@ const categoryOptions = [
   ...mockCategories,
 ];
 
-
 const cityOptions = [
   { value: "all", label: "كل المدن" },
   { value: "cairo", label: "القاهرة" },
@@ -51,6 +50,8 @@ interface IProps {
     city: string;
     rating: string;
     shipping: boolean;
+    sort?: string;
+    filter?: string;
   };
   setFilters: React.Dispatch<
     React.SetStateAction<{
@@ -59,6 +60,8 @@ interface IProps {
       city: string;
       rating: string;
       shipping: boolean;
+      sort?: string;
+      filter?: string;
     }>
   >;
   isOpen?: boolean;
@@ -114,73 +117,75 @@ const FilterAsideBar = ({ filters, setFilters, isOpen, onClose }: IProps) => {
             )}
           </div>
 
-        <div className="space-y-6">
-          {/* Search */}
-          <FilterSection title="بحث">
-            <Input
-              icon={<Search className="w-4 h-4 text-text-muted" strokeWidth={2} />}
-              placeholder="ابحث عن منتج..."
-              value={filters.search}
-              onChange={(e) => updateFilter("search", e.target.value)}
-            />
-          </FilterSection>
-
-          {/* Category */}
-          <FilterSection title="التصنيف">
-            <div className="space-y-2">
-              {categoryOptions.map((cat) => (
-                <RadioItem
-                  key={cat.id}
-                  label={cat.name}
-                  itemId={cat.id}
-                  name="category"
-                  value={filters.category}
-                  setValue={(val) => updateFilter("category", val)}
-                />
-              ))}
-            </div>
-          </FilterSection>
-
-          {/* Shipping */}
-          <FilterSection title="الشحن">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-4 h-4 rounded border-gray-300"
-                checked={filters.shipping}
-                onChange={(e) => updateFilter("shipping", e.target.checked)}
+          <div className="space-y-6">
+            {/* Search */}
+            <FilterSection title="بحث">
+              <Input
+                icon={
+                  <Search className="w-4 h-4 text-text-muted" strokeWidth={2} />
+                }
+                placeholder="ابحث عن منتج..."
+                value={filters.search}
+                onChange={(e) => updateFilter("search", e.target.value)}
               />
-              <span className="text-sm">متاح الشحن</span>
-            </label>
-          </FilterSection>
+            </FilterSection>
 
-          <FilterSection title="المدينة">
-            <Select
-              options={cityOptions}
-              value={filters.city}
-              onChange={(e) => updateFilter("city", e.target.value)}
-            />
-          </FilterSection>
+            {/* Category */}
+            <FilterSection title="التصنيف">
+              <div className="space-y-2">
+                {categoryOptions.map((cat) => (
+                  <RadioItem
+                    key={cat.id}
+                    label={cat.name}
+                    itemId={cat.id}
+                    name="category"
+                    value={filters.category}
+                    setValue={(val) => updateFilter("category", val)}
+                  />
+                ))}
+              </div>
+            </FilterSection>
 
-          <FilterSection title="الحد الأدنى للتقييم">
-            <Select
-              options={ratingOptions}
-              value={filters.rating}
-              onChange={(e) => updateFilter("rating", e.target.value)}
-            />
-          </FilterSection>
+            {/* Shipping */}
+            <FilterSection title="الشحن">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-gray-300"
+                  checked={filters.shipping}
+                  onChange={(e) => updateFilter("shipping", e.target.checked)}
+                />
+                <span className="text-sm">متاح الشحن</span>
+              </label>
+            </FilterSection>
 
-          {/* Reset */}
-          <Button
-            variant="outline-accent"
-            onClick={() => {
-              Reset();
-            }}
-            className="text-black! h-9! border! outline-none text-sm! hover:text-white!"
-          >
-            إعادة تعيين الفلاتر
-          </Button>
-        </div>
+            <FilterSection title="المدينة">
+              <Select
+                options={cityOptions}
+                value={filters.city}
+                onChange={(e) => updateFilter("city", e.target.value)}
+              />
+            </FilterSection>
+
+            <FilterSection title="الحد الأدنى للتقييم">
+              <Select
+                options={ratingOptions}
+                value={filters.rating}
+                onChange={(e) => updateFilter("rating", e.target.value)}
+              />
+            </FilterSection>
+
+            {/* Reset */}
+            <Button
+              variant="outline-accent"
+              onClick={() => {
+                Reset();
+              }}
+              className="text-black! h-9! border! outline-none text-sm! hover:text-white!"
+            >
+              إعادة تعيين الفلاتر
+            </Button>
+          </div>
         </div>
       </aside>
     </>
