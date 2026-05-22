@@ -1,6 +1,7 @@
 import { apiSlice } from "@/store/apiSlice";
 import { IAPIResponse } from "@/types/api/response.types";
 import { IUser } from "@/types/entities/user.types";
+import { UpdateProfileDTO } from "@/types/dto/user.dto";
 
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -10,7 +11,7 @@ export const userApi = apiSlice.injectEndpoints({
     }),
     updateProfile: builder.mutation<
       IAPIResponse<{ user: IUser }>,
-      FormData | { name?: string; contactNumber?: string | null }
+      UpdateProfileDTO
     >({
       query: (body) => ({
         url: "/user/profile",
