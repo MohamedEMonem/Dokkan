@@ -130,9 +130,6 @@ export default function Profile() {
         variant: "success",
       });
       localStorage.removeItem("token");
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1500);
     } catch (error: any) {
       showNotification({
         message: error?.data?.message || "فشل حذف الحساب",
