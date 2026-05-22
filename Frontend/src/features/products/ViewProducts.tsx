@@ -90,14 +90,15 @@ export const ViewProducts = () => {
     return applySorting(filteredProducts, sortedBy);
   }, [filteredProducts, sortedBy]);
 
-
-
   const totalPages = Math.ceil(displayedProducts.length / ITEMS_PER_PAGE);
 
   const paginatedProducts = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return displayedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [displayedProducts, currentPage]);
+
+  const fromIndex = paginatedProducts.length ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0;
+  const toIndex = (currentPage - 1) * ITEMS_PER_PAGE + paginatedProducts.length;
 
   const reset = () => {
     setFilters({
@@ -115,8 +116,8 @@ export const ViewProducts = () => {
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h1 className="mb-2 text-2xl">كل المنتجات</h1>
-          <p className="text-gray-600">
-            تم العثور على {filteredProducts.length} منتج
+          <p className="text-gray-600 text-sm">
+            عرض {fromIndex}–{toIndex} من أصل {displayedProducts.length} منتج
           </p>
         </div>
         <div className="flex gap-8 relative">
