@@ -1,5 +1,7 @@
 import { useState } from "react";
 import clsx from "clsx";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CircleUser,
   Camera,
@@ -19,6 +21,7 @@ import {
   useDeleteAccountMutation,
 } from "@/api/user.api";
 import { showNotification } from "@/utils/showNotification";
+import { updateProfileSchema, UpdateProfileFormValues } from "@/schemas/profile.schema";
 
 
 export default function Profile() {
@@ -30,8 +33,19 @@ export default function Profile() {
   const [deleteAccount, { isLoading: isDeleting }] = useDeleteAccountMutation();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(user.name || "");
-  const [contactNumber, setContactNumber] = useState(user.contactNumber || "");
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<UpdateProfileFormValues>({
+    resolver: zodResolver(updateProfileSchema),
+    values: {
+      name: user.name || "",
+      contactNumber: user.contactNumber || "",
+    },
+  });
 
 
   // Role translation mapping
@@ -55,9 +69,12 @@ export default function Profile() {
       })
     : "غير متوفر";
 
-  const handleSave = async () => {
+  const onSubmit = async (data: UpdateProfileFormValues) => {
     try {
-      await updateProfile({ name, contactNumber }).unwrap();
+      await updateProfile({
+        name: data.name,
+        contactNumber: data.contactNumber === "" ? null : data.contactNumber,
+      }).unwrap();
       setIsEditing(false);
       showNotification({
         message: "تم تحديث البيانات بنجاح",
@@ -72,10 +89,10 @@ export default function Profile() {
   };
 
   const handleCancel = () => {
-    if (user) {
-      setName(user.name || "");
-      setContactNumber(user.contactNumber || "");
-    }
+    reset({
+      name: user.name || "",
+      contactNumber: user.contactNumber || "",
+    });
     setIsEditing(false);
   };
 
@@ -212,7 +229,7 @@ export default function Profile() {
                       <div className="flex items-center gap-3 w-full sm:w-auto">
                         <Button
                           variant="primary"
-                          onClick={handleSave}
+                          onClick={handleSubmit(onSubmit)}
                           disabled={isUpdating}
                           className="h-9! flex-1 sm:w-24! bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-md transition-all text-sm"
                         >
@@ -231,16 +248,22 @@ export default function Profile() {
                   </div>
 
                   <div className="space-y-6">
-                    <Input
-                      label="الاسم الكامل"
-                      icon={<CircleUser className="w-5 h-5" />}
-                      disabled={!isEditing || isUpdating}
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className={
-                        !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
-                      }
-                    />
+                    <div>
+                      <Input
+                        label="الاسم الكامل"
+                        icon={<CircleUser className="w-5 h-5" />}
+                        disabled={!isEditing || isUpdating}
+                        className={
+                          !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
+                        }
+                        {...register("name")}
+                      />
+                      {errors.name && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.name.message}
+                        </p>
+                      )}
+                    </div>
 
                     <Input
                       label="البريد الإلكتروني"
@@ -251,21 +274,27 @@ export default function Profile() {
                       className="opacity-100 bg-gray-50/50 cursor-not-allowed"
                     />
 
-                    <Input
-                      label="رقم الهاتف"
-                      type="tel"
-                      dir="rtl"
-                      icon={<Phone className="w-5 h-5" />}
-                      disabled={!isEditing || isUpdating}
-                      value={contactNumber}
-                      onChange={(e) => setContactNumber(e.target.value)}
-                      placeholder="غير متوفر"
-                      className={
-                        !isEditing
-                          ? "opacity-100 bg-gray-50/50 text-left"
-                          : "bg-white text-left"
-                      }
-                    />
+                    <div>
+                      <Input
+                        label="رقم الهاتف"
+                        type="tel"
+                        dir="rtl"
+                        icon={<Phone className="w-5 h-5" />}
+                        disabled={!isEditing || isUpdating}
+                        placeholder="غير متوفر"
+                        className={
+                          !isEditing
+                            ? "opacity-100 bg-gray-50/50 text-left"
+                            : "bg-white text-left"
+                        }
+                        {...register("contactNumber")}
+                      />
+                      {errors.contactNumber && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.contactNumber.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <div
