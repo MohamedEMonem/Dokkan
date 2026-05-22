@@ -21,7 +21,7 @@ import {
   useDeleteAccountMutation,
 } from "@/api/user.api";
 import { showNotification } from "@/utils/showNotification";
-import { updateProfileSchema, UpdateProfileFormValues } from "@/schemas/profile.schema";
+import { updateProfileSchema, UpdateProfileFormValues, ImageSchema } from "@/schemas/profile.schema";
 
 
 export default function Profile() {
@@ -99,6 +99,16 @@ export default function Profile() {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Validate the image file using Zod schema
+    const validationResult = ImageSchema.safeParse(file);
+    if (!validationResult.success) {
+      showNotification({
+        message: validationResult.error.issues[0]?.message || "ملف الصورة غير صالح",
+        variant: "error",
+      });
+      return;
+    }
 
     const formData = new FormData();
     formData.append("image", file);
