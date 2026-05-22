@@ -21,7 +21,8 @@ import {
   useDeleteAccountMutation,
 } from "@/api/user.api";
 import { showNotification } from "@/utils/showNotification";
-import { updateProfileSchema, UpdateProfileFormValues, ImageSchema } from "@/schemas/profile.schema";
+import { updateProfileSchema, UpdateProfileFormValues } from "@/schemas/profile.schema";
+import { ImageSchema } from "@/schemas/image.schema";
 
 
 export default function Profile() {
