@@ -13,12 +13,13 @@ import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Input } from "@/components/ui/Input";
 import { EUserRole } from "@/types/entities/user.types";
+import { useGetProfileQuery } from "@/api/user.api";
 
 
 export default function Profile() {
-  // Read auth data from localStorage
-  const userRaw = localStorage.getItem("user");
-  const user = userRaw ? JSON.parse(userRaw) : null;
+  const token = localStorage.getItem("token");
+  const { data: profileResponse } = useGetProfileQuery(undefined, { skip: !token });
+  const user = profileResponse?.data?.user;
   const [isEditing, setIsEditing] = useState(false);
 
   if (!user) return null;
