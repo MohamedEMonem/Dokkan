@@ -20,7 +20,7 @@ const sortConfigs: Record<
 
 export const ViewProducts = () => {
   const { data, isLoading, error } = useGetProductsQuery();
-  const products = data?.data ?? [];
+  const products = data?.data?.products ?? [];
 
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get("cat");
