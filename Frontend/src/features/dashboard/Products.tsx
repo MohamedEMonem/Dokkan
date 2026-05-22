@@ -110,6 +110,7 @@ export function Products() {
       }
       return { key, order: "asc", type };
     });
+    setCurrentPage(1);
   };
 
   const TABLE_HEADERS = [
