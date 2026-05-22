@@ -16,6 +16,8 @@ import {
 } from "@/features/dashboard/schemas/product.schema";
 import { useGetCategoriesQuery } from "@/api/category.api";
 import { useMemo } from "react";
+import { showNotification } from "@/utils/showNotification";
+import { ImageSchema } from "@/schemas/image.schema";
 
 interface ProductFormProps {
   initialData?: Partial<IProduct>;
@@ -78,6 +80,19 @@ export const ProductForm = ({
     if (!e.target.files || activeSlot === null) return;
 
     const incoming = Array.from(e.target.files).slice(0, 6 - activeSlot);
+
+    // Validate each selected image file using ImageSchema
+    for (const file of incoming) {
+      const validationResult = ImageSchema.safeParse(file);
+      if (!validationResult.success) {
+        showNotification({
+          message: `${file.name}: ${validationResult.error.issues[0]?.message || "ملف الصورة غير صالح"}`,
+          variant: "error",
+        });
+        e.target.value = "";
+        return;
+      }
+    }
 
     setPreviews((prev) =>
       prev.map((url, i) => {
