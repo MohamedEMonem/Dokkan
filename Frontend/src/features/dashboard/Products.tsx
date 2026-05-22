@@ -11,6 +11,7 @@ import { useGetUserStoreQuery } from "@/api/store.api";
 import { sortBy } from "@/utils/sorting";
 import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
 import { IProduct } from "@/types/entities/product.types";
+import { Pagination } from "@/components/ui/Pagination";
 
 export function Products() {
   const navigate = useNavigate();
@@ -20,6 +21,15 @@ export function Products() {
     order: "asc" | "desc";
     type?: "number" | "date";
   } | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery);
+  if (searchQuery !== prevSearchQuery) {
+    setPrevSearchQuery(searchQuery);
+    setCurrentPage(1);
+  }
 
   const { data: storeResponse, isLoading: isLoadingStore } = useGetUserStoreQuery();
   const storeId = storeResponse?.data?.store?.id || "";
@@ -31,7 +41,7 @@ export function Products() {
   const isLoading = isLoadingStore || isLoadingProducts;
 
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
-  const products = response?.data || [];
+  const products = response?.data?.products ?? [];
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<IProduct | null>(null);
@@ -77,6 +87,21 @@ export function Products() {
   const displayedProducts = useMemo(() => {
     return applySorting(filteredProducts);
   }, [filteredProducts, sortConfig]);
+
+  const totalPages = Math.ceil(displayedProducts.length / ITEMS_PER_PAGE);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return displayedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [displayedProducts, currentPage]);
+
+  const fromIndex = paginatedProducts.length ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0;
+  const toIndex = (currentPage - 1) * ITEMS_PER_PAGE + paginatedProducts.length;
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleSort = (key: string, type?: "number" | "date") => {
     setSortConfig((prev) => {
@@ -182,7 +207,7 @@ export function Products() {
                   </td>
                 </tr>
               ) : (
-                displayedProducts.map((product) => (
+                paginatedProducts.map((product) => (
                   <tr
                     key={product.id}
                     className="group hover:bg-bg-cream/50 transition-colors"
@@ -239,6 +264,20 @@ export function Products() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-accent-light/30 pt-4" dir="rtl">
+            <p className="text-gray-500 text-xs sm:text-sm">
+              عرض {fromIndex}–{toIndex} من أصل {displayedProducts.length} منتج
+            </p>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </DashboardCard>
 
       <DeleteConfirmModal

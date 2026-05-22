@@ -29,7 +29,7 @@ export const productApi = apiSlice.injectEndpoints({
     }),
 
     getProductsByStoreId: builder.query<
-      IAPIResponse<IProduct[]>,
+      IPaginatedResponse<IProduct, "products">,
       string
     >({
       query: (storeId) => ({
