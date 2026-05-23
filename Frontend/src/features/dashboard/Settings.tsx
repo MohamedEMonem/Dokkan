@@ -40,7 +40,7 @@ export function Settings() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto w-full animate-in fade-in duration-500" dir="rtl">
+    <div className="space-y-6 w-full animate-in fade-in duration-500" dir="rtl">
       <DashboardCard
         title="إعدادات المتجر"
         icon={<SettingsIcon className="w-6 h-6 text-primary" />}
