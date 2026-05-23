@@ -58,7 +58,7 @@ export default function CartPage() {
           storeId: "guest-cart",
           storeName: "المنتجات المحفوظة",
           items: guestItems,
-          storeTotal: guestItemsTotal,
+          storeTotal: guestItemsTotal + guestItemsTotal * 0.14,
         },
       ]
     : [];
@@ -68,7 +68,8 @@ export default function CartPage() {
   const guestShippingEstimate = Number(
     guestStores
       .reduce(
-        (sum, store) => sum + (store.storeTotal >= 500 ? 0 : SHIPPING_FEE),
+        // (sum, store) => sum + (store.storeTotal >= 500 ? 0 : SHIPPING_FEE),
+        (sum) => sum + SHIPPING_FEE,
         0,
       )
       .toFixed(2),
@@ -88,7 +89,8 @@ export default function CartPage() {
       .toFixed(2),
   );
   const guestGrandTotal = Number(
-    (guestItemsTotal + guestShippingEstimate + guestTaxEstimate).toFixed(2),
+    // (guestItemsTotal + guestShippingEstimate + guestTaxEstimate).toFixed(2),
+    (guestItemsTotal + guestTaxEstimate).toFixed(2),
   );
 
   const effectiveCart: ICartResponse =
@@ -108,6 +110,8 @@ export default function CartPage() {
       store.items.reduce((count, item) => count + item.quantity, 0),
     0,
   );
+
+  console.log("Effected cart, :", effectiveCart);
 
   if (isLoading) return <div>Loading cart...</div>;
 

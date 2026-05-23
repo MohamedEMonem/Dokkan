@@ -144,18 +144,18 @@ export default function CartList({ stores, onQtyChange, onRemove }: Props) {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-600">
                   <span>المجموع الفرعي للمتجر</span>
-                  {/* <span>{(store.storeTotal - tax).toFixed(2)} ج.م</span> */}
                   <span>{storeTotalWithoutTax.toFixed(2)} ج.م</span>
                 </div>
 
                 <div className="flex justify-between text-gray-600">
                   <span>الشحن</span>
                   <span
-                    className={
-                      shipping === 0 ? "text-green-600 font-medium" : ""
-                    }
+                  // className={
+                  //   shipping === 0 ? "text-green-600 font-medium" : ""
+                  // }
                   >
-                    {shipping === 0 ? "مجاني 🎉" : `${shipping.toFixed(2)} ج.م`}
+                    {/* {shipping === 0 ? "مجاني 🎉" : `${shipping.toFixed(2)} ج.م`} */}
+                    {SHIPPING_FEE.toFixed(2)} ج.م
                   </span>
                 </div>
 
