@@ -165,7 +165,7 @@ function MobileMenu({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  user: UserType | null;
+  user: UserType | undefined;
   onLogout: () => void;
 }) {
   const navigate = useNavigate();
@@ -375,11 +375,7 @@ export default function Header() {
   });
   const user = profileResponse?.data?.user;
   const isAuthenticated = !!token && !!user;
-  const {
-    user: cartUser,
-    isAuthenticated: isCartAuthenticated,
-    cartCount,
-  } = useCartSession();
+  const { cartCount } = useCartSession();
 
   useEffect(() => {
     // schedule state update to avoid synchronous setState inside effect
