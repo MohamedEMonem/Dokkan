@@ -42,12 +42,6 @@ const Landing: React.FC = () => {
         getState: () => store.getState(),
       });
 
-      // Fire-and-forget backend sync if authenticated
-      if (isAuthenticated)
-        addItemApi({ productId: item.productId, quantity: item.quantity })
-          .unwrap()
-          .catch(() => {});
-
       showNotification({
         variant: "success",
         message: "تمت إضافة المنتج إلى السلة",

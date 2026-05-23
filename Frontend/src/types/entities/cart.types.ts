@@ -10,9 +10,9 @@ export interface ICartResponseItem {
   title: string;
   quantity: number;
   unitPrice: number;
-  lineTotal: number;
+  lineTotal?: number;
   imageUrl: string | null;
-  inStock: boolean;
+  inStock?: boolean;
 }
 
 export interface ICartStore {
