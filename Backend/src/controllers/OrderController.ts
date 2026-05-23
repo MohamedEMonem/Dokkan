@@ -40,14 +40,16 @@ export const createOrder = async (req: Request, res: Response) => {
       return sendValidationError(res, validation.error.format());
     }
 
-    const { storeId, shippingAddress } = validation.data;
-    const order = await OrderService.createOrder(
+    const { username, phoneNumber, email, shippingAddress } = validation.data;
+    const orders = await OrderService.createOrder(
       req.user!.id,
-      storeId,
       shippingAddress,
+      username,
+      phoneNumber,
+      email,
     );
 
-    return sendSuccess(res, order, "Order placed successfully", 201);
+    return sendSuccess(res, { orders }, "Order(s) placed successfully", 201);
   } catch (error) {
     const cause = error as Error & { statusCode?: number };
 

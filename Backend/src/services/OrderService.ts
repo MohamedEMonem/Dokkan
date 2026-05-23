@@ -5,7 +5,7 @@ import type { OrderQueryDto, StoreOrderQueryDto } from "../DTO/order.dto.js";
 
 const CART_KEY = (userId: string) => `cart:${userId}`;
 const SHIPPING_COST = 5.0;
-const TAX_RATE = 0.08;
+const TAX_RATE = 0.14;
 
 type OrderStatusValue = "Pending" | "Shipped" | "Delivered" | "Cancelled";
 type OrderSortBy = "createdAt" | "status" | "totalAmount";
@@ -56,8 +56,10 @@ const toOrderBy = (sortBy: OrderSortBy, sortDir: OrderSortDir) =>
 export class OrderService {
   static async createOrder(
     userId: string,
-    storeId: string,
     shippingAddress: Record<string, unknown>,
+    username: string,
+    phoneNumber: string,
+    email: string,
   ) {
     const rawCart = await redisClient.hGetAll(CART_KEY(userId));
 
@@ -67,20 +69,11 @@ export class OrderService {
 
     const cartProductIds = Object.keys(rawCart);
 
-    const order = await prisma.$transaction(async (tx) => {
-      const store = await tx.store.findFirst({
-        where: { id: storeId, status: "Active", deletedAt: null },
-        select: { id: true, name: true },
-      });
-
-      if (!store) {
-        httpError("Store not found or is currently unavailable", 404);
-      }
-
+    const orders = await prisma.$transaction(async (tx) => {
+      // Fetch all cart products with their storeId (no store filter)
       const products = await tx.product.findMany({
         where: {
           id: { in: cartProductIds },
-          storeId,
           status: "Active",
           deletedAt: null,
         },
@@ -89,27 +82,25 @@ export class OrderService {
           title: true,
           price: true,
           stockQuantity: true,
+          storeId: true,
         },
       });
 
       if (products.length === 0) {
-        httpError("No valid items from this store found in your cart", 400);
+        httpError("No valid items found in your cart", 400);
       }
 
-      const productMap = new Map(products.map((product) => [product.id, product]));
+      // Group products by storeId
+      const storeGroups = new Map<
+        string,
+        Array<{ productId: string; quantity: number; priceAtPurchase: number }>
+      >();
 
-      const lineItems: Array<{
-        productId: string;
-        quantity: number;
-        priceAtPurchase: number;
-      }> = [];
+      const productMap = new Map(products.map((p) => [p.id, p]));
 
       for (const [productId, qtyStr] of Object.entries(rawCart)) {
         const product = productMap.get(productId);
-
-        if (!product) {
-          continue;
-        }
+        if (!product) continue;
 
         const quantity = parseInt(qtyStr, 10);
 
@@ -120,71 +111,104 @@ export class OrderService {
           );
         }
 
-        lineItems.push({
+        if (!storeGroups.has(product.storeId)) {
+          storeGroups.set(product.storeId, []);
+        }
+
+        storeGroups.get(product.storeId)!.push({
           productId,
           quantity,
           priceAtPurchase: Number(product.price),
         });
       }
 
-      if (lineItems.length === 0) {
-        httpError("No valid items from this store found in your cart", 400);
+      if (storeGroups.size === 0) {
+        httpError("No valid items found in your cart", 400);
       }
 
-      const subtotal = lineItems.reduce(
-        (sum, item) => sum + item.priceAtPurchase * item.quantity,
-        0,
-      );
-      const taxAmount = parseFloat((subtotal * TAX_RATE).toFixed(2));
-      const totalAmount = parseFloat(
-        (subtotal + SHIPPING_COST + taxAmount).toFixed(2),
-      );
+      // Validate all stores are active
+      const storeIds = Array.from(storeGroups.keys());
+      const stores = await tx.store.findMany({
+        where: { id: { in: storeIds }, status: "Active", deletedAt: null },
+        select: { id: true, name: true },
+      });
 
-      const newOrder = await tx.order.create({
-        data: {
-          customerId: userId,
-          storeId,
-          shippingAddress: shippingAddress as Prisma.InputJsonValue,
-          status: "Pending",
-          paymentStatus: "Pending",
-          shippingCost: SHIPPING_COST,
-          taxAmount,
-          totalAmount,
-          orderItems: {
-            create: lineItems,
+      const activeStoreIds = new Set(stores.map((s) => s.id));
+      for (const sid of storeIds) {
+        if (!activeStoreIds.has(sid)) {
+          httpError("One or more stores are unavailable", 404);
+        }
+      }
+
+      // Create one order per store
+      const createdOrders = [];
+
+      for (const [storeId, lineItems] of storeGroups) {
+        const subtotal = lineItems.reduce(
+          (sum, item) => sum + item.priceAtPurchase * item.quantity,
+          0,
+        );
+        const taxAmount = parseFloat((subtotal * TAX_RATE).toFixed(2));
+        const totalAmount = parseFloat(
+          (subtotal + SHIPPING_COST + taxAmount).toFixed(2),
+        );
+
+        const newOrder = await tx.order.create({
+          data: {
+            customerId: userId,
+            storeId,
+            shippingAddress: {
+              ...shippingAddress,
+              username,
+              phoneNumber,
+              email,
+            } as Prisma.InputJsonValue,
+            status: "Pending",
+            paymentStatus: "Pending",
+            shippingCost: SHIPPING_COST,
+            taxAmount,
+            totalAmount,
+            orderItems: {
+              create: lineItems,
+            },
           },
-        },
-        include: {
-          orderItems: {
-            include: {
-              product: {
-                select: {
-                  id: true,
-                  title: true,
-                  images: { take: 1, select: { imageUrl: true } },
+          include: {
+            orderItems: {
+              include: {
+                product: {
+                  select: {
+                    id: true,
+                    title: true,
+                    images: { take: 1, select: { imageUrl: true } },
+                  },
                 },
               },
             },
+            store: { select: { id: true, name: true } },
           },
-          store: { select: { id: true, name: true } },
-        },
-      });
+        });
 
-      await Promise.all(
-        lineItems.map((item) =>
-          tx.product.update({
-            where: { id: item.productId },
-            data: { stockQuantity: { decrement: item.quantity } },
-          }),
-        ),
-      );
+        // Decrement stock for this store's items
+        await Promise.all(
+          lineItems.map((item) =>
+            tx.product.update({
+              where: { id: item.productId },
+              data: { stockQuantity: { decrement: item.quantity } },
+            }),
+          ),
+        );
 
-      return newOrder;
+        createdOrders.push(newOrder);
+      }
+
+      return createdOrders;
     });
 
     await redisClient.del(CART_KEY(userId));
 
-    return serializeOrder(order as unknown as Record<string, unknown>);
+    return orders.map((order) =>
+      serializeOrder(order as unknown as Record<string, unknown>),
+    );
   }
 
   static async getOrders(query: OrderQueryDto) {
@@ -265,7 +289,7 @@ export class OrderService {
             },
           },
         },
-        reviews: true,
+        productReviews: true,
       },
     });
 

@@ -18,6 +18,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { useGetProfileQuery } from "@/api/user.api";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SubItem {
@@ -361,9 +362,9 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const token = localStorage.getItem("token");
-  const userRaw = localStorage.getItem("user");
-  const user = userRaw ? JSON.parse(userRaw) : null;
-  const isAuthenticated = !!token && !!user?.role;
+  const { data: profileResponse } = useGetProfileQuery(undefined, { skip: !token });
+  const user = profileResponse?.data?.user;
+  const isAuthenticated = !!token && !!user;
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -372,8 +373,6 @@ export default function Header() {
   // function to handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("user");
     window.location.href = "/";
   };
 

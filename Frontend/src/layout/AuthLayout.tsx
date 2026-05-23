@@ -1,14 +1,25 @@
 import { Store } from "lucide-react";
 import { Link, Outlet, Navigate } from "react-router-dom";
 import { EUserRole } from "@/types/entities/user.types";
+import { useGetProfileQuery } from "@/api/user.api";
 
 export default function AuthLayout() {
   const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
+  const { data: profileResponse, isLoading } = useGetProfileQuery(undefined, { skip: !token });
+  const role = profileResponse?.data?.user?.role;
 
   // If already authenticated, redirect to home page
-  if (token && role) {
-    return <Navigate to={role === EUserRole.Customer ? "/" : "/dashboard"} replace />;
+  if (token) {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center min-h-screen bg-bg-cream">
+          <div className="text-lg font-bold text-text-dark">جاري التحميل...</div>
+        </div>
+      );
+    }
+    if (role) {
+      return <Navigate to={role === EUserRole.Customer ? "/" : "/dashboard"} replace />;
+    }
   }
 
   return (

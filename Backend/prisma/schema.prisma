@@ -64,7 +64,8 @@ model User {
   // Relations
   ownedStores      Store?          @relation("StoreOwner") 
   orders           Order[]
-  reviews          Review[]
+  productReviews   ProductReview[] @relation("ProductReviews")
+  storeReviews     StoreReview[]   @relation("StoreReviews")
   cart             Cart?
   sentMessages     Message[]       @relation("MessageSender")
   receivedMessages Message[]       @relation("MessageReceiver")
@@ -94,6 +95,8 @@ model Store {
   socialMediaLinks Json?      @map("social_media_links")
   // -----------------------------
 
+  averageRating   Float       @default(0) @map("average_rating")
+  reviewCount     Int         @default(0) @map("review_count")
   createdAt       DateTime?   @default(now()) @map("created_at") @db.Timestamp(0)
   deletedAt       DateTime?   @map("deleted_at") @db.Timestamp(0)
 
@@ -105,6 +108,7 @@ model Store {
   subscriptions Subscription[]
   employees     StoreEmployee[]
   messages      Message[]
+  storeReviews  StoreReview[]   @relation("StoreReviews")
 
   @@map("Store")
 }
@@ -163,17 +167,19 @@ model Product {
   price         Decimal       @db.Decimal(10, 2)
   stockQuantity Int           @default(0) @map("stock_quantity")
   status        ProductStatus @default(Active)
+  averageRating Float         @default(0) @map("average_rating")
+  reviewCount   Int           @default(0) @map("review_count")
   createdAt     DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt     DateTime?     @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
   deletedAt     DateTime?     @map("deleted_at") @db.Timestamp(0)
 
   // Relations
-  store      Store          @relation(fields: [storeId], references: [id])
-  category   Category       @relation(fields: [categoryId], references: [id])
-  images     ProductImage[]
-  orderItems OrderItem[]
-  reviews    Review[]
-  cartItems  CartItem[]
+  store          Store          @relation(fields: [storeId], references: [id])
+  category       Category       @relation(fields: [categoryId], references: [id])
+  images         ProductImage[]
+  orderItems     OrderItem[]
+  productReviews ProductReview[]
+  cartItems      CartItem[]
 
   @@map("Product")
 }
@@ -204,10 +210,11 @@ model Order {
   deletedAt       DateTime?     @map("deleted_at") @db.Timestamp(0)
 
   // Relations
-  customer   User        @relation(fields: [customerId], references: [id])
-  store      Store       @relation(fields: [storeId], references: [id])
-  orderItems OrderItem[]
-  reviews    Review[]
+  customer       User            @relation(fields: [customerId], references: [id])
+  store          Store           @relation(fields: [storeId], references: [id])
+  orderItems     OrderItem[]
+  productReviews ProductReview[]
+  storeReviews   StoreReview[]   @relation("StoreOrderReviews")
 
   @@map("Orders")
 }
@@ -226,22 +233,46 @@ model OrderItem {
   @@map("OrderItem")
 }
 
-model Review {
-  id            String    @id @default(uuid()) @map("review_id") @db.Uuid
-  productId     String    @map("product_id") @db.Uuid
-  customerId    String    @map("customer_id") @db.Uuid
-  orderId       String    @map("order_id") @db.Uuid
-  rating        Int
-  reviewText    String?   @map("review_text") @db.Text
-  storeResponse String?   @map("store_response") @db.Text
-  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+model ProductReview {
+  id             String    @id @default(uuid()) @map("product_review_id") @db.Uuid
+  productId      String    @map("product_id") @db.Uuid
+  customerId     String    @map("customer_id") @db.Uuid
+  orderId        String    @map("order_id") @db.Uuid
+  rating         Int
+  reviewText     String?   @map("review_text") @db.Text
+  storeReply     String?   @map("store_reply") @db.Text
+  storeRepliedAt DateTime? @map("store_replied_at") @db.Timestamp(0)
+  createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
 
   // Relations
   product  Product @relation(fields: [productId], references: [id])
-  customer User    @relation(fields: [customerId], references: [id])
+  customer User    @relation("ProductReviews", fields: [customerId], references: [id])
   order    Order   @relation(fields: [orderId], references: [id])
 
-  @@map("Review")
+  @@unique([productId, customerId, orderId])
+  @@map("ProductReview")
+}
+
+model StoreReview {
+  id             String    @id @default(uuid()) @map("store_review_id") @db.Uuid
+  storeId        String    @map("store_id") @db.Uuid
+  customerId     String    @map("customer_id") @db.Uuid
+  orderId        String    @map("order_id") @db.Uuid
+  rating         Int
+  reviewText     String?   @map("review_text") @db.Text
+  storeReply     String?   @map("store_reply") @db.Text
+  storeRepliedAt DateTime? @map("store_replied_at") @db.Timestamp(0)
+  createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // Relations
+  store    Store @relation("StoreReviews", fields: [storeId], references: [id])
+  customer User  @relation("StoreReviews", fields: [customerId], references: [id])
+  order    Order @relation("StoreOrderReviews", fields: [orderId], references: [id])
+
+  @@unique([storeId, customerId, orderId])
+  @@map("StoreReview")
 }
 
 model Cart {

@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { StatCard } from "@/components/ui/StatCard";
+import { useGetProfileQuery } from "@/api/user.api";
 
 interface DashboardHeaderProps {
   storeName: string;
@@ -33,13 +34,12 @@ const navLinks = [
 ];
 
 export function DashboardHeader({ storeName }: DashboardHeaderProps) {
-  const userRaw = localStorage.getItem("user");
-  const user = userRaw ? JSON.parse(userRaw) : null;
+  const token = localStorage.getItem("token");
+  const { data: profileResponse } = useGetProfileQuery(undefined, { skip: !token });
+  const user = profileResponse?.data?.user;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("user");
     window.location.href = "/";
   };
 

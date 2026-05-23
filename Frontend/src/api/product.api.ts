@@ -1,17 +1,18 @@
 import { apiSlice } from "@/store/apiSlice";
-import { IAPIResponse } from "@/types/api/response.types";
+import { IAPIResponse, IPaginatedResponse } from "@/types/api/response.types";
 import { IProduct } from "@/types/entities/product.types";
 import { CreateProductDTO, UpdateProductDTO } from "@/types/dto/product.dto";
 
 export const productApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProducts: builder.query<
-      IAPIResponse<IProduct[]>,
-      void
+      IPaginatedResponse<IProduct, "products">,
+      { page?: number; limit?: number } | void
     >({
-      query: () => ({
+      query: (params) => ({
         url: "/products",
         method: "GET",
+        params: params || undefined,
       }),
       providesTags: ["Product"],
     }),
@@ -28,7 +29,7 @@ export const productApi = apiSlice.injectEndpoints({
     }),
 
     getProductsByStoreId: builder.query<
-      IAPIResponse<IProduct[]>,
+      IPaginatedResponse<IProduct, "products">,
       string
     >({
       query: (storeId) => ({
