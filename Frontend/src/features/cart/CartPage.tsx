@@ -78,7 +78,10 @@ export default function CartPage() {
       .reduce(
         (sum, store) =>
           sum +
-          store.items.reduce((storeSum, item) => storeSum + item.lineTotal, 0) *
+          store.items.reduce(
+            (storeSum, item) => storeSum + item.lineTotal!,
+            0,
+          ) *
             TAX_RATE,
         0,
       )
