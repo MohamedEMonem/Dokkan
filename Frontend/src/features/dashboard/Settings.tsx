@@ -1,17 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings as SettingsIcon, CheckCircle } from "lucide-react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import { Button } from "@/components/ui/Button";
 import { showNotification } from "@/utils/showNotification";
+import { useGetProfileQuery } from "@/api/user.api";
+import { useGetUserStoreQuery } from "@/api/store.api";
 
 export function Settings() {
+  const token = localStorage.getItem("token");
+  
+  const { data: profileResponse, isLoading: isLoadingProfile } = useGetProfileQuery(undefined, { skip: !token });
+  const { data: storeResponse, isLoading: isLoadingStore } = useGetUserStoreQuery(undefined, { skip: !token });
+
+  const user = profileResponse?.data?.user;
+  const store = storeResponse?.data?.store;
+
   const [storeName, setStoreName] = useState("");
   const [description, setDescription] = useState("");
-  const [ownerName, setOwnerName] = useState("بائع تجريبي");
+  const [ownerName, setOwnerName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+
+  // Pre-fill data
+  useEffect(() => {
+    if (store) {
+      setStoreName(store.name || "");
+      setDescription(store.description || "");
+      setPhone(store.phoneNumber || "");
+      setAddress(store.businessAddress || "");
+    }
+  }, [store]);
+
+  useEffect(() => {
+    if (user) {
+      setOwnerName(user.name || "");
+      if (!store?.phoneNumber && user.contactNumber) {
+        setPhone(prev => prev || user.contactNumber || "");
+      }
+    }
+  }, [user, store?.phoneNumber]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,11 +61,11 @@ export function Settings() {
   };
 
   const handleCancel = () => {
-    setStoreName("");
-    setDescription("");
-    setOwnerName("بائع تجريبي");
-    setPhone("");
-    setAddress("");
+    setStoreName(store?.name || "");
+    setDescription(store?.description || "");
+    setOwnerName(user?.name || "");
+    setPhone( user?.contactNumber || store?.phoneNumber || "");
+    setAddress(store?.businessAddress || "");
   };
 
   return (
