@@ -5,27 +5,20 @@ import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import { Button } from "@/components/ui/Button";
 import { showNotification } from "@/utils/showNotification";
-import { useGetProfileQuery, useUpdateProfileMutation } from "@/api/user.api";
 import { useGetUserStoreQuery, useUpdateStoreMutation } from "@/api/store.api";
 import { useNavigate } from "react-router-dom";
 
 export function Settings() {
   const token = localStorage.getItem("token");
 
-  const { data: profileResponse, isLoading: isLoadingProfile } = useGetProfileQuery(undefined, { skip: !token });
   const { data: storeResponse, isLoading: isLoadingStore } = useGetUserStoreQuery(undefined, { skip: !token });
 
-  const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
   const [updateStore, { isLoading: isUpdatingStore }] = useUpdateStoreMutation();
 
-  const isSaving = isUpdatingProfile || isUpdatingStore;
-
-  const user = profileResponse?.data?.user;
   const store = storeResponse?.data?.store;
 
   const [storeName, setStoreName] = useState(store?.name);
   const [description, setDescription] = useState(store?.description);
-  const [ownerName, setOwnerName] = useState(user?.name);
   const [phone, setPhone] = useState(store?.phoneNumber);
   const [address, setAddress] = useState(store?.businessAddress);
 
@@ -43,10 +36,7 @@ export function Settings() {
             businessAddress: address,
             phoneNumber: phone,
           },
-        }).unwrap(),
-        updateProfile({
-          name: ownerName,
-        }).unwrap(),
+        }).unwrap()
       ]);
 
       showNotification({
@@ -74,7 +64,7 @@ export function Settings() {
         title="إعدادات المتجر"
         icon={<SettingsIcon className="w-6 h-6 text-primary" />}
       >
-        {isLoadingProfile || isLoadingStore ? (
+        {isLoadingStore ? (
           <div className="flex flex-col items-center justify-center py-12 text-text-muted">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
             <p>جاري تحميل إعدادات المتجر...</p>
@@ -88,7 +78,7 @@ export function Settings() {
               onChange={(e) => setStoreName(e.target.value)}
               required
               className="h-12!"
-              disabled={isSaving}
+              disabled={isUpdatingStore}
             />
 
             <TextArea
@@ -99,17 +89,7 @@ export function Settings() {
               required
               rows={4}
               className="min-h-32!"
-              disabled={isSaving}
-            />
-
-            <Input
-              label="اسم صاحب المتجر *"
-              placeholder="أدخل اسم صاحب المتجر"
-              value={ownerName}
-              onChange={(e) => setOwnerName(e.target.value)}
-              required
-              className="h-12!"
-              disabled={isSaving}
+              disabled={isUpdatingStore}
             />
 
             <Input
@@ -120,7 +100,7 @@ export function Settings() {
               onChange={(e) => setPhone(e.target.value)}
               required
               className="h-12! text-right"
-              disabled={isSaving}
+              disabled={isUpdatingStore}
             />
 
             <Input
@@ -130,7 +110,7 @@ export function Settings() {
               onChange={(e) => setAddress(e.target.value)}
               required
               className="h-12!"
-              disabled={isSaving}
+              disabled={isUpdatingStore}
             />
 
             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-2">
@@ -139,7 +119,7 @@ export function Settings() {
                 variant="outline-accent"
                 className="h-12! px-6 rounded-xl bg-white text-text-dark hover:bg-bg-cream border-accent-light w-full sm:w-auto!"
                 onClick={handleCancel}
-                disabled={isSaving}
+                disabled={isUpdatingStore}
               >
                 إلغاء
               </Button>
@@ -149,15 +129,15 @@ export function Settings() {
                 variant="primary"
                 className="h-12! px-6 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto!"
                 icon={
-                  isSaving ? (
+                  isUpdatingStore ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
                   ) : (
                     <CheckCircle className="w-5 h-5 ml-2" />
                   )
                 }
-                disabled={isSaving}
+                disabled={isUpdatingStore}
               >
-                {isSaving ? "جاري الحفظ..." : "حفظ التغييرات"}
+                {isUpdatingStore ? "جاري الحفظ..." : "حفظ التغييرات"}
               </Button>
             </div>
           </form>
