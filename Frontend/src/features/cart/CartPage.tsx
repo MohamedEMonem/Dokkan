@@ -63,14 +63,39 @@ export default function CartPage() {
       ]
     : [];
 
+  const SHIPPING_FEE = 5;
+  const TAX_RATE = 0.14;
+  const guestShippingEstimate = Number(
+    guestStores
+      .reduce(
+        (sum, store) => sum + (store.storeTotal >= 500 ? 0 : SHIPPING_FEE),
+        0,
+      )
+      .toFixed(2),
+  );
+  const guestTaxEstimate = Number(
+    guestStores
+      .reduce(
+        (sum, store) =>
+          sum +
+          store.items.reduce((storeSum, item) => storeSum + item.lineTotal, 0) *
+            TAX_RATE,
+        0,
+      )
+      .toFixed(2),
+  );
+  const guestGrandTotal = Number(
+    (guestItemsTotal + guestShippingEstimate + guestTaxEstimate).toFixed(2),
+  );
+
   const effectiveCart: ICartResponse =
     cart ??
     ({
       stores: guestStores,
       itemsTotal: guestItemsTotal,
-      shippingEstimate: 0,
-      taxEstimate: 0,
-      grandTotal: guestItemsTotal,
+      shippingEstimate: guestShippingEstimate,
+      taxEstimate: guestTaxEstimate,
+      grandTotal: guestGrandTotal,
     } as ICartResponse);
 
   const effectiveStores = cart?.stores ?? guestStores;
