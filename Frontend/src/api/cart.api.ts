@@ -4,7 +4,7 @@ import { ICartRequest, ICartResponse } from "@/types/entities/cart.types";
 
 export const cartApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getCart: builder.query<IAPIResponse<ICartResponse | null>, void>({
+    getCart: builder.query<IAPIResponse<ICartResponse>, void>({
       query: () => ({ url: "/cart", method: "GET" }),
       providesTags: ["Cart"],
     }),

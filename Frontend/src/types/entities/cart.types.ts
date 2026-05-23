@@ -10,17 +10,24 @@ export interface ICartResponseItem {
   title: string;
   quantity: number;
   unitPrice: number;
-  lineTotal?: number;
-  imageUrl?: string;
-  inStock?: boolean;
+  lineTotal: number;
+  imageUrl: string | null;
+  inStock: boolean;
+}
+
+export interface ICartStore {
+  storeId: string;
+  storeName: string;
+  items: ICartResponseItem[];
+  storeTotal: number;
 }
 
 export interface ICartResponse {
-  items: ICartResponseItem[];
+  stores: ICartStore[];
   itemsTotal: number;
   shippingEstimate: number;
+  taxEstimate: number;
   grandTotal: number;
-  tax?: number;
 }
 
 export interface ICartRequest {

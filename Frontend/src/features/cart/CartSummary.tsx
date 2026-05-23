@@ -1,24 +1,21 @@
 import { Button } from "@/components/ui/Button";
 import { useNavigate } from "react-router-dom";
 
-// interface Props {
-//   itemsTotal?: number;
-//   shippingEstimate?: number;
-//   grandTotal?: number;
-// }
+interface Props {
+  itemCount: number;
+  itemsTotal: number;
+  shippingEstimate: number;
+  taxEstimate: number;
+  grandTotal: number;
+}
 
-export default function CartSummary() {
-  const mockData: {
-    itemsTotal: number;
-    shippingEstimate: number;
-    grandTotal: number;
-    totalTax?: number;
-  } = {
-    itemsTotal: 221.87,
-    shippingEstimate: 5,
-    grandTotal: 226.87,
-    totalTax: 7.5,
-  };
+export default function CartSummary({
+  itemCount,
+  itemsTotal,
+  shippingEstimate,
+  taxEstimate,
+  grandTotal,
+}: Props) {
   const navigate = useNavigate();
   return (
     <div className="lg:col-span-1">
@@ -26,22 +23,22 @@ export default function CartSummary() {
         <h2 className="mb-6">ملخص الطلب الإجمالي</h2>
         <div className="space-y-3 mb-6">
           <div className="flex justify-between text-gray-600">
-            <span>المجموع الفرعي (9 منتج)</span>
-            <span>{mockData.itemsTotal.toFixed(2)} ج.م</span>
+            <span>المجموع الفرعي ({itemCount} منتج)</span>
+            <span>{itemsTotal.toFixed(2)} ج.م</span>
           </div>
           <div className="flex justify-between text-gray-600">
             <span>إجمالي الشحن</span>
-            <span>{mockData.shippingEstimate.toFixed(2)} ج.م</span>
+            <span>{shippingEstimate.toFixed(2)} ج.م</span>
           </div>
           <div className="flex justify-between text-gray-600">
             <span>إجمالي الضريبة</span>
-            <span>{mockData.totalTax?.toFixed(2) || "0.00"} ج.م</span>
+            <span>{taxEstimate.toFixed(2)} ج.م</span>
           </div>
           <div className="border-t pt-3">
             <div className="flex justify-between">
               <span className="text-lg">الإجمالي الكلي</span>
               <span className="text-xl text-primary font-medium">
-                {mockData.grandTotal.toFixed(2)} ج.م
+                {grandTotal.toFixed(2)} ج.م
               </span>
             </div>
           </div>
@@ -70,20 +67,5 @@ export default function CartSummary() {
         </Button>
       </div>
     </div>
-    // <div className="border p-4 rounded w-full max-w-sm">
-    //   <h3 className="text-lg font-medium mb-2">Order Summary</h3>
-    //   <div className="flex justify-between mb-1">
-    //     <span>Items total</span>
-    //     <span>{itemsTotal.toFixed(2)} EGP</span>
-    //   </div>
-    //   <div className="flex justify-between mb-1">
-    //     <span>Shipping</span>
-    //     <span>{shippingEstimate.toFixed(2)} EGP</span>
-    //   </div>
-    //   <div className="border-t mt-2 pt-2 flex justify-between font-semibold">
-    //     <span>Total</span>
-    //     <span>{grandTotal.toFixed(2)} EGP</span>
-    //   </div>
-    // </div>
   );
 }

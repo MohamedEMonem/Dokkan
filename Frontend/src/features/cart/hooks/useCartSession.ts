@@ -53,8 +53,10 @@ export function useCartSession() {
     0,
   );
   const backendCount =
-    backendCartData?.data?.items?.reduce(
-      (sum, item) => sum + (item.quantity ?? 0),
+    backendCartData?.data?.stores?.reduce(
+      (sum, store) =>
+        sum +
+        store.items.reduce((storeCount, item) => storeCount + item.quantity, 0),
       0,
     ) ?? 0;
 

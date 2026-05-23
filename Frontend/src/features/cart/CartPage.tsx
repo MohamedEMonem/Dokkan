@@ -10,8 +10,9 @@ import { setCart } from "./logic/cartSlice";
 import type {
   ICartResponse,
   ICartResponseItem,
+  ICartStore,
 } from "@/types/entities/cart.types";
-import CartList from "@/features/cart/CartList";
+import CartList from "./CartList.tsx";
 import CartSummary from "@/features/cart/CartSummary";
 import { Button } from "@/components/ui/Button";
 import { ShoppingBag } from "lucide-react";
@@ -25,7 +26,7 @@ export default function CartPage() {
   const dispatch = useAppDispatch();
   const guestCart = useAppSelector((s) => s.cart.items);
 
-  const cart = data?.data as ICartResponse | undefined;
+  const cart = data?.data;
 
   const guestItems: ICartResponseItem[] = guestCart.map((it) => {
     const itm = it as ICartResponseItem;
@@ -39,46 +40,52 @@ export default function CartPage() {
     return {
       productId: itm.productId,
       title,
-      imageUrl,
+      imageUrl: imageUrl ?? null,
       unitPrice,
       quantity: qty,
-      lineTotal: unitPrice * qty,
+      lineTotal: Number((unitPrice * qty).toFixed(2)),
       inStock: true,
     };
   });
 
-  const guestItemsTotal = guestItems.reduce((s, i) => s + i.lineTotal!, 0);
+  const guestItemsTotal = Number(
+    guestItems.reduce((s, i) => s + i.lineTotal, 0).toFixed(2),
+  );
+
+  const guestStores: ICartStore[] = guestItems.length
+    ? [
+        {
+          storeId: "guest-cart",
+          storeName: "المنتجات المحفوظة",
+          items: guestItems,
+          storeTotal: guestItemsTotal,
+        },
+      ]
+    : [];
 
   const effectiveCart: ICartResponse =
     cart ??
     ({
-      items: guestItems,
+      stores: guestStores,
       itemsTotal: guestItemsTotal,
       shippingEstimate: 0,
+      taxEstimate: 0,
       grandTotal: guestItemsTotal,
     } as ICartResponse);
 
-  const effectiveItems: ICartResponseItem[] = cart
-    ? cart.items.map((it) => ({
-        productId: it.productId,
-        title: it.title,
-        imageUrl: it.imageUrl ?? undefined,
-        unitPrice: it.unitPrice,
-        quantity: it.quantity,
-        lineTotal:
-          typeof it.lineTotal === "number"
-            ? it.lineTotal
-            : it.unitPrice * it.quantity,
-        inStock: !!it.inStock,
-      }))
-    : guestItems;
+  const effectiveStores = cart?.stores ?? guestStores;
+  const totalItemCount = effectiveStores.reduce(
+    (storeTotal, store) =>
+      storeTotal +
+      store.items.reduce((count, item) => count + item.quantity, 0),
+    0,
+  );
 
   if (isLoading) return <div>Loading cart...</div>;
 
   if (
-    !effectiveCart ||
-    !effectiveCart.items ||
-    effectiveCart.items.length === 0
+    !effectiveStores.length ||
+    effectiveStores.every((store) => store.items.length === 0)
   ) {
     return (
       <div className="min-h-screen bg-gray-50 py-16" dir="rtl">
@@ -128,18 +135,20 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
       <div className="container mx-auto px-4">
-        <h1 className="mb-8">سلة التسوق (1 منتج)</h1>
+        <h1 className="mb-8">سلة التسوق ({totalItemCount} منتج)</h1>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <CartList
-            items={effectiveItems}
+            stores={effectiveStores}
             onQtyChange={handleQtyChange}
             onRemove={handleRemove}
           />
           <CartSummary
-          // itemsTotal={effectiveCart.itemsTotal || 0}
-          // shippingEstimate={effectiveCart.shippingEstimate || 0}
-          // grandTotal={effectiveCart.grandTotal || 0}
+            itemCount={totalItemCount}
+            itemsTotal={effectiveCart.itemsTotal || 0}
+            shippingEstimate={effectiveCart.shippingEstimate || 0}
+            taxEstimate={effectiveCart.taxEstimate || 0}
+            grandTotal={effectiveCart.grandTotal || 0}
           />
         </div>
       </div>
