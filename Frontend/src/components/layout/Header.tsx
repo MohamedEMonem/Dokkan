@@ -370,10 +370,16 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const token = localStorage.getItem("token");
-  const { data: profileResponse } = useGetProfileQuery(undefined, { skip: !token });
+  const { data: profileResponse } = useGetProfileQuery(undefined, {
+    skip: !token,
+  });
   const user = profileResponse?.data?.user;
   const isAuthenticated = !!token && !!user;
-  const { user, isAuthenticated, cartCount } = useCartSession();
+  const {
+    user: cartUser,
+    isAuthenticated: isCartAuthenticated,
+    cartCount,
+  } = useCartSession();
 
   useEffect(() => {
     // schedule state update to avoid synchronous setState inside effect
