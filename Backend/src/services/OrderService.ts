@@ -289,7 +289,7 @@ export class OrderService {
             },
           },
         },
-        reviews: true,
+        productReviews: true,
       },
     });
 
