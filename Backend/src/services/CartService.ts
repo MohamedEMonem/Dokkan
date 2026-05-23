@@ -136,17 +136,27 @@ const getCart = async (userId: string) => {
 
     const group = storeGroups.get(sid)!;
     group.items.push(item);
-    group.storeTotal = parseFloat((group.storeTotal + lineTotal).toFixed(2));
+    group.storeTotal += lineTotal;
 
     itemsTotal += lineTotal;
   }
 
+  const TAX_RATE = 0.14;
+  let totalTax = 0;
+
+  for (const group of storeGroups.values()) {
+    const tax = parseFloat((group.storeTotal * TAX_RATE).toFixed(2));
+    totalTax += tax;
+    group.storeTotal = parseFloat((group.storeTotal + tax).toFixed(2));
+  }
+
   itemsTotal = parseFloat(itemsTotal.toFixed(2));
+  totalTax = parseFloat(totalTax.toFixed(2));
   const stores = Array.from(storeGroups.values());
   const shippingEstimate = stores.length > 0 ? SHIPPING_ESTIMATE * stores.length : 0;
-  const grandTotal = parseFloat((itemsTotal + shippingEstimate).toFixed(2));
+  const grandTotal = parseFloat((itemsTotal + shippingEstimate + totalTax).toFixed(2));
 
-  return { stores, itemsTotal, shippingEstimate, grandTotal };
+  return { stores, itemsTotal, taxEstimate: totalTax, shippingEstimate, grandTotal };
 };
 
 const clearCart = async (userId: string) => {
