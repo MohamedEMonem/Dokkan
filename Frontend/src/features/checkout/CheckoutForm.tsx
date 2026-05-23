@@ -2,24 +2,11 @@ import React, { useCallback, useMemo } from "react";
 import clsx from "clsx";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { Package, CreditCard } from "lucide-react";
+import type { CheckoutFormValues } from "@/features/checkout/schemas/checkout.schema";
 
-export interface Address {
-  street: string;
-  city: string;
-  governorate: string;
-}
-
-export interface FormState {
-  fullName: string;
-  email: string;
-  phone: string;
-  address: Address;
-  paymentMethod: "cod" | "stripe";
-  cardholderName: string;
-  cardNumber: string;
-  expiryDate: string;
-  cvv: string;
-}
+export type Address = CheckoutFormValues["address"];
+export type FormState = CheckoutFormValues;
 
 interface Props {
   form: FormState;
@@ -186,16 +173,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
                 </div>
               </div>
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#DCFCE7]">
-                <svg
-                  className="w-5 h-5 text-[#22C55E]"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path>
-                  <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
-                </svg>
+                <Package className="w-5 h-5 text-[#22C55E]" />
               </div>
             </div>
           </label>
@@ -226,16 +204,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
               </div>
             </div>
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#E3F2FD]">
-              <svg
-                className="w-5 h-5 text-[#0A66C2]"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-                <line x1="2" x2="22" y1="10" y2="10"></line>
-              </svg>
+              <CreditCard className="w-5 h-5 text-[#0A66C2]" />
             </div>
           </label>
         </div>
@@ -281,18 +250,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
                     placeholder="1234 5678 9012 3456"
                     maxLength={19}
                     className="pr-12"
-                    icon={
-                      <svg
-                        className="w-5 h-5 text-gray-400"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-                        <line x1="2" x2="22" y1="10" y2="10"></line>
-                      </svg>
-                    }
+                    icon={<CreditCard className="w-5 h-5 text-gray-400" />}
                   />
                 </div>
               </div>

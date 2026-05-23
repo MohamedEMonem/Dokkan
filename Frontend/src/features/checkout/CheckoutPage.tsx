@@ -1,20 +1,32 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useGetCartQuery } from "@/api/cart.api";
-import CheckoutForm, { FormState } from "@/features/checkout/CheckoutForm";
-import type { ICartResponse } from "@/types/entities/cart.types";
+import React, { useState, useCallback } from "react";
+// import { useGetCartQuery } from "@/api/cart.api";
+import CheckoutForm from "@/features/checkout/CheckoutForm";
+// import type { ICartResponse } from "@/types/entities/cart.types";
 import CheckoutSummary from "./CheckoutSummary";
 import { useNavigate } from "react-router-dom";
 import { useCreateOrderMutation } from "@/api/order.api";
 import { showNotification } from "@/utils/showNotification";
+import {
+  checkoutSchema,
+  type CheckoutFormValues,
+} from "@/features/checkout/schemas/checkout.schema";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const [createOrder, { isLoading }] = useCreateOrderMutation();
-  const { data: cartData } = useGetCartQuery();
+  // const { data: cartData } = useGetCartQuery();
 
-  const cart = cartData?.data as ICartResponse;
+  // const cart = cartData?.data as ICartResponse;
 
-  const [form, setForm] = useState<FormState>({
+  const emptyCart = {
+    items: [],
+    itemsTotal: 0,
+    shippingEstimate: 0,
+    tax: 0,
+    grandTotal: 0,
+  };
+
+  const [form, setForm] = useState<CheckoutFormValues>({
     fullName: "",
     email: "",
     phone: "",
@@ -25,44 +37,31 @@ export default function CheckoutPage() {
     expiryDate: "",
     cvv: "",
   });
-  useEffect(() => {
-    // keep for debugging during development if needed
-  }, [cart, form]);
+  // useEffect(() => {
+  //   // keep for debugging during development if needed
+  // }, [cart, form]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = useCallback(() => {
-    if (!form.fullName || !form.fullName.trim())
-      return { valid: false, message: "الاسم الكامل مطلوب" };
-    if (!form.email || !form.email.includes("@"))
-      return { valid: false, message: "بريد إلكتروني صالح مطلوب" };
-    if (!form.phone || !form.phone.trim())
-      return { valid: false, message: "رقم الهاتف مطلوب" };
-    if (!form.address) return { valid: false, message: "العنوان مطلوب" };
-    if (!form.address.governorate)
-      return { valid: false, message: "اختر المحافظة" };
-    if (!form.address.city || !form.address.city.trim())
-      return { valid: false, message: "المدينة مطلوبة" };
-    if (!form.address.street || !form.address.street.trim())
-      return { valid: false, message: "العنوان بالتفصيل مطلوب" };
-    if (form.paymentMethod === "stripe") {
-      if (!form.cardholderName || !form.cardholderName.trim())
-        return { valid: false, message: "اسم حامل البطاقة مطلوب" };
-      if (!form.cardNumber || form.cardNumber.replace(/\s+/g, "").length < 12)
-        return { valid: false, message: "رقم بطاقة صالح مطلوب" };
-      if (!form.expiryDate || !form.expiryDate.trim())
-        return { valid: false, message: "تاريخ الانتهاء مطلوب" };
-      if (!form.cvv || form.cvv.trim().length < 3)
-        return { valid: false, message: "رمز CVV مطلوب" };
+    const validationResult = checkoutSchema.safeParse(form);
+
+    if (!validationResult.success) {
+      return {
+        valid: false,
+        message:
+          validationResult.error.issues[0]?.message || "الحقول غير مكتملة",
+      };
     }
+
     return { valid: true };
   }, [form]);
 
   const placeOrder = useCallback(async () => {
-    if (!cart || !cart.items || cart.items.length === 0) {
-      showNotification({ message: "Cart is empty", variant: "error" });
-      return;
-    }
+    // if (!cart || !cart.items || cart.items.length === 0) {
+    //   showNotification({ message: "Cart is empty", variant: "error" });
+    //   return;
+    // }
 
     if (isLoading || isSubmitting) return; // prevent duplicate submissions
 
@@ -101,7 +100,7 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   }, [
-    cart,
+    // cart,
     createOrder,
     form,
     isLoading,
@@ -126,7 +125,7 @@ export default function CheckoutPage() {
             </div>
             <div className="lg:col-span-1">
               <CheckoutSummary
-                cartItems={cart}
+                cartItems={emptyCart}
                 onConfirm={() => placeOrder()}
                 isLoading={isLoading}
               />

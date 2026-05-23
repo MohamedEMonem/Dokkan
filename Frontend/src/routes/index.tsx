@@ -33,9 +33,9 @@ export default function AppRoutes() {
         <Route path="/products/:id" element={<ProductDetailsPage />} />
         <Route path="/stores" element={<ViewStores />} />
         {/* <Route path="/store/:id" element={<ViewStores />} /> */}
-        
+
+        <Route path="/checkout" element={<Checkout />} />
         <Route element={<ProtectedRoutes />}>
-          <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>

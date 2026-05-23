@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/Button";
-import { ICartResponse } from "@/types/entities/cart.types";
-
+// import { ICartResponse } from "@/types/entities/cart.types";
+interface ICartResponse {
+  items: {
+    title: string;
+    quantity: number;
+    lineTotal: number;
+  }[];
+  itemsTotal: number;
+  shippingEstimate: number;
+  tax?: number;
+  grandTotal: number;
+}
 interface Props {
   cartItems: ICartResponse;
   onConfirm: () => void;
