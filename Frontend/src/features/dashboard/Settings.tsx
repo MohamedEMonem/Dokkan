@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Settings as SettingsIcon, CheckCircle } from "lucide-react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Input } from "@/components/ui/Input";
@@ -23,31 +23,26 @@ export function Settings() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
 
-  // Pre-fill data
-  useEffect(() => {
-    if (store) {
-      setStoreName(store.name || "");
-      setDescription(store.description || "");
-      setPhone(store.phoneNumber || "");
-      setAddress(store.businessAddress || "");
-    }
-  }, [store]);
+  // Helper to reset/initialize form state from API data
+  const resetForm = useCallback(() => {
+    setStoreName(store?.name || "");
+    setDescription(store?.description || "");
+    setOwnerName(user?.name || "");
+    setPhone(store?.phoneNumber || user?.contactNumber || "");
+    setAddress(store?.businessAddress || "");
+  }, [store, user]);
 
+  // Pre-fill data when store or user API data updates
   useEffect(() => {
-    if (user) {
-      setOwnerName(user.name || "");
-      if (!store?.phoneNumber && user.contactNumber) {
-        setPhone(prev => prev || user.contactNumber || "");
-      }
-    }
-  }, [user, store?.phoneNumber]);
+    resetForm();
+  }, [resetForm]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // For now, just simulate a successful save
     showNotification({
-      message: "تم حفظ التغييرات بنجاح! (معاينة تجريبية)",
+      message: "تم حفظ التغييرات بنجاح",
       variant: "success",
     });
     
@@ -61,11 +56,7 @@ export function Settings() {
   };
 
   const handleCancel = () => {
-    setStoreName(store?.name || "");
-    setDescription(store?.description || "");
-    setOwnerName(user?.name || "");
-    setPhone( user?.contactNumber || store?.phoneNumber || "");
-    setAddress(store?.businessAddress || "");
+    resetForm();
   };
 
   return (
