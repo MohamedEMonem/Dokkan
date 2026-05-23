@@ -37,17 +37,15 @@ export function Settings() {
     e.preventDefault();
 
     try {
-      await Promise.all([
-        updateStore({
-          data: {
-            name: storeName,
-            description,
-            businessAddress: address,
-            phoneNumber: phone,
+      await updateStore({
+        data: {
+          name: storeName,
+          description,
+          businessAddress: address,
+          phoneNumber: phone,
           },
         }).unwrap()
-      ]);
-
+      
       showNotification({
         message: "تم حفظ التغييرات بنجاح!",
         variant: "success",
@@ -102,12 +100,11 @@ export function Settings() {
             />
 
             <Input
-              label="رقم الهاتف *"
+              label="رقم الهاتف"
               type="tel"
               placeholder="+20 100 123 4567"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              required
               className="h-12! text-right"
               disabled={isUpdatingStore}
             />
