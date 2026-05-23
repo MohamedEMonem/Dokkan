@@ -5,7 +5,9 @@ const orderSortByValues = ["createdAt", "status", "totalAmount"] as const;
 const orderSortDirValues = ["asc", "desc"] as const;
 
 export const createOrderSchema = z.object({
-  storeId: z.string().uuid("storeId must be a valid UUID"),
+  username: z.string().trim().min(1, "username is required").max(100),
+  phoneNumber: z.string().trim().min(1, "phoneNumber is required").max(20),
+  email: z.string().trim().email("email must be a valid email address"),
   shippingAddress: z.object({
     line1: z.string().trim().min(1, "line1 is required"),
     line2: z.string().trim().optional(),
