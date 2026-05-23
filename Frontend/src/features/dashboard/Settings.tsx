@@ -133,11 +133,11 @@ export function Settings() {
               disabled={isSaving}
             />
 
-            <div className="flex justify-end gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-2">
               <Button
                 type="button"
                 variant="outline-accent"
-                className="h-12! px-6 rounded-xl bg-white text-text-dark hover:bg-bg-cream border-accent-light w-auto!"
+                className="h-12! px-6 rounded-xl bg-white text-text-dark hover:bg-bg-cream border-accent-light w-full sm:w-auto!"
                 onClick={handleCancel}
                 disabled={isSaving}
               >
@@ -147,7 +147,7 @@ export function Settings() {
               <Button
                 type="submit"
                 variant="primary"
-                className="h-12! px-6 rounded-xl flex items-center justify-center gap-2 w-auto!"
+                className="h-12! px-6 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto!"
                 icon={
                   isSaving ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
