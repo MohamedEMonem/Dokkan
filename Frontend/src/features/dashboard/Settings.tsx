@@ -17,17 +17,17 @@ export function Settings() {
 
   const store = storeResponse?.data?.store;
 
-  const [storeName, setStoreName] = useState("");
-  const [description, setDescription] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [storeName, setStoreName] = useState<string>();
+  const [description, setDescription] = useState<string>();
+  const [phone, setPhone] = useState<string>();
+  const [address, setAddress] = useState<string>();
 
   useEffect(() => {
     if (store) {
       setStoreName(store.name);
-      setDescription(store.description!);
-      setPhone(store.phoneNumber || "");
-      setAddress(store.businessAddress!);
+      setDescription(store.description ?? "");
+      setPhone(store.phoneNumber);
+      setAddress(store.businessAddress ?? "");
     }
   }, [store]);
 
