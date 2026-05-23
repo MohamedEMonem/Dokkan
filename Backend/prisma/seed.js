@@ -417,13 +417,13 @@ async function main() {
       const key = `${item.productId}::${order.customerId}::${order.id}`;
       if (reviewedCombos.has(key)) continue;
       reviewedCombos.add(key);
-      await prisma.review.create({
+      await prisma.productReview.create({
         data: {
           id: randomUUID(), productId: item.productId,
           customerId: order.customerId, orderId: order.id,
           rating: pick([3, 4, 4, 5, 5, 5]),
           reviewText: pick(REVIEW_TEXTS),
-          storeResponse: pick(STORE_RESPONSES),
+          storeReply: pick(STORE_RESPONSES),
           createdAt: daysAgo(randInt(0, 60)),
         },
       });
