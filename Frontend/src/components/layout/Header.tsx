@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { useCartSession } from "@/features/cart/hooks/useCartSession";
+import { useGetProfileQuery } from "@/api/user.api";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SubItem {
@@ -367,6 +368,11 @@ function MobileMenu({
 export default function Header() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const token = localStorage.getItem("token");
+  const { data: profileResponse } = useGetProfileQuery(undefined, { skip: !token });
+  const user = profileResponse?.data?.user;
+  const isAuthenticated = !!token && !!user;
   const { user, isAuthenticated, cartCount } = useCartSession();
 
   useEffect(() => {

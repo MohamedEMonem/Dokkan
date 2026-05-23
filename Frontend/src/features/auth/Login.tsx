@@ -31,7 +31,8 @@ export const LoginForm = (): React.JSX.Element => {
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      const response = await loginApi(data).unwrap();
+      const { rememberMe, ...credentials } = data;
+      const response = await loginApi(credentials).unwrap();
 
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.user.role);

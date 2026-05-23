@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post(
   "/register",
-  authLimiter,
+  // authLimiter,
   /* #swagger.tags = ['Auth']
      #swagger.summary = 'Register a new user'
      #swagger.description = 'Creates a new user account. If the email belongs to a previously soft-deleted account, it restores the account. Role is optional and defaults to Customer.'
@@ -51,7 +51,7 @@ router.post(
 
 router.post(
   "/login",
-  authLimiter,
+  // authLimiter,
   /* #swagger.tags = ['Auth']
      #swagger.summary = 'Login user'
      #swagger.description = 'Authenticates a user and returns a JWT token.'
@@ -80,7 +80,7 @@ router.post(
 
 router.post(
   "/refresh",
-  refreshLimiter,
+  // refreshLimiter,
   /* #swagger.tags = ['Auth']
      #swagger.summary = 'Refresh access token'
      #swagger.description = 'Rotates the refresh token (from HTTP-only cookie) and returns a fresh access token.'
