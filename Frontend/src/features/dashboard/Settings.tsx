@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Settings as SettingsIcon, CheckCircle } from "lucide-react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Input } from "@/components/ui/Input";
@@ -7,44 +7,33 @@ import { Button } from "@/components/ui/Button";
 import { showNotification } from "@/utils/showNotification";
 import { useGetProfileQuery, useUpdateProfileMutation } from "@/api/user.api";
 import { useGetUserStoreQuery, useUpdateStoreMutation } from "@/api/store.api";
+import { useNavigate } from "react-router-dom";
 
 export function Settings() {
   const token = localStorage.getItem("token");
-  
+
   const { data: profileResponse, isLoading: isLoadingProfile } = useGetProfileQuery(undefined, { skip: !token });
   const { data: storeResponse, isLoading: isLoadingStore } = useGetUserStoreQuery(undefined, { skip: !token });
 
   const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
   const [updateStore, { isLoading: isUpdatingStore }] = useUpdateStoreMutation();
 
+  const isSaving = isUpdatingProfile || isUpdatingStore;
+
   const user = profileResponse?.data?.user;
   const store = storeResponse?.data?.store;
 
-  const [storeName, setStoreName] = useState("");
-  const [description, setDescription] = useState("");
-  const [ownerName, setOwnerName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [storeName, setStoreName] = useState(store?.name);
+  const [description, setDescription] = useState(store?.description);
+  const [ownerName, setOwnerName] = useState(user?.name);
+  const [phone, setPhone] = useState(store?.phoneNumber);
+  const [address, setAddress] = useState(store?.businessAddress);
 
-  const isSaving = isUpdatingProfile || isUpdatingStore;
-
-  // Helper to reset/initialize form state from API data
-  const resetForm = useCallback(() => {
-    setStoreName(store?.name || "");
-    setDescription(store?.description || "");
-    setOwnerName(user?.name || "");
-    setPhone(store?.phoneNumber || "");
-    setAddress(store?.businessAddress || "");
-  }, [store, user]);
-
-  // Pre-fill data when store or user API data updates
-  useEffect(() => {
-    resetForm();
-  }, [resetForm]);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     try {
       await Promise.all([
         updateStore({
@@ -53,28 +42,30 @@ export function Settings() {
             description,
             businessAddress: address,
             phoneNumber: phone,
-          }
+          },
         }).unwrap(),
         updateProfile({
           name: ownerName,
         }).unwrap(),
       ]);
-      
+
       showNotification({
         message: "تم حفظ التغييرات بنجاح!",
         variant: "success",
       });
+      navigate("/dashboard");
     } catch (err: any) {
       showNotification({
-        message: err?.data?.message || "حدث خطأ أثناء حفظ التغييرات. يرجى المحاولة مرة أخرى.",
+        message:
+          err?.data?.message ||
+          "حدث خطأ أثناء حفظ التغييرات. يرجى المحاولة مرة أخرى.",
         variant: "error",
       });
-      console.error("Save Settings Error:", err);
     }
   };
 
   const handleCancel = () => {
-    resetForm();
+    navigate("/dashboard");
   };
 
   return (
@@ -83,7 +74,7 @@ export function Settings() {
         title="إعدادات المتجر"
         icon={<SettingsIcon className="w-6 h-6 text-primary" />}
       >
-        {(isLoadingProfile || isLoadingStore) ? (
+        {isLoadingProfile || isLoadingStore ? (
           <div className="flex flex-col items-center justify-center py-12 text-text-muted">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
             <p>جاري تحميل إعدادات المتجر...</p>
@@ -157,7 +148,13 @@ export function Settings() {
                 type="submit"
                 variant="primary"
                 className="h-12! px-6 rounded-xl flex items-center justify-center gap-2 w-auto!"
-                icon={isSaving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div> : <CheckCircle className="w-5 h-5 ml-2" />}
+                icon={
+                  isSaving ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
+                  ) : (
+                    <CheckCircle className="w-5 h-5 ml-2" />
+                  )
+                }
                 disabled={isSaving}
               >
                 {isSaving ? "جاري الحفظ..." : "حفظ التغييرات"}
@@ -168,5 +165,4 @@ export function Settings() {
       </DashboardCard>
     </div>
   );
-
 }
