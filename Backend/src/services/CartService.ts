@@ -72,7 +72,7 @@ const getCart = async (userId: string) => {
       stockQuantity: true,
       storeId: true,
       store: {
-        select: { id: true, name: true },
+        select: { id: true, name: true, subdomain: true },
       },
       images: {
         take: 1,
@@ -129,6 +129,7 @@ const getCart = async (userId: string) => {
       storeGroups.set(sid, {
         storeId: sid,
         storeName: product.store.name.trim(),
+        subdomain: product.store.subdomain,
         items: [],
         storeTotal: 0,
       });
