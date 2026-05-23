@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings as SettingsIcon, CheckCircle } from "lucide-react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Input } from "@/components/ui/Input";
@@ -17,10 +17,19 @@ export function Settings() {
 
   const store = storeResponse?.data?.store;
 
-  const [storeName, setStoreName] = useState(store?.name);
-  const [description, setDescription] = useState(store?.description);
-  const [phone, setPhone] = useState(store?.phoneNumber);
-  const [address, setAddress] = useState(store?.businessAddress);
+  const [storeName, setStoreName] = useState("");
+  const [description, setDescription] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+
+  useEffect(() => {
+    if (store) {
+      setStoreName(store.name);
+      setDescription(store.description!);
+      setPhone(store.phoneNumber || "");
+      setAddress(store.businessAddress!);
+    }
+  }, [store]);
 
   const navigate = useNavigate();
 
