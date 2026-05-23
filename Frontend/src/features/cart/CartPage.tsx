@@ -49,7 +49,7 @@ export default function CartPage() {
   });
 
   const guestItemsTotal = Number(
-    guestItems.reduce((s, i) => s + i.lineTotal, 0).toFixed(2),
+    guestItems.reduce((s, i) => s + i.lineTotal!, 0).toFixed(2),
   );
 
   const guestStores: ICartStore[] = guestItems.length

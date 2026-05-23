@@ -39,8 +39,8 @@ export const ProductCard = ({ product }: ProductProps) => {
       quantity: 1,
       title: product.title,
       unitPrice: product.price ?? 0,
-      imageUrl: product.images?.[0]?.imageUrl,
-      storeId: product.store?.id,
+      imageUrl: (product.images?.[0]?.imageUrl ?? null) as string | null,
+      storeId: (product.store?.id ?? null) as string | null,
     };
     try {
       await addItemToCart({

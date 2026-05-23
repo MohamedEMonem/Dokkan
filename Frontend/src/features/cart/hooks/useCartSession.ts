@@ -10,7 +10,7 @@ interface UserType {
   role?: string;
 }
 
-const readSession = () => {
+export const readSession = () => {
   const token = localStorage.getItem("token");
   const userRaw = localStorage.getItem("user");
   const user: UserType | null = userRaw

@@ -16,6 +16,7 @@ import {
 import ReviewCard from "./components/ReviewCard";
 import { Card } from "@/components/ui/Card";
 import { Stars } from "./components/Stars";
+import { readSession } from "../cart/hooks/useCartSession";
 
 export function ProductDetailsPage() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export function ProductDetailsPage() {
   const [activeTab, setActiveTab] = useState<
     "description" | "reviews" | "shipping"
   >("shipping");
-
+  const { isAuthenticated } = readSession();
   const { data, isLoading, isError } = useGetProductByIdQuery(
     { id: id ?? "" },
     { skip: !id },
@@ -57,41 +58,39 @@ export function ProductDetailsPage() {
   type TabId = (typeof TABS)[number]["id"];
   // Handlers
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     const item = {
       productId: String(product.id),
       quantity: cartCount,
       title: product.title,
       unitPrice: product.price,
-      imageUrl: product.images?.[0]?.imageUrl,
-      storeId: product.store?.id,
+      imageUrl: (product.images?.[0]?.imageUrl ?? null) as string | null,
+      storeId: (product.store?.id ?? null) as string | null,
     };
-    (async () => {
-      try {
-        await addItemToCart({
-          item,
-          isAuthenticated: false,
-          dispatch,
-          getState: () => store.getState(),
-        });
 
-        // try backend sync (no-op on failure)
-        addItemApi({ productId: product.id, quantity: cartCount })
-          .unwrap()
-          .catch(() => {});
+    try {
+      await addItemToCart({
+        item,
+        isAuthenticated: isAuthenticated,
+        dispatch,
+        addToCartApi: isAuthenticated
+          ? (it: { productId: string; quantity: number }) =>
+              addItemApi(it).unwrap()
+          : undefined,
+        getState: () => store.getState(),
+      });
 
-        showNotification({
-          variant: "success",
-          message: `تمت إضافة ${cartCount} منتج للسلة!`,
-        });
-      } catch (err) {
-        console.error(err);
-        showNotification({
-          variant: "error",
-          message: "فشل إضافة المنتج للسلة",
-        });
-      }
-    })();
+      showNotification({
+        variant: "success",
+        message: `تمت إضافة ${cartCount} منتج للسلة!`,
+      });
+    } catch (err) {
+      console.error(err);
+      showNotification({
+        variant: "error",
+        message: "فشل إضافة المنتج للسلة",
+      });
+    }
   };
 
   const handleToggleFavorite = () => {
