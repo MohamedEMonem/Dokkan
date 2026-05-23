@@ -36,12 +36,24 @@ export const LoginForm = (): React.JSX.Element => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.user.role);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      window.dispatchEvent(new Event("cart-auth-changed"));
 
-      showNotification({ message: "تم تسجيل الدخول بنجاح", variant: "success" });
-      response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
-    } catch (error: any) {
+      showNotification({
+        message: "تم تسجيل الدخول بنجاح",
+        variant: "success",
+      });
+      if (response.data.user.role === EUserRole.Customer) {
+        navigate("/");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      const authError = error as {
+        data?: { message?: string };
+        message?: string;
+      };
       const errorMessage =
-        error?.data?.message || error?.message || "حدث خطأ غير متوقع";
+        authError?.data?.message || authError?.message || "حدث خطأ غير متوقع";
       showNotification({ message: errorMessage, variant: "error" });
     }
   };

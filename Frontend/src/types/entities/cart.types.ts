@@ -1,9 +1,32 @@
-import { WithId } from '@/types/core/entity.types';
-import { SoftDeleted } from '@/types/core/audit.types';
+import { WithId } from "@/types/core/entity.types";
+import { SoftDeleted } from "@/types/core/audit.types";
 
 /* ────────────────────────────────────────────────────────
  * Cart Interfaces
  * ──────────────────────────────────────────────────────── */
+
+export interface ICartResponseItem {
+  productId: string;
+  title: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal?: number;
+  imageUrl?: string;
+  inStock?: boolean;
+}
+
+export interface ICartResponse {
+  items: ICartResponseItem[];
+  itemsTotal: number;
+  shippingEstimate: number;
+  grandTotal: number;
+  tax?: number;
+}
+
+export interface ICartRequest {
+  productId: string;
+  quantity: number;
+}
 
 export interface ICartItemInfo {
   cartId: string;

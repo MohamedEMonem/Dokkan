@@ -67,17 +67,31 @@ export const RegisterForm = (): React.JSX.Element => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      const {confirmPassword, terms, ...payload} = data;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { confirmPassword, terms, ...payload } = data;
       const response = await registerApi(payload).unwrap();
 
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.user.role);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      window.dispatchEvent(new Event("cart-auth-changed"));
 
-      showNotification({ message: "تم تسجيل الحساب بنجاح", variant: "success" });
-      response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
-    } catch (error: any) {
-      const errorMessage = error?.data?.message || error?.message || "حدث خطأ غير متوقع";
+      showNotification({
+        message: "تم تسجيل الحساب بنجاح",
+        variant: "success",
+      });
+      if (response.data.user.role === EUserRole.Customer) {
+        navigate("/");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      const authError = error as {
+        data?: { message?: string };
+        message?: string;
+      };
+      const errorMessage =
+        authError?.data?.message || authError?.message || "حدث خطأ غير متوقع";
       showNotification({ message: errorMessage, variant: "error" });
     }
   };

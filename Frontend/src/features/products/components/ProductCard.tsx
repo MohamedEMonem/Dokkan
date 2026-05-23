@@ -5,14 +5,20 @@ import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import { showNotification } from "@/utils/showNotification";
 import { Heart, ShoppingCart, Star } from "lucide-react";
+import { useAppDispatch } from "@/store/hooks";
+import { useAddItemMutation } from "@/api/cart.api";
+import { addItemToCart } from "@/features/cart/logic/cartService";
+import { store } from "@/store/store";
+import { useCartSession } from "@/features/cart/hooks/useCartSession";
 
 type ProductProps = {
   product: IProduct;
 };
 
 export const ProductCard = ({ product }: ProductProps) => {
-  //   const dispatch = useAppDispatch();
-
+  const dispatch = useAppDispatch();
+  const [addItemApi] = useAddItemMutation();
+  const { isAuthenticated } = useCartSession();
   const productId = product?.id ?? "";
 
   const [isFav, setIsFav] = useState(false); //Temporary state for favorite status, replace with actual logic later
@@ -27,8 +33,32 @@ export const ProductCard = ({ product }: ProductProps) => {
     });
   };
 
-  const AddToCartHandler = (product: IProduct) => {
-    console.log(product);
+  const AddToCartHandler = async (product: IProduct) => {
+    const item = {
+      productId: String(product.id),
+      quantity: 1,
+      title: product.title,
+      unitPrice: product.price ?? 0,
+      imageUrl: product.images?.[0]?.imageUrl,
+      storeId: product.store?.id,
+    };
+    try {
+      await addItemToCart({
+        item,
+        isAuthenticated: isAuthenticated,
+        dispatch,
+        addToCartApi: (item) => addItemApi(item).unwrap(),
+        getState: () => store.getState(),
+      });
+
+      showNotification({
+        message: "تمت إضافة المنتج إلى السلة",
+        variant: "success",
+      });
+    } catch (err) {
+      console.error("Add to cart failed", err);
+      showNotification({ message: "فشل إضافة المنتج للسلة", variant: "error" });
+    }
   };
 
   if (!product || !productId) return null;

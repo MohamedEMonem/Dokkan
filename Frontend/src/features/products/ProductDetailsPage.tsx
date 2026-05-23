@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/Button";
 import { useState, useEffect } from "react";
 import { Store, Heart, ShoppingCart, Minus, Plus } from "lucide-react";
 import { showNotification } from "@/utils/showNotification";
+import { useAppDispatch } from "@/store/hooks";
+import { useAddItemMutation } from "@/api/cart.api";
+import { addItemToCart } from "@/features/cart/logic/cartService";
+import { store } from "@/store/store";
 import {
   mockReviewsData,
   mockRelatedProducts,
@@ -27,17 +31,20 @@ export function ProductDetailsPage() {
     { skip: !id },
   );
 
+  const dispatch = useAppDispatch();
+  const [addItemApi] = useAddItemMutation();
+
   useEffect(() => {
     if (data?.data) {
       if (data.data.stockQuantity <= 0) {
-        setCartCount(0);
+        setTimeout(() => setCartCount(0), 0);
       } else if (cartCount <= 0) {
-        setCartCount(1);
+        setTimeout(() => setCartCount(1), 0);
       } else if (cartCount > data.data.stockQuantity) {
-        setCartCount(data.data.stockQuantity);
+        setTimeout(() => setCartCount(data.data.stockQuantity), 0);
       }
     }
-  }, [data?.data?.stockQuantity]);
+  }, [data, cartCount]);
 
   const productReviews = 187; // mock number, replace with actual count from API when available
 
@@ -51,11 +58,40 @@ export function ProductDetailsPage() {
   // Handlers
 
   const handleAddToCart = () => {
-    showNotification({
-      variant: "success",
-      message: `تمت إضافة ${cartCount} منتج للسلة!`,
-    });
-    console.log("handle Add To Cart");
+    const item = {
+      productId: String(product.id),
+      quantity: cartCount,
+      title: product.title,
+      unitPrice: product.price,
+      imageUrl: product.images?.[0]?.imageUrl,
+      storeId: product.store?.id,
+    };
+    (async () => {
+      try {
+        await addItemToCart({
+          item,
+          isAuthenticated: false,
+          dispatch,
+          getState: () => store.getState(),
+        });
+
+        // try backend sync (no-op on failure)
+        addItemApi({ productId: product.id, quantity: cartCount })
+          .unwrap()
+          .catch(() => {});
+
+        showNotification({
+          variant: "success",
+          message: `تمت إضافة ${cartCount} منتج للسلة!`,
+        });
+      } catch (err) {
+        console.error(err);
+        showNotification({
+          variant: "error",
+          message: "فشل إضافة المنتج للسلة",
+        });
+      }
+    })();
   };
 
   const handleToggleFavorite = () => {

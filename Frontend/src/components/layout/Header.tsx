@@ -18,6 +18,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { useCartSession } from "@/features/cart/hooks/useCartSession";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SubItem {
@@ -30,6 +31,13 @@ interface NavItemData {
   href: string;
   icon?: ReactNode;
   subItems?: SubItem[];
+}
+
+interface UserType {
+  name?: string;
+  profilePhotoUrl?: string;
+  email?: string;
+  role?: string;
 }
 
 // ─── Nav Data ────────────────────────────────────────────────────────────────
@@ -156,7 +164,7 @@ function MobileMenu({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  user: any;
+  user: UserType | null;
   onLogout: () => void;
 }) {
   const navigate = useNavigate();
@@ -359,14 +367,11 @@ function MobileMenu({
 export default function Header() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const token = localStorage.getItem("token");
-  const userRaw = localStorage.getItem("user");
-  const user = userRaw ? JSON.parse(userRaw) : null;
-  const isAuthenticated = !!token && !!user?.role;
+  const { user, isAuthenticated, cartCount } = useCartSession();
 
   useEffect(() => {
-    setMobileMenuOpen(false);
+    // schedule state update to avoid synchronous setState inside effect
+    setTimeout(() => setMobileMenuOpen(false), 0);
   }, [location.pathname, location.search]);
 
   // function to handle logout
@@ -374,6 +379,7 @@ export default function Header() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("user");
+    window.dispatchEvent(new Event("cart-auth-changed"));
     window.location.href = "/";
   };
 
@@ -416,10 +422,22 @@ export default function Header() {
               <Link
                 key={action.href}
                 to={action.href}
-                className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
+                className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors relative"
                 aria-label={action.ariaLabel}
               >
-                {action.icon}
+                {/* Cart icon shows a count badge */}
+                {action.href === "/cart" ? (
+                  <div className="relative">
+                    {action.icon}
+                    {cartCount > 0 && (
+                      <span className="p-3 absolute -top-4 -left-4 bg-accent text-white text-[14px] rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                        {cartCount}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  action.icon
+                )}
               </Link>
             ))}
 
