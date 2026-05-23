@@ -53,9 +53,7 @@ export function Settings() {
       navigate("/dashboard");
     } catch (err: any) {
       showNotification({
-        message:
-          err?.data?.message ||
-          "حدث خطأ أثناء حفظ التغييرات. يرجى المحاولة مرة أخرى.",
+        message: err?.data?.message || "حدث خطأ أثناء حفظ التغييرات. يرجى المحاولة مرة أخرى.",
         variant: "error",
       });
     }
