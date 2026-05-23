@@ -98,7 +98,7 @@ const getCart = async (userId: string) => {
 
   const storeGroups = new Map<
     string,
-    { storeId: string; storeName: string; items: CartItem[]; storeTotal: number }
+    { storeId: string; storeName: string; subdomain: string; items: CartItem[]; storeTotal: number }
   >();
 
   let itemsTotal = 0;
