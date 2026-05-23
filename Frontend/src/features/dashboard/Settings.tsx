@@ -5,14 +5,17 @@ import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import { Button } from "@/components/ui/Button";
 import { showNotification } from "@/utils/showNotification";
-import { useGetProfileQuery } from "@/api/user.api";
-import { useGetUserStoreQuery } from "@/api/store.api";
+import { useGetProfileQuery, useUpdateProfileMutation } from "@/api/user.api";
+import { useGetUserStoreQuery, useUpdateStoreMutation } from "@/api/store.api";
 
 export function Settings() {
   const token = localStorage.getItem("token");
   
   const { data: profileResponse, isLoading: isLoadingProfile } = useGetProfileQuery(undefined, { skip: !token });
   const { data: storeResponse, isLoading: isLoadingStore } = useGetUserStoreQuery(undefined, { skip: !token });
+
+  const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
+  const [updateStore, { isLoading: isUpdatingStore }] = useUpdateStoreMutation();
 
   const user = profileResponse?.data?.user;
   const store = storeResponse?.data?.store;
@@ -22,6 +25,8 @@ export function Settings() {
   const [ownerName, setOwnerName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+
+  const isSaving = isUpdatingProfile || isUpdatingStore;
 
   // Helper to reset/initialize form state from API data
   const resetForm = useCallback(() => {
@@ -37,22 +42,35 @@ export function Settings() {
     resetForm();
   }, [resetForm]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For now, just simulate a successful save
-    showNotification({
-      message: "تم حفظ التغييرات بنجاح",
-      variant: "success",
-    });
-    
-    console.log("Store Settings Saved:", {
-      storeName,
-      description,
-      ownerName,
-      phone,
-      address,
-    });
+    try {
+      await Promise.all([
+        updateStore({
+          data: {
+            name: storeName,
+            description,
+            businessAddress: address,
+            phoneNumber: phone,
+          }
+        }).unwrap(),
+        updateProfile({
+          name: ownerName,
+        }).unwrap(),
+      ]);
+      
+      showNotification({
+        message: "تم حفظ التغييرات بنجاح!",
+        variant: "success",
+      });
+    } catch (err: any) {
+      showNotification({
+        message: err?.data?.message || "حدث خطأ أثناء حفظ التغييرات. يرجى المحاولة مرة أخرى.",
+        variant: "error",
+      });
+      console.error("Save Settings Error:", err);
+    }
   };
 
   const handleCancel = () => {
@@ -65,75 +83,90 @@ export function Settings() {
         title="إعدادات المتجر"
         icon={<SettingsIcon className="w-6 h-6 text-primary" />}
       >
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            label="اسم المتجر *"
-            placeholder="أدخل اسم المتجر"
-            value={storeName}
-            onChange={(e) => setStoreName(e.target.value)}
-            required
-            className="h-12!"
-          />
-
-          <TextArea
-            label="وصف المتجر *"
-            placeholder="أدخل وصف تفصيلي عن متجرك"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            rows={4}
-            className="min-h-32!"
-          />
-
-          <Input
-            label="اسم صاحب المتجر *"
-            placeholder="أدخل اسم صاحب المتجر"
-            value={ownerName}
-            onChange={(e) => setOwnerName(e.target.value)}
-            required
-            className="h-12!"
-          />
-
-          <Input
-            label="رقم الهاتف *"
-            type="tel"
-            placeholder="+20 100 123 4567"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-            className="h-12! text-right"
-          />
-
-          <Input
-            label="العنوان *"
-            placeholder="أدخل عنوان المتجر"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-            className="h-12!"
-          />
-
-          <div className="flex justify-end gap-4 pt-2">
-            <Button
-              type="button"
-              variant="outline-accent"
-              className="h-12! px-6 rounded-xl bg-white text-text-dark hover:bg-bg-cream border-accent-light w-auto!"
-              onClick={handleCancel}
-            >
-              إلغاء
-            </Button>
-
-            <Button
-              type="submit"
-              variant="primary"
-              className="h-12! px-6 rounded-xl flex items-center justify-center gap-2 w-auto!"
-              icon={<CheckCircle className="w-5 h-5 ml-2" />}
-            >
-              حفظ التغييرات
-            </Button>
+        {(isLoadingProfile || isLoadingStore) ? (
+          <div className="flex flex-col items-center justify-center py-12 text-text-muted">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p>جاري تحميل إعدادات المتجر...</p>
           </div>
-        </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              label="اسم المتجر *"
+              placeholder="أدخل اسم المتجر"
+              value={storeName}
+              onChange={(e) => setStoreName(e.target.value)}
+              required
+              className="h-12!"
+              disabled={isSaving}
+            />
+
+            <TextArea
+              label="وصف المتجر *"
+              placeholder="أدخل وصف تفصيلي عن متجرك"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              rows={4}
+              className="min-h-32!"
+              disabled={isSaving}
+            />
+
+            <Input
+              label="اسم صاحب المتجر *"
+              placeholder="أدخل اسم صاحب المتجر"
+              value={ownerName}
+              onChange={(e) => setOwnerName(e.target.value)}
+              required
+              className="h-12!"
+              disabled={isSaving}
+            />
+
+            <Input
+              label="رقم الهاتف *"
+              type="tel"
+              placeholder="+20 100 123 4567"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              className="h-12! text-right"
+              disabled={isSaving}
+            />
+
+            <Input
+              label="العنوان *"
+              placeholder="أدخل عنوان المتجر"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+              className="h-12!"
+              disabled={isSaving}
+            />
+
+            <div className="flex justify-end gap-4 pt-2">
+              <Button
+                type="button"
+                variant="outline-accent"
+                className="h-12! px-6 rounded-xl bg-white text-text-dark hover:bg-bg-cream border-accent-light w-auto!"
+                onClick={handleCancel}
+                disabled={isSaving}
+              >
+                إلغاء
+              </Button>
+
+              <Button
+                type="submit"
+                variant="primary"
+                className="h-12! px-6 rounded-xl flex items-center justify-center gap-2 w-auto!"
+                icon={isSaving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div> : <CheckCircle className="w-5 h-5 ml-2" />}
+                disabled={isSaving}
+              >
+                {isSaving ? "جاري الحفظ..." : "حفظ التغييرات"}
+              </Button>
+            </div>
+          </form>
+        )}
       </DashboardCard>
     </div>
   );
+
 }
