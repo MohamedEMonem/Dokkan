@@ -33,7 +33,7 @@ export function Settings() {
     setStoreName(store?.name || "");
     setDescription(store?.description || "");
     setOwnerName(user?.name || "");
-    setPhone(store?.phoneNumber || user?.contactNumber || "");
+    setPhone(store?.phoneNumber || "");
     setAddress(store?.businessAddress || "");
   }, [store, user]);
 
