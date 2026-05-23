@@ -5,7 +5,7 @@ import type { OrderQueryDto, StoreOrderQueryDto } from "../DTO/order.dto.js";
 
 const CART_KEY = (userId: string) => `cart:${userId}`;
 const SHIPPING_COST = 5.0;
-const TAX_RATE = 0.08;
+const TAX_RATE = 0.14;
 
 type OrderStatusValue = "Pending" | "Shipped" | "Delivered" | "Cancelled";
 type OrderSortBy = "createdAt" | "status" | "totalAmount";
