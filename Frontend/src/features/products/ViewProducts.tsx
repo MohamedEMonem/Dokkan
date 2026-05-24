@@ -22,7 +22,6 @@ const sortConfigs: Record<
 export const ViewProducts = () => {
   const { data, isLoading, error } = useGetProductsQuery({ limit: 100 });
   const products = data?.data?.products ?? [];
-
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
@@ -67,7 +66,9 @@ export const ViewProducts = () => {
       const matchesSearch =
         filters.search.trim() === "" ||
         product.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        product.description?.toLowerCase().includes(filters.search.toLowerCase());
+        product.description
+          ?.toLowerCase()
+          .includes(filters.search.toLowerCase());
 
       const matchesCategory =
         filters.category === "all" || product.categoryId === filters.category;
@@ -97,7 +98,9 @@ export const ViewProducts = () => {
     return displayedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [displayedProducts, currentPage]);
 
-  const fromIndex = paginatedProducts.length ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0;
+  const fromIndex = paginatedProducts.length
+    ? (currentPage - 1) * ITEMS_PER_PAGE + 1
+    : 0;
   const toIndex = (currentPage - 1) * ITEMS_PER_PAGE + paginatedProducts.length;
 
   const reset = () => {
@@ -141,7 +144,9 @@ export const ViewProducts = () => {
                   variant="outline-accent"
                   onClick={() => setIsMobileFilterOpen(true)}
                   className="h-9! items-center gap-2 px-4 py-2.5 border! text-gray-700!"
-                  icon={<SlidersHorizontal size={18} className="text-gray-500" />}
+                  icon={
+                    <SlidersHorizontal size={18} className="text-gray-500" />
+                  }
                   iconPos="right"
                 >
                   <span className="text-sm font-medium">الفلاتر</span>

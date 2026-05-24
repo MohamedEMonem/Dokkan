@@ -14,6 +14,24 @@ type ProductProps = {
   product: IProduct;
 };
 
+function getStockBadge(stockQuantity: number) {
+  if (stockQuantity <= 0) {
+    return {
+      label: "نفد المخزون",
+      className: "bg-red-500",
+    };
+  }
+
+  if (stockQuantity < 10) {
+    return {
+      label: `متبقي ${stockQuantity}`,
+      className: "bg-orange-500",
+    };
+  }
+
+  return null;
+}
+
 export const ProductCard = ({ product }: ProductProps) => {
   const [addItemApi] = useAddItemMutation();
   const { addItemToCart } = useCartService();
@@ -21,6 +39,7 @@ export const ProductCard = ({ product }: ProductProps) => {
   const productId = product?.id ?? "";
 
   const [isFav, setIsFav] = useState(false); //Temporary state for favorite status, replace with actual logic later
+  const stockBadge = getStockBadge(product.stockQuantity ?? 0);
 
   // Handlers
 
@@ -74,6 +93,13 @@ export const ProductCard = ({ product }: ProductProps) => {
               alt={product.title}
               className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
             />
+            {stockBadge && (
+              <div
+                className={`absolute top-2 right-2 ${stockBadge.className} text-white text-xs px-2 py-0.5 rounded-full`}
+              >
+                {stockBadge.label}
+              </div>
+            )}
             {/* Favorite button */}
             <button
               onClick={(e: React.MouseEvent) => {
