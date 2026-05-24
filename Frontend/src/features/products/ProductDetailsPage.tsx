@@ -113,6 +113,18 @@ export function ProductDetailsPage() {
 
   const minCount = product.stockQuantity > 0 ? 1 : 0;
   const maxCount = product.stockQuantity ?? 0;
+  const stockBadge =
+    product.stockQuantity <= 0
+      ? {
+          label: "نفد المخزون",
+          className: "bg-red-500",
+        }
+      : product.stockQuantity < 10
+        ? {
+            label: `متبقي ${product.stockQuantity}`,
+            className: "bg-orange-500",
+          }
+        : null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
@@ -136,14 +148,23 @@ export function ProductDetailsPage() {
             {/* Product Image */}
             <div>
               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
-                <img
-                  src={
-                    product.images?.[0]?.imageUrl ||
-                    "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg"
-                  }
-                  alt={product.title}
-                  className="w-full h-full object-cover"
-                />
+                <div className="relative h-full w-full">
+                  <img
+                    src={
+                      product.images?.[0]?.imageUrl ||
+                      "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg"
+                    }
+                    alt={product.title}
+                    className="w-full h-full object-cover"
+                  />
+                  {stockBadge && (
+                    <div
+                      className={`absolute top-3 right-3 ${stockBadge.className} text-white text-xs px-3 py-1 rounded-full shadow-sm`}
+                    >
+                      {stockBadge.label}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             {/* Product Details */}
@@ -171,9 +192,19 @@ export function ProductDetailsPage() {
                   {product.price?.toLocaleString()} ج.م
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-green-600">
-                    متوفر ( {product.stockQuantity} قطعة )
-                  </span>
+                  {product.stockQuantity > 0 ? (
+                    <span
+                      className={`text-sm ${product.stockQuantity < 10 ? "text-orange-600" : "text-green-600"}`}
+                    >
+                      {product.stockQuantity < 10
+                        ? `متبقي ${product.stockQuantity} قطعة`
+                        : `متوفر (${product.stockQuantity} قطعة)`}
+                    </span>
+                  ) : (
+                    <span className="text-sm text-red-600">
+                      غير متوفر حالياً
+                    </span>
+                  )}
                 </div>
               </div>
 
