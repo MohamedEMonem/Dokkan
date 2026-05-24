@@ -46,6 +46,23 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
     [setForm],
   );
 
+  const handleChangeField = useCallback(
+    (
+      field:
+        | "fullName"
+        | "email"
+        | "phone"
+        | "cardholderName"
+        | "cardNumber"
+        | "expiryDate"
+        | "cvv",
+      value: string,
+    ) => {
+      setForm((prev: FormState) => ({ ...prev, [field]: value }));
+    },
+    [setForm],
+  );
+
   return (
     <div className="lg:col-span-2 space-y-6" onClick={onclick}>
       <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -58,9 +75,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
               label="الاسم الكامل *"
               required
               value={form.fullName}
-              onChange={(e) =>
-                setForm((p: FormState) => ({ ...p, fullName: e.target.value }))
-              }
+              onChange={(e) => handleChangeField("fullName", e.target.value)}
             />
           </div>
 
@@ -73,9 +88,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
                 label="البريد الإلكتروني *"
                 required
                 value={form.email}
-                onChange={(e) =>
-                  setForm((p: FormState) => ({ ...p, email: e.target.value }))
-                }
+                onChange={(e) => handleChangeField("email", e.target.value)}
               />
             </div>
             <div>
@@ -86,9 +99,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
                 label="رقم الهاتف *"
                 required
                 value={form.phone}
-                onChange={(e) =>
-                  setForm((p: FormState) => ({ ...p, phone: e.target.value }))
-                }
+                onChange={(e) => handleChangeField("phone", e.target.value)}
               />
             </div>
           </div>
@@ -226,10 +237,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
                   label="اسم حامل البطاقة *"
                   value={form.cardholderName}
                   onChange={(e) =>
-                    setForm((p: FormState) => ({
-                      ...p,
-                      cardholderName: e.target.value,
-                    }))
+                    handleChangeField("cardholderName", e.target.value)
                   }
                   placeholder="الاسم كما هو مكتوب على البطاقة"
                   className="mt-2"
@@ -242,10 +250,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
                     label="رقم البطاقة *"
                     value={form.cardNumber}
                     onChange={(e) =>
-                      setForm((p: FormState) => ({
-                        ...p,
-                        cardNumber: e.target.value,
-                      }))
+                      handleChangeField("cardNumber", e.target.value)
                     }
                     placeholder="1234 5678 9012 3456"
                     maxLength={19}
@@ -262,10 +267,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
                     label="تاريخ الانتهاء *"
                     value={form.expiryDate}
                     onChange={(e) =>
-                      setForm((p: FormState) => ({
-                        ...p,
-                        expiryDate: e.target.value,
-                      }))
+                      handleChangeField("expiryDate", e.target.value)
                     }
                     placeholder="MM/YY"
                     maxLength={5}
@@ -278,9 +280,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
                     type="password"
                     label="رمز الأمان (CVV) *"
                     value={form.cvv}
-                    onChange={(e) =>
-                      setForm((p: FormState) => ({ ...p, cvv: e.target.value }))
-                    }
+                    onChange={(e) => handleChangeField("cvv", e.target.value)}
                     placeholder="123"
                     maxLength={4}
                     className="mt-2"

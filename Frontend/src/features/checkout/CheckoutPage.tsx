@@ -1,7 +1,5 @@
 import React, { useState, useCallback } from "react";
-// import { useGetCartQuery } from "@/api/cart.api";
 import CheckoutForm from "@/features/checkout/CheckoutForm";
-// import type { ICartResponse } from "@/types/entities/cart.types";
 import CheckoutSummary from "./CheckoutSummary";
 import { useNavigate } from "react-router-dom";
 import { useCreateOrderMutation } from "@/api/order.api";
@@ -11,35 +9,30 @@ import {
   type CheckoutFormValues,
 } from "@/features/checkout/schemas/checkout.schema";
 
+const EMPTY_CART = {
+  items: [],
+  itemsTotal: 0,
+  shippingEstimate: 0,
+  tax: 0,
+  grandTotal: 0,
+};
+
+const INITIAL_FORM: CheckoutFormValues = {
+  fullName: "",
+  email: "",
+  phone: "",
+  address: { street: "", city: "", governorate: "" },
+  paymentMethod: "stripe",
+  cardholderName: "",
+  cardNumber: "",
+  expiryDate: "",
+  cvv: "",
+};
+
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const [createOrder, { isLoading }] = useCreateOrderMutation();
-  // const { data: cartData } = useGetCartQuery();
-
-  // const cart = cartData?.data as ICartResponse;
-
-  const emptyCart = {
-    items: [],
-    itemsTotal: 0,
-    shippingEstimate: 0,
-    tax: 0,
-    grandTotal: 0,
-  };
-
-  const [form, setForm] = useState<CheckoutFormValues>({
-    fullName: "",
-    email: "",
-    phone: "",
-    address: { street: "", city: "", governorate: "" },
-    paymentMethod: "stripe",
-    cardholderName: "",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-  });
-  // useEffect(() => {
-  //   // keep for debugging during development if needed
-  // }, [cart, form]);
+  const [form, setForm] = useState<CheckoutFormValues>(INITIAL_FORM);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,11 +51,6 @@ export default function CheckoutPage() {
   }, [form]);
 
   const placeOrder = useCallback(async () => {
-    // if (!cart || !cart.items || cart.items.length === 0) {
-    //   showNotification({ message: "Cart is empty", variant: "error" });
-    //   return;
-    // }
-
     if (isLoading || isSubmitting) return; // prevent duplicate submissions
 
     const validation = validateForm();
@@ -76,19 +64,24 @@ export default function CheckoutPage() {
 
     setIsSubmitting(true);
     try {
-      const paymentMethodPayload =
-        form.paymentMethod === "stripe" ? "card" : form.paymentMethod;
-
       const resp = await createOrder({
-        shippingAddress: form.address,
-        paymentMethod: paymentMethodPayload,
+        username: form.fullName,
+        phoneNumber: form.phone,
+        email: form.email,
+        shippingAddress: {
+          line1: form.address.street,
+          line2: form.address.governorate,
+          city: form.address.city,
+          country: "Egypt",
+        },
       }).unwrap();
 
       showNotification({
         message: "Order placed successfully",
         variant: "success",
       });
-      navigate(`/orders/${resp.data.id}`);
+      const firstOrderId = resp.data.orders[0]?.id;
+      navigate(firstOrderId ? `/orders/${firstOrderId}` : "/orders");
     } catch (err) {
       const error = err as { data?: { message?: string }; message?: string };
       showNotification({
@@ -109,10 +102,13 @@ export default function CheckoutPage() {
     validateForm,
   ]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await placeOrder();
-  };
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      await placeOrder();
+    },
+    [placeOrder],
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
@@ -125,8 +121,8 @@ export default function CheckoutPage() {
             </div>
             <div className="lg:col-span-1">
               <CheckoutSummary
-                cartItems={emptyCart}
-                onConfirm={() => placeOrder()}
+                cartItems={EMPTY_CART}
+                onConfirm={placeOrder}
                 isLoading={isLoading}
               />
             </div>
