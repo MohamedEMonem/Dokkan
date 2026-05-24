@@ -35,7 +35,7 @@ function CartStoreTotals({
           <span className="text-text-dark font-medium">إجمالي المتجر</span>
 
           <span className="text-primary font-medium">
-            {storeTotal.toFixed(2)} ج.م
+            {(storeTotal + shippingFee).toFixed(2)} ج.م
           </span>
         </div>
       </div>

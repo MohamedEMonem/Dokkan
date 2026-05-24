@@ -63,33 +63,33 @@ export const useGuestCartStorage = () => {
     setStore(cartItems);
   }, []);
 
-  const addGuestCartItem = useCallback(
-    (item: ICart) => {
-      const current = loadGuestCart();
+//   const addGuestCartItem = useCallback(
+//     (item: ICart) => {
+//       const current = loadGuestCart();
 
-      const existing = current.find((x) => x.productId === item.productId);
+//       const existing = current.find((x) => x.productId === item.productId);
 
-      let next: ICart[];
+//       let next: ICart[];
 
-      if (existing) {
-        next = current.map((x) =>
-          x.productId === item.productId
-            ? {
-                ...x,
-                quantity: x.quantity + item.quantity,
-              }
-            : x,
-        );
-      } else {
-        next = [...current, item];
-      }
+//       if (existing) {
+//         next = current.map((x) =>
+//           x.productId === item.productId
+//             ? {
+//                 ...x,
+//                 quantity: x.quantity + item.quantity,
+//               }
+//             : x,
+//         );
+//       } else {
+//         next = [...current, item];
+//       }
 
-      setStore(next);
+//       setStore(next);
 
-      return next;
-    },
-    [loadGuestCart],
-  );
+//       return next;
+//     },
+//     [loadGuestCart],
+//   );
 
   const removeGuestCartItem = useCallback(
     (productId: string) => {
@@ -118,7 +118,7 @@ export const useGuestCartStorage = () => {
     items,
     saveGuestCart,
     loadGuestCart,
-    addGuestCartItem,
+    // addGuestCartItem,
     removeGuestCartItem,
     clearGuestCart,
   };
