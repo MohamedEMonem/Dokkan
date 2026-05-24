@@ -18,6 +18,7 @@ export interface ICartResponseItem {
 export interface ICartStore {
   storeId: string;
   storeName: string;
+  subdomain: string;
   items: ICartResponseItem[];
   storeTotal: number;
 }

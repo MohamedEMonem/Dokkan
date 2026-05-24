@@ -3,15 +3,15 @@ import { Store } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type CartStoreHeaderProps = {
-  storeId: string;
   storeName: string;
   itemCount: number;
+  subdomain: string;
 };
 
 function CartStoreHeader({
-  storeId,
   storeName,
   itemCount,
+  subdomain,
 }: CartStoreHeaderProps) {
   return (
     <div className="bg-linear-to-l from-primary/5 to-white px-6 py-4 border-b border-gray-200">
@@ -22,7 +22,7 @@ function CartStoreHeader({
           </div>
 
           <div>
-            <Link to={`/@${storeId}`}>
+            <Link to={`/@${subdomain}`}>
               <h3 className="text-lg text-text-dark">{storeName}</h3>
             </Link>
 

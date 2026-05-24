@@ -74,6 +74,7 @@ export default function CartPage() {
             {
               storeId: "guest-cart",
               storeName: "المنتجات المحفوظة",
+              subdomain: "",
               items: guestItems,
               storeTotal: Number(
                 (guestItemsTotal + guestItemsTotal * TAX_RATE).toFixed(2),

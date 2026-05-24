@@ -54,9 +54,9 @@ function CartStoreCard({
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
       <CartStoreHeader
-        storeId={store.storeId}
         storeName={store.storeName}
         itemCount={itemCount}
+        subdomain={store.subdomain}
       />
 
       <div className="p-4 space-y-3">
