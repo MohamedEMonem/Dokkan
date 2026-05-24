@@ -35,14 +35,14 @@ const navLinks = [
 
 export function DashboardHeader({ storeName }: DashboardHeaderProps) {
   const token = localStorage.getItem("token");
-  const { data: profileResponse } = useGetProfileQuery(undefined, { skip: !token });
+  const { data: profileResponse } = useGetProfileQuery(undefined, {
+    skip: !token,
+  });
   const user = profileResponse?.data?.user;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("user");
-    window.dispatchEvent(new Event("cart-auth-changed"));
+
     window.location.href = "/";
   };
 
