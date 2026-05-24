@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useGetCartQuery,
@@ -5,8 +6,6 @@ import {
   useRemoveItemMutation,
   // useClearCartMutation,
 } from "@/api/cart.api";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setCart } from "./logic/cartSlice";
 import type {
   ICartResponse,
   ICartResponseItem,
@@ -14,8 +13,30 @@ import type {
 } from "@/types/entities/cart.types";
 import CartList from "./CartList.tsx";
 import CartSummary from "@/features/cart/CartSummary";
-import { Button } from "@/components/ui/Button";
-import { ShoppingBag } from "lucide-react";
+import { useGuestCart } from "@/hooks/useGuestCart.ts";
+import CartEmptyState from "./components/CartEmptyState";
+
+const SHIPPING_FEE = 5;
+const TAX_RATE = 0.14;
+
+function normalizeGuestCartItem(item: unknown): ICartResponseItem {
+  const itm = item as ICartResponseItem;
+  const unitPrice = Number(itm.unitPrice ?? 0) || 0;
+  const quantity = itm.quantity ?? 0;
+  const title = typeof itm.title === "string" ? itm.title : "Unknown product";
+  const maybeImage = (itm as unknown as { imageUrl?: unknown }).imageUrl;
+  const imageUrl = typeof maybeImage === "string" ? maybeImage : undefined;
+
+  return {
+    productId: itm.productId,
+    title,
+    imageUrl: imageUrl ?? null,
+    unitPrice,
+    quantity,
+    lineTotal: Number((unitPrice * quantity).toFixed(2)),
+    inStock: true,
+  };
+}
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -23,95 +44,133 @@ export default function CartPage() {
   const [updateItem] = useUpdateItemMutation();
   const [removeItem] = useRemoveItemMutation();
   // const [clearCart] = useClearCartMutation();
-  const dispatch = useAppDispatch();
-  const guestCart = useAppSelector((s) => s.cart.items);
+  const {
+    items: guestCart,
+    setGuestCart,
+    removeGuestCartItem: removeGuestCartItem,
+  } = useGuestCart();
 
   const cart = data?.data;
 
-  const guestItems: ICartResponseItem[] = guestCart.map((it) => {
-    const itm = it as ICartResponseItem;
-    const unitPrice = Number(itm.unitPrice ?? 0) || 0;
-    const qty = itm.quantity ?? 0;
-    const title: string =
-      typeof itm.title === "string" ? itm.title : "Unknown product";
-    const maybeImage = (itm as unknown as { imageUrl?: unknown }).imageUrl;
-    const imageUrl: string | undefined =
-      typeof maybeImage === "string" ? maybeImage : undefined;
-    return {
-      productId: itm.productId,
-      title,
-      imageUrl: imageUrl ?? null,
-      unitPrice,
-      quantity: qty,
-      lineTotal: Number((unitPrice * qty).toFixed(2)),
-      inStock: true,
-    };
-  });
-
-  const guestItemsTotal = Number(
-    guestItems.reduce((s, i) => s + i.lineTotal!, 0).toFixed(2),
+  const guestItems = useMemo(
+    () => guestCart.map(normalizeGuestCartItem),
+    [guestCart],
   );
 
-  const guestStores: ICartStore[] = guestItems.length
-    ? [
-        {
-          storeId: "guest-cart",
-          storeName: "المنتجات المحفوظة",
-          items: guestItems,
-          storeTotal: guestItemsTotal + guestItemsTotal * 0.14,
-        },
-      ]
-    : [];
-
-  const SHIPPING_FEE = 5;
-  const TAX_RATE = 0.14;
-  const guestShippingEstimate = Number(
-    guestStores
-      .reduce(
-        // (sum, store) => sum + (store.storeTotal >= 500 ? 0 : SHIPPING_FEE),
-        (sum) => sum + SHIPPING_FEE,
-        0,
-      )
-      .toFixed(2),
+  const guestItemsTotal = useMemo(
+    () =>
+      Number(
+        guestItems
+          .reduce((sum, item) => sum + (item.lineTotal ?? 0), 0)
+          .toFixed(2),
+      ),
+    [guestItems],
   );
-  const guestTaxEstimate = Number(
-    guestStores
-      .reduce(
-        (sum, store) =>
-          sum +
-          store.items.reduce(
-            (storeSum, item) => storeSum + item.lineTotal!,
+
+  const guestStores = useMemo<ICartStore[]>(
+    () =>
+      guestItems.length
+        ? [
+            {
+              storeId: "guest-cart",
+              storeName: "المنتجات المحفوظة",
+              items: guestItems,
+              storeTotal: Number(
+                (guestItemsTotal + guestItemsTotal * TAX_RATE).toFixed(2),
+              ),
+            },
+          ]
+        : [],
+    [guestItems, guestItemsTotal],
+  );
+
+  const guestShippingEstimate = useMemo(
+    () => Number((guestStores.length * SHIPPING_FEE).toFixed(2)),
+    [guestStores.length],
+  );
+
+  const guestTaxEstimate = useMemo(
+    () =>
+      Number(
+        guestStores
+          .reduce(
+            (sum, store) =>
+              sum +
+              store.items.reduce(
+                (storeSum, item) => storeSum + (item.lineTotal ?? 0),
+                0,
+              ) *
+                TAX_RATE,
             0,
-          ) *
-            TAX_RATE,
-        0,
-      )
-      .toFixed(2),
-  );
-  const guestGrandTotal = Number(
-    // (guestItemsTotal + guestShippingEstimate + guestTaxEstimate).toFixed(2),
-    (guestItemsTotal + guestTaxEstimate).toFixed(2),
+          )
+          .toFixed(2),
+      ),
+    [guestStores],
   );
 
-  const effectiveCart: ICartResponse =
-    cart ??
-    ({
-      stores: guestStores,
-      itemsTotal: guestItemsTotal,
-      shippingEstimate: guestShippingEstimate,
-      taxEstimate: guestTaxEstimate,
-      grandTotal: guestGrandTotal,
-    } as ICartResponse);
+  const guestGrandTotal = useMemo(
+    () => Number((guestItemsTotal + guestTaxEstimate).toFixed(2)),
+    [guestItemsTotal, guestTaxEstimate],
+  );
+
+  const effectiveCart: ICartResponse = useMemo(
+    () =>
+      cart ?? {
+        stores: guestStores,
+        itemsTotal: guestItemsTotal,
+        shippingEstimate: guestShippingEstimate,
+        taxEstimate: guestTaxEstimate,
+        grandTotal: guestGrandTotal,
+      },
+    [
+      cart,
+      guestGrandTotal,
+      guestItemsTotal,
+      guestShippingEstimate,
+      guestStores,
+      guestTaxEstimate,
+    ],
+  );
 
   const effectiveStores = cart?.stores ?? guestStores;
-  const totalItemCount = effectiveStores.reduce(
-    (storeTotal, store) =>
-      storeTotal +
-      store.items.reduce((count, item) => count + item.quantity, 0),
-    0,
+  const totalItemCount = useMemo(
+    () =>
+      effectiveStores.reduce(
+        (storeTotal, store) =>
+          storeTotal +
+          store.items.reduce((count, item) => count + item.quantity, 0),
+        0,
+      ),
+    [effectiveStores],
   );
 
-  console.log("Effected cart, :", effectiveCart);
+  const handleQtyChange = useCallback(
+    (productId: string, qty: number) => {
+      if (cart) {
+        updateItem({ productId, quantity: qty });
+        return;
+      }
+
+      if (qty <= 0) {
+        removeGuestCartItem(productId);
+        return;
+      }
+
+      const updated = guestCart.map((item) =>
+        item.productId === productId ? { ...item, quantity: qty } : item,
+      );
+      setGuestCart(updated);
+    },
+    [cart, guestCart, removeGuestCartItem, setGuestCart, updateItem],
+  );
+
+  const handleRemove = useCallback(
+    (productId: string) => {
+      if (cart) removeItem({ productId });
+      else removeGuestCartItem(productId);
+    },
+    [cart, removeGuestCartItem, removeItem],
+  );
 
   if (isLoading) return <div>Loading cart...</div>;
 
@@ -119,50 +178,8 @@ export default function CartPage() {
     !effectiveStores.length ||
     effectiveStores.every((store) => store.items.length === 0)
   ) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-16" dir="rtl">
-        <div className="container mx-auto px-4">
-          <div className="max-w-md mx-auto text-center bg-white rounded-lg p-12 shadow-sm">
-            <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="mb-4">سلة التسوق فارغة</h2>
-            <p className="text-gray-600 mb-6">أضف بعض المنتجات للبدء!</p>
-            <div className="flex justify-center">
-              <Button
-                variant="primary"
-                className="px-5 w-fit! h-9! "
-                onClick={() => navigate("/products")}
-              >
-                تصفح المنتجات
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <CartEmptyState onBrowseProducts={() => navigate("/products")} />;
   }
-
-  const handleQtyChange = (productId: string, qty: number) => {
-    if (cart) updateItem({ productId, quantity: qty });
-    else {
-      if (qty <= 0) {
-        dispatch({ type: "cart/removeFromCart", payload: productId });
-        return;
-      }
-      const updated = guestCart.map((it) =>
-        it.productId === productId ? { ...it, quantity: qty } : it,
-      );
-      dispatch(setCart(updated));
-    }
-  };
-
-  const handleRemove = (productId: string) => {
-    if (cart) removeItem({ productId });
-    else dispatch({ type: "cart/removeFromCart", payload: productId });
-  };
-
-  // const handleCheckout = () => {
-  //   navigate("/checkout");
-  // };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8" dir="rtl">

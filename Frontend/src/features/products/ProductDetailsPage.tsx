@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/Button";
 import { useState, useEffect } from "react";
 import { Store, Heart, ShoppingCart, Minus, Plus } from "lucide-react";
 import { showNotification } from "@/utils/showNotification";
-import { useAppDispatch } from "@/store/hooks";
+
 import { useAddItemMutation } from "@/api/cart.api";
-import { addItemToCart } from "@/features/cart/logic/cartService";
-import { store } from "@/store/store";
+import useCartService from "@/hooks/useCartService";
 import {
   mockReviewsData,
   mockRelatedProducts,
@@ -16,7 +15,7 @@ import {
 import ReviewCard from "./components/ReviewCard";
 import { Card } from "@/components/ui/Card";
 import { Stars } from "./components/Stars";
-import { readSession } from "../cart/hooks/useCartSession";
+import { readSession } from "../../hooks/useCartSession";
 
 export function ProductDetailsPage() {
   const navigate = useNavigate();
@@ -32,8 +31,8 @@ export function ProductDetailsPage() {
     { skip: !id },
   );
 
-  const dispatch = useAppDispatch();
   const [addItemApi] = useAddItemMutation();
+  const { addItemToCart } = useCartService();
 
   useEffect(() => {
     if (data?.data) {
@@ -72,12 +71,10 @@ export function ProductDetailsPage() {
       await addItemToCart({
         item,
         isAuthenticated: isAuthenticated,
-        dispatch,
         addToCartApi: isAuthenticated
           ? (it: { productId: string; quantity: number }) =>
               addItemApi(it).unwrap()
           : undefined,
-        getState: () => store.getState(),
       });
 
       showNotification({

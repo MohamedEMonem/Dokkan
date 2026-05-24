@@ -5,17 +5,17 @@ import Categories from "@/components/landing/Categories.tsx";
 import FeaturedProducts, {
   Product,
 } from "@/components/landing/FeaturedProducts.tsx";
-import { useAppDispatch } from "@/store/hooks";
+
 import { useAddItemMutation } from "@/api/cart.api";
-import { addItemToCart } from "@/features/cart/logic/cartService";
-import { store } from "@/store/store";
+import useCartService from "@/hooks/useCartService";
 import { showNotification } from "@/utils/showNotification";
 import FeaturedStores from "@/components/landing/FeaturedStores.tsx";
 import SellerCTA from "@/components/landing/SellerCTA.tsx";
+import { readSession } from "@/hooks/useCartSession";
 
 const Landing: React.FC = () => {
-  const dispatch = useAppDispatch();
   const [addItemApi] = useAddItemMutation();
+  const { addItemToCart } = useCartService();
 
   const addToCart = async (product: Product) => {
     const parsedPrice =
@@ -27,19 +27,16 @@ const Landing: React.FC = () => {
       unitPrice: parsedPrice,
       imageUrl: product.image,
     };
-    const token = localStorage.getItem("token");
-    const isAuthenticated = !!token;
 
+    const { isAuthenticated } = readSession();
     try {
       await addItemToCart({
         item,
         isAuthenticated,
-        dispatch,
         addToCartApi: isAuthenticated
           ? (it: { productId: string; quantity: number }) =>
               addItemApi(it).unwrap()
           : undefined,
-        getState: () => store.getState(),
       });
 
       showNotification({

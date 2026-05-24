@@ -12,6 +12,9 @@ import { loginSchema, type LoginFormValues } from "./schemas/login.schema";
 import { useLoginMutation } from "@/api/auth.api";
 import { showNotification } from "@/utils/showNotification";
 import { EUserRole } from "@/types/entities/user.types";
+import useCartService from "@/hooks/useCartService";
+import { useGuestCart } from "@/hooks/useGuestCart";
+import { useAddItemMutation } from "@/api/cart.api";
 
 /* ────────────────────────────────────────────────────────
  * Component
@@ -29,15 +32,21 @@ export const LoginForm = (): React.JSX.Element => {
     resolver: zodResolver(loginSchema),
   });
 
+  const { mergeGuestCartIntoBackend } = useCartService();
+  const [addItemApi] = useAddItemMutation();
+  const { items } = useGuestCart();
+
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const { rememberMe, ...credentials } = data;
       const response = await loginApi(credentials).unwrap();
 
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.user.role);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      window.dispatchEvent(new Event("cart-auth-changed"));
+      await mergeGuestCartIntoBackend({
+        items: items,
+        addToCartApi: (p: { productId: string; quantity: number }) =>
+          addItemApi(p).unwrap(),
+      });
 
       showNotification({
         message: "تم تسجيل الدخول بنجاح",

@@ -18,8 +18,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { useCartSession } from "@/features/cart/hooks/useCartSession";
 import { useGetProfileQuery } from "@/api/user.api";
+import { useCartSession } from "@/hooks/useCartSession";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SubItem {
@@ -376,7 +376,6 @@ export default function Header() {
   const user = profileResponse?.data?.user;
   const isAuthenticated = !!token && !!user;
   const { cartCount } = useCartSession();
-
   useEffect(() => {
     // schedule state update to avoid synchronous setState inside effect
     setTimeout(() => setMobileMenuOpen(false), 0);
@@ -387,7 +386,6 @@ export default function Header() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("user");
-    window.dispatchEvent(new Event("cart-auth-changed"));
     window.location.href = "/";
   };
 

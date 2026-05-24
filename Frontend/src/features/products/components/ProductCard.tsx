@@ -5,19 +5,18 @@ import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import { showNotification } from "@/utils/showNotification";
 import { Heart, ShoppingCart, Star } from "lucide-react";
-import { useAppDispatch } from "@/store/hooks";
+
 import { useAddItemMutation } from "@/api/cart.api";
-import { addItemToCart } from "@/features/cart/logic/cartService";
-import { store } from "@/store/store";
-import { useCartSession } from "@/features/cart/hooks/useCartSession";
+import useCartService from "@/hooks/useCartService";
+import { useCartSession } from "@/hooks/useCartSession";
 
 type ProductProps = {
   product: IProduct;
 };
 
 export const ProductCard = ({ product }: ProductProps) => {
-  const dispatch = useAppDispatch();
   const [addItemApi] = useAddItemMutation();
+  const { addItemToCart } = useCartService();
   const { isAuthenticated } = useCartSession();
   const productId = product?.id ?? "";
 
@@ -46,11 +45,11 @@ export const ProductCard = ({ product }: ProductProps) => {
       await addItemToCart({
         item,
         isAuthenticated: isAuthenticated,
-        dispatch,
-        addToCartApi: (item) => addItemApi(item).unwrap(),
-        getState: () => store.getState(),
+        addToCartApi: isAuthenticated
+          ? (p: { productId: string; quantity: number }) =>
+              addItemApi(p).unwrap()
+          : undefined,
       });
-
       showNotification({
         message: "تمت إضافة المنتج إلى السلة",
         variant: "success",
