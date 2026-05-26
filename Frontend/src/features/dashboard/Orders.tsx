@@ -1,91 +1,54 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import clsx from "clsx";
-import { Eye, Printer, Search, ShoppingBag } from "lucide-react";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
+import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Link } from "react-router-dom";
+
 import { showNotification } from "@/utils/showNotification";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Pagination } from "@/components/ui/Pagination";
+import { generateInvoicePdf } from "@/features/invoices/utils/generateInvoicePdf";
+import {
+  useGetOrdersByStoreIdQuery,
+  useUpdateOrderStatusMutation,
+} from "@/api/order.api";
+import type { IOrder } from "@/types/entities/order.types";
+import { EOrderStatus, EPaymentStatus } from "@/types/entities/order.types";
+import { formatCurrency } from "@/utils/formatCurrency";
 
-type OrderStatus =
-  | "قيد الانتظار"
-  | "تم الشحن"
-  | "جاهز للشحن"
-  | "ملغي"
-  | "جاري التجهيز"
-  | "تم التوصيل"
-  | "مكتمل";
-type PaymentStatus = "مدفوع" | "غير مدفوع";
-type PaymentFilter = "الكل" | PaymentStatus;
+import OrderDetailsModal from "./components/OrderDetailsModal";
+import OrdersTable from "./components/OrdersTable";
+import OrdersFilters from "./components/OrdersFilters";
+import OrdersMobileList from "./components/OrdersMobileList";
+import { useGetUserStoreQuery } from "@/api/store.api";
 
-type Order = {
+export type DashboardOrder = {
   id: string;
   customer: string;
   date: string;
   total: string;
-  paymentStatus: PaymentStatus;
+  paymentStatus: "مدفوع" | "غير مدفوع";
   paymentMethod: string;
-  orderStatus: OrderStatus;
+  orderStatus:
+    | "قيد الانتظار"
+    | "تم الشحن"
+    | "جاهز للشحن"
+    | "ملغي"
+    | "جاري التجهيز"
+    | "تم التوصيل"
+    | "مكتمل";
 };
+export type Order = DashboardOrder;
+export type PaymentStatus = DashboardOrder["paymentStatus"];
+export type OrderStatus = DashboardOrder["orderStatus"];
+export type PaymentFilter = "الكل" | PaymentStatus;
+export type FilterStatus = "الكل" | OrderStatus;
 
-const mockOrders: Order[] = [
-  {
-    id: "ORD-4520",
-    customer: "أحمد محمد",
-    date: "2025-11-20",
-    total: "1,250 ج.م",
-    paymentStatus: "مدفوع",
-    paymentMethod: "Credit Card",
-    orderStatus: "مكتمل",
-  },
-  {
-    id: "ORD-4521",
-    customer: "سارة علي",
-    date: "2025-11-20",
-    total: "890 ج.م",
-    paymentStatus: "غير مدفوع",
-    paymentMethod: "Cash",
-    orderStatus: "قيد الانتظار",
-  },
-  {
-    id: "ORD-4522",
-    customer: "محمد حسن",
-    date: "2025-11-19",
-    total: "2,340 ج.م",
-    paymentStatus: "مدفوع",
-    paymentMethod: "PayPal",
-    orderStatus: "تم الشحن",
-  },
-  {
-    id: "ORD-4523",
-    customer: "فاطمة أحمد",
-    date: "2025-11-19",
-    total: "670 ج.م",
-    paymentStatus: "مدفوع",
-    paymentMethod: "Apple Pay",
-    orderStatus: "تم التوصيل",
-  },
-  {
-    id: "ORD-4524",
-    customer: "عمر خالد",
-    date: "2025-11-18",
-    total: "1,890 ج.م",
-    paymentStatus: "مدفوع",
-    paymentMethod: "Credit Card",
-    orderStatus: "قيد الانتظار",
-  },
-];
-
-type FilterStatus = "الكل" | OrderStatus;
-
-type StatusCounts = {
+export type StatusCounts = {
   all: number;
   pending: number;
   shipped: number;
-  completed: number;
   canceled: number;
+  delivered: number;
 };
 
 const statusFilters: Array<{
@@ -96,54 +59,58 @@ const statusFilters: Array<{
   { key: "الكل", label: "الكل", countKey: "all" },
   { key: "قيد الانتظار", label: "قيد الانتظار", countKey: "pending" },
   { key: "تم الشحن", label: "تم الشحن", countKey: "shipped" },
-  { key: "مكتمل", label: "مكتمل", countKey: "completed" },
   { key: "ملغي", label: "ملغي", countKey: "canceled" },
+  { key: "تم التوصيل", label: "تم التوصيل", countKey: "delivered" },
 ];
 
-const orderStatusOptions: OrderStatus[] = [
-  "قيد الانتظار",
-  "تم الشحن",
-  "جاهز للشحن",
-  "ملغي",
-  "جاري التجهيز",
-  "تم التوصيل",
-  "مكتمل",
-];
+const dashboardStatusToApiStatus = {
+  "قيد الانتظار": EOrderStatus.Pending,
+  "تم الشحن": EOrderStatus.Shipped,
+  "تم التوصيل": EOrderStatus.Delivered,
+  ملغي: EOrderStatus.Cancelled,
+  "جاري التجهيز": EOrderStatus.Pending,
+  "جاهز للشحن": EOrderStatus.Pending,
+  مكتمل: EOrderStatus.Delivered,
+} as const;
 
-const buildStatusCounts = (orders: Order[]) => ({
-  all: orders.length,
-  pending: orders.filter((order) => order.orderStatus === "قيد الانتظار")
-    .length,
-  shipped: orders.filter((order) => order.orderStatus === "تم الشحن").length,
-  completed: orders.filter((order) => order.orderStatus === "مكتمل").length,
-  canceled: orders.filter((order) => order.orderStatus === "ملغي").length,
-});
+// (status maps removed; mapping is handled in `apiOrderToDashboardOrder`)
 
-const getOrderStatusStyles = (status: OrderStatus) => {
-  switch (status) {
-    case "قيد الانتظار":
-      return "bg-amber-500! text-white! focus:ring-amber-500!";
-    case "تم الشحن":
-      return "bg-blue-500! text-white! focus:ring-blue-500!";
-    case "ملغي":
-      return "bg-red-500! text-white! focus:ring-red-500!";
-    case "جاري التجهيز":
-      return "bg-yellow-500! text-white! focus:ring-yellow-500!";
-    case "جاهز للشحن":
-      return "bg-cyan-500! text-white! focus:ring-cyan-500!";
-    case "تم التوصيل":
-      return "bg-green-500! text-white! focus:ring-green-500!";
-    case "مكتمل":
-      return "bg-emerald-500! text-white! focus:ring-emerald-500!";
-  }
+const apiOrderToDashboardOrder = (order: IOrder): DashboardOrder => {
+  const total = order.totalAmount ?? 0;
+
+  return {
+    id: order.id,
+    customer: order.customer?.name?.trim() ?? "غير متوفر",
+    date: order.createdAt
+      ? order.createdAt.slice(0, 10)
+      : new Date().toISOString().slice(0, 10),
+    total: formatCurrency(total),
+    paymentStatus: (order.paymentStatus === "Success"
+      ? "مدفوع"
+      : "غير مدفوع") as DashboardOrder["paymentStatus"],
+    paymentMethod: "غير متوفر",
+    orderStatus: (order.status === EOrderStatus.Shipped
+      ? "تم الشحن"
+      : order.status === EOrderStatus.Delivered
+        ? "تم التوصيل"
+        : order.status === EOrderStatus.Cancelled
+          ? "ملغي"
+          : "قيد الانتظار") as DashboardOrder["orderStatus"],
+  };
 };
 
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat("en-US", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(value));
+// const buildStatusCounts = (orders: DashboardOrder[]) => ({
+//   all: orders.length,
+//   pending: orders.filter((order) => order.orderStatus === "قيد الانتظار")
+//     .length,
+//   shipped: orders.filter((order) => order.orderStatus === "تم الشحن").length,
+//   completed: orders.filter((order) => order.orderStatus === "مكتمل").length,
+//   canceled: orders.filter((order) => order.orderStatus === "ملغي").length,
+//   delivered: orders.filter((order) => order.orderStatus === "تم التوصيل")
+//     .length,
+// });
+
+/* Desktop table extracted to ./components/OrdersTable.tsx */
 
 const Orders = () => {
   const [activeStatus, setActiveStatus] = useState<FilterStatus>("الكل");
@@ -151,9 +118,66 @@ const Orders = () => {
   const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>("الكل");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [orders, setOrders] = useState(mockOrders);
+  const [orderOverrides, setOrderOverrides] = useState<Record<string, Order>>(
+    {},
+  );
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(5);
+  const [pageSize] = useState(10);
+  const selectedApiStatus =
+    activeStatus === "الكل"
+      ? undefined
+      : (dashboardStatusToApiStatus[
+          activeStatus
+        ] as unknown as typeof EOrderStatus);
+
+  const { data: userStoreData } = useGetUserStoreQuery();
+  const storeId = userStoreData?.data.store?.id;
+  const { data, isLoading, isError } = useGetOrdersByStoreIdQuery(
+    {
+      storeId: storeId ?? "",
+      page,
+      limit: pageSize,
+      status: selectedApiStatus,
+    },
+    { skip: !storeId },
+  );
+
+  const pendingQuery = useGetOrdersByStoreIdQuery({
+    storeId: storeId ?? "",
+    page: 1,
+    limit: 1,
+    status: EOrderStatus.Pending as unknown as typeof EOrderStatus,
+  });
+  const shippedQuery = useGetOrdersByStoreIdQuery({
+    storeId: storeId ?? "",
+    page: 1,
+    limit: 1,
+    status: EOrderStatus.Shipped as unknown as typeof EOrderStatus,
+  });
+  const deliveredQuery = useGetOrdersByStoreIdQuery({
+    storeId: storeId ?? "",
+    page: 1,
+    limit: 1,
+    status: EOrderStatus.Delivered as unknown as typeof EOrderStatus,
+  });
+  const cancelledQuery = useGetOrdersByStoreIdQuery({
+    storeId: storeId ?? "",
+    page: 1,
+    limit: 1,
+    status: EOrderStatus.Cancelled as unknown as typeof EOrderStatus,
+  });
+
+  const [updateOrderStatus] = useUpdateOrderStatusMutation();
+  const apiOrders = useMemo(
+    () => data?.data.orders?.map(apiOrderToDashboardOrder) ?? [],
+    [data],
+  );
+
+  const orders = useMemo(
+    () => apiOrders.map((order) => orderOverrides[order.id] ?? order),
+    [apiOrders, orderOverrides],
+  );
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -189,297 +213,245 @@ const Orders = () => {
     });
   }, [activeStatus, orders, paymentFilter, searchQuery, fromDate, toDate]);
 
-  // reset to first page when filters change
-  useEffect(() => setPage(1), [filteredOrders]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
-  const paginatedOrders = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredOrders.slice(start, start + pageSize);
-  }, [filteredOrders, page, pageSize]);
+  const totalPages = data?.data.meta?.totalPages ?? 1;
 
   const handleOrderStatusChange = (
     orderId: string,
     nextStatus: OrderStatus,
   ) => {
-    setOrders((currentOrders) =>
-      currentOrders.map((order) =>
-        order.id === orderId ? { ...order, orderStatus: nextStatus } : order,
-      ),
-    );
-    showNotification({
-      message: `تم تغيير حالة الطلب ${orderId} إلى "${nextStatus}".`,
-      variant: "success",
+    // optimistic update
+    setOrderOverrides((currentOverrides) => {
+      const currentOrder =
+        currentOverrides[orderId] ??
+        orders.find((order) => order.id === orderId);
+
+      if (!currentOrder) {
+        return currentOverrides;
+      }
+
+      return {
+        ...currentOverrides,
+        [orderId]: { ...currentOrder, orderStatus: nextStatus },
+      };
     });
+
+    // map dashboard status to API status
+    const dashboardToApiStatus: Record<string, string> = {
+      "قيد الانتظار": "Pending",
+      "تم الشحن": "Shipped",
+      "تم التوصيل": "Delivered",
+      مكتمل: "Delivered",
+      ملغي: "Cancelled",
+      "جاري التجهيز": "Pending",
+      "جاهز للشحن": "Pending",
+    };
+
+    const apiStatus = (dashboardToApiStatus[nextStatus] ??
+      "Pending") as EOrderStatus;
+
+    updateOrderStatus({
+      id: orderId,
+      status: apiStatus as unknown as typeof EOrderStatus,
+    })
+      .then(() => {
+        showNotification({
+          message: `تم تغيير حالة الطلب ${orderId} إلى "${nextStatus}".`,
+          variant: "success",
+        });
+      })
+      .catch((err) => {
+        // revert optimistic change on error
+        setOrderOverrides((currentOverrides) => {
+          const original = apiOrders.find((o) => o.id === orderId);
+          if (!original) return currentOverrides;
+          return { ...currentOverrides, [orderId]: original };
+        });
+
+        console.error("Failed to update order status", err);
+        showNotification({
+          message: `تعذر تغيير حالة الطلب ${orderId}.`,
+          variant: "error",
+        });
+      });
   };
-  const statusCounts = useMemo(() => buildStatusCounts(orders), [orders]);
-  console.log("statusCounts: ", statusCounts);
+
+  const handlePrintInvoice = async (order: IOrder | Order) => {
+    try {
+      const dashboardToIOrder = (o: Order): IOrder => {
+        // try to parse numeric total from formatted string (e.g. "$123.45")
+        const parsedTotal =
+          Number(String(o.total).replace(/[^0-9.-]+/g, "")) || 0;
+
+        const mapStatus = (s: Order["orderStatus"]): EOrderStatus => {
+          switch (s) {
+            case "تم الشحن":
+              return EOrderStatus.Shipped;
+            case "تم التوصيل":
+              return EOrderStatus.Delivered;
+            case "ملغي":
+              return EOrderStatus.Cancelled;
+            default:
+              return EOrderStatus.Pending;
+          }
+        };
+
+        const mapPayment = (p: Order["paymentStatus"]): EPaymentStatus =>
+          p === "مدفوع" ? EPaymentStatus.Success : EPaymentStatus.Pending;
+
+        return {
+          id: o.id,
+          totalAmount: parsedTotal,
+          createdAt: o.date,
+          paymentStatus: mapPayment(o.paymentStatus),
+          status: mapStatus(o.orderStatus),
+          orderItems: [],
+          customer: { id: "", name: o.customer ?? "Customer", email: "" },
+          store: {
+            id: storeId ?? "",
+            name: userStoreData?.data.store?.name ?? "",
+            subdomain: "",
+            ownerId: "",
+          },
+        } as unknown as IOrder;
+      };
+
+      const printableOrder: IOrder =
+        "totalAmount" in order
+          ? (order as IOrder)
+          : dashboardToIOrder(order as Order);
+
+      await generateInvoicePdf(printableOrder, {
+        filename: `invoice-${order.id}.pdf`,
+      });
+      showNotification({
+        message: `تم تجهيز فاتورة الطلب ${order.id} للطباعة.`,
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Failed to print invoice", error);
+      showNotification({
+        message: `تعذر طباعة فاتورة الطلب ${order.id}.`,
+        variant: "error",
+      });
+    }
+  };
+  // const statusCounts = useMemo(() => buildStatusCounts(orders), [orders]);
+
+  const totalPending = pendingQuery.data?.data.meta?.total;
+  // pendingQuery.data?.data.meta?.total ?? statusCounts.pending;
+  const totalShipped = shippedQuery.data?.data.meta?.total;
+  // shippedQuery.data?.data.meta?.total ?? statusCounts.shipped;
+  const totalDelivered = deliveredQuery.data?.data.meta?.total;
+  // deliveredQuery.data?.data.meta?.total ?? statusCounts.delivered;
+  const totalCancelled = cancelledQuery.data?.data.meta?.total;
+  // cancelledQuery.data?.data.meta?.total ?? statusCounts.canceled;
+
+  const totalAll =
+    (totalPending ?? 0) +
+    (totalShipped ?? 0) +
+    (totalDelivered ?? 0) +
+    (totalCancelled ?? 0);
+  console.log(totalAll);
+  const statusCountsAll: StatusCounts = {
+    all: totalAll,
+    pending: totalPending ?? 0,
+    shipped: totalShipped ?? 0,
+    canceled: totalCancelled ?? 0,
+    delivered: totalDelivered ?? 0,
+  };
+
   return (
     <div className="w-full animate-in fade-in duration-500">
-      {/* <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-accent-light shadow-lg"> */}
-      {/* Status Filters */}
-      {/* <div className="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 border-b-2 border-accent-light bg-linear-to-l from-bg-cream to-white">
-          <h4 className="leading-none flex items-center gap-2 text-text-dark mb-4">
-            <ShoppingBag className="w-6 h-6 text-primary" />
-            إدارة الطلبات
-          </h4>
-
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {statusFilters.map((filter) => {
-              const isActive = activeStatus === filter.key;
-              return (
-                <button
-                  key={filter.key}
-                  type="button"
-                  onClick={() => setActiveStatus(filter.key)}
-                  className={clsx(
-                    "px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-all flex items-center gap-2",
-                    isActive
-                      ? "bg-primary text-white shadow-md"
-                      : "bg-bg-cream text-text-dark hover:bg-accent-light",
-                  )}
-                >
-                  {filter.label}
-                  <span
-                    className={clsx(
-                      "px-2 py-0.5 rounded-full text-xs",
-                      isActive ? "bg-white/20" : "bg-primary/10 text-primary",
-                    )}
-                  >
-                    {statusCounts[filter.countKey]}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div> */}
       <DashboardCard
-        title=" إدارة الطلبات"
+        title={` إدارة الطلبات `}
         icon={<ShoppingBag className="w-6 h-6 text-primary" />}
         headerAction={
-          <div className="flex flex-wrap gap-2 pb-2 max-h-20 overflow-auto px-2 transition-all duration-300 ease-in-out">
-            {statusFilters.map((filter) => {
-              const isActive = activeStatus === filter.key;
-              return (
-                <button
-                  key={filter.key}
-                  type="button"
-                  onClick={() => setActiveStatus(filter.key)}
-                  className={clsx(
-                    "px-3 py-2 rounded-lg text-sm whitespace-nowrap flex items-center gap-2 min-w-[8rem] justify-between transform-gpu",
-                    isActive
-                      ? "bg-primary text-white shadow-md transition-colors duration-200 ease-in-out"
-                      : "bg-bg-cream text-text-dark hover:bg-accent-light transition-colors duration-200 ease-in-out hover:scale-105",
-                  )}
-                >
-                  <span className="flex-1 text-right pr-1">{filter.label}</span>
-                  <span
-                    className={clsx(
-                      "px-2 py-0.5 rounded-full text-xs inline-flex items-center justify-center transition-colors duration-150",
-                      isActive
-                        ? "bg-white/20 text-white"
-                        : "bg-primary/10 text-primary",
-                    )}
+          <div className="overflow-x-auto px-2">
+            <div className="inline-flex items-center gap-2 whitespace-nowrap py-2">
+              {statusFilters.map((filter) => {
+                const isActive = activeStatus === filter.key;
+                return (
+                  <Button
+                    variant={isActive ? "primary" : "outline-accent"}
+                    className="inline-flex shrink-0 w-30! h-10! border-gray-200! text-sm!"
+                    key={filter.key}
+                    type="button"
+                    onClick={() => {
+                      setActiveStatus(filter.key);
+                      setPage(1);
+                    }}
+                    icon={
+                      <span
+                        className={clsx(
+                          "px-2 py-0.5 rounded-full text-xs inline-flex items-center justify-center transition-colors duration-150",
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : "bg-primary/10 text-primary",
+                        )}
+                      >
+                        {statusCountsAll[filter.countKey]}
+                      </span>
+                    }
                   >
-                    {statusCounts[filter.countKey]}
-                  </span>
-                </button>
-              );
-            })}
+                    {filter.label}
+                  </Button>
+                );
+              })}
+            </div>
           </div>
         }
       >
-        {/* Date Filters */}
-        <div className="px-6 py-4 border-b border-accent-light bg-linear-to-l from-bg-cream to-white">
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex-1 min-w-62.5">
-              <div className="relative">
-                <Input
-                  icon={<Search className="w-4 h-4 text-text-muted" />}
-                  placeholder="رقم الطلب، اسم العميل، أو المنتج..."
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-text-muted whitespace-nowrap">
-                من:
-              </span>
-              <Input
-                type="date"
-                aria-label="من تاريخ"
-                value={fromDate}
-                onChange={(event) => setFromDate(event.target.value)}
-              />
-              <span className="text-sm text-text-muted">إلى:</span>
-              <Input
-                type="date"
-                aria-label="إلى تاريخ"
-                value={toDate}
-                onChange={(event) => setToDate(event.target.value)}
-              />
-            </div>
-
-            <Select
-              options={[
-                { label: "كل حالات الدفع", value: "الكل" },
-                { label: "مدفوع", value: "مدفوع" },
-                { label: "غير مدفوع", value: "غير مدفوع" },
-              ]}
-              value={paymentFilter}
-              onChange={(event) =>
-                setPaymentFilter(event.target.value as PaymentFilter)
-              }
-            ></Select>
-          </div>
-        </div>
+        <OrdersFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          fromDate={fromDate}
+          setFromDate={setFromDate}
+          toDate={toDate}
+          setToDate={setToDate}
+          paymentFilter={paymentFilter}
+          setPaymentFilter={(v) => setPaymentFilter(v as PaymentFilter)}
+          setPage={setPage}
+        />
         {/* Table */}
         <div className="last:pb-6 p-0">
-          <div className="overflow-x-auto">
-            <div className="relative w-full overflow-x-auto">
-              <table className="caption-bottom text-sm table-fixed w-full">
-                {/* Table Header */}
-                <thead className="[&_tr]:border-b">
-                  <tr className="hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors border-accent-light bg-bg-cream">
-                    <th className="text-foreground font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-right w-[13%] align-middle h-12 px-4">
-                      رقم الطلب
-                    </th>
-                    <th className="text-foreground font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-center w-[16%] align-middle h-12 px-4">
-                      العميل
-                    </th>
-                    <th className="text-foreground font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-right w-[13%] align-middle h-12 px-4">
-                      التاريخ
-                    </th>
-                    <th className="text-foreground font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-right w-[13%] align-middle h-12 px-4">
-                      الإجمالي
-                    </th>
-                    <th className="text-foreground font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-right w-[13%] align-middle h-12 px-4">
-                      حالة الدفع
-                    </th>
-                    <th className="text-foreground font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-right w-[13%] align-middle h-12 px-4">
-                      طريقة الدفع
-                    </th>
-                    <th className="text-foreground font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-center w-[19%] align-middle h-12 px-4">
-                      حالة الطلب
-                    </th>
-                    <th className="text-foreground font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-center w-[13%] align-middle h-12 px-4">
-                      الإجراءات
-                    </th>
-                  </tr>
-                </thead>
+          <OrdersMobileList
+            orders={filteredOrders}
+            isLoading={isLoading}
+            isError={isError}
+            onView={setSelectedOrder}
+            onPrint={handlePrintInvoice}
+            onChangeStatus={handleOrderStatusChange}
+          />
 
-                <tbody className="[&_tr:last-child]:border-0">
-                  {filteredOrders.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="py-10 text-center text-text-muted"
-                      >
-                        لا توجد طلبات مطابقة للبحث أو الفلاتر الحالية.
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedOrders.map((order) => (
-                      <tr
-                        key={order.id}
-                        className="data-[state=selected]:bg-muted border-b border-accent-light hover:bg-bg-cream/30 transition-colors h-12"
-                      >
-                        {/* Order ID */}
-                        <td className="p-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 py-3 align-middle px-4">
-                          <Link
-                            to={`/orders/${order.id}`}
-                            className="text-primary hover:text-primary-dark font-medium hover:underline text-[20px]"
-                          >
-                            #{order.id}
-                          </Link>
-                        </td>
-                        {/* Customer Name */}
-                        <td className="p-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 py-3 text-center align-middle px-4">
-                          <span className="text-sm text-text-dark font-medium">
-                            {order.customer}
-                          </span>
-                        </td>
-                        {/* Order Date */}
-                        <td className="p-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-sm text-text-muted py-3 align-middle px-4">
-                          {formatDate(order.date)}
-                        </td>
-                        {/* Total Amount */}
-                        <td className="p-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 text-sm font-semibold text-primary py-3 align-middle px-4">
-                          {order.total}
-                        </td>
-                        {/* Payment Status */}
-                        <td className="p-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 py-3 align-middle px-4">
-                          <span
-                            className={clsx(
-                              "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 transition-[color,box-shadow] overflow-hidden border-transparent text-white",
-                              order.paymentStatus === "مدفوع"
-                                ? "bg-emerald-500 hover:bg-emerald-600"
-                                : "bg-red-500 hover:bg-red-600",
-                            )}
-                          >
-                            {order.paymentStatus}
-                          </span>
-                        </td>
-                        {/* Payment Method */}
-                        <td className="p-2 whitespace-nowrap text-sm py-3 align-middle px-4 text-right">
-                          <span className="text-sm text-text-dark">
-                            {order.paymentMethod}
-                          </span>
-                        </td>
-                        {/* Order Status */}
-                        <td className="p-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 py-3 align-middle px-4">
-                          <div className="flex justify-center">
-                            <Select
-                              id={`order-status-${order.id}`}
-                              aria-label={`تغيير حالة الطلب ${order.id}`}
-                              options={orderStatusOptions.map((status) => ({
-                                label: status,
-                                value: status,
-                              }))}
-                              className={clsx(
-                                "w-30! h-9! text-xs! rounded-lg! border-0! cursor-pointer! ",
-                                getOrderStatusStyles(order.orderStatus),
-                              )}
-                              value={order.orderStatus}
-                              onChange={(event) => {
-                                const nextStatus = event.target
-                                  .value as OrderStatus;
-                                handleOrderStatusChange(order.id, nextStatus);
-                              }}
-                            />
-                          </div>
-                        </td>
-                        {/* Actions */}
-                        <td className="p-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5 py-3 align-middle px-4">
-                          <div className="flex items-center justify-center ">
-                            <Button
-                              variant="outline-accent"
-                              icon={<Eye className="w-4 h-4" />}
-                              className="p-2 w-10! border-none text-black"
-                              title="عرض التفاصيل"
-                              type="button"
-                            ></Button>
-                            <Button
-                              variant="outline-accent"
-                              icon={<Printer className="w-4 h-4" />}
-                              className="p-2 w-10! border-none text-black"
-                              title="طباعة الفاتورة"
-                              type="button"
-                            ></Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          {/* Desktop table (extracted) */}
+          <OrdersTable
+            orders={filteredOrders}
+            isLoading={isLoading}
+            isError={isError}
+            onView={setSelectedOrder}
+            onPrint={handlePrintInvoice}
+            onChangeStatus={handleOrderStatusChange}
+          />
+        </div>
+        {/* Pagination */}
+        <div className="px-6 overflow-x-auto">
+          <div className="min-w-max">
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={(p) => setPage(p)}
+            />
           </div>
         </div>
       </DashboardCard>
-      {/* </div> */}
+
+      {selectedOrder && (
+        <OrderDetailsModal
+          orderId={selectedOrder.id}
+          onClose={() => setSelectedOrder(null)}
+          onPrint={handlePrintInvoice}
+        />
+      )}
     </div>
   );
 };
