@@ -13,7 +13,7 @@ import type {
 } from "@/types/entities/cart.types";
 import CartList from "./CartList.tsx";
 import CartSummary from "@/features/cart/CartSummary";
-import { useGuestCart } from "@/hooks/useGuestCart.ts";
+import { useGuestCartStorage } from "@/hooks/useCartStorage";
 import CartEmptyState from "./components/CartEmptyState";
 
 const SHIPPING_FEE = 5;
@@ -40,15 +40,17 @@ function normalizeGuestCartItem(item: unknown): ICartResponseItem {
 
 export default function CartPage() {
   const navigate = useNavigate();
+  // API cart state
   const { data, isLoading } = useGetCartQuery();
   const [updateItem] = useUpdateItemMutation();
   const [removeItem] = useRemoveItemMutation();
   // const [clearCart] = useClearCartMutation();
+  // Guest cart state
   const {
     items: guestCart,
-    setGuestCart,
-    removeGuestCartItem: removeGuestCartItem,
-  } = useGuestCart();
+    saveGuestCart: setGuestCart,
+    removeGuestCartItem,
+  } = useGuestCartStorage();
 
   const cart = data?.data;
 

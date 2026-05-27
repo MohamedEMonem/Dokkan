@@ -9,7 +9,7 @@ export const cartApi = apiSlice.injectEndpoints({
       providesTags: ["Cart"],
     }),
 
-    addItem: builder.mutation<IAPIResponse<ICartResponse>, ICartRequest>({
+    addItem: builder.mutation<IAPIResponse<ICartRequest>, ICartRequest>({
       query: ({ productId, quantity = 1 }) => ({
         url: "/cart/items",
         method: "POST",
@@ -18,7 +18,7 @@ export const cartApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Cart"],
     }),
 
-    updateItem: builder.mutation<IAPIResponse<ICartResponse>, ICartRequest>({
+    updateItem: builder.mutation<IAPIResponse<ICartRequest>, ICartRequest>({
       query: ({ productId, quantity }) => ({
         url: `/cart/items/${productId}`,
         method: "PATCH",
@@ -27,10 +27,7 @@ export const cartApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Cart"],
     }),
 
-    removeItem: builder.mutation<
-      IAPIResponse<ICartResponse>,
-      { productId: string }
-    >({
+    removeItem: builder.mutation<IAPIResponse<null>, { productId: string }>({
       query: ({ productId }) => ({
         url: `/cart/items/${productId}`,
         method: "DELETE",
@@ -38,7 +35,7 @@ export const cartApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Cart"],
     }),
 
-    clearCart: builder.mutation<IAPIResponse<ICartResponse>, void>({
+    clearCart: builder.mutation<IAPIResponse<null>, void>({
       query: () => ({ url: "/cart", method: "DELETE" }),
       invalidatesTags: ["Cart"],
     }),

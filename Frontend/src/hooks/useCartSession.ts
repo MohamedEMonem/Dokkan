@@ -1,5 +1,5 @@
 import { useGetCartQuery } from "@/api/cart.api";
-import { useGuestCart } from "./useGuestCart";
+import { useGuestCartStorage } from "./useCartStorage";
 
 export const readSession = () => {
   const token = localStorage.getItem("token");
@@ -12,7 +12,7 @@ export const readSession = () => {
 
 export function useCartSession() {
   const { isAuthenticated } = readSession();
-  const { items: guestCart } = useGuestCart();
+  const { items: guestCart } = useGuestCartStorage();
   const { data: backendCartData } = useGetCartQuery(undefined, {
     skip: !isAuthenticated,
   });
@@ -29,10 +29,12 @@ export function useCartSession() {
       0,
     ) ?? 0;
 
+  const cartCount = isAuthenticated ? backendCount : guestCount;
+
   return {
     isAuthenticated,
     // guestCount,
     // backendCount,
-    cartCount: isAuthenticated ? backendCount : guestCount,
+    cartCount,
   };
 }

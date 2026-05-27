@@ -1,5 +1,5 @@
 import type { ICart } from "@/hooks/useCartStorage";
-import { useGuestCart } from "./useGuestCart";
+import { useGuestCartStorage } from "./useCartStorage";
 import { showNotification } from "@/utils/showNotification";
 
 export type AddItemParams = {
@@ -20,7 +20,23 @@ export type MergeGuestCartParams = {
 };
 
 export function useCartService() {
-  const { addGuestCartItem, clearGuestCartStorage } = useGuestCart();
+  const { items, saveGuestCart, clearGuestCart } = useGuestCartStorage();
+
+  const addGuestCartItem = (item: ICart) => {
+    const next = [...items];
+
+    const existing = next.find((x) => x.productId === item.productId);
+
+    if (existing) {
+      existing.quantity += item.quantity;
+    } else {
+      next.push(item);
+    }
+
+    saveGuestCart(next);
+
+    return next;
+  };
 
   const addItemToCart = async ({
     item,
@@ -50,18 +66,14 @@ export function useCartService() {
           productId: item.productId,
           quantity: item.quantity,
         });
-      } catch (err) {
+      } catch {
         showNotification({
           message: `Failed to merge item ${item.title} into backend cart`,
           variant: "error",
         });
       }
-      //   await addToCartApi({
-      //     productId: item.productId,
-      //     quantity: item.quantity,
-      //   });
     }
-    clearGuestCartStorage();
+    clearGuestCart();
   };
 
   return {

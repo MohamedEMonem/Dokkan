@@ -17,7 +17,7 @@ import { showNotification } from "@/utils/showNotification";
 import { EUserRole } from "@/types/entities/user.types";
 import useCartService from "@/hooks/useCartService";
 import { useAddItemMutation } from "@/api/cart.api";
-import { useGuestCart } from "@/hooks/useGuestCart";
+import { useGuestCartStorage } from "@/hooks/useCartStorage";
 
 /* ────────────────────────────────────────────────────────
  * Constants
@@ -70,7 +70,7 @@ export const RegisterForm = (): React.JSX.Element => {
 
   const { mergeGuestCartIntoBackend } = useCartService();
   const [addItemApi] = useAddItemMutation();
-  const { items } = useGuestCart();
+  const { items } = useGuestCartStorage();
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {

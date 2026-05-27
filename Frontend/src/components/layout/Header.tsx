@@ -374,8 +374,9 @@ export default function Header() {
     skip: !token,
   });
   const user = profileResponse?.data?.user;
-  const isAuthenticated = !!token && !!user;
+  const isAuthenticated = !!token;
   const { cartCount } = useCartSession();
+
   useEffect(() => {
     // schedule state update to avoid synchronous setState inside effect
     setTimeout(() => setMobileMenuOpen(false), 0);
