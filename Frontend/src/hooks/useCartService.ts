@@ -1,9 +1,9 @@
-import type { ICart } from "@/hooks/useCartStorage";
+import { ICartResponseItem } from "@/types/entities/cart.types";
 import { useGuestCartStorage } from "./useCartStorage";
 import { showNotification } from "@/utils/showNotification";
 
 export type AddItemParams = {
-  item: ICart;
+  item: ICartResponseItem;
   isAuthenticated: boolean;
   addToCartApi?: (payload: {
     productId: string;
@@ -12,17 +12,17 @@ export type AddItemParams = {
 };
 
 export type MergeGuestCartParams = {
-  items: ICart[];
+  items: ICartResponseItem[];
   addToCartApi: (payload: {
     productId: string;
     quantity: number;
   }) => Promise<unknown>;
 };
 
-export function useCartService() {
+export const useCartService = () => {
   const { items, saveGuestCart, clearGuestCart } = useGuestCartStorage();
 
-  const addGuestCartItem = (item: ICart) => {
+  const addGuestCartItem = (item: ICartResponseItem) => {
     const next = [...items];
 
     const existing = next.find((x) => x.productId === item.productId);

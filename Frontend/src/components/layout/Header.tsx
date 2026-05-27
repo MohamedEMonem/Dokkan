@@ -378,15 +378,12 @@ export default function Header() {
   const { cartCount } = useCartSession();
 
   useEffect(() => {
-    // schedule state update to avoid synchronous setState inside effect
-    setTimeout(() => setMobileMenuOpen(false), 0);
+    setMobileMenuOpen(false);
   }, [location.pathname, location.search]);
 
   // function to handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("user");
     window.location.href = "/";
   };
 

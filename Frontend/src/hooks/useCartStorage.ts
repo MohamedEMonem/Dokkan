@@ -1,92 +1,52 @@
-import { useCallback, useSyncExternalStore } from "react";
-
-export interface ICart {
-  productId: string;
-  title: string;
-  quantity: number;
-  unitPrice: number;
-  lineTotal?: number;
-  imageUrl: string | null;
-  inStock?: boolean;
-}
+import { ICartResponseItem } from "@/types/entities/cart.types";
+import { useCallback, useEffect, useState } from "react";
 
 const CART_KEY = "cart";
-const subscribers = new Set<() => void>();
 
-const subscribe = (listener: () => void) => {
-  subscribers.add(listener);
-  return () => subscribers.delete(listener);
-};
+const CART_UPDATED_EVENT = "cart-storage-updated";
 
-const notify = () => {
-  subscribers.forEach((listener) => listener());
-};
-
-const readGuestCart = (): ICart[] => {
+const readGuestCart = (): ICartResponseItem[] => {
   try {
     const data = localStorage.getItem(CART_KEY);
-    return data ? (JSON.parse(data) as ICart[]) : [];
+    return data ? (JSON.parse(data) as ICartResponseItem[]) : [];
   } catch {
     return [];
   }
 };
 
-let store: ICart[] = readGuestCart();
-
-const setStore = (next: ICart[]) => {
-  store = next;
-
+const setStore = (next: ICartResponseItem[]) => {
   try {
     localStorage.setItem(CART_KEY, JSON.stringify(next));
   } catch {
     // ignore storage failures
   }
 
-  notify();
+  window.dispatchEvent(new CustomEvent(CART_UPDATED_EVENT));
 };
 
 export const useGuestCartStorage = () => {
-  const items = useSyncExternalStore(
-    subscribe,
-    () => store,
-    () => store,
-  );
+  const [items, setItems] = useState<ICartResponseItem[]>(readGuestCart);
+
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      setItems(readGuestCart());
+    };
+
+    window.addEventListener(CART_UPDATED_EVENT, handleCartUpdate);
+
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdate);
+    };
+  }, []);
 
   const loadGuestCart = useCallback(() => {
     return readGuestCart();
   }, []);
 
-  const saveGuestCart = useCallback((cartItems: ICart[]) => {
+  const saveGuestCart = useCallback((cartItems: ICartResponseItem[]) => {
     setStore(cartItems);
+    setItems(cartItems);
   }, []);
-
-  //   const addGuestCartItem = useCallback(
-  //     (item: ICart) => {
-  //       const current = loadGuestCart();
-
-  //       const existing = current.find((x) => x.productId === item.productId);
-
-  //       let next: ICart[];
-
-  //       if (existing) {
-  //         next = current.map((x) =>
-  //           x.productId === item.productId
-  //             ? {
-  //                 ...x,
-  //                 quantity: x.quantity + item.quantity,
-  //               }
-  //             : x,
-  //         );
-  //       } else {
-  //         next = [...current, item];
-  //       }
-
-  //       setStore(next);
-
-  //       return next;
-  //     },
-  //     [loadGuestCart],
-  //   );
 
   const removeGuestCartItem = useCallback(
     (productId: string) => {
@@ -95,6 +55,7 @@ export const useGuestCartStorage = () => {
       const next = current.filter((x) => x.productId !== productId);
 
       setStore(next);
+      setItems(next);
 
       return next;
     },
@@ -109,13 +70,13 @@ export const useGuestCartStorage = () => {
     }
 
     setStore([]);
+    setItems([]);
   }, []);
 
   return {
     items,
     saveGuestCart,
     loadGuestCart,
-    // addGuestCartItem,
     removeGuestCartItem,
     clearGuestCart,
   };
