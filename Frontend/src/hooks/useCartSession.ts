@@ -17,13 +17,14 @@ export const readSession = () => {
 export function useCartSession() {
   const [session, setSession] = useState(readSession);
 
-  const { items: guestCart, clearGuestCart } = useGuestCartStorage();
+  const { items: guestCart } = useGuestCartStorage();
 
   const { mergeGuestCartIntoBackend } = useCartService();
 
   const [addItemApi] = useAddItemMutation();
 
-  const hasMergedRef = useRef(false);
+  const isMergingRef = useRef(false);
+  const lastMergedSignatureRef = useRef<string>("");
 
   // Backend cart
   const { data: backendCartData, refetch } = useGetCartQuery(undefined, {
@@ -68,15 +69,22 @@ export function useCartSession() {
    */
   useEffect(() => {
     if (!session.isAuthenticated) {
-      hasMergedRef.current = false;
+      isMergingRef.current = false;
+      lastMergedSignatureRef.current = "";
       return;
     }
 
-    if (hasMergedRef.current) return;
-
     if (!guestCart.length) return;
 
-    hasMergedRef.current = true;
+    const cartSignature = guestCart
+      .map((item) => `${item.productId}:${item.quantity}`)
+      .sort()
+      .join("|");
+
+    if (isMergingRef.current) return;
+    if (lastMergedSignatureRef.current === cartSignature) return;
+
+    isMergingRef.current = true;
 
     const merge = async () => {
       try {
@@ -85,15 +93,14 @@ export function useCartSession() {
           addToCartApi: (payload) => addItemApi(payload).unwrap(),
         });
 
-        // clear local guest cart
-        clearGuestCart();
-
         // refresh backend cart
         await refetch();
+
+        lastMergedSignatureRef.current = cartSignature;
       } catch (error) {
         console.error("Cart merge failed", error);
-
-        hasMergedRef.current = false;
+      } finally {
+        isMergingRef.current = false;
       }
     };
 
@@ -103,7 +110,6 @@ export function useCartSession() {
     guestCart,
     mergeGuestCartIntoBackend,
     addItemApi,
-    clearGuestCart,
     refetch,
   ]);
 

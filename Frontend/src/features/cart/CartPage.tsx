@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useGetCartQuery,
@@ -13,6 +13,8 @@ import type {
 import CartList from "./CartList.tsx";
 import CartSummary from "@/features/cart/CartSummary";
 import { useGuestCartStorage } from "@/hooks/useCartStorage";
+import { readSession } from "@/hooks/useCartSession";
+import { CART_MERGED_EVENT } from "@/hooks/useCartService";
 import CartEmptyState from "./components/CartEmptyState";
 
 const SHIPPING_FEE = 5;
@@ -39,8 +41,14 @@ const normalizeGuestCartItem = (item: unknown): ICartResponseItem => {
 
 export default function CartPage() {
   const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => readSession().isAuthenticated,
+  );
+
   // API cart state
-  const { data, isLoading } = useGetCartQuery();
+  const { data, isLoading, refetch } = useGetCartQuery(undefined, {
+    skip: !isAuthenticated,
+  });
   const [updateItem] = useUpdateItemMutation();
   const [removeItem] = useRemoveItemMutation();
 
@@ -50,6 +58,37 @@ export default function CartPage() {
     saveGuestCart: setGuestCart,
     removeGuestCartItem,
   } = useGuestCartStorage();
+
+  useEffect(() => {
+    const syncAuth = () => {
+      setIsAuthenticated(readSession().isAuthenticated);
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === "token") {
+        syncAuth();
+      }
+    };
+
+    const handleCartMerged = () => {
+      const authed = readSession().isAuthenticated;
+      setIsAuthenticated(authed);
+
+      if (authed) {
+        void refetch();
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("cart-auth-changed", syncAuth);
+    window.addEventListener(CART_MERGED_EVENT, handleCartMerged);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("cart-auth-changed", syncAuth);
+      window.removeEventListener(CART_MERGED_EVENT, handleCartMerged);
+    };
+  }, [refetch]);
 
   const cart = data?.data;
 

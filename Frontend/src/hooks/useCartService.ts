@@ -2,6 +2,8 @@ import { ICartResponseItem } from "@/types/entities/cart.types";
 import { useGuestCartStorage } from "./useCartStorage";
 import { showNotification } from "@/utils/showNotification";
 
+export const CART_MERGED_EVENT = "cart-merged";
+
 export type AddItemParams = {
   item: ICartResponseItem;
   isAuthenticated: boolean;
@@ -74,12 +76,16 @@ export const useCartService = () => {
       }
     }
     clearGuestCart();
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event(CART_MERGED_EVENT));
+    }
   };
 
   return {
     addItemToCart,
     mergeGuestCartIntoBackend,
   } as const;
-}
+};
 
 export default useCartService;
