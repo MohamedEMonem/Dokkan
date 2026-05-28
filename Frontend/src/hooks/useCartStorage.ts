@@ -1,5 +1,5 @@
 import { ICartResponseItem } from "@/types/entities/cart.types";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const CART_KEY = "cart";
 
@@ -8,76 +8,85 @@ const CART_UPDATED_EVENT = "cart-storage-updated";
 const readGuestCart = (): ICartResponseItem[] => {
   try {
     const data = localStorage.getItem(CART_KEY);
+
     return data ? (JSON.parse(data) as ICartResponseItem[]) : [];
   } catch {
     return [];
   }
 };
 
-const setStore = (next: ICartResponseItem[]) => {
+const emitCartUpdate = () => {
+  window.dispatchEvent(new Event(CART_UPDATED_EVENT));
+};
+
+const writeGuestCart = (items: ICartResponseItem[]) => {
   try {
-    localStorage.setItem(CART_KEY, JSON.stringify(next));
+    localStorage.setItem(CART_KEY, JSON.stringify(items));
   } catch {
-    // ignore storage failures
+    // ignore storage errors
   }
 
-  window.dispatchEvent(new CustomEvent(CART_UPDATED_EVENT));
+  emitCartUpdate();
+};
+
+const clearGuestCartStorage = () => {
+  try {
+    localStorage.removeItem(CART_KEY);
+  } catch {
+    // ignore storage errors
+  }
+
+  emitCartUpdate();
 };
 
 export const useGuestCartStorage = () => {
   const [items, setItems] = useState<ICartResponseItem[]>(readGuestCart);
 
   useEffect(() => {
-    const handleCartUpdate = () => {
+    const syncCart = () => {
       setItems(readGuestCart());
     };
 
-    window.addEventListener(CART_UPDATED_EVENT, handleCartUpdate);
+    // same-tab updates
+    window.addEventListener(CART_UPDATED_EVENT, syncCart);
+
+    // cross-tab updates
+    window.addEventListener("storage", syncCart);
 
     return () => {
-      window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdate);
+      window.removeEventListener(CART_UPDATED_EVENT, syncCart);
+
+      window.removeEventListener("storage", syncCart);
     };
   }, []);
 
-  const loadGuestCart = useCallback(() => {
-    return readGuestCart();
-  }, []);
+  const saveGuestCart = (cartItems: ICartResponseItem[]) => {
+    writeGuestCart(cartItems);
+  };
 
-  const saveGuestCart = useCallback((cartItems: ICartResponseItem[]) => {
-    setStore(cartItems);
-    setItems(cartItems);
-  }, []);
+  const removeGuestCartItem = (productId: string) => {
+    const current = readGuestCart();
 
-  const removeGuestCartItem = useCallback(
-    (productId: string) => {
-      const current = loadGuestCart();
+    const next = current.filter((x) => x.productId !== productId);
 
-      const next = current.filter((x) => x.productId !== productId);
+    writeGuestCart(next);
 
-      setStore(next);
-      setItems(next);
+    return next;
+  };
 
-      return next;
-    },
-    [loadGuestCart],
-  );
-
-  const clearGuestCart = useCallback(() => {
-    try {
-      localStorage.removeItem(CART_KEY);
-    } catch {
-      // ignore storage failures
-    }
-
-    setStore([]);
-    setItems([]);
-  }, []);
+  const clearGuestCart = () => {
+    clearGuestCartStorage();
+  };
 
   return {
     items,
+
+    loadGuestCart: readGuestCart,
+
     saveGuestCart,
-    loadGuestCart,
+
     removeGuestCartItem,
+
     clearGuestCart,
   };
 };

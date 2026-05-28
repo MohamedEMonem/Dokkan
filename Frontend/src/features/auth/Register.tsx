@@ -15,9 +15,6 @@ import {
 import { useRegisterMutation } from "@/api/auth.api";
 import { showNotification } from "@/utils/showNotification";
 import { EUserRole } from "@/types/entities/user.types";
-import useCartService from "@/hooks/useCartService";
-import { useAddItemMutation } from "@/api/cart.api";
-import { useGuestCartStorage } from "@/hooks/useCartStorage";
 
 /* ────────────────────────────────────────────────────────
  * Constants
@@ -68,10 +65,6 @@ export const RegisterForm = (): React.JSX.Element => {
 
   const selectedRole = watch("role");
 
-  const { mergeGuestCartIntoBackend } = useCartService();
-  const [addItemApi] = useAddItemMutation();
-  const { items } = useGuestCartStorage();
-
   const onSubmit = async (data: RegisterFormValues) => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -79,11 +72,6 @@ export const RegisterForm = (): React.JSX.Element => {
       const response = await registerApi(payload).unwrap();
 
       localStorage.setItem("token", response.data.token);
-      await mergeGuestCartIntoBackend({
-        items: items,
-        addToCartApi: (p: { productId: string; quantity: number }) =>
-          addItemApi(p).unwrap(),
-      });
 
       showNotification({
         message: "تم تسجيل الحساب بنجاح",
