@@ -4,7 +4,6 @@ import {
   useGetCartQuery,
   useUpdateItemMutation,
   useRemoveItemMutation,
-  // useClearCartMutation,
 } from "@/api/cart.api";
 import type {
   ICartResponse,
@@ -19,7 +18,7 @@ import CartEmptyState from "./components/CartEmptyState";
 const SHIPPING_FEE = 5;
 const TAX_RATE = 0.14;
 
-function normalizeGuestCartItem(item: unknown): ICartResponseItem {
+const normalizeGuestCartItem = (item: unknown): ICartResponseItem => {
   const itm = item as ICartResponseItem;
   const unitPrice = Number(itm.unitPrice ?? 0) || 0;
   const quantity = itm.quantity ?? 0;
@@ -36,7 +35,7 @@ function normalizeGuestCartItem(item: unknown): ICartResponseItem {
     lineTotal: Number((unitPrice * quantity).toFixed(2)),
     inStock: true,
   };
-}
+};
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -44,7 +43,7 @@ export default function CartPage() {
   const { data, isLoading } = useGetCartQuery();
   const [updateItem] = useUpdateItemMutation();
   const [removeItem] = useRemoveItemMutation();
-  // const [clearCart] = useClearCartMutation();
+
   // Guest cart state
   const {
     items: guestCart,
