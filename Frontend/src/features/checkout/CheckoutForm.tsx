@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -8,28 +8,24 @@ import type { CheckoutFormValues } from "@/features/checkout/schemas/checkout.sc
 export type Address = CheckoutFormValues["address"];
 export type FormState = CheckoutFormValues;
 
+const GOVERNORATES = [
+  { value: "cairo", label: "القاهرة" },
+  { value: "al-giza", label: "الجيزة" },
+  { value: "alexandria", label: "الإسكندرية" },
+  { value: "dakahlia", label: "الدقهلية" },
+  { value: "sharkia", label: "الشرقية" },
+  { value: "qalyubia", label: "القليوبية" },
+  { value: "kfs", label: "كفر الشيخ" },
+  { value: "gharbia", label: "الغربية" },
+  { value: "manofia", label: "المنوفية" },
+];
+
 interface Props {
   form: FormState;
   setForm: React.Dispatch<React.SetStateAction<FormState>>;
-  onclick?: () => void;
 }
 
-export default function CheckoutForm({ form, setForm, onclick }: Props) {
-  const governorates = useMemo(
-    () => [
-      { value: "cairo", label: "القاهرة" },
-      { value: "al-giza", label: "الجيزة" },
-      { value: "alexandria", label: "الإسكندرية" },
-      { value: "dakahlia", label: "الدقهلية" },
-      { value: "sharkia", label: "الشرقية" },
-      { value: "qalyubia", label: "القليوبية" },
-      { value: "kfs", label: "كفر الشيخ" },
-      { value: "gharbia", label: "الغربية" },
-      { value: "manofia", label: "المنوفية" },
-    ],
-    [],
-  );
-
+export default function CheckoutForm({ form, setForm }: Props) {
   const handleChangeAddress = useCallback(
     (field: keyof Address, value: string) => {
       setForm((prev: FormState) => ({
@@ -64,7 +60,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
   );
 
   return (
-    <div className="lg:col-span-2 space-y-6" onClick={onclick}>
+    <div className="lg:col-span-2 space-y-6">
       <div className="bg-white rounded-lg p-6 shadow-sm">
         <h2 className="mb-6">معلومات التصال</h2>
         <div className="space-y-4">
@@ -124,7 +120,7 @@ export default function CheckoutForm({ form, setForm, onclick }: Props) {
                 onChange={(e) =>
                   handleChangeAddress("governorate", e.target.value)
                 }
-                options={governorates}
+                options={GOVERNORATES}
                 placeholder="اختر المحافظة"
               />
             </div>

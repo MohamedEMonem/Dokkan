@@ -13,17 +13,10 @@ interface ICartResponse {
 }
 interface Props {
   cartItems: ICartResponse;
-  onConfirm: () => void;
   isLoading?: boolean;
 }
 
-export default function CheckoutSummary({
-  cartItems: cart,
-  onConfirm,
-  isLoading,
-}: Props) {
-  if (!cart) return <div>Loading...</div>;
-
+export default function CheckoutSummary({ cartItems: cart, isLoading }: Props) {
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm sticky top-24">
       <h2 className="mb-6">ملخص الطلب</h2>
@@ -70,8 +63,7 @@ export default function CheckoutSummary({
       <Button
         data-slot="button"
         className="h-10! px-6! mt-6!"
-        type="button"
-        onClick={onConfirm}
+        type="submit"
         disabled={isLoading}
       >
         {isLoading ? "جاري المعالجة..." : "تأكيد الطلب"}

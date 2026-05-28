@@ -120,11 +120,7 @@ export default function CheckoutPage() {
               <CheckoutForm form={form} setForm={setForm} />
             </div>
             <div className="lg:col-span-1">
-              <CheckoutSummary
-                cartItems={EMPTY_CART}
-                onConfirm={placeOrder}
-                isLoading={isLoading}
-              />
+              <CheckoutSummary cartItems={EMPTY_CART} isLoading={isLoading} />
             </div>
           </div>
         </form>
