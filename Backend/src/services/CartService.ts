@@ -51,7 +51,7 @@ const getCart = async (userId: string) => {
 
   if (!rawHash || Object.keys(rawHash).length === 0) {
     return {
-      items: [],
+      stores: [],
       itemsTotal: 0,
       shippingEstimate: 0,
       grandTotal: 0,
@@ -70,6 +70,10 @@ const getCart = async (userId: string) => {
       title: true,
       price: true,
       stockQuantity: true,
+      storeId: true,
+      store: {
+        select: { id: true, name: true, subdomain: true },
+      },
       images: {
         take: 1,
         select: { imageUrl: true },
@@ -77,13 +81,12 @@ const getCart = async (userId: string) => {
     },
   });
 
-const productMap = Object.fromEntries(
-  products.map((p: { id: string; title: string; price: any; stockQuantity: number; images: any[] }) => [
-    p.id, 
-    p
-  ])
-);
-  const items: Array<{
+  const productMap = Object.fromEntries(
+    products.map((p) => [p.id, p]),
+  );
+
+  // Build items and group by store
+  type CartItem = {
     productId: string;
     title: string;
     imageUrl: string | null;
@@ -91,7 +94,12 @@ const productMap = Object.fromEntries(
     quantity: number;
     lineTotal: number;
     inStock: boolean;
-  }> = [];
+  };
+
+  const storeGroups = new Map<
+    string,
+    { storeId: string; storeName: string; subdomain: string; items: CartItem[]; storeTotal: number }
+  >();
 
   let itemsTotal = 0;
 
@@ -106,7 +114,7 @@ const productMap = Object.fromEntries(
     const unitPrice = Number(product.price);
     const lineTotal = parseFloat((unitPrice * quantity).toFixed(2));
 
-    items.push({
+    const item: CartItem = {
       productId,
       title: product.title,
       imageUrl: product.images[0]?.imageUrl ?? null,
@@ -114,16 +122,42 @@ const productMap = Object.fromEntries(
       quantity,
       lineTotal,
       inStock: product.stockQuantity > 0,
-    });
+    };
+
+    const sid = product.storeId;
+    if (!storeGroups.has(sid)) {
+      storeGroups.set(sid, {
+        storeId: sid,
+        storeName: product.store.name.trim(),
+        subdomain: product.store.subdomain,
+        items: [],
+        storeTotal: 0,
+      });
+    }
+
+    const group = storeGroups.get(sid)!;
+    group.items.push(item);
+    group.storeTotal += lineTotal;
 
     itemsTotal += lineTotal;
   }
 
-  itemsTotal = parseFloat(itemsTotal.toFixed(2));
-  const shippingEstimate = items.length > 0 ? SHIPPING_ESTIMATE : 0;
-  const grandTotal = parseFloat((itemsTotal + shippingEstimate).toFixed(2));
+  const TAX_RATE = 0.14;
+  let totalTax = 0;
 
-  return { items, itemsTotal, shippingEstimate, grandTotal };
+  for (const group of storeGroups.values()) {
+    const tax = parseFloat((group.storeTotal * TAX_RATE).toFixed(2));
+    totalTax += tax;
+    group.storeTotal = parseFloat((group.storeTotal + tax).toFixed(2));
+  }
+
+  itemsTotal = parseFloat(itemsTotal.toFixed(2));
+  totalTax = parseFloat(totalTax.toFixed(2));
+  const stores = Array.from(storeGroups.values());
+  const shippingEstimate = stores.length > 0 ? SHIPPING_ESTIMATE * stores.length : 0;
+  const grandTotal = parseFloat((itemsTotal + shippingEstimate + totalTax).toFixed(2));
+
+  return { stores, itemsTotal, taxEstimate: totalTax, shippingEstimate, grandTotal };
 };
 
 const clearCart = async (userId: string) => {

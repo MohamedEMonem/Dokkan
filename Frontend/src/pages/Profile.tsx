@@ -1,5 +1,7 @@
 import { useState } from "react";
 import clsx from "clsx";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CircleUser,
   Camera,
@@ -13,15 +15,39 @@ import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Input } from "@/components/ui/Input";
 import { EUserRole } from "@/types/entities/user.types";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+  useDeleteAccountMutation,
+} from "@/api/user.api";
+import { showNotification } from "@/utils/showNotification";
+import { updateProfileSchema, UpdateProfileFormValues } from "@/schemas/profile.schema";
+import { ImageSchema } from "@/schemas/image.schema";
 
 
 export default function Profile() {
-  // Read auth data from localStorage
-  const userRaw = localStorage.getItem("user");
-  const user = userRaw ? JSON.parse(userRaw) : null;
+  const token = localStorage.getItem("token");
+  const { data: profileResponse } = useGetProfileQuery(undefined, { skip: !token });
+  const user = profileResponse!.data!.user;
+
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+  const [deleteAccount, { isLoading: isDeleting }] = useDeleteAccountMutation();
+
   const [isEditing, setIsEditing] = useState(false);
 
-  if (!user) return null;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<UpdateProfileFormValues>({
+    resolver: zodResolver(updateProfileSchema),
+    values: {
+      name: user.name || "",
+      contactNumber: user.contactNumber || "",
+    },
+  });
+
 
   // Role translation mapping
   const roleTranslation: Record<string, string> = {
@@ -43,6 +69,85 @@ export default function Profile() {
         day: "numeric",
       })
     : "غير متوفر";
+
+  const onSubmit = async (data: UpdateProfileFormValues) => {
+    try {
+      await updateProfile({
+        name: data.name,
+        contactNumber: data.contactNumber === "" ? null : data.contactNumber,
+      }).unwrap();
+      setIsEditing(false);
+      showNotification({
+        message: "تم تحديث البيانات بنجاح",
+        variant: "success",
+      });
+    } catch (error: any) {
+      showNotification({
+        message: error?.data?.message || "فشل تحديث البيانات",
+        variant: "error",
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    reset({
+      name: user.name || "",
+      contactNumber: user.contactNumber || "",
+    });
+    setIsEditing(false);
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate the image file using Zod schema
+    const validationResult = ImageSchema.safeParse(file);
+    if (!validationResult.success) {
+      showNotification({
+        message: validationResult.error.issues[0]?.message || "ملف الصورة غير صالح",
+        variant: "error",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      await updateProfile(formData).unwrap();
+      showNotification({
+        message: "تم تحديث الصورة الشخصية بنجاح",
+        variant: "success",
+      });
+    } catch (error: any) {
+      showNotification({
+        message: error?.data?.message || "فشل تحديث الصورة الشخصية",
+        variant: "error",
+      });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm(
+      "هل أنت متأكد تماماً من رغبتك في حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء."
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await deleteAccount().unwrap();
+      showNotification({
+        message: "تم حذف الحساب بنجاح",
+        variant: "success",
+      });
+      localStorage.removeItem("token");
+    } catch (error: any) {
+      showNotification({
+        message: error?.data?.message || "فشل حذف الحساب",
+        variant: "error",
+      });
+    }
+  };
 
   return (
     <div className={clsx(
@@ -83,7 +188,10 @@ export default function Profile() {
                     </div>
                     <label
                       htmlFor="profile-image"
-                      className="absolute bottom-2 right-2 size-10! bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-dark transition-all shadow-lg hover:scale-110"
+                      className={clsx(
+                        "absolute bottom-2 right-2 size-10! bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-dark transition-all shadow-lg hover:scale-110",
+                        isUpdating && "opacity-50 cursor-not-allowed pointer-events-none"
+                      )}
                     >
                       <Camera className="w-5 h-5 text-white" />
                       <input
@@ -91,6 +199,8 @@ export default function Profile() {
                         type="file"
                         accept="image/*"
                         className="hidden"
+                        onChange={handleAvatarChange}
+                        disabled={isUpdating}
                       />
                     </label>
                   </div>
@@ -127,14 +237,16 @@ export default function Profile() {
                       <div className="flex items-center gap-3 w-full sm:w-auto">
                         <Button
                           variant="primary"
-                          onClick={() => setIsEditing(false)}
+                          onClick={handleSubmit(onSubmit)}
+                          disabled={isUpdating}
                           className="h-9! flex-1 sm:w-24! bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-md transition-all text-sm"
                         >
-                          حفظ
+                          {isUpdating ? "حفظ..." : "حفظ"}
                         </Button>
                         <Button
                           variant="secondary"
-                          onClick={() => setIsEditing(false)}
+                          onClick={handleCancel}
+                          disabled={isUpdating}
                           className="h-9! flex-1 sm:w-24! border-2 border-gray-200 text-text-muted hover:bg-gray-50 rounded-full font-bold transition-all text-sm"
                         >
                           إلغاء
@@ -144,41 +256,53 @@ export default function Profile() {
                   </div>
 
                   <div className="space-y-6">
-                    <Input
-                      label="الاسم الكامل"
-                      icon={<CircleUser className="w-5 h-5" />}
-                      disabled={!isEditing}
-                      defaultValue={user.name}
-                      className={
-                        !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
-                      }
-                    />
+                    <div>
+                      <Input
+                        label="الاسم الكامل"
+                        icon={<CircleUser className="w-5 h-5" />}
+                        disabled={!isEditing || isUpdating}
+                        className={
+                          !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
+                        }
+                        {...register("name")}
+                      />
+                      {errors.name && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.name.message}
+                        </p>
+                      )}
+                    </div>
 
                     <Input
                       label="البريد الإلكتروني"
                       type="email"
                       icon={<Mail className="w-5 h-5" />}
-                      disabled={!isEditing}
+                      disabled={true}
                       defaultValue={user.email}
-                      className={
-                        !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
-                      }
+                      className="opacity-100 bg-gray-50/50 cursor-not-allowed"
                     />
 
-                    <Input
-                      label="رقم الهاتف"
-                      type="tel"
-                      dir="rtl"
-                      icon={<Phone className="w-5 h-5" />}
-                      disabled={!isEditing}
-                      defaultValue={user.contactNumber || ""}
-                      placeholder="غير متوفر"
-                      className={
-                        !isEditing
-                          ? "opacity-100 bg-gray-50/50 text-left"
-                          : "bg-white text-left"
-                      }
-                    />
+                    <div>
+                      <Input
+                        label="رقم الهاتف"
+                        type="tel"
+                        dir="rtl"
+                        icon={<Phone className="w-5 h-5" />}
+                        disabled={!isEditing || isUpdating}
+                        placeholder="غير متوفر"
+                        className={
+                          !isEditing
+                            ? "opacity-100 bg-gray-50/50 text-left"
+                            : "bg-white text-left"
+                        }
+                        {...register("contactNumber")}
+                      />
+                      {errors.contactNumber && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.contactNumber.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <div
@@ -192,7 +316,7 @@ export default function Profile() {
                       <Input
                         label="كلمة المرور الحالية"
                         type="password"
-                        disabled={!isEditing}
+                        disabled={!isEditing || isUpdating}
                         placeholder="أدخل كلمة المرور الحالية"
                         className={
                           !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
@@ -202,7 +326,7 @@ export default function Profile() {
                       <Input
                         label="كلمة المرور الجديدة"
                         type="password"
-                        disabled={!isEditing}
+                        disabled={!isEditing || isUpdating}
                         placeholder="أدخل كلمة المرور الجديدة"
                         className={
                           !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
@@ -212,7 +336,7 @@ export default function Profile() {
                       <Input
                         label="تأكيد كلمة المرور"
                         type="password"
-                        disabled={!isEditing}
+                        disabled={!isEditing || isUpdating}
                         placeholder="أعد إدخال كلمة المرور الجديدة"
                         className={
                           !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
@@ -265,6 +389,24 @@ export default function Profile() {
                     </span>
                   </div>
                 </div>
+              </div>
+
+              {/* Danger Zone / Delete Account Card */}
+              <div className="bg-red-50/50 rounded-2xl border-2 border-red-100 shadow-md p-6">
+                <h3 className="text-lg font-bold text-red-800 mb-2 flex items-center gap-2">
+                  حذف الحساب
+                </h3>
+                <p className="text-sm text-red-600 mb-6 leading-relaxed">
+                  حذف الحساب سيؤدي إلى مسح كافة بياناتك الشخصية وتفاصيل حسابك بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.
+                </p>
+                <Button
+                  variant="primary"
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                  className="w-full sm:w-fit! bg-red-600 hover:bg-red-700 text-white rounded-full font-bold shadow-md hover:scale-105 transition-all text-sm px-8 py-2"
+                >
+                  {isDeleting ? "جاري حذف الحساب..." : "حذف الحساب نهائياً"}
+                </Button>
               </div>
             </div>
           </div>

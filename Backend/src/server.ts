@@ -11,6 +11,8 @@ import storeRouter from "./routes/storeRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import emailTestRoutes from "./routes/emailTestRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import planRoutes from "./routes/planRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" with { type: "json" };
 
@@ -71,6 +73,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/stores", storeRouter);
+app.use("/api/plans", planRoutes);
 app.use("/api/test/email", emailTestRoutes);
 
 // app.use('/uploads',uploadRoutes);
@@ -81,6 +84,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use("/api/orders", orderRoutes);
+app.use("/api/reviews", reviewRoutes);
 app.use("/api/user", userRoutes);
 
 

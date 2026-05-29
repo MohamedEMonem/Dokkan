@@ -7,6 +7,7 @@ import { useGetProductsQuery } from "@/api/product.api";
 import { Button } from "@/components/ui/Button";
 import { sortBy } from "@/utils/sorting";
 import { SlidersHorizontal } from "lucide-react";
+import { Pagination } from "@/components/ui/Pagination";
 
 const sortConfigs: Record<
   string,
@@ -19,8 +20,10 @@ const sortConfigs: Record<
 };
 
 export const ViewProducts = () => {
-  const { data, isLoading, error } = useGetProductsQuery();
-  const products = data?.data ?? [];
+  const { data, isLoading, error } = useGetProductsQuery({ limit: 100 });
+  const products = data?.data?.products ?? [];
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
 
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get("cat");
@@ -35,6 +38,15 @@ export const ViewProducts = () => {
 
   const [sortedBy, setSortedBy] = useState("newest");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  const [prevFilters, setPrevFilters] = useState(filters);
+  const [prevSortedBy, setPrevSortedBy] = useState(sortedBy);
+
+  if (filters !== prevFilters || sortedBy !== prevSortedBy) {
+    setPrevFilters(filters);
+    setPrevSortedBy(sortedBy);
+    setCurrentPage(1);
+  }
 
   useEffect(() => {
     console.log("Current Filters:", filters);
@@ -54,7 +66,9 @@ export const ViewProducts = () => {
       const matchesSearch =
         filters.search.trim() === "" ||
         product.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        product.description?.toLowerCase().includes(filters.search.toLowerCase());
+        product.description
+          ?.toLowerCase()
+          .includes(filters.search.toLowerCase());
 
       const matchesCategory =
         filters.category === "all" || product.categoryId === filters.category;
@@ -77,6 +91,18 @@ export const ViewProducts = () => {
     return applySorting(filteredProducts, sortedBy);
   }, [filteredProducts, sortedBy]);
 
+  const totalPages = Math.ceil(displayedProducts.length / ITEMS_PER_PAGE);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return displayedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [displayedProducts, currentPage]);
+
+  const fromIndex = paginatedProducts.length
+    ? (currentPage - 1) * ITEMS_PER_PAGE + 1
+    : 0;
+  const toIndex = (currentPage - 1) * ITEMS_PER_PAGE + paginatedProducts.length;
+
   const reset = () => {
     setFilters({
       search: "",
@@ -88,13 +114,18 @@ export const ViewProducts = () => {
     setSortedBy("newest");
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className=" bg-gray-50 py-8" dir="rtl">
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h1 className="mb-2 text-2xl">كل المنتجات</h1>
-          <p className="text-gray-600">
-            تم العثور على {filteredProducts.length} منتج
+          <p className="text-gray-600 text-sm">
+            عرض {fromIndex}–{toIndex} من أصل {displayedProducts.length} منتج
           </p>
         </div>
         <div className="flex gap-8 relative">
@@ -113,7 +144,9 @@ export const ViewProducts = () => {
                   variant="outline-accent"
                   onClick={() => setIsMobileFilterOpen(true)}
                   className="h-9! items-center gap-2 px-4 py-2.5 border! text-gray-700!"
-                  icon={<SlidersHorizontal size={18} className="text-gray-500" />}
+                  icon={
+                    <SlidersHorizontal size={18} className="text-gray-500" />
+                  }
                   iconPos="right"
                 >
                   <span className="text-sm font-medium">الفلاتر</span>
@@ -166,11 +199,18 @@ export const ViewProducts = () => {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {displayedProducts &&
-                  displayedProducts.map(
-                    (p) => p && <ProductCard key={p.id} product={p} />,
-                  )}
+              <div className="flex flex-col gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {paginatedProducts &&
+                    paginatedProducts.map(
+                      (p) => p && <ProductCard key={p.id} product={p} />,
+                    )}
+                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
               </div>
             )}
           </div>
