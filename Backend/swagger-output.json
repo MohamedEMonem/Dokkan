@@ -1722,11 +1722,14 @@
         "tags": [
           "Plans"
         ],
-        "summary": "List all plans",
-        "description": "Returns the available subscription plans.",
+        "summary": "List all subscription plans",
+        "description": "Returns the full catalog of subscription plans available in Dokkan, including each plan slug, pricing, and feature set.",
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Plans retrieved successfully"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
@@ -1736,8 +1739,8 @@
         "tags": [
           "Plans"
         ],
-        "summary": "Get the authenticated store owner\\'s current plan",
-        "description": "",
+        "summary": "Get the authenticated store owner\\'s current subscription",
+        "description": "Returns the current store, active subscription, and associated plan for the authenticated store owner.",
         "parameters": [
           {
             "name": "Authorization",
@@ -1748,8 +1751,14 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Store subscription retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Store not found"
           }
         },
         "security": [
@@ -1764,8 +1773,8 @@
         "tags": [
           "Plans"
         ],
-        "summary": "Get a plan by slug or id",
-        "description": "",
+        "summary": "Get a plan by slug or UUID",
+        "description": "Looks up a plan using either its stable slug (for example, basic, plus, pro) or its UUID identifier.",
         "parameters": [
           {
             "name": "identifier",
@@ -1773,12 +1782,17 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Plan slug or UUID",
+            "example": "plus"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Plan retrieved successfully"
+          },
+          "404": {
+            "description": "Plan not found"
           }
         }
       }
