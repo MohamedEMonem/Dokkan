@@ -7,16 +7,21 @@ import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
 
-const isdev = process.env.NODE_ENV === "development";
-const { meilisearchService } = isdev
-  ? await import("../src/services/meilisearchService.js")
-  : await import("../dist/services/meilisearchService.js");
-
 const { PrismaClient } = prismaClientPkg;
 const pbkdf2 = promisify(pbkdf2Callback);
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: resolve(currentDir, "../.env") });
+
+const hasMeilisearchConfig = Boolean(
+  process.env.MEILISEARCH_URL || (process.env.MEILI_HOST && process.env.MEILI_PORT),
+);
+
+const meilisearchService = hasMeilisearchConfig
+  ? (await import("../src/services/meilisearchService.js")).meilisearchService
+  : {
+      seedMeilisearch: async () => undefined,
+    };
 
 // ─── Password helpers ───────────────────────────────────────────────────────
 const PASSWORD_ALGORITHM  = "pbkdf2";
@@ -121,6 +126,7 @@ const NOTIFICATION_TYPES = ["order_placed","order_shipped","order_delivered","re
 
 const PLAN_DEFINITIONS = [
   {
+    slug: "basic",
     name: "الباقة الأساسية",
     price: "999.00",
     features: {
@@ -131,6 +137,7 @@ const PLAN_DEFINITIONS = [
     },
   },
   {
+    slug: "plus",
     name: "باقة بلس",
     price: "1999.00",
     features: {
@@ -145,6 +152,7 @@ const PLAN_DEFINITIONS = [
     },
   },
   {
+    slug: "pro",
     name: "باقة برو",
     price: "2999.00",
     features: {
@@ -191,6 +199,7 @@ async function main() {
     const plan = await prisma.plan.create({
       data: {
         id: randomUUID(),
+        slug: def.slug,
         name: def.name,
         price: def.price,
         features: def.features,
