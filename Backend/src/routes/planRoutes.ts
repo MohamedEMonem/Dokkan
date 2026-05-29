@@ -29,9 +29,9 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  "/:identifier",
   /* #swagger.tags = ['Plans']
-     #swagger.summary = 'Get a plan by id'
+     #swagger.summary = 'Get a plan by slug or id'
   */
   getPlanById,
 );
