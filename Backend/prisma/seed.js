@@ -7,16 +7,21 @@ import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
 
-const isdev = process.env.NODE_ENV === "development";
-const { meilisearchService } = isdev
-  ? await import("../src/services/meilisearchService.js")
-  : await import("../dist/services/meilisearchService.js");
-
 const { PrismaClient } = prismaClientPkg;
 const pbkdf2 = promisify(pbkdf2Callback);
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: resolve(currentDir, "../.env") });
+
+const hasMeilisearchConfig = Boolean(
+  process.env.MEILISEARCH_URL || (process.env.MEILI_HOST && process.env.MEILI_PORT),
+);
+
+const meilisearchService = hasMeilisearchConfig
+  ? (await import("../src/services/meilisearchService.js")).meilisearchService
+  : {
+      seedMeilisearch: async () => undefined,
+    };
 
 // ─── Password helpers ───────────────────────────────────────────────────────
 const PASSWORD_ALGORITHM  = "pbkdf2";
@@ -120,9 +125,50 @@ const MESSAGE_CONTENTS = [
 const NOTIFICATION_TYPES = ["order_placed","order_shipped","order_delivered","review_received","message_received","payment_success","payment_failed"];
 
 const PLAN_DEFINITIONS = [
-  { name: "Starter",      price: "9.99",  features: { products: 50,   storage: "1GB",  analytics: false, support: "email" } },
-  { name: "Professional", price: "29.99", features: { products: 500,  storage: "10GB", analytics: true,  support: "priority" } },
-  { name: "Enterprise",   price: "99.99", features: { products: -1,   storage: "100GB",analytics: true,  support: "dedicated" } },
+  {
+    slug: "basic",
+    name: "الباقة الأساسية",
+    price: "999.00",
+    features: {
+      unlimitedProducts: true,
+      fullControlPanel: true,
+      basicTechnicalSupport: true,
+      electronicPayment: false,
+    },
+  },
+  {
+    slug: "plus",
+    name: "باقة بلس",
+    price: "1999.00",
+    features: {
+      unlimitedProducts: true,
+      fullControlPanel: true,
+      basicTechnicalSupport: true,
+      electronicPayment: true,
+      employees: 2,
+      advancedAnalytics: true,
+      priorityTechnicalSupport: true,
+      mostPopular: true,
+    },
+  },
+  {
+    slug: "pro",
+    name: "باقة برو",
+    price: "2999.00",
+    features: {
+      unlimitedProducts: true,
+      fullControlPanel: true,
+      basicTechnicalSupport: true,
+      electronicPayment: true,
+      employees: 5,
+      advancedAnalytics: true,
+      priorityTechnicalSupport: true,
+      customDomain: true,
+      advancedMarketingTools: true,
+      comprehensiveReports: true,
+      dedicatedSupport24_7: true,
+    },
+  },
 ];
 
 const CATEGORY_TREE = [
@@ -144,22 +190,21 @@ async function main() {
 
   // ── 1. Plans ────────────────────────────────────────────────────────────────
   console.log("Creating plans...");
-  const plans = [];
-  for (const def of PLAN_DEFINITIONS) {
-    const plan = await prisma.plan.upsert({
-      where:  { id: (await prisma.plan.findFirst({ where: { name: def.name } }))?.id ?? randomUUID() },
-      update: {},
-      create: { id: randomUUID(), name: def.name, price: def.price, features: def.features },
-    });
-    plans.push(plan);
-  }
-  // Simpler upsert: just try to find first, then create if missing
   const finalPlans = [];
+
+  await prisma.subscription.deleteMany({});
+  await prisma.plan.deleteMany({});
+
   for (const def of PLAN_DEFINITIONS) {
-    let plan = await prisma.plan.findFirst({ where: { name: def.name } });
-    if (!plan) {
-      plan = await prisma.plan.create({ data: { id: randomUUID(), name: def.name, price: def.price, features: def.features } });
-    }
+    const plan = await prisma.plan.create({
+      data: {
+        id: randomUUID(),
+        slug: def.slug,
+        name: def.name,
+        price: def.price,
+        features: def.features,
+      },
+    });
     finalPlans.push(plan);
   }
 
