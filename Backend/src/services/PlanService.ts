@@ -2,10 +2,14 @@ import prisma from "../config/db.js";
 
 type PlanRecord = {
   id: string;
+  slug?: string;
   name: string;
   price: unknown;
   features: unknown;
 };
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const mapPlan = (plan: PlanRecord) => ({
   ...plan,
@@ -21,12 +25,24 @@ export class PlanService {
     return plans.map(mapPlan);
   }
 
-  async getPlanById(planId: string) {
-    const plan = await prisma.plan.findUnique({
-      where: { id: planId },
+  async getPlanByIdentifier(identifier: string) {
+    const planBySlug = await prisma.plan.findUnique({
+      where: { slug: identifier },
     });
 
-    return plan ? mapPlan(plan) : null;
+    if (planBySlug) {
+      return mapPlan(planBySlug);
+    }
+
+    if (!UUID_PATTERN.test(identifier)) {
+      return null;
+    }
+
+    const planById = await prisma.plan.findUnique({
+      where: { id: identifier },
+    });
+
+    return planById ? mapPlan(planById) : null;
   }
 
   async getOwnerStorePlan(ownerId: string) {
@@ -47,6 +63,7 @@ export class PlanService {
             plan: {
               select: {
                 id: true,
+                slug: true,
                 name: true,
                 price: true,
                 features: true,
