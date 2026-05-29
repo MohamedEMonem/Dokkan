@@ -24,13 +24,13 @@ export const getPlanById = async (
   next: NextFunction,
 ) => {
   try {
-    const { id } = req.params as { id?: string };
+    const { identifier } = req.params as { identifier?: string };
 
-    if (!id) {
-      return sendError(res, "Plan id is required", 400);
+    if (!identifier) {
+      return sendError(res, "Plan identifier is required", 400);
     }
 
-    const plan = await planService.getPlanById(id);
+    const plan = await planService.getPlanByIdentifier(identifier);
 
     if (!plan) {
       return sendNotFound(res, "Plan not found");
