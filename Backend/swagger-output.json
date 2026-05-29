@@ -35,6 +35,10 @@
     {
       "name": "Cart",
       "description": "Shopping Cart Operations"
+    },
+    {
+      "name": "Orders",
+      "description": "Order Placement, Tracking, and Status Management"
     }
   ],
   "paths": {
@@ -1713,6 +1717,72 @@
         ]
       }
     },
+    "/api/plans/": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "List all plans",
+        "description": "Returns the available subscription plans.",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/plans/me": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Get the authenticated store owner\\'s current plan",
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/plans/{identifier}": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Get a plan by slug or id",
+        "description": "",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/test/email/order-confirmation": {
       "post": {
         "tags": [
@@ -1995,98 +2065,16 @@
         ]
       }
     },
-    "/api/auth/registergetRefreshSessionKey(userId": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Register a new user",
-        "description": "Creates a new user account. If the email belongs to a previously soft-deleted account, it restores the account. Role is optional and defaults to Customer.",
-        "responses": {
-          "200": {
-            "description": "Account restored and registered successfully"
-          },
-          "201": {
-            "description": "User created successfully"
-          },
-          "400": {
-            "description": "Invalid request body or validation failed"
-          },
-          "403": {
-            "description": "Cannot assign invalid role"
-          },
-          "409": {
-            "description": "User already exists"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "email",
-                  "password",
-                  "name"
-                ],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "user@example.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "example": "Secret123!"
-                  },
-                  "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "example": "John Doe"
-                  },
-                  "role": {
-                    "type": "string",
-                    "enum": [
-                      "Customer",
-                      "StoreOwner"
-                    ],
-                    "example": "Customer",
-                    "description": "Optional. Defaults to Customer."
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/orders/": {
-      "get": {
+      "post": {
         "tags": [
           "Orders"
         ],
-        "summary": "Get all orders (admin)",
-        "description": "Returns a paginated list of all orders. Admin access required.",
-        "parameters": [
-          {
-            "name": "Authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "summary": "Checkout - place a new order from cart",
+        "description": "Creates an order from the authenticated user\\'s Redis cart for the specified store.",
         "responses": {
-          "200": {
-            "description": "Orders retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
+          "default": {
+            "description": ""
           }
         },
         "security": [
@@ -2095,116 +2083,15 @@
           }
         ]
       },
-      "post": {
-        "tags": [
-          "Orders"
-        ],
-        "summary": "Submit a new order",
-        "description": "Creates a new order for the authenticated user.",
-        "parameters": [
-          {
-            "name": "Authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Order created successfully"
-          },
-          "400": {
-            "description": "Invalid order data"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "items",
-                  "shippingAddress"
-                ],
-                "properties": {
-                  "items": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "productId": {
-                          "type": "string"
-                        },
-                        "quantity": {
-                          "type": "integer"
-                        }
-                      }
-                    },
-                    "example": [
-                      {
-                        "productId": "prd_1",
-                        "quantity": 2
-                      }
-                    ]
-                  },
-                  "shippingAddress": {
-                    "type": "object",
-                    "example": {
-                      "street": "123 Main St",
-                      "city": "Cairo",
-                      "postalCode": "11511"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/orders/store/{storeId}": {
       "get": {
         "tags": [
           "Orders"
         ],
-        "summary": "Get orders for a store (store owner or admin)",
-        "description": "Returns orders belonging to a specific store. Store owner or admin access required.",
-        "parameters": [
-          {
-            "name": "storeId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "summary": "Get all orders (admin)",
+        "description": "Returns a paginated list of all orders. Admin access required.",
         "responses": {
-          "200": {
-            "description": "Store orders retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Store not found"
+          "default": {
+            "description": ""
           }
         },
         "security": [
@@ -2219,23 +2106,40 @@
         "tags": [
           "Orders"
         ],
-        "summary": "Get the authenticated customer\\'s orders",
-        "description": "Returns a paginated list of orders placed by the signed-in user.",
+        "summary": "Get my orders",
+        "description": "Returns the authenticated user\\'s orders.",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/orders/store/{storeId}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get orders for a store",
+        "description": "Returns orders belonging to a specific store. Store owner or admin access required.",
         "parameters": [
           {
-            "name": "Authorization",
-            "in": "header",
+            "name": "storeId",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string"
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Orders retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
+          "default": {
+            "description": ""
           }
         },
         "security": [
@@ -2250,8 +2154,8 @@
         "tags": [
           "Orders"
         ],
-        "summary": "Get order by id (customer or admin)",
-        "description": "Retrieves a single order by ID. Customers can access their orders; admins can access all.",
+        "summary": "Get order by id",
+        "description": "Retrieves a single order by ID. Customers can access their own orders; admins can access all.",
         "parameters": [
           {
             "name": "id",
@@ -2260,24 +2164,11 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "Authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Order retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Order not found"
+          "default": {
+            "description": ""
           }
         },
         "security": [
@@ -2290,8 +2181,113 @@
         "tags": [
           "Orders"
         ],
-        "summary": "Update order status (store owner or admin)",
-        "description": "Updates the status of an order (e.g., processing, shipped, delivered).",
+        "summary": "Update order status",
+        "description": "Updates the status of an order. Store owner or admin access required.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/reviews/product": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Create a product review",
+        "description": "Creates a review for a product the user has purchased. Requires a delivered order containing the product.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/reviews/product/{productId}": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Get reviews for a product",
+        "description": "Returns a paginated list of reviews for a specific product.",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/reviews/product/detail/{id}": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Get a single product review",
+        "description": "Returns a single product review by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/reviews/product/{id}": {
+      "put": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Update a product review",
+        "description": "Updates the authenticated user\\'s own product review.",
         "parameters": [
           {
             "name": "id",
@@ -2310,48 +2306,267 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Order status updated"
-          },
-          "400": {
-            "description": "Invalid request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Order not found"
+          "default": {
+            "description": ""
           }
         },
         "security": [
           {
             "bearerAuth": []
           }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Reviews"
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "status"
-                ],
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "example": "shipped"
-                  },
-                  "trackingNumber": {
-                    "type": "string",
-                    "nullable": true,
-                    "example": "TRK123456"
-                  }
-                }
-              }
+        "summary": "Delete a product review",
+        "description": "Deletes the authenticated user\\'s own product review.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
             }
           }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/reviews/product/{id}/reply": {
+      "put": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Reply to a product review (Store Owner)",
+        "description": "Allows the store owner to reply to a product review on their store\\'s product.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/reviews/store": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Create a store review",
+        "description": "Creates a review for a store the user has purchased from. Requires a delivered order from the store.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/reviews/store/{storeId}": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Get reviews for a store",
+        "description": "Returns a paginated list of reviews for a specific store.",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
         }
+      }
+    },
+    "/api/reviews/store/detail/{id}": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Get a single store review",
+        "description": "Returns a single store review by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/reviews/store/{id}": {
+      "put": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Update a store review",
+        "description": "Updates the authenticated user\\'s own store review.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Delete a store review",
+        "description": "Deletes the authenticated user\\'s own store review.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/reviews/store/{id}/reply": {
+      "put": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Reply to a store review (Store Owner)",
+        "description": "Allows the store owner to reply to a review on their store.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/user/profile": {
@@ -2395,7 +2610,7 @@
           "User"
         ],
         "summary": "Update user profile",
-        "description": "Updates specific fields on the authenticated user profile. Unrecognized fields will be rejected.",
+        "description": "Updates specific fields on the authenticated user profile. Send multipart/form-data and attach the profile photo in the image field.",
         "parameters": [
           {
             "name": "Authorization",
@@ -2430,7 +2645,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -2445,11 +2660,10 @@
                     "nullable": true,
                     "example": "+1234567890"
                   },
-                  "profilePhotoUrl": {
+                  "image": {
                     "type": "string",
-                    "maxLength": 255,
-                    "nullable": true,
-                    "example": "https://example.com/photo.jpg"
+                    "format": "binary",
+                    "description": "Profile photo image file"
                   }
                 }
               }
@@ -2481,34 +2695,6 @@
           },
           "404": {
             "description": "Account not found or already deleted"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/user/profilegetRefreshSessionKey(userId": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Get current user profile",
-        "description": "Retrieves the public profile data of the authenticated user.",
-        "responses": {
-          "200": {
-            "description": "Profile retrieved successfully"
-          },
-          "401": {
-            "description": "Access denied. Invalid or missing token."
-          },
-          "404": {
-            "description": "User not found"
           },
           "500": {
             "description": "Internal server error"
