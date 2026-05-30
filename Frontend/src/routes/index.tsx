@@ -21,6 +21,7 @@ import { CreateProduct } from "@/features/dashboard/CreateProduct";
 import { UpdateProduct } from "@/features/dashboard/UpdateProduct";
 import { Settings } from "@/features/dashboard/Settings";
 import ViewStores from "@/features/stores/ViewStores";
+import StoreOnboarding from "@/features/stores/StoreOnboarding";
 
 export default function AppRoutes() {
   return (
@@ -45,6 +46,7 @@ export default function AppRoutes() {
       {/* Protected */}
       <Route element={<ProtectedRoutes />}>
         {/* Dashboard Routes */}
+        <Route path="/store/onboarding" element={<StoreOnboarding />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Overview />} />
           <Route path="products" element={<Products />} />
