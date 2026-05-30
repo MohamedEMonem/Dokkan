@@ -2,19 +2,17 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "re
 import { useNavigate, useSearchParams } from "react-router-dom";
 import clsx from "clsx";
 import { 
-  User, 
-  Building2, 
   Store, 
   CheckCircle2, 
   CreditCard, 
-  LayoutDashboard, 
   Globe, 
   ShieldCheck,
   Zap,
-  ChevronLeft,
-  ChevronRight,
   ArrowLeft,
   ArrowRight,
+  User,
+  Briefcase,
+  CircleCheckBig,
 } from "lucide-react";
 
 import Header from "@/components/layout/Header";
@@ -116,7 +114,8 @@ export default function StoreOnboarding() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const { payment, ...persistable } = draft;
+    const persistable = { ...draft };
+    delete persistable.payment;
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
   }, [draft]);
 
@@ -149,9 +148,10 @@ export default function StoreOnboarding() {
       showNotification({ message: "تم حفظ بيانات الإعداد بنجاح", variant: "success" });
       sessionStorage.removeItem(STORAGE_KEY);
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { data?: { message?: string }; message?: string };
       const errorMessage =
-        error?.data?.message || error?.message || "حدث خطأ غير متوقع";
+        err?.data?.message || err?.message || "حدث خطأ غير متوقع";
       showNotification({ message: errorMessage, variant: "error" });
     }
   };
@@ -295,6 +295,7 @@ function StepActions({
         رجوع
       </Button>
       <Button 
+        type={primaryType || "submit"}
         variant="primary"
         className="!inline-flex !w-fit !h-9 !px-4 !py-2  gap-2 rounded-lg text-sm! font-bold border! outline-none! shrink-0"
         disabled={disabled}
@@ -308,80 +309,64 @@ function StepActions({
 
 function WelcomeStep({ onNext }: { onNext: () => void }) {
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-primary/10 text-primary mb-6">
-          <Store size={40} />
+    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-12 text-center">
+      <div className="mb-8">
+        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Store className="w-10 h-10 text-blue-600" />
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-text-dark">مرحباً بك في مركز البائعين - دكان</h1>
-        <p className="text-lg text-text-muted max-w-2xl mx-auto">
-          لنقم بإعداد ملفك الشخصي وإنشاء متجرك في بضع خطوات بسيطة.
+        <h1 className="text-4xl text-gray-900 mb-4 font-bold">مرحباً بك في مركز البائعين - دكان</h1>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          لنقم بإعداد ملفك الشخصي وإنشاء متجرك ببضع خطوات بسيطة.
         </p>
       </div>
 
-      <div className="relative flex justify-between max-w-2xl mx-auto">
-        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-accent-light -translate-y-1/2 z-0" />
-        <WelcomeStepperItem icon={<User size={20} />} label="المعلومات الشخصية" isActive={true} />
-        <WelcomeStepperItem icon={<Building2 size={20} />} label="تفاصيل النشاط التجاري" />
-        <WelcomeStepperItem icon={<Store size={20} />} label="إعداد المتجر" />
-        <WelcomeStepperItem icon={<CheckCircle2 size={20} />} label="تم" />
+      <div className="flex flex-row items-center justify-between max-w-2xl mx-auto mb-12 py-8">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <User className="w-8 h-8 text-gray-600" />
+          </div>
+          <span className="text-sm text-gray-700">المعلومات الشخصية</span>
+        </div>
+
+        <ArrowLeft className="w-6 h-6 text-[#005B7F] mt-[-24px]" />
+
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <Briefcase className="w-8 h-8 text-gray-600" />
+          </div>
+          <span className="text-sm text-gray-700">تفاصيل النشاط التجاري</span>
+        </div>
+
+        <ArrowLeft className="w-6 h-6 text-[#005B7F] mt-[-24px]" />
+
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <Store className="w-8 h-8 text-gray-600" />
+          </div>
+          <span className="text-sm text-gray-700">إعداد المتجر</span>
+        </div>
+
+        <ArrowLeft className="w-6 h-6 text-[#005B7F] mt-[-24px]" />
+
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <CircleCheckBig className="w-8 h-8 text-gray-600" />
+          </div>
+          <span className="text-sm text-gray-700">تم</span>
+        </div>
       </div>
 
-      <div className="text-center">
-        <Button
+      <div className="flex flex-col items-center justify-center gap-4">
+        <button
           type="button"
-          variant="primary"
-          className="px-12 py-7 h-auto text-lg rounded-2xl bg-primary hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all font-bold"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-white hover:bg-primary/90 h-10 rounded-md px-8 w-full sm:w-auto cursor-pointer"
           onClick={onNext}
         >
           ابدأ الإعداد
-        </Button>
-        <p className="text-sm text-text-muted mt-4">يستغرق حوالي 5 دقائق • مطلوب لجميع البائعين</p>
+        </button>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6 pt-12">
-        <FeatureCard
-          title="متجرك الخاص"
-          description="احصل على صفحة متجر مخصصة بعلامتك التجارية"
-          icon={<Store className="text-primary" />}
-        />
-        <FeatureCard
-          title="إدارة سهلة"
-          description="لوحة تحكم قوية لإدارة المنتجات والطلبات"
-          icon={<LayoutDashboard className="text-primary" />}
-        />
-        <FeatureCard
-          title="وصول محلي"
-          description="بع للعملاء في جميع أنحاء مصر مع خيارات دفع محلية"
-          icon={<ShieldCheck className="text-primary" />}
-        />
-      </div>
-    </div>
-  );
-}
-
-function WelcomeStepperItem({ icon, label, isActive = false }: { icon: ReactNode, label: string, isActive?: boolean }) {
-  return (
-    <div className="relative z-10 flex flex-col items-center gap-3">
-      <div className={clsx(
-        "w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all",
-        isActive ? "bg-white border-primary text-primary shadow-md" : "bg-bg-cream border-accent-light text-text-muted"
-      )}>
-        {icon}
-      </div>
-      <span className={clsx("text-sm font-medium", isActive ? "text-text-dark" : "text-text-muted")}>{label}</span>
-    </div>
-  );
-}
-
-function FeatureCard({ title, description, icon }: { title: string, description: string, icon: ReactNode }) {
-  return (
-    <div className="bg-white p-6 rounded-3xl border border-accent-light/40 shadow-sm text-center space-y-3">
-      <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center mx-auto">
-        {icon}
-      </div>
-      <h3 className="font-bold text-text-dark">{title}</h3>
-      <p className="text-sm text-text-muted leading-relaxed">{description}</p>
+      <p className="text-sm text-gray-500 mt-6">يستغرق حوالي 5 دقائق • مطلوب لجميع البائعين</p>
     </div>
   );
 }
