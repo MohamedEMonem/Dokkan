@@ -323,7 +323,7 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
           </p>
         </div>
 
-        <div className="flex flex-row items-center justify-between max-w-2xl mx-auto mb-12 py-8">
+        <div className="flex flex-row items-center justify-between max-w-xl mx-auto mb-12 py-8">
           <div className="flex flex-col items-center gap-3">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
               <User className="w-8 h-8 text-gray-600" />
