@@ -1,7 +1,7 @@
 import { IPlan } from "@/types/entities/subscription.types";
 import { IStore } from "@/types/entities/store.types";
 
-export type OwnerStorePlanDTO = {
+export type GetOwnerStorePlanDTO = {
   store: Pick<IStore, "id" | "name" | "subdomain" | "status">;
   subscription: {
     id: string;

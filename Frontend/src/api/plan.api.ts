@@ -1,6 +1,6 @@
 import { apiSlice } from "@/store/apiSlice";
 import { IAPIResponse } from "@/types/api/response.types";
-import { OwnerStorePlanDTO } from "@/types/dto/plan.dto";
+import { GetOwnerStorePlanDTO } from "@/types/dto/plan.dto";
 import { IPlan } from "@/types/entities/subscription.types";
 
 export const planApi = apiSlice.injectEndpoints({
@@ -24,7 +24,7 @@ export const planApi = apiSlice.injectEndpoints({
       providesTags: ["Plan"],
     }),
 
-    getOwnerStorePlan: builder.query<IAPIResponse<OwnerStorePlanDTO>, void>({
+    getOwnerStorePlan: builder.query<IAPIResponse<GetOwnerStorePlanDTO>, void>({
       query: () => ({
         url: "/plans/me",
         method: "GET",
