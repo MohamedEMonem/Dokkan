@@ -288,7 +288,7 @@ function StepActions({
       <Button
         type="button"
         variant="outline-accent"
-        className="!inline-flex !w-fit !h-9 !px-4 !py-2  gap-2 rounded-lg text-sm! border! outline-none! text-black! transition-all hover:text-white! disabled:opacity-50 shrink-0"
+        className="inline-flex! w-fit! h-9! px-4! py-2!  gap-2 rounded-lg text-sm! border! outline-none! text-black! transition-all hover:text-white! disabled:opacity-50 shrink-0"
         onClick={onBack}
         disabled={!onBack}
       >
@@ -298,7 +298,7 @@ function StepActions({
       <Button 
         type={primaryType || "submit"}
         variant="primary"
-        className="!inline-flex !w-fit !h-9 !px-4 !py-2  gap-2 rounded-lg text-sm! font-bold border! outline-none! shrink-0"
+        className="inline-flex! w-fit! h-9! px-4! py-2!  gap-2 rounded-lg text-sm! font-bold border! outline-none! shrink-0"
         disabled={disabled}
       >
         {primaryLabel}
@@ -331,7 +331,7 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
             <span className="text-sm text-gray-700">المعلومات الشخصية</span>
           </div>
 
-          <ArrowLeft className="w-6 h-6 text-[#005B7F] mt-[-24px]" />
+          <ArrowLeft className="w-6 h-6 text-primary -mt-6" />
 
           <div className="flex flex-col items-center gap-3">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
@@ -340,7 +340,7 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
             <span className="text-sm text-gray-700">تفاصيل النشاط التجاري</span>
           </div>
 
-          <ArrowLeft className="w-6 h-6 text-[#005B7F] mt-[-24px]" />
+          <ArrowLeft className="w-6 h-6 text-primary -mt-6" />
 
           <div className="flex flex-col items-center gap-3">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
@@ -349,7 +349,7 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
             <span className="text-sm text-gray-700">إعداد المتجر</span>
           </div>
 
-          <ArrowLeft className="w-6 h-6 text-[#005B7F] mt-[-24px]" />
+          <ArrowLeft className="w-6 h-6 text-primary -mt-6" />
 
           <div className="flex flex-col items-center gap-3">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
