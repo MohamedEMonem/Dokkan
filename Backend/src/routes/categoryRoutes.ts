@@ -8,6 +8,9 @@ router.get("/",
   /* #swagger.tags = ['Categories']
     #swagger.summary = 'List all categories'
     #swagger.description = 'Returns a paginated list of product categories. Supports query params for pagination and filtering.'
+    #swagger.parameters['page'] = { in: 'query', type: 'integer', required: false, example: 1 }
+    #swagger.parameters['limit'] = { in: 'query', type: 'integer', required: false, example: 20 }
+    #swagger.parameters['parentCategoryId'] = { in: 'query', type: 'string', required: false, example: 'b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11' }
     #swagger.responses[200] = { description: 'Categories retrieved successfully' }
     #swagger.responses[500] = { description: 'Internal server error' }
   */
@@ -18,6 +21,7 @@ router.get("/:id",
   /* #swagger.tags = ['Categories']
     #swagger.summary = 'Get category by ID'
     #swagger.description = 'Retrieves a single category by its unique identifier.'
+    #swagger.parameters['id'] = { in: 'path', type: 'string', required: true, example: 'b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11' }
     #swagger.responses[200] = { description: 'Category retrieved successfully' }
     #swagger.responses[404] = { description: 'Category not found' }
   */
