@@ -83,6 +83,11 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Expose raw OpenAPI JSON for frontend teams and automated tooling
+app.get("/api/openapi.json", (_req, res) => {
+  return res.json(swaggerDocument as any);
+});
+
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/user", userRoutes);
@@ -105,4 +110,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`API docs (Swagger UI): http://localhost:${PORT}/api/docs`);
+  console.log(`OpenAPI JSON (for frontend / tooling): http://localhost:${PORT}/api/openapi.json`);
 });
