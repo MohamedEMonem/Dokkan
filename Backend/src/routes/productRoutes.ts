@@ -11,6 +11,11 @@ router.get("/",
   /* #swagger.tags = ['Products']
      #swagger.summary = 'List all products'
      #swagger.description = 'Returns a paginated list of products with optional status and sort filters.'
+     #swagger.parameters['page'] = { in: 'query', type: 'integer', required: false, example: 1, description: 'Page number' }
+     #swagger.parameters['limit'] = { in: 'query', type: 'integer', required: false, example: 20, description: 'Items per page' }
+     #swagger.parameters['status'] = { in: 'query', type: 'string', required: false, example: 'Active', description: 'Filter by product status' }
+     #swagger.parameters['sortBy'] = { in: 'query', type: 'string', required: false, example: 'createdAt', description: 'Sort field' }
+     #swagger.parameters['sortDir'] = { in: 'query', type: 'string', required: false, example: 'desc', description: 'Sort direction' }
      #swagger.responses[200] = { description: 'Products retrieved successfully' }
      #swagger.responses[500] = { description: 'Internal server error' }
   */
@@ -21,6 +26,7 @@ router.get("/",
 router.get("/:id", 
   /* #swagger.tags = ['Products']
      #swagger.summary = 'Get product by ID'
+     #swagger.parameters['id'] = { in: 'path', type: 'string', required: true, example: 'b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11', description: 'Product UUID' }
      #swagger.responses[200] = { description: 'Product retrieved successfully' }
      #swagger.responses[404] = { description: 'Product not found' }
   */
@@ -33,22 +39,27 @@ router.post("/", auth, authStoreOwner, upload.single("image"), validateBody(prod
      #swagger.description = 'Creates a new product. Use multipart/form-data to upload an image file under field `image`.'
      #swagger.consumes = ['multipart/form-data']
      #swagger.security = [{ "bearerAuth": [] }]
-     #swagger.parameters['product'] = {
-       in: 'formData',
-       description: 'Product fields',
+     #swagger.requestBody = {
        required: true,
-       schema: {
-         type: 'object',
-         properties: {
-           name: { type: 'string', example: 'T-Shirt' },
-           price: { type: 'number', example: 29.99 },
-           stock: { type: 'integer', example: 100 },
-           description: { type: 'string', example: 'Comfortable cotton t-shirt' },
-           categoryId: { type: 'string', example: 'cat_123' }
+       content: {
+         "multipart/form-data": {
+           schema: {
+             type: "object",
+             required: ["storeId", "categoryId", "title", "price"],
+             properties: {
+               storeId: { type: "string", format: "uuid", example: "1b3b0de0-b3f7-4d17-9df1-c1b3d31a3fd0" },
+               categoryId: { type: "string", format: "uuid", example: "2c4a1e18-38f5-4d17-b8a0-0a3d4c15cf66" },
+               title: { type: "string", example: "Summer Tee" },
+               description: { type: "string", example: "Comfortable cotton t-shirt" },
+               price: { type: "number", example: 29.99 },
+               stockQuantity: { type: "integer", example: 100 },
+               status: { type: "string", enum: ["Active", "Inactive"], example: "Active" },
+               image: { type: "string", format: "binary", description: 'Product image file' }
+             }
+           }
          }
        }
      }
-     #swagger.parameters['image'] = { in: 'formData', type: 'file', description: 'Product image file' }
      #swagger.responses[201] = { description: 'Product created successfully' }
      #swagger.responses[400] = { description: 'Invalid request' }
      #swagger.responses[401] = { description: 'Unauthorized' }
@@ -61,6 +72,7 @@ router.patch("/:id", auth, authStoreOwner, validateBody(updateProductSchema),
      #swagger.summary = 'Update a product (Store Owner only)'
      #swagger.description = 'Updates product fields by ID. Store owner access required.'
      #swagger.security = [{ "bearerAuth": [] }]
+     #swagger.parameters['id'] = { in: 'path', type: 'string', required: true, example: 'b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11', description: 'Product UUID' }
      #swagger.requestBody = {
        required: true,
        content: {
@@ -68,10 +80,12 @@ router.patch("/:id", auth, authStoreOwner, validateBody(updateProductSchema),
            schema: {
              type: "object",
              properties: {
-               name: { type: "string" },
+               title: { type: "string" },
+               description: { type: "string" },
+               categoryId: { type: "string", format: "uuid" },
                price: { type: "number" },
-               stock: { type: "integer" },
-               description: { type: "string" }
+               stockQuantity: { type: "integer" },
+               status: { type: "string", enum: ["Active", "Inactive"] }
              }
            }
          }
@@ -89,6 +103,7 @@ router.delete("/:id", auth, authStoreOwner,
   /* #swagger.tags = ['Products']
      #swagger.summary = 'Delete a product (Store Owner only)'
      #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.parameters['id'] = { in: 'path', type: 'string', required: true, example: 'b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11', description: 'Product UUID' }
      #swagger.responses[200] = { description: 'Product deleted successfully' }
      #swagger.responses[401] = { description: 'Unauthorized' }
      #swagger.responses[404] = { description: 'Product not found' }
