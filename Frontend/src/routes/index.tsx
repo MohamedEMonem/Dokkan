@@ -22,6 +22,8 @@ import { UpdateProduct } from "@/features/dashboard/UpdateProduct";
 import { Settings } from "@/features/dashboard/Settings";
 import ViewStores from "@/features/stores/ViewStores";
 import StoreOnboarding from "@/features/stores/StoreOnboarding";
+import WelcomeStep from "@/features/stores/Components/onboarding/Steps/WelcomeStep";
+import SuccessStep from "@/features/stores/Components/onboarding/Steps/SuccessStep";
 
 export default function AppRoutes() {
   return (
@@ -46,7 +48,9 @@ export default function AppRoutes() {
       {/* Protected */}
       <Route element={<ProtectedRoutes />}>
         {/* Dashboard Routes */}
-        <Route path="/store/onboarding" element={<StoreOnboarding />} />
+        <Route path="/store/onboarding/welcome" element={<WelcomeStep />} />
+        <Route path="/store/onboarding/steps" element={<StoreOnboarding />} />
+        <Route path="/store/onboarding/success" element={<SuccessStep />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Overview />} />
           <Route path="products" element={<Products />} />

@@ -75,7 +75,7 @@ export const RegisterForm = (): React.JSX.Element => {
       showNotification({ message: "تم تسجيل الحساب بنجاح", variant: "success" });
       response.data.user.role === EUserRole.Customer
         ? navigate("/")
-        : navigate("/store/onboarding?step=0");
+        : navigate("/store/onboarding/welcome");
     } catch (error: any) {
       const errorMessage = error?.data?.message || error?.message || "حدث خطأ غير متوقع";
       showNotification({ message: errorMessage, variant: "error" });
