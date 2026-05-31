@@ -4,7 +4,7 @@ const doc = {
   info: {
     version: '1.0.0',
     title: 'Dokkan Backend API',
-    description: 'Comprehensive API documentation for the Dokkan e-commerce platform.',
+    description: 'High-coverage API documentation for the Dokkan e-commerce platform, including auth, stores, catalog, cart, orders, and reviews.',
   },
   servers: [
     {
@@ -19,7 +19,10 @@ const doc = {
     { name: 'Categories', description: 'Product Categories' },
     { name: 'Products',   description: 'Product Catalog and Inventory' },
     { name: 'Cart',       description: 'Shopping Cart Operations' },
-    { name: 'Orders',     description: 'Order Placement, Tracking, and Status Management' }
+    { name: 'Orders',     description: 'Order Placement, Tracking, and Status Management' },
+    { name: 'Reviews',    description: 'Product and Store Review Lifecycle' },
+    { name: 'Plans',      description: 'Subscription Plans and Store Billing' },
+    { name: 'Test Email', description: 'Manual Email Delivery Test Endpoints' }
   ],
   components: {
     securitySchemes: {
@@ -27,6 +30,27 @@ const doc = {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
+      }
+    },
+    schemas: {
+      ApiError: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: false },
+          data: { type: 'null', example: null },
+          message: { type: 'string', example: 'Validation failed' },
+          error: { type: 'object' },
+          code: { type: 'integer', example: 422 },
+        }
+      },
+      PaginationMeta: {
+        type: 'object',
+        properties: {
+          page: { type: 'integer', example: 1 },
+          limit: { type: 'integer', example: 20 },
+          total: { type: 'integer', example: 42 },
+          totalPages: { type: 'integer', example: 3 },
+        }
       }
     }
   }
