@@ -3,7 +3,7 @@
   "info": {
     "version": "1.0.0",
     "title": "Dokkan Backend API",
-    "description": "Comprehensive API documentation for the Dokkan e-commerce platform."
+    "description": "High-coverage API documentation for the Dokkan e-commerce platform, including auth, stores, catalog, cart, orders, and reviews."
   },
   "servers": [
     {
@@ -39,6 +39,18 @@
     {
       "name": "Orders",
       "description": "Order Placement, Tracking, and Status Management"
+    },
+    {
+      "name": "Reviews",
+      "description": "Product and Store Review Lifecycle"
+    },
+    {
+      "name": "Plans",
+      "description": "Subscription Plans and Store Billing"
+    },
+    {
+      "name": "Test Email",
+      "description": "Manual Email Delivery Test Endpoints"
     }
   ],
   "paths": {
@@ -48,6 +60,16 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      }
+    },
+    "/api/openapi.json": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -64,6 +86,56 @@
             "name": "storeSlug",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "description": "Page number",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "description": "Items per page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "example": "Active",
+            "description": "Filter by product status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "example": "createdAt",
+            "description": "Sort field",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "example": "desc",
+            "description": "Sort direction",
             "schema": {
               "type": "string"
             }
@@ -99,99 +171,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "product",
-            "in": "formData",
-            "description": "Product fields",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "object"
-                },
-                "properties": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "T-Shirt"
-                        }
-                      }
-                    },
-                    "price": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "number"
-                        },
-                        "example": {
-                          "type": "number",
-                          "example": 29.99
-                        }
-                      }
-                    },
-                    "stock": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "integer"
-                        },
-                        "example": {
-                          "type": "number",
-                          "example": 100
-                        }
-                      }
-                    },
-                    "description": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "Comfortable cotton t-shirt"
-                        }
-                      }
-                    },
-                    "categoryId": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "cat_123"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            "name": "image",
-            "in": "formData",
-            "description": "Product image file",
-            "schema": {
-              "type": "file"
-            }
           }
         ],
         "responses": {
@@ -211,31 +190,56 @@
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "storeId",
+                  "categoryId",
+                  "title",
+                  "price"
+                ],
                 "properties": {
                   "storeId": {
-                    "example": "any"
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "1b3b0de0-b3f7-4d17-9df1-c1b3d31a3fd0"
                   },
                   "categoryId": {
-                    "example": "any"
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "2c4a1e18-38f5-4d17-b8a0-0a3d4c15cf66"
                   },
                   "title": {
-                    "example": "any"
+                    "type": "string",
+                    "example": "Summer Tee"
                   },
                   "description": {
-                    "example": "any"
+                    "type": "string",
+                    "example": "Comfortable cotton t-shirt"
                   },
                   "price": {
-                    "example": "any"
+                    "type": "number",
+                    "example": 29.99
                   },
                   "stockQuantity": {
-                    "example": "any"
+                    "type": "integer",
+                    "example": 100
                   },
                   "status": {
-                    "example": "any"
+                    "type": "string",
+                    "enum": [
+                      "Active",
+                      "Inactive"
+                    ],
+                    "example": "Active"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Product image file"
                   }
                 }
               }
@@ -266,7 +270,9 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+            "description": "Product UUID"
           }
         ],
         "responses": {
@@ -299,7 +305,9 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+            "description": "Product UUID"
           },
           {
             "name": "Authorization",
@@ -335,17 +343,28 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "title": {
                     "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "format": "uuid"
                   },
                   "price": {
                     "type": "number"
                   },
-                  "stock": {
+                  "stockQuantity": {
                     "type": "integer"
                   },
-                  "description": {
-                    "type": "string"
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "Active",
+                      "Inactive"
+                    ]
                   }
                 }
               }
@@ -374,7 +393,9 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+            "description": "Product UUID"
           },
           {
             "name": "Authorization",
@@ -414,6 +435,33 @@
             "name": "storeSlug",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "parentCategoryId",
+            "in": "query",
+            "required": false,
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
             "schema": {
               "type": "string"
             }
@@ -507,7 +555,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11"
           }
         ],
         "responses": {
@@ -864,6 +913,58 @@
         ],
         "summary": "List all products",
         "description": "Returns a paginated list of products with optional status and sort filters.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "description": "Page number",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "description": "Items per page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "example": "Active",
+            "description": "Filter by product status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "example": "createdAt",
+            "description": "Sort field",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "example": "desc",
+            "description": "Sort direction",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Products retrieved successfully"
@@ -886,99 +987,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "product",
-            "in": "formData",
-            "description": "Product fields",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "object"
-                },
-                "properties": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "T-Shirt"
-                        }
-                      }
-                    },
-                    "price": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "number"
-                        },
-                        "example": {
-                          "type": "number",
-                          "example": 29.99
-                        }
-                      }
-                    },
-                    "stock": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "integer"
-                        },
-                        "example": {
-                          "type": "number",
-                          "example": 100
-                        }
-                      }
-                    },
-                    "description": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "Comfortable cotton t-shirt"
-                        }
-                      }
-                    },
-                    "categoryId": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "cat_123"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            "name": "image",
-            "in": "formData",
-            "description": "Product image file",
-            "schema": {
-              "type": "file"
-            }
           }
         ],
         "responses": {
@@ -998,31 +1006,56 @@
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "storeId",
+                  "categoryId",
+                  "title",
+                  "price"
+                ],
                 "properties": {
                   "storeId": {
-                    "example": "any"
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "1b3b0de0-b3f7-4d17-9df1-c1b3d31a3fd0"
                   },
                   "categoryId": {
-                    "example": "any"
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "2c4a1e18-38f5-4d17-b8a0-0a3d4c15cf66"
                   },
                   "title": {
-                    "example": "any"
+                    "type": "string",
+                    "example": "Summer Tee"
                   },
                   "description": {
-                    "example": "any"
+                    "type": "string",
+                    "example": "Comfortable cotton t-shirt"
                   },
                   "price": {
-                    "example": "any"
+                    "type": "number",
+                    "example": 29.99
                   },
                   "stockQuantity": {
-                    "example": "any"
+                    "type": "integer",
+                    "example": 100
                   },
                   "status": {
-                    "example": "any"
+                    "type": "string",
+                    "enum": [
+                      "Active",
+                      "Inactive"
+                    ],
+                    "example": "Active"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Product image file"
                   }
                 }
               }
@@ -1045,7 +1078,9 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+            "description": "Product UUID"
           }
         ],
         "responses": {
@@ -1070,7 +1105,9 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+            "description": "Product UUID"
           },
           {
             "name": "Authorization",
@@ -1106,17 +1143,28 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "title": {
                     "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "format": "uuid"
                   },
                   "price": {
                     "type": "number"
                   },
-                  "stock": {
+                  "stockQuantity": {
                     "type": "integer"
                   },
-                  "description": {
-                    "type": "string"
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "Active",
+                      "Inactive"
+                    ]
                   }
                 }
               }
@@ -1137,7 +1185,9 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+            "description": "Product UUID"
           },
           {
             "name": "Authorization",
@@ -1172,6 +1222,35 @@
         ],
         "summary": "List all categories",
         "description": "Returns a paginated list of product categories. Supports query params for pagination and filtering.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "parentCategoryId",
+            "in": "query",
+            "required": false,
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Categories retrieved successfully"
@@ -1242,7 +1321,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11"
           }
         ],
         "responses": {
@@ -1569,23 +1649,54 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "name",
-                  "address"
+                  "data"
                 ],
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "example": "My Store"
-                  },
-                  "description": {
-                    "type": "string",
-                    "example": "A store selling gadgets"
-                  },
-                  "address": {
+                  "data": {
                     "type": "object",
-                    "example": {
-                      "street": "123 Main St",
-                      "city": "Cairo"
+                    "required": [
+                      "name",
+                      "subdomain",
+                      "logoUrl"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "My Store"
+                      },
+                      "subdomain": {
+                        "type": "string",
+                        "example": "my-store"
+                      },
+                      "logoUrl": {
+                        "type": "string",
+                        "example": "https://cdn.example.com/logo.png"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "A store selling gadgets"
+                      },
+                      "coverBannerUrl": {
+                        "type": "string",
+                        "example": "https://cdn.example.com/banner.png"
+                      },
+                      "businessAddress": {
+                        "type": "string",
+                        "example": "123 Main St, Cairo"
+                      },
+                      "vatNumber": {
+                        "type": "string",
+                        "example": "VAT-123456"
+                      },
+                      "supportEmail": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "support@example.com"
+                      },
+                      "phoneNumber": {
+                        "type": "string",
+                        "example": "+201234567890"
+                      }
                     }
                   }
                 }
@@ -1600,6 +1711,53 @@
         ],
         "summary": "Browse active stores with pagination",
         "description": "List stores with optional pagination, status filter, and sorting.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "example": "Active",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "example": "createdAt",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "example": "desc",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Stores retrieved successfully"
@@ -1624,8 +1782,14 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Store retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Store not found"
           }
         },
         "security": [
@@ -1674,15 +1838,42 @@
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "data"
+                ],
                 "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "address": {
-                    "type": "object"
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "subdomain": {
+                        "type": "string"
+                      },
+                      "logoUrl": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "coverBannerUrl": {
+                        "type": "string"
+                      },
+                      "businessAddress": {
+                        "type": "string"
+                      },
+                      "vatNumber": {
+                        "type": "string"
+                      },
+                      "supportEmail": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "phoneNumber": {
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               }
@@ -1706,8 +1897,11 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Store deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -1814,15 +2008,89 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Order confirmation email sent successfully"
+          },
+          "400": {
+            "description": "Invalid email payload"
+          },
+          "502": {
+            "description": "Email delivery failed"
           }
         },
         "security": [
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "customerName",
+                  "customerEmail",
+                  "orderNumber",
+                  "totalAmount",
+                  "items"
+                ],
+                "properties": {
+                  "customerName": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "customerEmail": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john@example.com"
+                  },
+                  "orderNumber": {
+                    "type": "string",
+                    "example": "ORD-1001"
+                  },
+                  "totalAmount": {
+                    "type": "string",
+                    "example": "149.99"
+                  },
+                  "orderDate": {
+                    "type": "string",
+                    "example": "2026-05-31"
+                  },
+                  "storeName": {
+                    "type": "string",
+                    "example": "Dokkan Store"
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "Summer Tee"
+                        },
+                        "quantity": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "unitPrice": {
+                          "type": "string",
+                          "example": "29.99"
+                        },
+                        "lineTotal": {
+                          "type": "string",
+                          "example": "59.98"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/auth/register": {
@@ -2087,15 +2355,112 @@
         "summary": "Checkout - place a new order from cart",
         "description": "Creates an order from the authenticated user\\'s Redis cart for the specified store.",
         "responses": {
-          "default": {
-            "description": ""
+          "201": {
+            "description": "Order(s) placed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "orders": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Order(s) placed successfully"
+                    },
+                    "error": {
+                      "type": "null",
+                      "example": null
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 201
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "phoneNumber",
+                  "email",
+                  "shippingAddress"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "phoneNumber": {
+                    "type": "string",
+                    "example": "+201234567890"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john@example.com"
+                  },
+                  "shippingAddress": {
+                    "type": "object",
+                    "required": [
+                      "line1",
+                      "city",
+                      "country"
+                    ],
+                    "properties": {
+                      "line1": {
+                        "type": "string",
+                        "example": "123 Main St"
+                      },
+                      "line2": {
+                        "type": "string",
+                        "example": "Apartment 4B"
+                      },
+                      "city": {
+                        "type": "string",
+                        "example": "Cairo"
+                      },
+                      "country": {
+                        "type": "string",
+                        "example": "Egypt"
+                      },
+                      "postalCode": {
+                        "type": "string",
+                        "example": "11511"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "get": {
         "tags": [
@@ -2103,9 +2468,88 @@
         ],
         "summary": "Get all orders (admin)",
         "description": "Returns a paginated list of all orders. Admin access required.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "description": "Page number",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "description": "Items per page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "example": "Pending",
+            "description": "Filter by order status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "example": "createdAt",
+            "description": "Sort field",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "example": "desc",
+            "description": "Sort direction",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Orders retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "orders": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "meta": {
+                          "$ref": "#/components/schemas/PaginationMeta"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2122,9 +2566,83 @@
         ],
         "summary": "Get my orders",
         "description": "Returns the authenticated user\\'s orders.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "example": "Delivered",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "example": "createdAt",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "example": "desc",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Orders retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "orders": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "meta": {
+                          "$ref": "#/components/schemas/PaginationMeta"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2146,6 +2664,53 @@
             "name": "storeId",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Store UUID",
+            "example": "1b3b0de0-b3f7-4d17-9df1-c1b3d31a3fd0"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "example": "Pending",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "example": "createdAt",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "example": "desc",
             "schema": {
               "type": "string"
             }
@@ -2177,12 +2742,38 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Order UUID",
+            "example": "7b0a1e15-4e3e-4f1f-a1e7-6b5cfbf5d7cd"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Order retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "order": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found"
           }
         },
         "security": [
@@ -2204,19 +2795,67 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Order UUID",
+            "example": "7b0a1e15-4e3e-4f1f-a1e7-6b5cfbf5d7cd"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Order status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "order": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "Pending",
+                      "Shipped",
+                      "Delivered",
+                      "Cancelled"
+                    ],
+                    "example": "Shipped"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/reviews/product": {
@@ -2244,7 +2883,44 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "productId",
+                  "orderId",
+                  "rating"
+                ],
+                "properties": {
+                  "productId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11"
+                  },
+                  "orderId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "c0e4d28d-7f4f-4d52-8b1f-7a7e0f1a9b2c"
+                  },
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "example": 5
+                  },
+                  "reviewText": {
+                    "type": "string",
+                    "example": "Great quality and fast delivery."
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/reviews/product/{productId}": {
@@ -2259,6 +2935,43 @@
             "name": "productId",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "example": "createdAt",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "example": "desc",
             "schema": {
               "type": "string"
             }
@@ -2285,7 +2998,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08"
           }
         ],
         "responses": {
@@ -2309,7 +3023,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08"
           },
           {
             "name": "Authorization",
@@ -2328,7 +3043,29 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "example": 4
+                  },
+                  "reviewText": {
+                    "type": "string",
+                    "example": "Updated review text."
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "delete": {
         "tags": [
@@ -2343,7 +3080,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08"
           },
           {
             "name": "Authorization",
@@ -2379,7 +3117,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08"
           },
           {
             "name": "Authorization",
@@ -2398,7 +3137,26 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "reply"
+                ],
+                "properties": {
+                  "reply": {
+                    "type": "string",
+                    "example": "Thanks for the feedback."
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/reviews/store": {
@@ -2426,7 +3184,44 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "storeId",
+                  "orderId",
+                  "rating"
+                ],
+                "properties": {
+                  "storeId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "1b3b0de0-b3f7-4d17-9df1-c1b3d31a3fd0"
+                  },
+                  "orderId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "c0e4d28d-7f4f-4d52-8b1f-7a7e0f1a9b2c"
+                  },
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "example": 5
+                  },
+                  "reviewText": {
+                    "type": "string",
+                    "example": "Smooth ordering and excellent support."
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/reviews/store/{storeId}": {
@@ -2441,6 +3236,43 @@
             "name": "storeId",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1b3b0de0-b3f7-4d17-9df1-c1b3d31a3fd0"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 20,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "example": "createdAt",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "example": "desc",
             "schema": {
               "type": "string"
             }
@@ -2467,7 +3299,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08"
           }
         ],
         "responses": {
@@ -2491,7 +3324,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08"
           },
           {
             "name": "Authorization",
@@ -2510,7 +3344,29 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "example": 4
+                  },
+                  "reviewText": {
+                    "type": "string",
+                    "example": "Updated store review."
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "delete": {
         "tags": [
@@ -2525,7 +3381,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08"
           },
           {
             "name": "Authorization",
@@ -2561,7 +3418,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08"
           },
           {
             "name": "Authorization",
@@ -2580,7 +3438,26 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "reply"
+                ],
+                "properties": {
+                  "reply": {
+                    "type": "string",
+                    "example": "We appreciate your feedback."
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/user/profile": {
@@ -2728,6 +3605,146 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "object"
+          },
+          "properties": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "boolean"
+                  },
+                  "example": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "null"
+                  },
+                  "example": {}
+                }
+              },
+              "message": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "string"
+                  },
+                  "example": {
+                    "type": "string",
+                    "example": "Validation failed"
+                  }
+                }
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "object"
+                  }
+                }
+              },
+              "code": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "integer"
+                  },
+                  "example": {
+                    "type": "number",
+                    "example": 422
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "object"
+          },
+          "properties": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "integer"
+                  },
+                  "example": {
+                    "type": "number",
+                    "example": 1
+                  }
+                }
+              },
+              "limit": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "integer"
+                  },
+                  "example": {
+                    "type": "number",
+                    "example": 20
+                  }
+                }
+              },
+              "total": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "integer"
+                  },
+                  "example": {
+                    "type": "number",
+                    "example": 42
+                  }
+                }
+              },
+              "totalPages": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "integer"
+                  },
+                  "example": {
+                    "type": "number",
+                    "example": 3
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
