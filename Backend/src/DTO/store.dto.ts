@@ -1,5 +1,6 @@
 // @ts-ignore - zod type resolution may fail in this environment while runtime import remains valid
 import { z } from "zod";
+import { optional } from "zod/mini";
 
 const storePayloadSchema = z.object({
   name: z.string().min(1, "Store name is required"),
@@ -14,7 +15,7 @@ const storePayloadSchema = z.object({
     .refine((val: string) => !["admin", "api", "www", "support", "dokkan"].includes(val), {
       message: "This subdomain is a reserved keyword and cannot be used",
     }),
-  logoUrl: z.string().min(1, "Logo URL is required"),
+  logoUrl: z.string().min(1, "Logo URL is required").optional(),
   description: z.string().optional(),
   coverBannerUrl: z.string().optional(),
   businessAddress: z.string().optional(),

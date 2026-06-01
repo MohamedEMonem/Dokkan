@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { StoreServices } from "../services/StoreServices.js";
 import { sendSuccess, sendError } from "../utils/response.js";
 import { CreateStoreDto } from "../DTO/store.dto.js";
-
+import {meilisearchService} from "../services/meilisearchService.js";
 const storeService = new StoreServices();
 
 export const createStore = async (
@@ -19,6 +19,7 @@ export const createStore = async (
     }
 
     const newStore = await storeService.createStore(dto, currentUserId);
+    meilisearchService.add("stores", newStore.store);
 
     return sendSuccess(res, { store: newStore.store }, "Store created successfully", 201);
   } catch (error) {

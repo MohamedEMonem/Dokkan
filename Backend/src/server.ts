@@ -59,7 +59,7 @@ app.get("/api/health", (req, res) => {
       status: "OK",
       timestamp: new Date().toISOString(),
     },
-    "Server is healthy",
+    "Server is healthyy",
   );
 });
 app.use("/api/stores/:storeSlug/products", resolveTenant, productRoutes);
