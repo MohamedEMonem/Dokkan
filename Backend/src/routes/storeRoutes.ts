@@ -9,12 +9,12 @@ import {
 import { createStoreSchema, updatestoreSchema } from "../DTO/store.dto.js";
 import { validateBody } from "../middleware/validate.middleware.js";
 import { auth, authStoreOwner } from "../middleware/auth.js";
+import { getStoreAnalytics } from "../controllers/analytics.controller.js";
 const router = express.Router();
 
 router.post(
   "/",
   auth,
-  authStoreOwner,
   validateBody(createStoreSchema),
   /* #swagger.tags = ['Stores']
      #swagger.summary = 'Create a new store'
@@ -85,6 +85,14 @@ router.get(
   listStores,
 );
 
+router.get(
+  "/analytics",
+  auth,
+  authStoreOwner,
+  getStoreAnalytics
+);
+
+
 router.put(
   "/me",
   auth,
@@ -141,5 +149,6 @@ router.delete(
   */
   deleteOwnerStore,
 );
+
 
 export default router;
