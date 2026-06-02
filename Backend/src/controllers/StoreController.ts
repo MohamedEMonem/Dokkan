@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { StoreServices } from "../services/StoreServices.js";
 import { sendSuccess, sendError } from "../utils/response.js";
-import { CreateStoreDto, listStoresQuerySchema } from "../DTO/store.dto.js";
+import { CreateStoreDto, ListStoresQueryDto, listStoresQuerySchema } from "../DTO/store.dto.js";
+import {meilisearchService} from "../services/meilisearchService.js";
+import {validateBody} from "../middleware/validate.middleware.js";
 
 const storeService = new StoreServices();
 
@@ -19,6 +21,16 @@ export const createStore = async (
     }
 
     const newStore = await storeService.createStore(dto, currentUserId);
+    const searchAbleStore = {
+      id: newStore.store.id,
+      name: newStore.store.name,
+      subdomain: newStore.store.subdomain,
+      description: newStore.store.description,
+      ownerId: newStore.store.ownerId,
+      storeOwner: newStore.storeowner.name
+      
+    }
+    meilisearchService.add("stores", searchAbleStore);
 
     return sendSuccess(res, { store: newStore.store }, "Store created successfully", 201);
   } catch (error) {
@@ -54,12 +66,22 @@ export const listStores = async (
   next: NextFunction,
 ) => {
   try {
-    const parsedQuery = listStoresQuerySchema.safeParse(req.query);
-
-    if (!parsedQuery.success) {
-      return sendError(res, "Invalid query parameters", 400, parsedQuery.error.flatten());
+    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10));
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(String(req.query.limit ?? "20"), 10)),
+    );
+    const listQuerys: ListStoresQueryDto = {
+      page,
+      limit,
+      status: req.query.status as "Pending" | "Active" | "Suspended",
+      sortBy: req.query.sortBy as "name" | "status" | "createdAt" || "createdAt",
+      sortDir: (req.query.sortDir as "asc" | "desc") || "desc",
     }
-
+    const parsedQuery = listStoresQuerySchema.safeParse(listQuerys);
+    if (!parsedQuery.success) {
+      return sendError(res, "Invalid query parameters", 400);
+    }
     const result = await storeService.listStores(parsedQuery.data);
 
     return sendSuccess(
@@ -89,6 +111,15 @@ export const updateOwnerStore = async (
       currentUserId,
       updateData,
     );
+     const searchAbleStore = {
+      id: updatedStore.id,
+      name: updatedStore.name,
+      subdomain: updatedStore.subdomain,
+      description: updatedStore.description,
+      ownerId: updatedStore.ownerId,
+      
+    }
+    meilisearchService.update("stores", searchAbleStore);
     return sendSuccess(
       res,
       { store: updatedStore },
@@ -112,6 +143,7 @@ export const deleteOwnerStore = async (
     }
 
     const deletedStore = await storeService.deleteStore(currentUserId);
+    meilisearchService.delete("stores", deletedStore.id);
 
     return sendSuccess(
       res,
