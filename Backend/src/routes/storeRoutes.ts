@@ -10,6 +10,7 @@ import { createStoreSchema, updatestoreSchema } from "../DTO/store.dto.js";
 import { validateBody } from "../middleware/validate.middleware.js";
 import { auth, authStoreOwner } from "../middleware/auth.js";
 import { getStoreAnalytics } from "../controllers/analytics.controller.js";
+import {searchStores} from "../controllers/meilisearch.controller.js"
 const router = express.Router();
 
 router.post(
@@ -31,11 +32,11 @@ router.post(
                 data: {
                   type: "object",
                   required: ["name", "subdomain", "logoUrl"],
-                  properties: {
-                    name: { type: "string", example: "My Store" },
+             properties: {
+               name: { type: "string", example: "My Store" },
                     subdomain: { type: "string", example: "my-store" },
                     logoUrl: { type: "string", example: "https://cdn.example.com/logo.png" },
-                    description: { type: "string", example: "A store selling gadgets" },
+               description: { type: "string", example: "A store selling gadgets" },
                     coverBannerUrl: { type: "string", example: "https://cdn.example.com/banner.png" },
                     businessAddress: { type: "string", example: "123 Main St, Cairo" },
                     vatNumber: { type: "string", example: "VAT-123456" },
@@ -53,6 +54,13 @@ router.post(
      #swagger.responses[401] = { description: 'Unauthorized' }
   */
   createStore,
+);
+
+router.get(
+  "/search",
+  /* #swagger.tags = ['Stores']
+  */
+  searchStores
 );
 
 router.get(
@@ -111,12 +119,12 @@ router.put(
              required: ["data"],
              properties: {
                data: {
-                 type: "object",
-                 properties: {
-                   name: { type: "string" },
+             type: "object",
+             properties: {
+               name: { type: "string" },
                    subdomain: { type: "string" },
                    logoUrl: { type: "string" },
-                   description: { type: "string" },
+               description: { type: "string" },
                    coverBannerUrl: { type: "string" },
                    businessAddress: { type: "string" },
                    vatNumber: { type: "string" },

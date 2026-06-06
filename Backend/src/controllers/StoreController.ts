@@ -1,15 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { StoreServices } from "../services/StoreServices.js";
 import { sendSuccess, sendError } from "../utils/response.js";
-<<<<<<< HEAD
 import { CreateStoreDto, ListStoresQueryDto, listStoresQuerySchema } from "../DTO/store.dto.js";
 import {meilisearchService} from "../services/meilisearchService.js";
-import {validateBody} from "../middleware/validate.middleware.js";
 
-=======
-import { CreateStoreDto } from "../DTO/store.dto.js";
-import {meilisearchService} from "../services/meilisearchService.js";
->>>>>>> feature/analytics
 const storeService = new StoreServices();
 
 export const createStore = async (
@@ -26,7 +20,6 @@ export const createStore = async (
     }
 
     const newStore = await storeService.createStore(dto, currentUserId);
-<<<<<<< HEAD
     const searchAbleStore = {
       id: newStore.store.id,
       name: newStore.store.name,
@@ -37,9 +30,6 @@ export const createStore = async (
       
     }
     meilisearchService.add("stores", searchAbleStore);
-=======
-    meilisearchService.add("stores", newStore.store);
->>>>>>> feature/analytics
 
     return sendSuccess(res, { store: newStore.store }, "Store created successfully", 201);
   } catch (error) {
