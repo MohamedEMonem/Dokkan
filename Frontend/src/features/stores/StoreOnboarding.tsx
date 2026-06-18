@@ -132,7 +132,7 @@ export default function StoreOnboarding() {
       <Header />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg border border-accent-light/40 p-6 md:p-10">
+          <div className={`mx-auto bg-white rounded-3xl shadow-lg border border-accent-light/40 p-6 md:p-10 transition-all duration-300 ${step === 3 ? "max-w-6xl" : "max-w-4xl"}`}>
             <div className="mb-10">
               <div className="flex items-center justify-between text-sm text-text-muted mb-4">
                 <span>الخطوة {step} من {STEP_COUNT}</span>
