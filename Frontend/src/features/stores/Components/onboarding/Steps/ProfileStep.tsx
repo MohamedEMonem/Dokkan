@@ -26,7 +26,7 @@ export default function ProfileStep({
 
   return (
     <form className="space-y-8" onSubmit={handleSubmit}>
-      <StepSection title="أخبرنا عن نفسك للبدء">
+      <StepSection>
         <div className="space-y-6">
           <Input
             label="الاسم الكامل *"

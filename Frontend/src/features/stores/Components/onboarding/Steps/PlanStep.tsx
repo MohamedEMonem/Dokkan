@@ -40,9 +40,6 @@ export default function PlanStep({
 
   return (
     <form className="space-y-8" onSubmit={handleSubmit}>
-      <div className="text-center space-y-2 mb-8">
-        <h2 className="text-xl text-text-muted">اختر الباقة المناسبة لاحتياجات متجرك</h2>
-      </div>
 
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">

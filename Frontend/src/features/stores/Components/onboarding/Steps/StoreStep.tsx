@@ -29,7 +29,7 @@ export default function StoreStep({
 
   return (
     <form className="space-y-8" onSubmit={handleSubmit}>
-      <StepSection title="اضبط تفاصيل متجرك وعلامته التجارية">
+      <StepSection>
         <div className="space-y-6">
           <Input
             label="اسم المتجر *"

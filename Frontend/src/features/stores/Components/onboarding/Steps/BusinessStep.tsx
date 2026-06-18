@@ -26,7 +26,7 @@ export default function BusinessStep({
 
   return (
     <form className="space-y-8" onSubmit={handleSubmit}>
-      <StepSection title="ساعدنا على فهم عملك">
+      <StepSection>
         <div className="space-y-6">
           <TextArea
             label="عنوان العمل"

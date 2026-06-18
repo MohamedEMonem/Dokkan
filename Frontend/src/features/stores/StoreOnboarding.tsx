@@ -20,11 +20,11 @@ const STORAGE_KEY = "store_onboarding_draft_v1";
 type StepMeta = { title: string; subtitle?: string };
 
 const stepMeta: StepMeta[] = [
-  { title: "الخطوة 1 - ملفك الشخصي" },
-  { title: "الخطوة 2 - معلومات العمل" },
-  { title: "الخطوة 3 - اختر باقة الاشتراك" },
-  { title: "بيانات الدفع" },
-  { title: "الخطوة 5 - إعداد المتجر" },
+  { title: "الخطوة 1 - ملفك الشخصي", subtitle: "أخبرنا عن نفسك للبدء" },
+  { title: "الخطوة 2 - معلومات العمل", subtitle: "ساعدنا على فهم عملك" },
+  { title: "الخطوة 3 - اختر باقة الاشتراك", subtitle: "اختر الباقة المناسبة لاحتياجات متجرك" },
+  { title: "بيانات الدفع", subtitle: "أدخل معلومات الدفع لتفعيل اشتراكك" },
+  { title: "الخطوة 5 - إعداد المتجر", subtitle: "اضبط تفاصيل متجرك وعلامته التجارية" },
 ];
 
 function clampStep(step: number) {
