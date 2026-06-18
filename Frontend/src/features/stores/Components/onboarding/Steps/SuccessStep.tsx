@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Globe } from "lucide-react";
+import { CheckCircle2, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import Header from "@/components/layout/Header";
@@ -18,27 +18,29 @@ export default function SuccessStep() {
   const email = profileLoading ? "جاري التحميل..." : (user?.email || "---");
   const storeName = storeLoading ? "جاري التحميل..." : (store?.name || "---");
   const storeSubdomain = storeLoading ? "" : (store?.subdomain || "");
-  const storeLink = storeSubdomain ? `https://${storeSubdomain}.Dokan.com` : "---";
+  const storeLink = storeSubdomain ? `https://${storeSubdomain}.Dokkan.com` : "---";
 
   return (
-    <div className="min-h-screen flex flex-col bg-linear-to-br from-bg-cream via-bg-cream to-accent-light" dir="rtl">
+    <div className="min-h-screen flex flex-col bg-gray-50" dir="rtl">
       <Header />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-2xl mx-auto space-y-10">
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 text-emerald-500 mb-2">
-                <CheckCircle2 size={48} />
+        <div className="py-12 px-4">
+          <div className="max-w-3xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="flex justify-center mb-6">
+                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="w-16 h-16 text-green-600" />
+                </div>
               </div>
-              <h1 className="text-3xl font-black text-text-dark">اكتمل الإعداد!</h1>
-              <p className="text-lg text-text-muted">متجرك جاهز الآن للبدء في البيع</p>
+              <h1 className="text-4xl text-gray-900 mb-3 font-bold">اكتمل الإعداد!</h1>
+              <p className="text-lg text-gray-600 font-medium">متجرك جاهز الآن للبدء في البيع</p>
             </div>
 
-            <div className="bg-white rounded-3xl border border-accent-light/40 shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-accent-light/40 bg-bg-cream/20">
-                <h3 className="font-bold text-text-dark">ملخص الحساب</h3>
-              </div>
-              <div className="p-6 space-y-4">
+            {/* Account Summary Card */}
+            <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10 mb-6">
+              <h2 className="text-xl text-gray-900 mb-6 font-semibold">ملخص الحساب</h2>
+              <div className="space-y-4">
                 <SummaryRow label="الاسم" value={name} />
                 <SummaryRow label="البريد" value={email} />
                 <SummaryRow label="اسم المتجر" value={storeName} />
@@ -48,45 +50,53 @@ export default function SuccessStep() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <Button 
-                className="w-full py-4 rounded-2xl bg-primary hover:bg-primary-dark font-bold text-lg h-auto shadow-lg shadow-primary/20"
-                onClick={() => {}} 
+            {/* Actions */}
+            <div className="space-y-3">
+              <Button
+                variant="primary"
+                className="w-full h-10! rounded-md! font-semibold!"
+                onClick={() => {}}
               >
                 اختيار مظهر المتجر
               </Button>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="secondary" className="py-4 rounded-2xl font-bold h-auto border-accent-light" onClick={() => navigate("/dashboard")}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Button
+                  variant="secondary"
+                  className="w-full h-10! rounded-md! border! border-gray-200! bg-white! text-gray-700! hover:bg-gray-50! transition-colors! font-semibold!"
+                  onClick={() => navigate("/dashboard")}
+                >
                   تخطي للوحة التحكم
                 </Button>
-                <Button 
-                  variant="secondary" 
-                  className="py-4 rounded-2xl font-bold h-auto border-accent-light flex items-center justify-center gap-2"
+                <Button
+                  variant="secondary"
+                  className="w-full h-10! rounded-md! border! border-gray-200! bg-white! text-gray-700! hover:bg-gray-50! transition-colors! flex items-center justify-center gap-2 font-semibold!"
                   onClick={() => {
                     if (storeSubdomain) {
                       window.open(`https://${storeSubdomain}.Dokkan.com`, "_blank");
                     }
                   }}
                   disabled={!storeSubdomain || storeLoading}
+                  icon={<ExternalLink size={16} className="mr-2" />}
+                  iconPos="right"
                 >
                   زيارة المتجر
-                  <Globe size={18} />
                 </Button>
               </div>
             </div>
 
-            <div className="bg-bg-cream/40 p-6 rounded-3xl border border-accent-light/40 space-y-4">
-              <h4 className="font-bold text-text-dark">ما التالي؟</h4>
-              <ul className="space-y-3">
+            {/* What's next list */}
+            <div className="bg-blue-50 rounded-xl p-6 mt-8">
+              <h3 className="text-gray-900 font-semibold mb-3">ما التالي؟</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
                 {[
                   "اختر مظهر متجرك وألوانه",
                   "أضف منتجاتك الأولى إلى المتجر",
                   "إعداد طرق الدفع (فوري، بايموب، سترايب)",
-                  "تكوين إعدادات الشحن والضرائب"
+                  "تكوين إعدادات الشحن والضرائب",
                 ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-text-muted">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    {item}
+                  <li key={i} className="flex items-start">
+                    <span className="text-blue-600 ml-2 font-bold">•</span>
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
@@ -106,12 +116,19 @@ interface SummaryRowProps {
 
 function SummaryRow({ label, value, isLink }: SummaryRowProps) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-accent-light/20 last:border-0">
-      <span className="text-sm text-text-muted">{label}:</span>
+    <div className="grid grid-cols-3 py-4 border-b border-gray-200 last:border-0">
+      <span className="text-gray-600">{label}:</span>
       {isLink && value && value !== "---" ? (
-        <a href={value} target="_blank" rel="noreferrer" className="text-sm font-bold text-primary hover:underline">{value}</a>
+        <a
+          href={value}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="col-span-2 text-blue-600 hover:text-blue-700 underline break-all font-medium"
+        >
+          {value}
+        </a>
       ) : (
-        <span className="text-sm font-bold text-text-dark">{value || "---"}</span>
+        <span className="col-span-2 text-gray-900 font-semibold">{value || "---"}</span>
       )}
     </div>
   );
