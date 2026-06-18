@@ -9,12 +9,14 @@ interface StoreStepProps {
   initialData?: StoreOnboardingDraft["store"];
   onFinish: (store: StoreOnboardingDraft["store"]) => void;
   onBack: () => void;
+  isLoading?: boolean;
 }
 
 export default function StoreStep({
   initialData,
   onFinish,
   onBack,
+  isLoading = false,
 }: StoreStepProps) {
   const [name, setName] = useState(initialData?.name ?? "");
   const [description, setDescription] = useState(initialData?.description ?? "");
@@ -57,14 +59,14 @@ export default function StoreStep({
                   onChange={(event) => setSubdomain(event.target.value)}
                 />
               </div>
-              <span className="text-text-muted font-bold pt-6">.Dokan.com</span>
+              <span className="text-text-muted font-bold pt-6">.Dokkan.com</span>
             </div>
             <p className="text-[10px] text-text-muted">3-30 حرف، حروف صغيرة وأرقام وشرطات فقط</p>
           </div>
         </div>
       </StepSection>
 
-      <StepActions onBack={onBack} primaryLabel="إنشاء المتجر" />
+      <StepActions onBack={onBack} primaryLabel="إنشاء المتجر" disabled={isLoading} />
     </form>
   );
 }

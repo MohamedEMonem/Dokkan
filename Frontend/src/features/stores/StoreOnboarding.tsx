@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import Header from "@/components/layout/Header";
 import { showNotification } from "@/utils/showNotification";
+import { useCreateStoreMutation } from "@/api/store.api";
 
 import ProfileStep from "./Components/onboarding/Steps/ProfileStep";
 import BusinessStep from "./Components/onboarding/Steps/BusinessStep";
@@ -63,6 +64,7 @@ export default function StoreOnboarding() {
   }, [rawStep, searchParams, setSearchParams, step]);
 
   const [draft, setDraft] = useState<StoreOnboardingDraft>(() => loadDraft());
+  const [createStore, { isLoading: isSubmitting }] = useCreateStoreMutation();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -94,10 +96,25 @@ export default function StoreOnboarding() {
     const finalDraft = { ...draft, ...patch };
     updateDraft(patch);
 
+    // Prepare CreateStoreDTO payload
+    const payload = {
+      name: finalDraft.store?.name || "",
+      subdomain: finalDraft.store?.subdomain || "",
+      logoUrl: "https://images.unsplash.com/photo-1572021335469-31706a17aaef", // Default placeholder logo
+      description: finalDraft.store?.description || "",
+      businessAddress: finalDraft.business?.address || "",
+      vatNumber: finalDraft.business?.taxId || "",
+      supportEmail: finalDraft.profile?.email || undefined,
+      phoneNumber: finalDraft.profile?.phone || undefined,
+    };
+
     try {
-      // TODO: replace with real submit endpoint.
-      console.log("Store onboarding payload:", finalDraft);
-      showNotification({ message: "تم حفظ بيانات الإعداد بنجاح", variant: "success" });
+      await createStore({ data: payload }).unwrap();
+      // On success, clear the draft from session storage
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+      showNotification({ message: "تم حفظ بيانات الإعداد وإنشاء المتجر بنجاح", variant: "success" });
       navigate("/store/onboarding/success");
     } catch (error) {
       const err = error as { data?: { message?: string }; message?: string };
@@ -135,7 +152,7 @@ export default function StoreOnboarding() {
             {step === 2 && <BusinessStep initialData={draft.business} onNext={(business) => handleNext({ business })} onBack={handleBack} />}
             {step === 3 && <PlanStep initialData={draft.plan} onNext={(plan) => handleNext({ plan })} onBack={handleBack} />}
             {step === 4 && <PaymentStep draft={draft} onNext={(payment) => handleNext({ payment })} onBack={handleBack} />}
-            {step === 5 && <StoreStep initialData={draft.store} onFinish={(store) => handleFinish({ store })} onBack={handleBack} />}
+            {step === 5 && <StoreStep initialData={draft.store} onFinish={(store) => handleFinish({ store })} onBack={handleBack} isLoading={isSubmitting} />}
           </div>
         </div>
       </main>
