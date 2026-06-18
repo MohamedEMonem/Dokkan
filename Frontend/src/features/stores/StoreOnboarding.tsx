@@ -145,7 +145,7 @@ export default function StoreOnboarding() {
 
             <div className="text-center mb-8">
               <h1 className="text-2xl md:text-3xl text-text-dark font-semibold">{meta?.title}</h1>
-              {meta?.subtitle && <p className="text-text-muted mt-2">{meta.subtitle}</p>}
+              {meta?.subtitle && <p className="text-lg text-text-muted mt-2">{meta.subtitle}</p>}
             </div>
 
             {step === 1 && <ProfileStep initialData={draft.profile} onNext={(profile) => handleNext({ profile })} onBack={handleBack} />}
