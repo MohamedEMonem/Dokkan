@@ -39,6 +39,7 @@ export default function StoreStep({
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
+          
           <TextArea
             label="وصف المتجر"
             id="onboarding-store-description"
@@ -47,22 +48,21 @@ export default function StoreStep({
             value={description}
             onChange={(event) => setDescription(event.target.value)}
           />
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-text-dark">النطاق الفرعي *</label>
-            <div className="flex items-center gap-2 group">
-              <div className="flex-1">
-                <Input
-                  id="onboarding-subdomain"
-                  placeholder="mystore"
-                  required
-                  value={subdomain}
-                  onChange={(event) => setSubdomain(event.target.value)}
-                />
-              </div>
-              <span className="text-text-muted font-bold pt-6">.Dokkan.com</span>
-            </div>
-            <p className="text-[10px] text-text-muted">3-30 حرف، حروف صغيرة وأرقام وشرطات فقط</p>
-          </div>
+
+          <Input
+            label="النطاق الفرعي *"
+            id="onboarding-subdomain"
+            placeholder="mystore"
+            required
+            value={subdomain}
+            onChange={(event) => setSubdomain(event.target.value)}
+            icon={
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted font-bold text-sm pointer-events-none" dir="ltr">
+                .Dokkan.com
+              </span>
+            }
+            className="relative! pr-28! "
+          />
         </div>
       </StepSection>
 
