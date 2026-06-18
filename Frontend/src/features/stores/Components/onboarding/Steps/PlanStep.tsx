@@ -82,7 +82,8 @@ export default function PlanStep({
     onNext({ 
       planId: selectedPlan.id, 
       name: selectedPlan.name, 
-      price: selectedPlan.price 
+      price: selectedPlan.price,
+      slug: selectedPlan.slug,
     });
   };
 

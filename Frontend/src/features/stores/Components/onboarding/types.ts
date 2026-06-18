@@ -12,6 +12,7 @@ export type StoreOnboardingDraft = {
     planId?: string;
     name?: string;
     price?: number;
+    slug?: string;
   };
   payment?: {
     cardholderName?: string;
