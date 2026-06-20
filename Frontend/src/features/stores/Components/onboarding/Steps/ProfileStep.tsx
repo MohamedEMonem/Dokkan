@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Input } from "@/components/ui/Input";
+import { useGetProfileQuery } from "@/api/user.api";
 import StepSection from "../StepSection";
 import StepActions from "../StepActions";
 import type { StoreOnboardingDraft } from "../types";
@@ -15,9 +16,20 @@ export default function ProfileStep({
   onNext,
   onBack,
 }: ProfileStepProps) {
+  const { data: profileData } = useGetProfileQuery();
+  const user = profileData?.data?.user;
+
   const [fullName, setFullName] = useState(initialData?.fullName ?? "");
   const [email, setEmail] = useState(initialData?.email ?? "");
   const [phone, setPhone] = useState(initialData?.phone ?? "");
+
+  useEffect(() => {
+    if (user) {
+      if (initialData?.fullName === undefined) setFullName(user.name);
+      if (initialData?.email === undefined) setEmail(user.email);
+      if (initialData?.phone === undefined) setPhone(user.contactNumber ?? "");
+    }
+  }, [user, initialData]);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -58,6 +70,7 @@ export default function ProfileStep({
             autoComplete="tel"
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
+            style={{ textAlign: "right" }}
           />
         </div>
       </StepSection>

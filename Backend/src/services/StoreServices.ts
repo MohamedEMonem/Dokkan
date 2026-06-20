@@ -100,6 +100,7 @@ export class StoreServices {
         coverBannerUrl: true,
         businessAddress: true,
         vatNumber: true,
+        phoneNumber: true,
         themeSettings: true,
         createdAt: true,
         deletedAt: true,

@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import { showNotification } from "@/utils/showNotification";
 import { useCreateStoreMutation } from "@/api/store.api";
+import { useUpdateProfileMutation } from "@/api/user.api";
 
 import ProfileStep from "./Components/onboarding/Steps/ProfileStep";
 import BusinessStep from "./Components/onboarding/Steps/BusinessStep";
@@ -65,6 +66,7 @@ export default function StoreOnboarding() {
 
   const [draft, setDraft] = useState<StoreOnboardingDraft>(() => loadDraft());
   const [createStore, { isLoading: isSubmitting }] = useCreateStoreMutation();
+  const [updateProfile] = useUpdateProfileMutation();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -96,19 +98,27 @@ export default function StoreOnboarding() {
     const finalDraft = { ...draft, ...patch };
     updateDraft(patch);
 
-    // Prepare CreateStoreDTO payload
-    const payload = {
-      name: finalDraft.store?.name || "",
-      subdomain: finalDraft.store?.subdomain || "",
-      logoUrl: "https://images.unsplash.com/photo-1572021335469-31706a17aaef", // Default placeholder logo
-      description: finalDraft.store?.description || "",
-      businessAddress: finalDraft.business?.address || "",
-      vatNumber: finalDraft.business?.taxId || "",
-      supportEmail: finalDraft.profile?.email || undefined,
-      phoneNumber: finalDraft.profile?.phone || undefined,
-    };
-
     try {
+      // 1. Update owner profile (name and personal phone number)
+      if (finalDraft.profile?.phone || finalDraft.profile?.fullName) {
+        await updateProfile({
+          name: finalDraft.profile.fullName || undefined,
+          contactNumber: finalDraft.profile.phone || undefined,
+        }).unwrap();
+      }
+
+      // 2. Create the store with business address, tax number, and business phone
+      const payload = {
+        name: finalDraft.store?.name || "",
+        subdomain: finalDraft.store?.subdomain || "",
+        logoUrl: "https://images.unsplash.com/photo-1572021335469-31706a17aaef", // Default placeholder logo
+        description: finalDraft.store?.description || "",
+        businessAddress: finalDraft.business?.address || "",
+        vatNumber: finalDraft.business?.taxId || "",
+        supportEmail: finalDraft.profile?.email || undefined,
+        phoneNumber: finalDraft.business?.phone || undefined,
+      };
+
       await createStore({ data: payload }).unwrap();
       // On success, clear the draft from session storage
       if (typeof window !== "undefined") {
@@ -149,7 +159,14 @@ export default function StoreOnboarding() {
             </div>
 
             {step === 1 && <ProfileStep initialData={draft.profile} onNext={(profile) => handleNext({ profile })} onBack={handleBack} />}
-            {step === 2 && <BusinessStep initialData={draft.business} onNext={(business) => handleNext({ business })} onBack={handleBack} />}
+            {step === 2 && (
+              <BusinessStep
+                initialData={draft.business}
+                personalPhone={draft.profile?.phone}
+                onNext={(business) => handleNext({ business })}
+                onBack={handleBack}
+              />
+            )}
             {step === 3 && <PlanStep initialData={draft.plan} onNext={(plan) => handleNext({ plan })} onBack={handleBack} />}
             {step === 4 && <PaymentStep draft={draft} onNext={(payment) => handleNext({ payment })} onBack={handleBack} />}
             {step === 5 && <StoreStep initialData={draft.store} onFinish={(store) => handleFinish({ store })} onBack={handleBack} isLoading={isSubmitting} />}

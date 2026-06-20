@@ -7,6 +7,7 @@ export type StoreOnboardingDraft = {
   business?: {
     address?: string;
     taxId?: string;
+    phone?: string;
   };
   plan?: {
     planId?: string;
