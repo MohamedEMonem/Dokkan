@@ -13,14 +13,37 @@ const updateCategorySchema = z.object({
   parentCategoryId: z.string().uuid().nullable().optional(),
 });
 
+const listCategoriesQuerySchema = z.object({
+  parentCategoryId: z.string().uuid().optional(),
+});
+
 const normalizeCategory = (category: { [key: string]: unknown }) => ({
   ...category,
   name: typeof category.name === "string" ? category.name.trimEnd() : category.name,
 });
 
-export const listCategories = async (_req: Request, res: Response, next: NextFunction) => {
+export const listCategories = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const validation = listCategoriesQuerySchema.safeParse(req.query);
+    if (!validation.success) {
+      return sendValidationError(res, validation.error.format());
+    }
+
+    const storeId = req.store?.id;
+    const { parentCategoryId } = validation.data;
+
+    const where: { storeId?: string; parentCategoryId?: string } = {};
+
+    if (storeId) {
+      where.storeId = storeId;
+    }
+
+    if (parentCategoryId) {
+      where.parentCategoryId = parentCategoryId;
+    }
+
     const categories = await prisma.category.findMany({
+      where,
       orderBy: [{ parentCategoryId: "asc" }, { name: "asc" }],
     });
 
@@ -33,13 +56,17 @@ export const listCategories = async (_req: Request, res: Response, next: NextFun
 export const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
+    const storeId = req.store?.id;
 
     if (!id) {
       return sendError(res, "Category id is required", 400);
     }
 
-    const category = await prisma.category.findUnique({
-      where: { id },
+    const category = await prisma.category.findFirst({
+      where: {
+        id,
+        ...(storeId ? { storeId } : {}),
+      },
     });
 
     if (!category) {
@@ -67,7 +94,12 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
     }
 
     if (parentCategoryId) {
-      const parent = await prisma.category.findUnique({ where: { id: parentCategoryId } });
+      const parent = await prisma.category.findFirst({
+        where: {
+          id: parentCategoryId,
+          storeId,
+        },
+      });
       if (!parent) {
         return sendNotFound(res, "Parent category not found");
       }
@@ -90,11 +122,17 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
 export const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
+    const storeId = req.store?.id;
     if (!id) {
       return sendError(res, "Category id is required", 400);
     }
 
-    const existing = await prisma.category.findUnique({ where: { id } });
+    const existing = await prisma.category.findFirst({
+      where: {
+        id,
+        ...(storeId ? { storeId } : {}),
+      },
+    });
     if (!existing) {
       return sendNotFound(res, "Category not found");
     }
@@ -118,7 +156,12 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
       }
 
       if (parentCategoryId !== null) {
-        const parent = await prisma.category.findUnique({ where: { id: parentCategoryId } });
+        const parent = await prisma.category.findFirst({
+          where: {
+            id: parentCategoryId,
+            ...(storeId ? { storeId } : {}),
+          },
+        });
         if (!parent) {
           return sendNotFound(res, "Parent category not found");
         }
@@ -159,11 +202,17 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
 export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
+    const storeId = req.store?.id;
     if (!id) {
       return sendError(res, "Category id is required", 400);
     }
 
-    const existing = await prisma.category.findUnique({ where: { id } });
+    const existing = await prisma.category.findFirst({
+      where: {
+        id,
+        ...(storeId ? { storeId } : {}),
+      },
+    });
     if (!existing) {
       return sendNotFound(res, "Category not found");
     }
