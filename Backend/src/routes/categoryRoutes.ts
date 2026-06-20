@@ -7,7 +7,7 @@ const router = express.Router({ mergeParams: true });
 router.get("/", 
   /* #swagger.tags = ['Categories']
     #swagger.summary = 'List all categories'
-    #swagger.description = 'Returns a paginated list of product categories. Supports query params for pagination and filtering.'
+    #swagger.description = 'Returns the categories available in the current store. Supports filtering by parent category to list subcategories.'
     #swagger.parameters['page'] = { in: 'query', type: 'integer', required: false, example: 1 }
     #swagger.parameters['limit'] = { in: 'query', type: 'integer', required: false, example: 20 }
     #swagger.parameters['parentCategoryId'] = { in: 'query', type: 'string', required: false, example: 'b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11' }
@@ -34,7 +34,7 @@ router.use(authAdmin);
 router.post("/", 
   /* #swagger.tags = ['Categories']
      #swagger.summary = 'Create a category (Admin only)'
-     #swagger.description = 'Creates a new product category. Admin access required.'
+     #swagger.description = 'Creates a new product category or subcategory. Admin access required.'
      #swagger.security = [{ "bearerAuth": [] }]
      #swagger.requestBody = {
        required: true,
@@ -45,7 +45,7 @@ router.post("/",
              required: ["name"],
              properties: {
                name: { type: "string", example: "Electronics" },
-               description: { type: "string", example: "Gadgets and devices" }
+               parentCategoryId: { type: "string", format: "uuid", example: "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11", nullable: true }
              }
            }
          }
@@ -71,7 +71,7 @@ router.patch("/:id",
              type: "object",
              properties: {
                name: { type: "string", example: "Updated Name" },
-               description: { type: "string", example: "Updated description" }
+               parentCategoryId: { type: "string", format: "uuid", example: "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11", nullable: true }
              }
            }
          }
