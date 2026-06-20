@@ -23,9 +23,15 @@ export const listProducts = async (req: Request, res: Response, next: NextFuncti
     const where: Prisma.ProductWhereInput = {
       deletedAt: null,
       ...(status ? { status } : {}),
+      store: {
+        is: {
+          status: "Active",
+          deletedAt: null,
+        },
+      },
     };
 
-    const orderBy = {
+    const orderBy = { 
       [sortBy]: sortDir,
     } as Prisma.ProductOrderByWithRelationInput;
 
