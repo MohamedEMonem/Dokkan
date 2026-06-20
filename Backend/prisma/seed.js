@@ -172,15 +172,110 @@ const PLAN_DEFINITIONS = [
 ];
 
 const CATEGORY_TREE = [
-  { name: "Electronics",    children: ["Mobile Phones","Laptops","Audio","Cameras"] },
-  { name: "Fashion",        children: ["Men's Clothing","Women's Clothing","Shoes","Accessories"] },
-  { name: "Home & Kitchen", children: ["Cookware","Furniture","Bedding","Decor"] },
-  { name: "Sports",         children: ["Gym Equipment","Outdoor","Team Sports","Cycling"] },
-  { name: "Beauty",         children: ["Skincare","Haircare","Makeup","Fragrances"] },
-  { name: "Health",         children: ["Vitamins","Supplements","Medical Devices"] },
-  { name: "Books",          children: ["Fiction","Non-Fiction","Children's Books","Textbooks"] },
-  { name: "Kids",           children: ["Toys","Baby Gear","Educational"] },
+  {
+    name: "Electronics",
+    children: [
+      { name: "Mobile Phones" },
+      { name: "Laptops" },
+      { name: "Audio" },
+      { name: "Cameras" },
+    ],
+  },
+  {
+    name: "Fashion",
+    children: [
+      { name: "Men's Clothing" },
+      { name: "Women's Clothing" },
+      { name: "Shoes" },
+      { name: "Accessories" },
+    ],
+  },
+  {
+    name: "Home & Kitchen",
+    children: [
+      { name: "Cookware" },
+      { name: "Furniture" },
+      { name: "Bedding" },
+      { name: "Decor" },
+    ],
+  },
+  {
+    name: "Sports",
+    children: [
+      { name: "Gym Equipment" },
+      { name: "Outdoor" },
+      { name: "Team Sports" },
+      { name: "Cycling" },
+    ],
+  },
+  {
+    name: "Beauty",
+    children: [
+      { name: "Skincare" },
+      { name: "Haircare" },
+      { name: "Makeup" },
+      { name: "Fragrances" },
+    ],
+  },
+  {
+    name: "Health",
+    children: [
+      { name: "Vitamins" },
+      { name: "Supplements" },
+      { name: "Medical Devices" },
+    ],
+  },
+  {
+    name: "Books",
+    children: [
+      { name: "Fiction" },
+      { name: "Non-Fiction" },
+      { name: "Children's Books" },
+      { name: "Textbooks" },
+    ],
+  },
+  {
+    name: "Kids",
+    children: [
+      { name: "Toys" },
+      { name: "Baby Gear" },
+      { name: "Educational" },
+    ],
+  },
 ];
+
+async function seedCategoryBranch(storeId, node, categoryMap, parentCategoryId = null) {
+  const existing = await prisma.category.findFirst({
+    where: { name: node.name, storeId },
+  });
+
+  let category = existing;
+
+  if (!category) {
+    category = await prisma.category.create({
+      data: {
+        id: randomUUID(),
+        name: node.name,
+        storeId,
+        parentCategoryId,
+      },
+    });
+  } else if (category.parentCategoryId !== parentCategoryId) {
+    // Keep the seeded hierarchy stable across reruns.
+    category = await prisma.category.update({
+      where: { id: category.id },
+      data: { parentCategoryId },
+    });
+  }
+
+  categoryMap.set(node.name, category);
+
+  for (const child of node.children ?? []) {
+    await seedCategoryBranch(storeId, child, categoryMap, category.id);
+  }
+
+  return category;
+}
 
 // ─── Main seed ───────────────────────────────────────────────────────────────
 async function main() {
@@ -282,23 +377,7 @@ async function main() {
     const storeCategoryMap = new Map();
 
     for (const node of CATEGORY_TREE) {
-      let parent = await prisma.category.findFirst({ where: { name: node.name, storeId: store.id } });
-      if (!parent) {
-        parent = await prisma.category.create({
-          data: { id: randomUUID(), name: node.name, storeId: store.id },
-        });
-      }
-      storeCategoryMap.set(node.name, parent);
-
-      for (const childName of node.children) {
-        let child = await prisma.category.findFirst({ where: { name: childName, storeId: store.id } });
-        if (!child) {
-          child = await prisma.category.create({
-            data: { id: randomUUID(), name: childName, parentCategoryId: parent.id, storeId: store.id },
-          });
-        }
-        storeCategoryMap.set(childName, child);
-      }
+      await seedCategoryBranch(store.id, node, storeCategoryMap);
     }
 
     categoryMap.set(store.id, storeCategoryMap);
