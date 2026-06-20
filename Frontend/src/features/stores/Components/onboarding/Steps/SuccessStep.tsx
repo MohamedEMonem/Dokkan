@@ -18,7 +18,7 @@ export default function SuccessStep() {
   const email = profileLoading ? "جاري التحميل..." : (user?.email || "---");
   const storeName = storeLoading ? "جاري التحميل..." : (store?.name || "---");
   const storeSubdomain = storeLoading ? "" : (store?.subdomain || "");
-  const storeLink = storeSubdomain ? `https://${storeSubdomain}.Dokkan.com` : "---";
+  const storeLink = storeSubdomain ? `https://dokkan.com/@${storeSubdomain}` : "---";
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50" dir="rtl">
@@ -72,7 +72,7 @@ export default function SuccessStep() {
                   className="w-full h-10! rounded-md! border! border-gray-200! bg-white! text-gray-700! hover:bg-gray-50! transition-colors! flex items-center justify-center gap-2 font-semibold!"
                   onClick={() => {
                     if (storeSubdomain) {
-                      window.open(`https://${storeSubdomain}.Dokkan.com`, "_blank");
+                      window.open(`https://dokkan.com/@${storeSubdomain}`, "_blank");
                     }
                   }}
                   disabled={!storeSubdomain || storeLoading}

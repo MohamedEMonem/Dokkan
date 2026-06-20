@@ -56,12 +56,13 @@ export default function StoreStep({
             required
             value={subdomain}
             onChange={(event) => setSubdomain(event.target.value)}
+            dir="ltr"
             icon={
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted font-bold text-sm pointer-events-none" dir="ltr">
-                .Dokkan.com
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-bold text-sm pointer-events-none" dir="ltr">
+                dokkan.com/@
               </span>
             }
-            className="relative! pr-28! "
+            className="relative! pl-28! "
           />
         </div>
       </StepSection>
