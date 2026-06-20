@@ -150,8 +150,11 @@ export default function CartPage() {
   );
 
   const guestGrandTotal = useMemo(
-    () => Number((guestItemsTotal + guestTaxEstimate).toFixed(2)),
-    [guestItemsTotal, guestTaxEstimate],
+    () =>
+      Number(
+        (guestItemsTotal + guestTaxEstimate + guestShippingEstimate).toFixed(2),
+      ),
+    [guestItemsTotal, guestTaxEstimate, guestShippingEstimate],
   );
 
   const effectiveCart: ICartResponse = useMemo(
