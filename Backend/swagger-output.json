@@ -429,7 +429,7 @@
           "Categories"
         ],
         "summary": "List all categories",
-        "description": "Returns a paginated list of product categories. Supports query params for pagination and filtering.",
+        "description": "Returns the categories available in the current store. Supports filtering by parent category to list subcategories.",
         "parameters": [
           {
             "name": "storeSlug",
@@ -481,7 +481,7 @@
           "Categories"
         ],
         "summary": "Create a category (Admin only)",
-        "description": "Creates a new product category. Admin access required.",
+        "description": "Creates a new product category or subcategory. Admin access required.",
         "parameters": [
           {
             "name": "storeSlug",
@@ -522,9 +522,11 @@
                     "type": "string",
                     "example": "Electronics"
                   },
-                  "description": {
+                  "parentCategoryId": {
                     "type": "string",
-                    "example": "Gadgets and devices"
+                    "format": "uuid",
+                    "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+                    "nullable": true
                   }
                 }
               }
@@ -622,9 +624,11 @@
                     "type": "string",
                     "example": "Updated Name"
                   },
-                  "description": {
+                  "parentCategoryId": {
                     "type": "string",
-                    "example": "Updated description"
+                    "format": "uuid",
+                    "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+                    "nullable": true
                   }
                 }
               }
@@ -1221,7 +1225,7 @@
           "Categories"
         ],
         "summary": "List all categories",
-        "description": "Returns a paginated list of product categories. Supports query params for pagination and filtering.",
+        "description": "Returns the categories available in the current store. Supports filtering by parent category to list subcategories.",
         "parameters": [
           {
             "name": "page",
@@ -1265,7 +1269,7 @@
           "Categories"
         ],
         "summary": "Create a category (Admin only)",
-        "description": "Creates a new product category. Admin access required.",
+        "description": "Creates a new product category or subcategory. Admin access required.",
         "responses": {
           "201": {
             "description": "Category created successfully"
@@ -1296,9 +1300,11 @@
                     "type": "string",
                     "example": "Electronics"
                   },
-                  "description": {
+                  "parentCategoryId": {
                     "type": "string",
-                    "example": "Gadgets and devices"
+                    "format": "uuid",
+                    "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+                    "nullable": true
                   }
                 }
               }
@@ -1380,9 +1386,11 @@
                     "type": "string",
                     "example": "Updated Name"
                   },
-                  "description": {
+                  "parentCategoryId": {
                     "type": "string",
-                    "example": "Updated description"
+                    "format": "uuid",
+                    "example": "b7f4e7d5-0d4d-4e5d-9c9c-0f4b8d7c4d11",
+                    "nullable": true
                   }
                 }
               }
@@ -1765,6 +1773,28 @@
         }
       }
     },
+    "/api/stores/search": {
+      "get": {
+        "tags": [
+          "Stores"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/stores/me": {
       "get": {
         "tags": [
@@ -1909,6 +1939,119 @@
             "bearerAuth": []
           }
         ]
+      }
+    },
+    "/api/stores/analytics": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "where",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/stores/stores": {
+      "delete": {
+        "tags": [
+          "Stores"
+        ],
+        "summary": "Create a new store",
+        "description": "Creates a new store for the authenticated user. Store owner role will be applied.",
+        "responses": {
+          "201": {
+            "description": "Store created successfully"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "subdomain",
+                      "logoUrl"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "My Store"
+                      },
+                      "subdomain": {
+                        "type": "string",
+                        "example": "my-store"
+                      },
+                      "logoUrl": {
+                        "type": "string",
+                        "example": "https://cdn.example.com/logo.png"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "A store selling gadgets"
+                      },
+                      "coverBannerUrl": {
+                        "type": "string",
+                        "example": "https://cdn.example.com/banner.png"
+                      },
+                      "businessAddress": {
+                        "type": "string",
+                        "example": "123 Main St, Cairo"
+                      },
+                      "vatNumber": {
+                        "type": "string",
+                        "example": "VAT-123456"
+                      },
+                      "supportEmail": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "support@example.com"
+                      },
+                      "phoneNumber": {
+                        "type": "string",
+                        "example": "+201234567890"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/plans/": {
