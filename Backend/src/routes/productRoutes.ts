@@ -45,10 +45,10 @@ router.post("/", auth, authStoreOwner, upload.single("image"), validateBody(prod
          "multipart/form-data": {
            schema: {
              type: "object",
-             required: ["storeId", "categoryId", "title", "price"],
+             required: ["storeId", "subCategoryId", "title", "price"],
              properties: {
                storeId: { type: "string", format: "uuid", example: "1b3b0de0-b3f7-4d17-9df1-c1b3d31a3fd0" },
-               categoryId: { type: "string", format: "uuid", example: "2c4a1e18-38f5-4d17-b8a0-0a3d4c15cf66" },
+               subCategoryId: { type: "string", format: "uuid", example: "2c4a1e18-38f5-4d17-b8a0-0a3d4c15cf66" },
                title: { type: "string", example: "Summer Tee" },
                description: { type: "string", example: "Comfortable cotton t-shirt" },
                price: { type: "number", example: 29.99 },
@@ -82,7 +82,7 @@ router.patch("/:id", auth, authStoreOwner, validateBody(updateProductSchema),
              properties: {
                title: { type: "string" },
                description: { type: "string" },
-               categoryId: { type: "string", format: "uuid" },
+               subCategoryId: { type: "string", format: "uuid" },
                price: { type: "number" },
                stockQuantity: { type: "integer" },
                status: { type: "string", enum: ["Active", "Inactive"] }
