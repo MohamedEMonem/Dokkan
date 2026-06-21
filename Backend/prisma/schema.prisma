@@ -103,6 +103,7 @@ model Store {
   // Relations
   owner         User            @relation("StoreOwner", fields: [ownerId], references: [id])
   categories    Category[] // New relation for isolation
+  subCategories SubCategory[]
   products      Product[]
   orders        Order[]
   subscriptions Subscription[]
@@ -141,28 +142,40 @@ model Subscription {
 }
 
 model Category {
-  id               String  @id @default(uuid()) @map("category_id") @db.Uuid
-  name             String  @db.VarChar(100)
-  parentCategoryId String? @map("parent_category_id") @db.Uuid
+  id            String         @id @default(uuid()) @map("category_id") @db.Uuid
+  name          String         @db.VarChar(100)
 
   // Foreign key and relation to Store for tenant isolation
-  storeId String @map("store_id") @db.Uuid
-  store   Store  @relation(fields: [storeId], references: [id])
+  storeId       String         @map("store_id") @db.Uuid
+  store         Store          @relation(fields: [storeId], references: [id])
 
   // Relations
-  parent   Category?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
-  children Category[] @relation("CategoryHierarchy")
-  products Product[]
+  subCategories  SubCategory[]
 
   // Ensures category names are unique only within the same store
   @@unique([name, storeId])
   @@map("Category")
 }
 
+model SubCategory {
+  id         String   @id @default(uuid()) @map("sub_category_id") @db.Uuid
+  name       String   @db.VarChar(100)
+  categoryId String   @map("category_id") @db.Uuid
+  storeId    String   @map("store_id") @db.Uuid
+
+  // Relations
+  category Category @relation(fields: [categoryId], references: [id])
+  store    Store    @relation(fields: [storeId], references: [id])
+  products Product[]
+
+  @@unique([name, categoryId, storeId])
+  @@map("SubCategory")
+}
+
 model Product {
   id            String        @id @default(uuid()) @map("product_id") @db.Uuid
   storeId       String        @map("store_id") @db.Uuid
-  categoryId    String        @map("category_id") @db.Uuid
+  subCategoryId String        @map("sub_category_id") @db.Uuid
   title         String        @db.VarChar(150)
   description   String?       @db.Text
   price         Decimal       @db.Decimal(10, 2)
@@ -176,7 +189,7 @@ model Product {
 
   // Relations
   store          Store          @relation(fields: [storeId], references: [id])
-  category       Category       @relation(fields: [categoryId], references: [id])
+  subCategory    SubCategory    @relation(fields: [subCategoryId], references: [id])
   images         ProductImage[]
   orderItems     OrderItem[]
   productReviews ProductReview[]
