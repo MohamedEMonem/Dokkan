@@ -11,7 +11,8 @@ Category routes are registered under `/api/stores/:storeSlug/categories` and are
 
 ### Endpoints
 - `GET /api/stores/:storeSlug/categories` — List categories
-- `GET /api/stores/:storeSlug/categories?parentCategoryId=<uuid>` — List subcategories for one parent category
+ - `GET /api/stores/:storeSlug/categories` — List top-level categories. Returns nested structure: each category includes `subCategories` array.
+ - `GET /api/stores/:storeSlug/categories?parentCategoryId=<uuid>` — List subcategories for one parent category (alternative flat view)
 - `GET /api/stores/:storeSlug/categories/:id` — Get category by id
 - `POST /api/stores/:storeSlug/categories` — Create category or subcategory
 - `PUT /api/stores/:storeSlug/categories/:id` — Update category or move it under another parent
@@ -20,12 +21,14 @@ Category routes are registered under `/api/stores/:storeSlug/categories` and are
 ## Controller notes
 - Implementation is in `src/controllers/CategoryController.ts`.
 - Validation uses `zod` schemas defined at the top of the controller.
-- Parent category relations are validated to prevent cycles and moving a category under its descendant.
+- Categories and subcategories are stored in separate tables now: `Category` for top-level categories and `SubCategory` for children.
+- Top-level categories cannot be re-parented; subcategories can move between parent categories.
 - Category reads and writes are store-scoped when tenant context is available.
 
 ## Payload examples
+- Create top-level category: `{"name":"Electronics"}`
 - Create subcategory: `{"name":"Mobile Phones","parentCategoryId":"<parent-category-id>"}`
-- Move a category: `{"parentCategoryId":"<new-parent-category-id>"}`
+- Move a subcategory: `{"parentCategoryId":"<new-parent-category-id>"}`
 
 ## Error handling
 - Expected client errors (validation, missing parent, conflict when children/products exist) return 4xx responses using the shared response helpers.
