@@ -13,6 +13,7 @@ import emailTestRoutes from "./routes/emailTestRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import planRoutes from "./routes/planRoutes.js";
+import { moderationRoutes, adminRoutes } from "./routes/moderationRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" with { type: "json" };
 
@@ -91,6 +92,8 @@ app.get("/api/openapi.json", (_req, res) => {
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/moderation", moderationRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 const PORT = process.env.PORT || 3000;

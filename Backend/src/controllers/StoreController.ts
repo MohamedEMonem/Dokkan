@@ -81,7 +81,7 @@ export const listStores = async (
     if (!parsedQuery.success) {
       return sendError(res, "Invalid query parameters", 400);
     }
-    const result = await storeService.listStores(parsedQuery.data);
+    const result = await storeService.listStores(parsedQuery.data, req.user);
 
     return sendSuccess(
       res,

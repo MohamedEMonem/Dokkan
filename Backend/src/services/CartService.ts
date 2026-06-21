@@ -11,10 +11,19 @@ const addToCart = async (userId: string, productId: string, quantity = 1) => {
 
   const product = await prisma.product.findUnique({
     where: { id: productId },
-    select: { id: true, title: true, stockQuantity: true, deletedAt: true },
+    select: { 
+      id: true, 
+      title: true, 
+      stockQuantity: true, 
+      deletedAt: true,
+      status: true,
+      store: {
+        select: { status: true, deletedAt: true }
+      }
+    },
   });
 
-  if (!product || product.deletedAt) {
+  if (!product || product.deletedAt || product.status !== "Active" || product.store.status !== "Active" || product.store.deletedAt) {
     throw new Error("PRODUCT_NOT_FOUND");
   }
 
@@ -23,6 +32,10 @@ const addToCart = async (userId: string, productId: string, quantity = 1) => {
   }
 
   const newQty = await redisClient.hIncrBy(cartKey(userId), productId, quantity);
+  if (newQty > product.stockQuantity) {
+    await redisClient.hIncrBy(cartKey(userId), productId, -quantity);
+    throw new Error("OUT_OF_STOCK");
+  }
   return newQty;
 };
 
@@ -38,6 +51,24 @@ const updateCartItem = async (userId: string, productId: string, quantity: numbe
 
   if (quantity <= 0) {
     return removeFromCart(userId, productId);
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { 
+      stockQuantity: true, 
+      deletedAt: true,
+      status: true,
+      store: { select: { status: true, deletedAt: true } }
+    },
+  });
+
+  if (!product || product.deletedAt || product.status !== "Active" || product.store.status !== "Active" || product.store.deletedAt) {
+    throw new Error("PRODUCT_NOT_FOUND");
+  }
+
+  if (quantity > product.stockQuantity) {
+    throw new Error("OUT_OF_STOCK");
   }
 
   await redisClient.hSet(cartKey(userId), productId, String(quantity));
@@ -63,7 +94,14 @@ const getCart = async (userId: string) => {
   const products = await prisma.product.findMany({
     where: {
       id: { in: productIds },
+      status: "Active",
       deletedAt: null,
+      store: {
+        is: {
+          status: "Active",
+          deletedAt: null,
+        },
+      },
     },
     select: {
       id: true,

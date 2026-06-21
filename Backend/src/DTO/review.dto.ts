@@ -26,7 +26,7 @@ export const createProductReviewSchema = z.object({
 export const updateProductReviewSchema = z.object({
   rating: ratingSchema.optional(),
   reviewText: z.string().trim().max(2000).optional(),
-});
+}).refine(data => data.rating !== undefined || data.reviewText !== undefined, "At least one field must be updated");
 
 //  Store Review 
 
@@ -40,7 +40,7 @@ export const createStoreReviewSchema = z.object({
 export const updateStoreReviewSchema = z.object({
   rating: ratingSchema.optional(),
   reviewText: z.string().trim().max(2000).optional(),
-});
+}).refine(data => data.rating !== undefined || data.reviewText !== undefined, "At least one field must be updated");
 
 //  Store Owner Reply 
 
