@@ -244,34 +244,40 @@ const CATEGORY_TREE = [
   },
 ];
 
-async function seedCategoryBranch(storeId, node, categoryMap, parentCategoryId = null) {
-  const existing = await prisma.category.findFirst({
+async function seedCategoryBranch(storeId, node, categoryMap) {
+  const existingCategory = await prisma.category.findFirst({
     where: { name: node.name, storeId },
   });
 
-  let category = existing;
-
-  if (!category) {
-    category = await prisma.category.create({
-      data: {
-        id: randomUUID(),
-        name: node.name,
-        storeId,
-        parentCategoryId,
-      },
-    });
-  } else if (category.parentCategoryId !== parentCategoryId) {
-    // Keep the seeded hierarchy stable across reruns.
-    category = await prisma.category.update({
-      where: { id: category.id },
-      data: { parentCategoryId },
-    });
-  }
+  const category = existingCategory ?? await prisma.category.create({
+    data: {
+      id: randomUUID(),
+      name: node.name,
+      storeId,
+    },
+  });
 
   categoryMap.set(node.name, category);
 
   for (const child of node.children ?? []) {
-    await seedCategoryBranch(storeId, child, categoryMap, category.id);
+    const existingSubCategory = await prisma.subCategory.findFirst({
+      where: {
+        name: child.name,
+        storeId,
+        categoryId: category.id,
+      },
+    });
+
+    const subCategory = existingSubCategory ?? await prisma.subCategory.create({
+      data: {
+        id: randomUUID(),
+        name: child.name,
+        storeId,
+        categoryId: category.id,
+      },
+    });
+
+    categoryMap.set(child.name, subCategory);
   }
 
   return category;
@@ -436,7 +442,20 @@ async function main() {
     for (let i = 0; i < productCount; i++) {
       const template   = PRODUCT_TEMPLATES[i % PRODUCT_TEMPLATES.length];
       const catName    = template.category;
-      const category   = storeCategories.get(catName) ?? storeCategories.get(pick(allCategoryNames));
+      // Ensure we pick a leaf SubCategory for the product
+      let category = storeCategories.get(catName) ?? storeCategories.get(pick(allCategoryNames));
+      if (category) {
+        // If this is a top-level Category (it won't have `categoryId`), find or create a SubCategory
+        if (!category.categoryId) {
+          const subs = await prisma.subCategory.findMany({ where: { categoryId: category.id, storeId: store.id } });
+          if (subs.length > 0) {
+            category = pick(subs);
+          } else {
+            const newSub = await prisma.subCategory.create({ data: { id: randomUUID(), name: `${category.name} - General`, storeId: store.id, categoryId: category.id } });
+            category = newSub;
+          }
+        }
+      }
       const titleSuffix = i >= PRODUCT_TEMPLATES.length ? ` v${Math.ceil(i / PRODUCT_TEMPLATES.length)}` : "";
 
       // Avoid duplicate title+store combos
@@ -445,7 +464,7 @@ async function main() {
 
       const product = await prisma.product.create({
         data: {
-          id: randomUUID(), storeId: store.id, categoryId: category.id,
+          id: randomUUID(), storeId: store.id, subCategoryId: category.id,
           title: (template.title + titleSuffix).slice(0, 150),
           description: `High-quality ${template.title}. Perfect for everyday use. Available in multiple variants.`,
           price: randDecimal(...template.price),
@@ -587,14 +606,14 @@ async function main() {
   console.log("Seeding Meilisearch for products...");
   try {
     const meiliprod = await prisma.product.findMany({
-      include: { category: true, store: true },
+      include: { subCategory: true, store: true },
     });
     const productDocs = meiliprod.map(product => ({
       id: product.id,
       title: product.title,
       description: product.description,
       price: Number(product.price),
-      categoryName: product.category.name,
+      categoryName: product.subCategory?.name ?? null,
       storeName: product.store.name,
     }));
     await meilisearchService.seedMeilisearch("products", productDocs);
