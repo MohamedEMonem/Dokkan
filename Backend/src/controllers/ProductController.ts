@@ -92,10 +92,10 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 
 export const createProduct = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const { storeId, categoryId, title, description, price, stockQuantity, status } = req.body;
+    const { storeId, subCategoryId, title, description, price, stockQuantity, status } = req.body;
 
-    if (!storeId || !categoryId || !title || price === undefined) {
-      return sendError(res, "storeId, categoryId, title and price are required", 400);
+    if (!storeId || !subCategoryId || !title || price === undefined) {
+      return sendError(res, "storeId, subCategoryId, title and price are required", 400);
     }
 
     const numericPrice = Number(price);
@@ -109,11 +109,15 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
       return sendError(res, "stockQuantity must be a non-negative integer", 400);
     }
 
+    // validate subcategory exists and belongs to store
+    const subCat = await prisma.subCategory.findFirst({ where: { id: subCategoryId, storeId } });
+    if (!subCat) return sendError(res, "Invalid subCategoryId for this store", 400);
+
     let imgUrl: string | null = null;
     if (req.file) {
       const clientEmail = req.user?.email ?? "unknown";
       const clientRole = req.user?.role ?? "user";
-      const subFolder = String(categoryId);
+      const subFolder = String(subCategoryId);
       const file = req.file;
       imgUrl = await uploadPublicImg(file, clientEmail, clientRole, subFolder);
     }
@@ -122,7 +126,7 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
       const product = await prisma.product.create({
         data: {
           storeId,
-          categoryId,
+          subCategoryId,
           title,
           description: description ?? null,
           price: numericPrice,
@@ -168,7 +172,12 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
     const data: Record<string, unknown> = {};
     if (req.body.title !== undefined) data.title = req.body.title;
     if (req.body.description !== undefined) data.description = req.body.description;
-    if (req.body.categoryId !== undefined) data.categoryId = req.body.categoryId;
+    if (req.body.subCategoryId !== undefined) {
+      // validate subcategory before updating
+      const sc = await prisma.subCategory.findFirst({ where: { id: req.body.subCategoryId as string, storeId: existing.storeId } });
+      if (!sc) return sendError(res, "Invalid subCategoryId for this store", 400);
+      data.subCategoryId = req.body.subCategoryId;
+    }
     if (req.body.status !== undefined) data.status = req.body.status;
     if (req.body.price !== undefined) {
       const numericPrice = Number(req.body.price);
