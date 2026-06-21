@@ -20,7 +20,7 @@ interface PlanConfig {
 const PLAN_CONFIGS: Record<PlanType, PlanConfig> = {
   basic: {
     type: "basic",
-    icon: <Package className="w-14 h-14 rounded-xl p-4 text-white shadow-lg bg-gradient-to-br from-[#6B7280] to-[#4B5563]" />,
+    icon: <Package className="w-14 h-14 rounded-xl p-4 text-white shadow-lg bg-linear-to-br from-[#6B7280] to-[#4B5563]" />,
     bulletClass: "bg-gradient-to-br from-[#6B7280] to-[#4B5563]",
     features: [
       "منتجات غير محدودة",
@@ -31,8 +31,8 @@ const PLAN_CONFIGS: Record<PlanType, PlanConfig> = {
   },
   plus: {
     type: "plus",
-    icon: <Crown className="w-14 h-14 rounded-xl p-4 text-white shadow-lg bg-gradient-to-br from-[#005B7F] to-[#007AA3]" />,
-    bulletClass: "bg-gradient-to-br from-[#005B7F] to-[#007AA3]",
+    icon: <Crown className="w-14 h-14 rounded-xl p-4 text-white shadow-lg bg-linear-to-br from-primary to-primary-light" />,
+    bulletClass: "bg-linear-to-br from-[#005B7F] to-[#007AA3]",
     features: [
       "كل مميزات الباقة الأساسية",
       "الدفع الإلكتروني مفعل",
@@ -43,8 +43,8 @@ const PLAN_CONFIGS: Record<PlanType, PlanConfig> = {
   },
   pro: {
     type: "pro",
-    icon: <Sparkles className="w-14 h-14 rounded-xl p-4 text-white shadow-lg bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED]" />,
-    bulletClass: "bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED]",
+    icon: <Sparkles className="w-14 h-14 rounded-xl p-4 text-white shadow-lg bg-linear-to-br from-[#8B5CF6] to-[#7C3AED]" />,
+    bulletClass: "bg-linear-to-br from-[#8B5CF6] to-[#7C3AED]",
     features: [
       "كل مميزات باقة بلس",
       "5 موظفين",
@@ -145,7 +145,7 @@ function PlanCard({
     <div className={cardClasses} onClick={onSelect}>
       {isPopular && (
         <div className="absolute top-0 left-0 right-0">
-          <div className="bg-gradient-to-l from-[#F59E0B] to-[#D97706] text-white text-center py-2 text-xs shadow-lg">
+          <div className="bg-linear-to-l from-[#F59E0B] to-[#D97706] text-white text-center py-2 text-xs shadow-lg">
             <div className="flex items-center justify-center gap-2">
               <Crown className="w-3 h-3" />
               <span>الأكثر شعبية</span>
@@ -154,39 +154,39 @@ function PlanCard({
         </div>
       )}
 
-      <div className={clsx("p-6 flex flex-col flex-grow", isPopular ? "pt-12" : "pt-6")}>
+      <div className={clsx("p-6 flex flex-col grow", isPopular ? "pt-12" : "pt-6")}>
         <div className="flex justify-center mb-4">
           {icon}
         </div>
 
-        <h3 className="text-2xl text-center text-[#2B2B2B] mb-2">{plan.name}</h3>
+        <h3 className="text-2xl text-center text-text-dark mb-2">{plan.name}</h3>
 
         <div className="text-center mb-6">
           <div className="flex items-baseline justify-center gap-2">
-            <span className="text-4xl font-black text-[#005B7F]">{plan.price}</span>
-            <span className="text-lg text-[#6B6B6B]">ج.م</span>
+            <span className="text-4xl font-black text-text-primary">{plan.price}</span>
+            <span className="text-lg text-text-muted">ج.م</span>
           </div>
-          <p className="text-xs text-[#6B6B6B] mt-1">شهرياً</p>
+          <p className="text-xs text-text-muted mt-1">شهرياً</p>
         </div>
 
-        <ul className="space-y-3 mb-6 flex-grow">
+        <ul className="space-y-3 mb-6 grow">
           {features.map((feature, idx) => (
             <li key={idx} className="flex items-start gap-2">
               <div className="mt-0.5">
                 <div className={clsx(
-                  "w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br",
+                  "w-4 h-4 rounded-full flex items-center justify-center shrink-0 bg-linear-to-br",
                   bulletClass
                 )}>
                   <Check className="w-2.5 h-2.5 text-white" />
                 </div>
               </div>
-              <span className="text-sm text-[#2B2B2B] flex-1">{feature}</span>
+              <span className="text-sm text-text-dark flex-1">{feature}</span>
             </li>
           ))}
         </ul>
 
         {isSelected ? (
-          <div className="flex items-center justify-center gap-2 text-[#005B7F] py-2.5 font-bold mt-auto">
+          <div className="flex items-center justify-center gap-2 text-text-primary py-2.5 font-bold mt-auto">
             <Check className="w-5 h-5" />
             <span className="text-sm">تم الاختيار</span>
           </div>
