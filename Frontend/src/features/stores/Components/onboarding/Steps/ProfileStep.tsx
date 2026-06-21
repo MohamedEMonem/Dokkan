@@ -1,9 +1,12 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/Input";
 import { useGetProfileQuery } from "@/api/user.api";
 import StepSection from "../StepSection";
 import StepActions from "../StepActions";
 import type { StoreOnboardingDraft } from "../types";
+import { profileSchema, type ProfileFormValues } from "../schemas/profile.schema";
 
 interface ProfileStepProps {
   initialData?: StoreOnboardingDraft["profile"];
@@ -19,36 +22,49 @@ export default function ProfileStep({
   const { data: profileData } = useGetProfileQuery();
   const user = profileData?.data?.user;
 
-  const [fullName, setFullName] = useState(initialData?.fullName ?? "");
-  const [email, setEmail] = useState(initialData?.email ?? "");
-  const [phone, setPhone] = useState(initialData?.phone ?? "");
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      fullName: initialData?.fullName ?? "",
+      email: initialData?.email ?? "",
+      phone: initialData?.phone ?? "",
+    },
+  });
 
   useEffect(() => {
     if (user) {
-      if (initialData?.fullName === undefined) setFullName(user.name);
-      if (initialData?.email === undefined) setEmail(user.email);
-      if (initialData?.phone === undefined) setPhone(user.contactNumber ?? "");
+      if (initialData?.fullName === undefined) setValue("fullName", user.name);
+      if (initialData?.email === undefined) setValue("email", user.email);
+      if (initialData?.phone === undefined) setValue("phone", user.contactNumber ?? "");
     }
-  }, [user, initialData]);
+  }, [user, initialData, setValue]);
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    onNext({ fullName, email, phone });
+  const onSubmit = (data: ProfileFormValues) => {
+    onNext(data);
   };
 
   return (
-    <form className="space-y-8" onSubmit={handleSubmit}>
+    <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
       <StepSection>
         <div className="space-y-6">
-          <Input
-            label="الاسم الكامل *"
-            id="onboarding-full-name"
-            placeholder="أحمد محمد"
-            autoComplete="name"
-            required
-            value={fullName}
-            onChange={(event) => setFullName(event.target.value)}
-          />
+          <div>
+            <Input
+              label="الاسم الكامل *"
+              id="onboarding-full-name"
+              placeholder="أحمد محمد"
+              autoComplete="name"
+              {...register("fullName")}
+            />
+            {errors.fullName && (
+              <p className="text-xs text-red-500 mt-1">{errors.fullName.message}</p>
+            )}
+          </div>
+
           <div className="space-y-1">
             <Input
               label="البريد الإلكتروني *"
@@ -56,22 +72,28 @@ export default function ProfileStep({
               type="email"
               placeholder="ahmed@example.com"
               autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              {...register("email")}
             />
+            {errors.email && (
+              <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+            )}
             <p className="text-xs text-text-muted">سنرسل رسالة تحقق إذا قمت بتغيير البريد</p>
           </div>
-          <Input
-            label="رقم الهاتف"
-            id="onboarding-phone"
-            type="tel"
-            placeholder="1234567890 20+"
-            autoComplete="tel"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            style={{ textAlign: "right" }}
-          />
+
+          <div>
+            <Input
+              label="رقم الهاتف"
+              id="onboarding-phone"
+              type="tel"
+              placeholder="1234567890 20+"
+              autoComplete="tel"
+              {...register("phone")}
+              style={{ textAlign: "right" }}
+            />
+            {errors.phone && (
+              <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>
+            )}
+          </div>
         </div>
       </StepSection>
 
@@ -79,3 +101,4 @@ export default function ProfileStep({
     </form>
   );
 }
+

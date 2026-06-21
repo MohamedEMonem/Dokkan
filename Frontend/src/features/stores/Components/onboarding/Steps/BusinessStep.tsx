@@ -1,9 +1,11 @@
-import { useState, type FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import StepSection from "../StepSection";
 import StepActions from "../StepActions";
 import type { StoreOnboardingDraft } from "../types";
+import { businessSchema, type BusinessFormValues } from "../schemas/business.schema";
 
 interface BusinessStepProps {
   initialData?: StoreOnboardingDraft["business"];
@@ -18,65 +20,82 @@ export default function BusinessStep({
   onNext,
   onBack,
 }: BusinessStepProps) {
-  const [address, setAddress] = useState(initialData?.address ?? "");
-  const [taxId, setTaxId] = useState(initialData?.taxId ?? "");
-  const [phone, setPhone] = useState(initialData?.phone ?? "");
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<BusinessFormValues>({
+    resolver: zodResolver(businessSchema),
+    defaultValues: {
+      address: initialData?.address ?? "",
+      taxId: initialData?.taxId ?? "",
+      phone: initialData?.phone ?? "",
+    },
+  });
 
+  const phone = watch("phone");
   const isChecked = !!personalPhone && phone === personalPhone;
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      setPhone(personalPhone ?? "");
+      setValue("phone", personalPhone ?? "");
     } else {
-      setPhone("");
+      setValue("phone", "");
     }
   };
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    onNext({
-      address,
-      taxId,
-      phone,
-    });
+  const onSubmit = (data: BusinessFormValues) => {
+    onNext(data);
   };
 
   return (
-    <form className="space-y-8" onSubmit={handleSubmit}>
+    <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
       <StepSection>
         <div className="space-y-6">
-          <TextArea
-            label="عنوان العمل"
-            id="onboarding-business-address"
-            placeholder="123 شارع الهرم، الجيزة، مصر"
-            rows={3}
-            value={address}
-            onChange={(event) => setAddress(event.target.value)}
-          />
-          <div className="space-y-1">
+          <div>
+            <TextArea
+              label="عنوان العمل"
+              id="onboarding-business-address"
+              placeholder="123 شارع الهرم، الجيزة، مصر"
+              rows={3}
+              {...register("address")}
+            />
+            {errors.address && (
+              <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>
+            )}
+          </div>
+
+          <div>
             <Input
               label="الرقم الضريبي *"
               id="onboarding-tax-id"
               placeholder="123456789"
-              required
-              value={taxId}
-              onChange={(event) => setTaxId(event.target.value)}
+              {...register("taxId")}
             />
-            <p className="text-xs text-text-muted">رقم التسجيل الضريبي المكون من 9 أرقام</p>
+            {errors.taxId && (
+              <p className="text-xs text-red-500 mt-1">{errors.taxId.message}</p>
+            )}
+            <p className="text-xs text-text-muted mt-1">رقم التسجيل الضريبي المكون من 9 أرقام</p>
           </div>
 
           <div className="space-y-4">
-            <Input
-              label="رقم هاتف العمل"
-              id="onboarding-business-phone"
-              type="tel"
-              placeholder="1234567890 20+"
-              autoComplete="tel"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              disabled={isChecked}
-              className="[&_input]:text-right"
-            />
+            <div>
+              <Input
+                label="رقم هاتف العمل"
+                id="onboarding-business-phone"
+                type="tel"
+                placeholder="1234567890 20+"
+                autoComplete="tel"
+                disabled={isChecked}
+                className="[&_input]:text-right"
+                {...register("phone")}
+              />
+              {errors.phone && (
+                <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>
+              )}
+            </div>
 
             <div className="flex items-center gap-2">
               <input
@@ -99,3 +118,4 @@ export default function BusinessStep({
     </form>
   );
 }
+

@@ -1,9 +1,11 @@
-import { useState, type FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CreditCard, Shield, Crown, CheckCircle2, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import StepSection from "../StepSection";
 import StepActions from "../StepActions";
 import type { StoreOnboardingDraft } from "../types";
+import { paymentSchema, type PaymentFormValues } from "../schemas/payment.schema";
 
 interface PaymentStepProps {
   draft: StoreOnboardingDraft;
@@ -40,33 +42,41 @@ export default function PaymentStep({
   onNext,
   onBack,
 }: PaymentStepProps) {
-  const [cardholderName, setCardholderName] = useState(draft.payment?.cardholderName ?? "");
-  const [cardNumber, setCardNumber] = useState(draft.payment?.cardNumber ?? "");
-  const [expiry, setExpiry] = useState(draft.payment?.expiry ?? "");
-  const [cvc, setCvc] = useState(draft.payment?.cvc ?? "");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PaymentFormValues>({
+    resolver: zodResolver(paymentSchema),
+    defaultValues: {
+      cardholderName: draft.payment?.cardholderName ?? "",
+      cardNumber: draft.payment?.cardNumber ?? "",
+      expiry: draft.payment?.expiry ?? "",
+      cvc: draft.payment?.cvc ?? "",
+    },
+  });
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    onNext({ cardholderName, cardNumber, expiry, cvc });
+  const onSubmit = (data: PaymentFormValues) => {
+    onNext(data);
   };
 
-  const handleCardNumberChange = (value: string) => {
-    const digits = value.replace(/\D/g, "");
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "");
     const groups = digits.match(/.{1,4}/g) || [];
-    setCardNumber(groups.join(" ").substring(0, 19));
+    e.target.value = groups.join(" ").substring(0, 19);
   };
 
-  const handleExpiryChange = (value: string) => {
-    let digits = value.replace(/\D/g, "");
+  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let digits = e.target.value.replace(/\D/g, "");
     if (digits.length > 2) {
       digits = digits.substring(0, 2) + "/" + digits.substring(2, 4);
     }
-    setExpiry(digits.substring(0, 5));
+    e.target.value = digits.substring(0, 5);
   };
 
-  const handleCvcChange = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    setCvc(digits.substring(0, 3));
+  const handleCvcChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "");
+    e.target.value = digits.substring(0, 3);
   };
 
   const planSlug = draft.plan?.slug?.toLowerCase() || "basic";
@@ -75,7 +85,7 @@ export default function PaymentStep({
   const planPrice = draft.plan?.price || 999;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <StepSection>
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Card Details Section */}
@@ -90,42 +100,54 @@ export default function PaymentStep({
               </div>
             </div>
 
-            <Input
-              label="اسم حامل البطاقة *"
-              placeholder="أدخل الاسم كما هو مكتوب على البطاقة"
-              required
-              value={cardholderName}
-              onChange={(e) => setCardholderName(e.target.value)}
-              className="h-12! border-accent-light! focus-within:border-primary! bg-white!"
-            />
+            <div>
+              <Input
+                label="اسم حامل البطاقة *"
+                placeholder="أدخل الاسم كما هو مكتوب على البطاقة"
+                className="h-12! border-accent-light! focus-within:border-primary! bg-white!"
+                {...register("cardholderName")}
+              />
+              {errors.cardholderName && (
+                <p className="text-xs text-red-500 mt-1">{errors.cardholderName.message}</p>
+              )}
+            </div>
 
-            <Input
-              label="رقم البطاقة *"
-              placeholder="0000 0000 0000 0000"
-              required
-              value={cardNumber}
-              onChange={(e) => handleCardNumberChange(e.target.value)}
-              icon={<CreditCard className="w-5 h-5 text-text-muted" />}
-              className="h-12! border-accent-light! focus-within:border-primary! bg-white! flex-row-reverse!"
-            />
+            <div>
+              <Input
+                label="رقم البطاقة *"
+                placeholder="1234 5678 9012 3456"
+                icon={<CreditCard className="w-5 h-5 text-text-muted" />}
+                className="h-12! border-accent-light! focus-within:border-primary! bg-white! flex-row-reverse!"
+                {...register("cardNumber", { onChange: handleCardNumberChange })}
+              />
+              {errors.cardNumber && (
+                <p className="text-xs text-red-500 mt-1">{errors.cardNumber.message}</p>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="تاريخ الانتهاء *"
-                placeholder="MM/YY"
-                required
-                value={expiry}
-                onChange={(e) => handleExpiryChange(e.target.value)}
-                className="h-12! border-accent-light! focus-within:border-primary! bg-white! text-center!"
-              />
-              <Input
-                label="CVV *"
-                placeholder="123"
-                required
-                value={cvc}
-                onChange={(e) => handleCvcChange(e.target.value)}
-                className="h-12! border-accent-light! focus-within:border-primary! bg-white! text-center!"
-              />
+              <div>
+                <Input
+                  label="تاريخ الانتهاء *"
+                  placeholder="MM/YY"
+                  className="h-12! border-accent-light! focus-within:border-primary! bg-white! text-center!"
+                  {...register("expiry", { onChange: handleExpiryChange })}
+                />
+                {errors.expiry && (
+                  <p className="text-xs text-red-500 mt-1">{errors.expiry.message}</p>
+                )}
+              </div>
+              <div>
+                <Input
+                  label="CVV *"
+                  placeholder="123"
+                  className="h-12! border-accent-light! focus-within:border-primary! bg-white! text-center!"
+                  {...register("cvc", { onChange: handleCvcChange })}
+                />
+                {errors.cvc && (
+                  <p className="text-xs text-red-500 mt-1">{errors.cvc.message}</p>
+                )}
+              </div>
             </div>
 
             <div className="bg-green-50 border border-green-200 rounded-xl p-4">
@@ -212,3 +234,4 @@ export default function PaymentStep({
     </form>
   );
 }
+
