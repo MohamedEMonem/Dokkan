@@ -1,6 +1,6 @@
 import express from "express";
 import { createProduct, deleteProduct, getProductById, listProducts, updateProduct } from "../controllers/ProductController.js";
-import { auth, authStoreOwner } from "../middleware/auth.js";
+import { auth, authStoreOwner, authOptional } from "../middleware/auth.js";
 import {upload} from "../middleware/uploadValidator.js";
 import { validateBody } from "../middleware/validate.middleware.js"
 import {productSchema,updateProductSchema} from "../DTO/product.dto.js";
@@ -19,6 +19,7 @@ router.get("/",
      #swagger.responses[200] = { description: 'Products retrieved successfully' }
      #swagger.responses[500] = { description: 'Internal server error' }
   */
+  authOptional,
   listProducts
 );
 
@@ -30,6 +31,7 @@ router.get("/:id",
      #swagger.responses[200] = { description: 'Product retrieved successfully' }
      #swagger.responses[404] = { description: 'Product not found' }
   */
+  authOptional,
   getProductById
 );
 

@@ -60,6 +60,7 @@ export const getProductReviews = async (req: Request, res: Response) => {
     const result = await ReviewService.getProductReviews(
       productId,
       validation.data,
+      req.user
     );
 
     return sendSuccess(
@@ -88,7 +89,7 @@ export const getProductReviewById = async (req: Request, res: Response) => {
       return sendError(res, "Review id is required", 400);
     }
 
-    const review = await ReviewService.getProductReviewById(id);
+    const review = await ReviewService.getProductReviewById(id, req.user);
 
     if (!review) {
       return sendNotFound(res, "Product review not found");
@@ -230,6 +231,7 @@ export const getStoreReviews = async (req: Request, res: Response) => {
     const result = await ReviewService.getStoreReviews(
       storeId,
       validation.data,
+      req.user
     );
 
     return sendSuccess(
@@ -258,7 +260,7 @@ export const getStoreReviewById = async (req: Request, res: Response) => {
       return sendError(res, "Review id is required", 400);
     }
 
-    const review = await ReviewService.getStoreReviewById(id);
+    const review = await ReviewService.getStoreReviewById(id, req.user);
 
     if (!review) {
       return sendNotFound(res, "Store review not found");

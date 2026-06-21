@@ -24,7 +24,7 @@ export const productSchema = z.object({
     
 });
 // partial type for update
-export const updateProductSchema = productSchema.partial();
+export const updateProductSchema = productSchema.omit({ storeId: true }).partial();
 
 export type ListProductsQueryDto = z.infer<typeof listProductsQuerySchema>;
 export type CreateProductDto = z.infer<typeof productSchema>;

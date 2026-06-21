@@ -4,6 +4,7 @@ import prisma from "../config/db.js";
 import { sendError, sendNotFound, sendServerError, sendSuccess } from "../utils/response.js";
 import { deletePublicImg, uploadPublicImg } from "../services/imgStorageService.js";
 import { listProductsQuerySchema } from "../DTO/product.dto.js";
+import { meilisearchService } from "../services/meilisearchService.js";
 const mapProduct = (product: { price: unknown; [key: string]: unknown }) => ({
   ...product,
   price: Number(product.price),
@@ -20,7 +21,7 @@ export const listProducts = async (req: Request, res: Response, next: NextFuncti
     const { page, limit, status, sortBy, sortDir } = parsedQuery.data;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ProductWhereInput = {
+    let where: Prisma.ProductWhereInput = {
       deletedAt: null,
       ...(status ? { status } : {}),
       store: {
@@ -30,6 +31,24 @@ export const listProducts = async (req: Request, res: Response, next: NextFuncti
         },
       },
     };
+
+    if (req.user?.role === "Admin") {
+      where = {
+        ...(status ? { status } : {}),
+      };
+    } else if (req.user?.role === "StoreOwner") {
+      where = {
+        OR: [
+          where,
+          {
+            store: {
+              ownerId: req.user.id,
+            },
+            ...(status ? { status } : {}),
+          }
+        ]
+      };
+    }
 
     const orderBy = { 
       [sortBy]: sortDir,
@@ -72,11 +91,39 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
       return sendError(res, "Product id is required", 400);
     }
 
-    const product = await prisma.product.findFirst({
-      where: {
-        id,
-        deletedAt: null,
+    let where: Prisma.ProductWhereInput = {
+      id,
+      deletedAt: null,
+      store: {
+        is: {
+          status: "Active",
+          deletedAt: null,
+        },
       },
+    };
+
+    if (req.user?.role === "Admin") {
+      where = { id };
+    } else if (req.user?.role === "StoreOwner") {
+      where = {
+        id,
+        OR: [
+          {
+            deletedAt: null,
+            store: {
+              is: {
+                status: "Active",
+                deletedAt: null,
+              },
+            },
+          },
+          { store: { ownerId: req.user.id } }
+        ]
+      };
+    }
+
+    const product = await prisma.product.findFirst({
+      where,
       include: { images: true, store: true },
     });
 
@@ -96,6 +143,16 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
 
     if (!storeId || !subCategoryId || !title || price === undefined) {
       return sendError(res, "storeId, subCategoryId, title and price are required", 400);
+    }
+
+    // Verify the authenticated user owns this store
+    const ownerStore = await prisma.store.findFirst({
+      where: { id: storeId, ownerId: req.user!.id, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (!ownerStore) {
+      return sendError(res, "Access denied. You can only create products in your own store.", 403);
     }
 
     const numericPrice = Number(price);
@@ -140,6 +197,15 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
         include: { images: true },
       });
 
+      meilisearchService.add("products", {
+        id: product.id,
+        title: product.title,
+        description: product.description,
+        price: Number(product.price),
+        storeId: product.storeId,
+        subCategoryId: product.subCategoryId,
+      });
+
       return sendSuccess(res, mapProduct(product), "Product created successfully", 201);
     } catch (dbError) {
       if (imgUrl) {
@@ -164,9 +230,17 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       return sendError(res, "Product id is required", 400);
     }
 
-    const existing = await prisma.product.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.product.findFirst({
+      where: { id, deletedAt: null },
+      include: { store: { select: { ownerId: true } } },
+    });
     if (!existing) {
       return sendNotFound(res, "Product not found");
+    }
+
+    // Verify the authenticated user owns the store this product belongs to
+    if (existing.store.ownerId !== req.user!.id && req.user!.role !== "Admin") {
+      return sendError(res, "Access denied. You can only update products in your own store.", 403);
     }
 
     const data: Record<string, unknown> = {};
@@ -200,6 +274,15 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       include: { images: true },
     });
 
+    meilisearchService.update("products", {
+      id: updated.id,
+      title: updated.title,
+      description: updated.description,
+      price: Number(updated.price),
+      storeId: updated.storeId,
+      subCategoryId: updated.subCategoryId,
+    });
+
     return sendSuccess(res, mapProduct(updated), "Product updated successfully");
   } catch (error) {
     return next(error);
@@ -214,18 +297,25 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
       return sendError(res, "Product id is required", 400);
     }
 
-    const existing = await prisma.product.findFirst({ where: { id, deletedAt: null },
-     include: { images: true } }
-      
-    );
+    const existing = await prisma.product.findFirst({
+      where: { id, deletedAt: null },
+      include: { images: true, store: { select: { ownerId: true } } },
+    });
     if (!existing) {
       return sendNotFound(res, "Product not found");
     }
-    await deletePublicImg(existing.images[0]?.imageUrl);
+
+    // Verify the authenticated user owns the store this product belongs to
+    if (existing.store.ownerId !== req.user!.id && req.user!.role !== "Admin") {
+      return sendError(res, "Access denied. You can only delete products in your own store.", 403);
+    }
+
     await prisma.product.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
+
+    meilisearchService.delete("products", id);
 
     return sendSuccess(res, null, "Product deleted successfully");
   } catch (error) {

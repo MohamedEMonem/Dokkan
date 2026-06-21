@@ -1,5 +1,5 @@
 import express from "express";
-import { auth, authStoreOwner } from "../middleware/auth.js";
+import { auth, authStoreOwner, authOptional } from "../middleware/auth.js";
 import {
   createProductReview,
   getProductReviews,
@@ -57,7 +57,9 @@ router.get(
      #swagger.parameters['limit'] = { in: 'query', type: 'integer', required: false, example: 20 }
      #swagger.parameters['sortBy'] = { in: 'query', type: 'string', required: false, example: 'createdAt' }
      #swagger.parameters['sortDir'] = { in: 'query', type: 'string', required: false, example: 'desc' }
+     #swagger.responses[400] = { description: 'Invalid query parameters' }
   */
+  authOptional,
   getProductReviews,
 );
 
@@ -68,6 +70,7 @@ router.get(
      #swagger.description = 'Returns a single product review by its ID.'
      #swagger.parameters['id'] = { in: 'path', type: 'string', required: true, example: '1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08' }
   */
+  authOptional,
   getProductReviewById,
 );
 
@@ -176,7 +179,9 @@ router.get(
      #swagger.parameters['limit'] = { in: 'query', type: 'integer', required: false, example: 20 }
      #swagger.parameters['sortBy'] = { in: 'query', type: 'string', required: false, example: 'createdAt' }
      #swagger.parameters['sortDir'] = { in: 'query', type: 'string', required: false, example: 'desc' }
+     #swagger.responses[400] = { description: 'Invalid query parameters' }
   */
+  authOptional,
   getStoreReviews,
 );
 
@@ -187,6 +192,7 @@ router.get(
      #swagger.description = 'Returns a single store review by its ID.'
      #swagger.parameters['id'] = { in: 'path', type: 'string', required: true, example: '1f3c8d3c-40d5-4b3d-a9c4-7e2d8f4f2d08' }
   */
+  authOptional,
   getStoreReviewById,
 );
 

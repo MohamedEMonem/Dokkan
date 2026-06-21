@@ -6,6 +6,7 @@ import {
   createOrderSchema,
   getOrdersQuerySchema,
   updateOrderStatusSchema,
+  orderQuerySchema,
 } from "../DTO/order.dto.js";
 import {
   sendError,
@@ -63,7 +64,7 @@ export const createOrder = async (req: Request, res: Response) => {
 
 export const getOrders = async (req: Request, res: Response) => {
   try {
-    const validation = getOrdersQuerySchema.safeParse(req.query);
+    const validation = orderQuerySchema.safeParse(req.query);
 
     if (!validation.success) {
       return sendValidationError(res, validation.error.format());
