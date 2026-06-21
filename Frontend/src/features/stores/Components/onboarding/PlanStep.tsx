@@ -6,7 +6,7 @@ import { useGetPlansQuery } from "@/api/plan.api";
 import { showNotification } from "@/utils/showNotification";
 import type { IPlan } from "@/types/entities/subscription.types";
 import StepActions from "../StepActions";
-import type { StoreOnboardingDraft } from "../types";
+import type { StoreOnboardingDraft } from "../../schemas/draft.types";
 
 type PlanType = "basic" | "plus" | "pro";
 

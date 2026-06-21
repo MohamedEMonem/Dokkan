@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import StepSection from "../StepSection";
 import StepActions from "../StepActions";
-import type { StoreOnboardingDraft } from "../types";
-import { businessSchema, type BusinessFormValues } from "../schemas/business.schema";
+import type { StoreOnboardingDraft } from "../../schemas/draft.types";
+import { businessSchema, type BusinessFormValues } from "../../schemas/business.schema";
 
 interface BusinessStepProps {
   initialData?: StoreOnboardingDraft["business"];

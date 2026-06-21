@@ -22,8 +22,8 @@ import { UpdateProduct } from "@/features/dashboard/UpdateProduct";
 import { Settings } from "@/features/dashboard/Settings";
 import ViewStores from "@/features/stores/ViewStores";
 import StoreOnboarding from "@/features/stores/StoreOnboarding";
-import WelcomeStep from "@/features/stores/Components/onboarding/Steps/WelcomeStep";
-import SuccessStep from "@/features/stores/Components/onboarding/Steps/SuccessStep";
+import WelcomeStep from "@/features/stores/Components/onboarding/WelcomeStep";
+import SuccessStep from "@/features/stores/Components/onboarding/SuccessStep";
 
 export default function AppRoutes() {
   return (
@@ -66,4 +66,3 @@ export default function AppRoutes() {
     </Routes>
   );
 }
-

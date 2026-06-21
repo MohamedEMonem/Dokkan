@@ -6,14 +6,14 @@ import { showNotification } from "@/utils/showNotification";
 import { useCreateStoreMutation } from "@/api/store.api";
 import { useUpdateProfileMutation } from "@/api/user.api";
 
-import ProfileStep from "./Components/onboarding/Steps/ProfileStep";
-import BusinessStep from "./Components/onboarding/Steps/BusinessStep";
-import PlanStep from "./Components/onboarding/Steps/PlanStep";
-import PaymentStep from "./Components/onboarding/Steps/PaymentStep";
-import StoreStep from "./Components/onboarding/Steps/StoreStep";
+import ProfileStep from "./Components/onboarding/ProfileStep";
+import BusinessStep from "./Components/onboarding/BusinessStep";
+import PlanStep from "./Components/onboarding/PlanStep";
+import PaymentStep from "./Components/onboarding/PaymentStep";
+import StoreStep from "./Components/onboarding/StoreStep";
 
 // Import types
-import type { StoreOnboardingDraft, StepPatch } from "./Components/onboarding/types";
+import type { StoreOnboardingDraft, StepPatch } from "./schemas/draft.types";
 
 const STEP_COUNT = 5;
 const STORAGE_KEY = "store_onboarding_draft_v1";
@@ -23,9 +23,15 @@ type StepMeta = { title: string; subtitle?: string };
 const stepMeta: StepMeta[] = [
   { title: "الخطوة 1 - ملفك الشخصي", subtitle: "أخبرنا عن نفسك للبدء" },
   { title: "الخطوة 2 - معلومات العمل", subtitle: "ساعدنا على فهم عملك" },
-  { title: "الخطوة 3 - اختر باقة الاشتراك", subtitle: "اختر الباقة المناسبة لاحتياجات متجرك" },
+  {
+    title: "الخطوة 3 - اختر باقة الاشتراك",
+    subtitle: "اختر الباقة المناسبة لاحتياجات متجرك",
+  },
   { title: "بيانات الدفع", subtitle: "أدخل معلومات الدفع لتفعيل اشتراكك" },
-  { title: "الخطوة 5 - إعداد المتجر", subtitle: "اضبط تفاصيل متجرك وعلامته التجارية" },
+  {
+    title: "الخطوة 5 - إعداد المتجر",
+    subtitle: "اضبط تفاصيل متجرك وعلامته التجارية",
+  },
 ];
 
 function clampStep(step: number) {
@@ -124,7 +130,10 @@ export default function StoreOnboarding() {
       if (typeof window !== "undefined") {
         sessionStorage.removeItem(STORAGE_KEY);
       }
-      showNotification({ message: "تم حفظ بيانات الإعداد وإنشاء المتجر بنجاح", variant: "success" });
+      showNotification({
+        message: "تم حفظ بيانات الإعداد وإنشاء المتجر بنجاح",
+        variant: "success",
+      });
       navigate("/store/onboarding/success");
     } catch (error) {
       const err = error as { data?: { message?: string }; message?: string };
@@ -138,27 +147,47 @@ export default function StoreOnboarding() {
   const meta = stepMeta[step - 1];
 
   return (
-    <div className="min-h-screen flex flex-col bg-linear-to-br from-bg-cream via-bg-cream to-accent-light" dir="rtl">
+    <div
+      className="min-h-screen flex flex-col bg-linear-to-br from-bg-cream via-bg-cream to-accent-light"
+      dir="rtl"
+    >
       <Header />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12">
-          <div className={`mx-auto bg-white rounded-3xl shadow-lg border border-accent-light/40 p-6 md:p-10 transition-all duration-300 ${step === 3 ? "max-w-6xl" : "max-w-4xl"}`}>
+          <div
+            className={`mx-auto bg-white rounded-3xl shadow-lg border border-accent-light/40 p-6 md:p-10 transition-all duration-300 ${step === 3 ? "max-w-6xl" : "max-w-4xl"}`}
+          >
             <div className="mb-10">
               <div className="flex items-center justify-between text-sm text-text-muted mb-4">
-                <span>الخطوة {step} من {STEP_COUNT}</span>
+                <span>
+                  الخطوة {step} من {STEP_COUNT}
+                </span>
                 <span>{progressPercent}% مكتمل</span>
               </div>
               <div className="h-2 w-full bg-accent-light/50 rounded-full overflow-hidden">
-                <div className="h-full bg-primary transition-all duration-300" style={{ width: `${progressPercent}%` }} />
+                <div
+                  className="h-full bg-primary transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
               </div>
             </div>
 
             <div className="text-center mb-8">
-              <h1 className="text-2xl md:text-3xl text-text-dark font-semibold">{meta?.title}</h1>
-              {meta?.subtitle && <p className="text-lg text-text-muted mt-2">{meta.subtitle}</p>}
+              <h1 className="text-2xl md:text-3xl text-text-dark font-semibold">
+                {meta?.title}
+              </h1>
+              {meta?.subtitle && (
+                <p className="text-lg text-text-muted mt-2">{meta.subtitle}</p>
+              )}
             </div>
 
-            {step === 1 && <ProfileStep initialData={draft.profile} onNext={(profile) => handleNext({ profile })} onBack={handleBack} />}
+            {step === 1 && (
+              <ProfileStep
+                initialData={draft.profile}
+                onNext={(profile) => handleNext({ profile })}
+                onBack={handleBack}
+              />
+            )}
             {step === 2 && (
               <BusinessStep
                 initialData={draft.business}
@@ -167,9 +196,28 @@ export default function StoreOnboarding() {
                 onBack={handleBack}
               />
             )}
-            {step === 3 && <PlanStep initialData={draft.plan} onNext={(plan) => handleNext({ plan })} onBack={handleBack} />}
-            {step === 4 && <PaymentStep draft={draft} onNext={(payment) => handleNext({ payment })} onBack={handleBack} />}
-            {step === 5 && <StoreStep initialData={draft.store} onFinish={(store) => handleFinish({ store })} onBack={handleBack} isLoading={isSubmitting} />}
+            {step === 3 && (
+              <PlanStep
+                initialData={draft.plan}
+                onNext={(plan) => handleNext({ plan })}
+                onBack={handleBack}
+              />
+            )}
+            {step === 4 && (
+              <PaymentStep
+                draft={draft}
+                onNext={(payment) => handleNext({ payment })}
+                onBack={handleBack}
+              />
+            )}
+            {step === 5 && (
+              <StoreStep
+                initialData={draft.store}
+                onFinish={(store) => handleFinish({ store })}
+                onBack={handleBack}
+                isLoading={isSubmitting}
+              />
+            )}
           </div>
         </div>
       </main>

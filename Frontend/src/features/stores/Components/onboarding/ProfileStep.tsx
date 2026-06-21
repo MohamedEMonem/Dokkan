@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/Input";
 import { useGetProfileQuery } from "@/api/user.api";
 import StepSection from "../StepSection";
 import StepActions from "../StepActions";
-import type { StoreOnboardingDraft } from "../types";
-import { profileSchema, type ProfileFormValues } from "../schemas/profile.schema";
+import type { StoreOnboardingDraft } from "../../schemas/draft.types";
+import { profileSchema, type ProfileFormValues } from "../../schemas/profile.schema";
 
 interface ProfileStepProps {
   initialData?: StoreOnboardingDraft["profile"];

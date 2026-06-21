@@ -4,8 +4,8 @@ import { CreditCard, Shield, Crown, CheckCircle2, AlertCircle } from "lucide-rea
 import { Input } from "@/components/ui/Input";
 import StepSection from "../StepSection";
 import StepActions from "../StepActions";
-import type { StoreOnboardingDraft } from "../types";
-import { paymentSchema, type PaymentFormValues } from "../schemas/payment.schema";
+import type { StoreOnboardingDraft } from "../../schemas/draft.types";
+import { paymentSchema, type PaymentFormValues } from "../../schemas/payment.schema";
 
 interface PaymentStepProps {
   draft: StoreOnboardingDraft;

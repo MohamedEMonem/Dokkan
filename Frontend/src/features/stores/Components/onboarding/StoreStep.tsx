@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import StepSection from "../StepSection";
 import StepActions from "../StepActions";
-import type { StoreOnboardingDraft } from "../types";
-import { storeSchema, type StoreFormValues } from "../schemas/store.schema";
+import type { StoreOnboardingDraft } from "../../schemas/draft.types";
+import { storeSchema, type StoreFormValues } from "../../schemas/store.schema";
 
 interface StoreStepProps {
   initialData?: StoreOnboardingDraft["store"];
