@@ -186,9 +186,9 @@ function PlanCard({
         </ul>
 
         {isSelected ? (
-          <div className="flex items-center justify-center gap-2 text-text-primary py-2.5 font-bold mt-auto">
-            <Check className="w-5 h-5" />
-            <span className="text-sm">تم الاختيار</span>
+          <div className="flex items-center justify-center gap-2 py-2.5 font-bold mt-auto">
+            <Check className="w-5 h-5 text-primary" />
+            <span className="text-sm text-primary">تم الاختيار</span>
           </div>
         ) : (
           <div className="h-10 mt-auto" />
