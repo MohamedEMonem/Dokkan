@@ -17,12 +17,13 @@ export const listProducts = async (req: Request, res: Response, next: NextFuncti
       return sendError(res, "Invalid query parameters", 400, parsedQuery.error.flatten());
     }
 
-    const { page, limit, status, sortBy, sortDir } = parsedQuery.data;
+    const { page, limit, status, sortBy, sortDir, storeId } = parsedQuery.data;
     const skip = (page - 1) * limit;
 
     const where: Prisma.ProductWhereInput = {
       deletedAt: null,
       ...(status ? { status } : {}),
+      ...(storeId ? { storeId } : {}),
     };
 
     const orderBy = {

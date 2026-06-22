@@ -6,6 +6,7 @@ export const listProductsQuerySchema = z.object({
     status: z.enum(["Active", "Inactive"]).optional(),
     sortBy: z.enum(["createdAt", "title", "price"]).optional().default("createdAt"),
     sortDir: z.enum(["asc", "desc"]).optional().default("desc"),
+    storeId: z.string().optional(),
 });
 
 export const productSchema = z.object({
