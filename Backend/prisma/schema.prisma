@@ -52,11 +52,11 @@ model User {
   id              String    @id @default(uuid()) @map("user_id") @db.Uuid
   name            String    @db.Char(50)
   email           String    @unique @db.VarChar(150)
-  password        String    @db.VarChar(255)
+  password        String?    @db.VarChar(255)
   role            UserRole  @default(Customer)
   contactNumber   String?   @map("contact_number") @db.VarChar(20)
   profilePhotoUrl String?   @map("profile_photo_url") @db.VarChar(255)
-  googleOauthId   String?   @map("google_oauth_id") @db.VarChar(255)
+  googleOauthId   String?   @unique @map("google_oauth_id") @db.VarChar(255)
   isVerified      Boolean   @default(false) @map("is_verified")
   createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
   deletedAt       DateTime? @map("deleted_at") @db.Timestamp(0)

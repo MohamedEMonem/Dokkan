@@ -7,6 +7,7 @@ import {
   logout,
   verifyOtp,
   resendOtp,
+  loginWithGoogle
 } from "../modules/auth/auth.controller.js";
 
 const router = express.Router();
@@ -77,6 +78,8 @@ router.post(
   */
   login,
 );
+
+router.post("/google", loginWithGoogle);
 
 router.post(
   "/refresh",
