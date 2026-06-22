@@ -7,6 +7,7 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { User, Mail, Lock } from "lucide-react";
+import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 
 import {
   registerSchema,
@@ -82,6 +83,19 @@ export const RegisterForm = (): React.JSX.Element => {
 
   return (
     <AuthCard title="إنشاء حساب جديد" subtitle="انضم إلى سوقنا اليوم">
+      <div className="mb-6">
+        <GoogleLoginButton role={selectedRole} />
+        
+        <div className="relative mt-6 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200"></div>
+          </div>
+          <div className="relative bg-white px-4 text-sm text-text-muted">
+            أو المتابعة بالبريد الإلكتروني
+          </div>
+        </div>
+      </div>
+
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         {/* Role Selection */}
         <div>

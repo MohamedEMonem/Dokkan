@@ -29,7 +29,7 @@ export const authApi = apiSlice.injectEndpoints({
     }),
     loginWithGoogle: builder.mutation<
       IAPIResponse<{ token: string; user: IUser }>,
-      { code: string }
+      { code: string; role?: string }
     >({
       query: (body) => ({
         url: "/auth/google",

@@ -4,7 +4,11 @@ import { useLoginWithGoogleMutation } from '@/api/auth.api';
 import { showNotification } from '@/utils/showNotification';
 import { EUserRole } from '@/types/entities/user.types';
 
-export const GoogleLoginButton = () => {
+interface GoogleLoginButtonProps {
+  role?: string;
+}
+
+export const GoogleLoginButton = ({ role }: GoogleLoginButtonProps) => {
   const navigate = useNavigate();
   const [loginWithGoogle, { isLoading }] = useLoginWithGoogleMutation();
 
@@ -12,7 +16,7 @@ export const GoogleLoginButton = () => {
     flow: 'auth-code',
     onSuccess: async (codeResponse) => {
       try {
-        const response = await loginWithGoogle({ code: codeResponse.code }).unwrap();
+        const response = await loginWithGoogle({ code: codeResponse.code, role }).unwrap();
         
         localStorage.setItem("token", response.data.token);
         
