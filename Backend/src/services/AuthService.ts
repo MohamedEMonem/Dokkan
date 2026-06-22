@@ -192,7 +192,7 @@ export const authService = {
   generateOtp: generateOtp,
 
   // --- GOOGLE LOGIN INTEGRATED HERE ---
-  async loginWithGoogle(code: string): Promise<AuthServiceResult> {
+  async loginWithGoogle(code: string, role: UserRole): Promise<AuthServiceResult> {
     // 1. Exchange code for tokens
     const { tokens } = await googleClient.getToken(code);
 
@@ -217,10 +217,11 @@ export const authService = {
       user = await prisma.user.create({
         data: {
           email: normalizedEmail,
-          name: name || 'Google User',
+          name: name!,
+          role: role,
           googleOauthId: googleOauthId,
-          role: UserRole.Customer, // Defaulting to Customer, adjust if needed
-          isVerified: true, // Google emails are already verified
+          isVerified: true,
+          // Google emails are already verified
           // Note: password is omitted entirely since it's optional
         },
       });
@@ -233,7 +234,36 @@ export const authService = {
     }
 
     if (user.deletedAt) {
-      throw createHttpError("This account has been deleted.", 401);
+      const restoredUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          email: normalizedEmail,
+          role: role,
+          deletedAt: null,
+          isVerified: true,
+          googleOauthId: googleOauthId,
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          contactNumber: true,
+          profilePhotoUrl: true,
+          isVerified: true,
+          createdAt: true,
+          password: true,
+          deletedAt: true,
+        },
+      });
+
+      return {
+        user: toPublicUser(restoredUser),
+        token: buildToken({ userId: restoredUser.id, email: restoredUser.email }),
+        refreshToken: (await issueRefreshToken(restoredUser.id, restoredUser.email)).refreshToken,
+        message: "Logged in successfully with Google",
+        statusCode: 200,
+      };
     }
 
     // 4. Generate your Dokkan Tokens and Redis Session
