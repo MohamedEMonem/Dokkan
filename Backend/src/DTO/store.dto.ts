@@ -8,6 +8,7 @@ export const listStoresQuerySchema = z.object({
   status: z.enum(["Pending", "Active", "Suspended"]).optional(),
   sortBy: z.enum(["createdAt", "name", "status"]).optional().default("createdAt"),
   sortDir: z.enum(["asc", "desc"]).optional().default("desc"),
+  subdomain: z.string().optional(),
 });
 
 const storePayloadSchema = z.object({

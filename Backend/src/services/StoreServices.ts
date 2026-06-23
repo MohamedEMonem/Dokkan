@@ -111,12 +111,13 @@ export class StoreServices {
   }
 
   async listStores(query: ListStoresQueryDto, user?: { id: string; role?: string }) {
-    const { page, limit, status, sortBy, sortDir } = query;
+    const { page, limit, status, sortBy, sortDir, subdomain } = query;
     const skip = (page - 1) * limit;
     const storeStatus: StoreStatus = status ?? "Active";
     let where: Prisma.StoreWhereInput = {
       deletedAt: null,
       status: storeStatus,
+      ...(subdomain ? { subdomain } : {}),
     };
 
     if (user?.role === "Admin") {

@@ -74,8 +74,9 @@ export const listStores = async (
       page,
       limit,
       status: req.query.status as "Pending" | "Active" | "Suspended",
-      sortBy: req.query.sortBy as "name" | "status" | "createdAt" || "createdAt",
+      sortBy: (req.query.sortBy as "name" | "status" | "createdAt") || "createdAt",
       sortDir: (req.query.sortDir as "asc" | "desc") || "desc",
+      subdomain: req.query.subdomain as string | undefined,
     }
     const parsedQuery = listStoresQuerySchema.safeParse(listQuerys);
     if (!parsedQuery.success) {

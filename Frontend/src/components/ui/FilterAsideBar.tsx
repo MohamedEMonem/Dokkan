@@ -61,11 +61,28 @@ interface IProps {
   >;
   isOpen?: boolean;
   onClose?: () => void;
+  categories?: { id: string; name: string }[];
+  showCity?: boolean;
+  showShipping?: boolean;
+  showRating?: boolean;
+  showSearch?: boolean;
+  showCategory?: boolean;
 }
 
-const FilterAsideBar = ({ filters, setFilters, isOpen, onClose }: IProps) => {
-  const { data: categoriesData } = useGetCategoriesQuery();
-  const categoriesList = categoriesData?.data ?? [];
+const FilterAsideBar = ({
+  filters,
+  setFilters,
+  isOpen,
+  onClose,
+  categories,
+  showCity = true,
+  showShipping = true,
+  showRating = true,
+  showSearch = true,
+  showCategory = true,
+}: IProps) => {
+  const { data: categoriesData } = useGetCategoriesQuery(undefined, { skip: !!categories });
+  const categoriesList = categories || categoriesData?.data || [];
 
   const updateFilter = (key: keyof typeof filters, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -117,68 +134,78 @@ const FilterAsideBar = ({ filters, setFilters, isOpen, onClose }: IProps) => {
 
           <div className="space-y-6">
             {/* Search */}
-            <FilterSection title="بحث">
-              <Input
-                icon={
-                  <Search className="w-4 h-4 text-text-muted" strokeWidth={2} />
-                }
-                placeholder="ابحث عن منتج..."
-                value={filters.search}
-                onChange={(e) => updateFilter("search", e.target.value)}
-              />
-            </FilterSection>
+            {showSearch && (
+              <FilterSection title="بحث">
+                <Input
+                  icon={
+                    <Search className="w-4 h-4 text-text-muted" strokeWidth={2} />
+                  }
+                  placeholder="ابحث عن منتج..."
+                  value={filters.search}
+                  onChange={(e) => updateFilter("search", e.target.value)}
+                />
+              </FilterSection>
+            )}
 
             {/* Category */}
-            <FilterSection title="التصنيف">
-              <div className="space-y-2">
-                <RadioItem
-                  label="كل التصنيفات"
-                  itemId="all"
-                  name="category"
-                  value={filters.category}
-                  setValue={(val) => updateFilter("category", val)}
-                />
-                {categoriesList.map((cat) => (
+            {showCategory && (
+              <FilterSection title="التصنيف">
+                <div className="space-y-2">
                   <RadioItem
-                    key={cat.id}
-                    label={categoryTranslations[cat.name] || cat.name}
-                    itemId={cat.id}
+                    label="كل التصنيفات"
+                    itemId="all"
                     name="category"
                     value={filters.category}
                     setValue={(val) => updateFilter("category", val)}
                   />
-                ))}
-              </div>
-            </FilterSection>
+                  {categoriesList.map((cat) => (
+                    <RadioItem
+                      key={cat.id}
+                      label={categoryTranslations[cat.name] || cat.name}
+                      itemId={cat.id}
+                      name="category"
+                      value={filters.category}
+                      setValue={(val) => updateFilter("category", val)}
+                    />
+                  ))}
+                </div>
+              </FilterSection>
+            )}
 
             {/* Shipping */}
-            <FilterSection title="الشحن">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300"
-                  checked={filters.shipping}
-                  onChange={(e) => updateFilter("shipping", e.target.checked)}
+            {showShipping && (
+              <FilterSection title="الشحن">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded border-gray-300"
+                    checked={filters.shipping}
+                    onChange={(e) => updateFilter("shipping", e.target.checked)}
+                  />
+                  <span className="text-sm">متاح الشحن</span>
+                </label>
+              </FilterSection>
+            )}
+
+            {showCity && (
+              <FilterSection title="المدينة">
+                <Select
+                  options={cityOptions}
+                  value={filters.city}
+                  onChange={(e) => updateFilter("city", e.target.value)}
                 />
-                <span className="text-sm">متاح الشحن</span>
-              </label>
-            </FilterSection>
+              </FilterSection>
+            )}
 
-            <FilterSection title="المدينة">
-              <Select
-                options={cityOptions}
-                value={filters.city}
-                onChange={(e) => updateFilter("city", e.target.value)}
-              />
-            </FilterSection>
-
-            <FilterSection title="الحد الأدنى للتقييم">
-              <Select
-                options={ratingOptions}
-                value={filters.rating}
-                onChange={(e) => updateFilter("rating", e.target.value)}
-              />
-            </FilterSection>
+            {showRating && (
+              <FilterSection title="الحد الأدنى للتقييم">
+                <Select
+                  options={ratingOptions}
+                  value={filters.rating}
+                  onChange={(e) => updateFilter("rating", e.target.value)}
+                />
+              </FilterSection>
+            )}
 
             {/* Reset */}
             <Button

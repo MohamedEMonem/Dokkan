@@ -88,8 +88,11 @@ export const ViewProducts = () => {
       const matchesCategory =
         filters.category === "all" || product.categoryId === filters.category;
 
-      // Add more filters here as needed (city, rating, etc.)
-      return matchesSearch && matchesCategory;
+      const matchesRating =
+        filters.rating === "all" ||
+        (product.averageRating ?? 4.8) >= parseFloat(filters.rating);
+
+      return matchesSearch && matchesCategory && matchesRating;
     });
   }, [products, filters]);
 

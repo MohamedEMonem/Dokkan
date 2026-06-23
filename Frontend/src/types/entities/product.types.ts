@@ -31,6 +31,8 @@ export interface IProductInfo {
   status: EProductStatus;
   images?: IProductImage[];
   store?: Pick<IStore, "id" | "name" | "subdomain">;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 /* ────────────────────────────────────────────────────────
