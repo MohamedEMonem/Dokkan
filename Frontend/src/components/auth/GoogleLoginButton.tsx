@@ -34,7 +34,13 @@ export const GoogleLoginButton = ({ role, action }: GoogleLoginButtonProps) => {
           : "تم إنشاء الحساب باستخدام جوجل بنجاح";
         showNotification({ message: successMessage, variant: "success" });
         
-        response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
+        if (action === 'signup' && response.data.user.role === EUserRole.StoreOwner) {
+          navigate("/store/onboarding/welcome");
+        } else if (response.data.user.role === EUserRole.Customer) {
+          navigate("/");
+        } else {
+          navigate("/dashboard");
+        }
       } catch (error: any) {
         const defaultError = action === 'login' 
           ? "حدث خطأ أثناء الدخول عبر جوجل" 
