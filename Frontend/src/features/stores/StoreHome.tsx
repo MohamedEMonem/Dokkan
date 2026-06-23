@@ -12,263 +12,8 @@ import {
 import ErrorPage from "@/pages/ErrorPage";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { IProduct } from "@/types/entities/product.types";
-import { EProductStatus } from "@/types/entities/product.types";
-
-// Mock store data
-const MOCK_STORE = {
-  id: "store-123",
-  name: "متجر الأمل للملابس والأحذية",
-  subdomain: "al-amal",
-  description: "أحدث الموديلات العالمية بأفضل الأسعار وأعلى جودة. ملابس رجالية، نسائية، وأحذية تناسب جميع الأذواق.",
-  logoUrl: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
-  coverBannerUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  businessAddress: "١٢ شارع شهاب، المهندسين، الجيزة",
-  supportEmail: "info@alamal-store.com",
-  phoneNumber: "+201012345678",
-  operatingHours: "يومياً من ١٠ صباحاً حتى ١١ مساءً",
-  averageRating: 4.8,
-  reviewCount: 312,
-};
-
-// Mock products data matching IProduct structure
-const MOCK_PRODUCTS: any[] = [
-  // Subcategory 1: Clothes
-  {
-    id: "p1",
-    title: "تيشيرت قطني كاجوال",
-    price: 349.99,
-    stockQuantity: 15,
-    status: EProductStatus.Active,
-    images: [
-      {
-        id: "img1",
-        productId: "p1",
-        imageUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500",
-      }
-    ],
-    storeId: "store-123",
-    subCategoryId: "subcat-clothes",
-    categoryId: "cat-1",
-    store: {
-      id: "store-123",
-      name: "متجر الأمل للملابس والأحذية",
-      subdomain: "al-amal",
-    },
-    subCategory: {
-      id: "subcat-clothes",
-      name: "ملابس رجالية",
-    }
-  },
-  {
-    id: "p2",
-    title: "قميص كلاسيك فاخر",
-    price: 499.99,
-    stockQuantity: 8,
-    status: EProductStatus.Active,
-    images: [
-      {
-        id: "img2",
-        productId: "p2",
-        imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500",
-      }
-    ],
-    storeId: "store-123",
-    subCategoryId: "subcat-clothes",
-    categoryId: "cat-1",
-    store: {
-      id: "store-123",
-      name: "متجر الأمل للملابس والأحذية",
-      subdomain: "al-amal",
-    },
-    subCategory: {
-      id: "subcat-clothes",
-      name: "ملابس رجالية",
-    }
-  },
-  {
-    id: "p3",
-    title: "بنطلون جينز عصري",
-    price: 599.99,
-    stockQuantity: 20,
-    status: EProductStatus.Active,
-    images: [
-      {
-        id: "img3",
-        productId: "p3",
-        imageUrl: "https://images.unsplash.com/photo-1542272604-787c3835535d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500",
-      }
-    ],
-    storeId: "store-123",
-    subCategoryId: "subcat-clothes",
-    categoryId: "cat-1",
-    store: {
-      id: "store-123",
-      name: "متجر الأمل للملابس والأحذية",
-      subdomain: "al-amal",
-    },
-    subCategory: {
-      id: "subcat-clothes",
-      name: "ملابس رجالية",
-    }
-  },
-  {
-    id: "p4",
-    title: "جاكيت شتوي أنيق",
-    price: 1299.99,
-    stockQuantity: 5,
-    status: EProductStatus.Active,
-    images: [
-      {
-        id: "img4",
-        productId: "p4",
-        imageUrl: "https://images.unsplash.com/photo-1551028719-00167b16eac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500",
-      }
-    ],
-    storeId: "store-123",
-    subCategoryId: "subcat-clothes",
-    categoryId: "cat-1",
-    store: {
-      id: "store-123",
-      name: "متجر الأمل للملابس والأحذية",
-      subdomain: "al-amal",
-    },
-    subCategory: {
-      id: "subcat-clothes",
-      name: "ملابس رجالية",
-    }
-  },
-  {
-    id: "p5",
-    title: "بليزر رجالي رسمي",
-    price: 1899.99,
-    stockQuantity: 3,
-    status: EProductStatus.Active,
-    images: [
-      {
-        id: "img5",
-        productId: "p5",
-        imageUrl: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500",
-      }
-    ],
-    storeId: "store-123",
-    subCategoryId: "subcat-clothes",
-    categoryId: "cat-1",
-    store: {
-      id: "store-123",
-      name: "متجر الأمل للملابس والأحذية",
-      subdomain: "al-amal",
-    },
-    subCategory: {
-      id: "subcat-clothes",
-      name: "ملابس رجالية",
-    }
-  },
-  // Subcategory 2: Shoes
-  {
-    id: "p6",
-    title: "حذاء رياضي مريح",
-    price: 799.99,
-    stockQuantity: 12,
-    status: EProductStatus.Active,
-    images: [
-      {
-        id: "img6",
-        productId: "p6",
-        imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500",
-      }
-    ],
-    storeId: "store-123",
-    subCategoryId: "subcat-shoes",
-    categoryId: "cat-1",
-    store: {
-      id: "store-123",
-      name: "متجر الأمل للملابس والأحذية",
-      subdomain: "al-amal",
-    },
-    subCategory: {
-      id: "subcat-shoes",
-      name: "أحذية رياضية",
-    }
-  },
-  {
-    id: "p7",
-    title: "حذاء جري ديناميكي",
-    price: 949.99,
-    stockQuantity: 0, // Out of stock to test badge
-    status: EProductStatus.Active,
-    images: [
-      {
-        id: "img7",
-        productId: "p7",
-        imageUrl: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500",
-      }
-    ],
-    storeId: "store-123",
-    subCategoryId: "subcat-shoes",
-    categoryId: "cat-1",
-    store: {
-      id: "store-123",
-      name: "متجر الأمل للملابس والأحذية",
-      subdomain: "al-amal",
-    },
-    subCategory: {
-      id: "subcat-shoes",
-      name: "أحذية رياضية",
-    }
-  },
-  {
-    id: "p8",
-    title: "حذاء كلاسيكي جلدي",
-    price: 899.99,
-    stockQuantity: 4, // Low stock to test badge
-    status: EProductStatus.Active,
-    images: [
-      {
-        id: "img8",
-        productId: "p8",
-        imageUrl: "https://images.unsplash.com/photo-1533867617858-e7b97e060509?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500",
-      }
-    ],
-    storeId: "store-123",
-    subCategoryId: "subcat-shoes",
-    categoryId: "cat-1",
-    store: {
-      id: "store-123",
-      name: "متجر الأمل للملابس والأحذية",
-      subdomain: "al-amal",
-    },
-    subCategory: {
-      id: "subcat-shoes",
-      name: "أحذية رياضية",
-    }
-  },
-  {
-    id: "p9",
-    title: "سنيكرز عصري أبيض",
-    price: 699.99,
-    stockQuantity: 18,
-    status: EProductStatus.Active,
-    images: [
-      {
-        id: "img9",
-        productId: "p9",
-        imageUrl: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500",
-      }
-    ],
-    storeId: "store-123",
-    subCategoryId: "subcat-shoes",
-    categoryId: "cat-1",
-    store: {
-      id: "store-123",
-      name: "متجر الأمل للملابس والأحذية",
-      subdomain: "al-amal",
-    },
-    subCategory: {
-      id: "subcat-shoes",
-      name: "أحذية رياضية",
-    }
-  },
-];
+import { useListStoresQuery } from "@/api/store.api";
+import { useGetProductsByStoreIdQuery } from "@/api/product.api";
 
 interface ProductSliderProps {
   products: IProduct[];
@@ -340,14 +85,20 @@ const StoreHome: React.FC = () => {
   // Extract the subdomain (slice off the '@' prefix)
   const cleanSubdomain = subdomain.slice(1);
 
-  // In this demo stage, we use MOCK_STORE, but show the URL subdomain for visual validation
-  const store = useMemo(() => {
-    return {
-      ...MOCK_STORE,
-      subdomain: cleanSubdomain,
-      name: cleanSubdomain ? `متجر ${cleanSubdomain}` : MOCK_STORE.name,
-    };
-  }, [cleanSubdomain]);
+  // 1. Fetch store info by subdomain slug
+  const { data: storeResponse, isLoading: isStoreLoading, isError: isStoreError } = useListStoresQuery({
+    subdomain: cleanSubdomain,
+  });
+
+  const store = storeResponse?.data?.stores?.[0];
+
+  // 2. Fetch products for this store (skip if store not loaded yet)
+  const { data: productsResponse, isLoading: isProductsLoading } = useGetProductsByStoreIdQuery(
+    store?.id || "",
+    { skip: !store?.id }
+  );
+
+  const productsList = productsResponse?.data?.products || [];
 
   // Group products by subcategory
   const groupedProducts = useMemo(() => {
@@ -356,7 +107,7 @@ const StoreHome: React.FC = () => {
       { id: string; name: string; products: IProduct[] }
     > = {};
 
-    (MOCK_PRODUCTS as unknown as IProduct[]).forEach((product) => {
+    productsList.forEach((product) => {
       const subCat = (product as any).subCategory;
       if (subCat) {
         if (!groups[subCat.id]) {
@@ -371,14 +122,29 @@ const StoreHome: React.FC = () => {
     });
 
     return Object.values(groups);
-  }, []);
+  }, [productsList]);
+
+  if (isStoreLoading) {
+    return (
+      <div className="bg-gray-50 min-h-screen flex items-center justify-center" dir="rtl">
+        <p className="text-gray-600 text-lg">جاري تحميل المتجر...</p>
+      </div>
+    );
+  }
+
+  if (isStoreError || !store) {
+    return <ErrorPage />;
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16" dir="rtl">
       {/* Store Banner */}
       <div className="h-64 sm:h-80 w-full relative overflow-hidden bg-gray-200">
         <img
-          src={store.coverBannerUrl}
+          src={
+            store.coverBannerUrl ||
+            "https://images.unsplash.com/photo-1441986300917-64674bd600d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg"
+          }
           alt={store.name}
           className="w-full h-full object-cover"
         />
@@ -392,7 +158,10 @@ const StoreHome: React.FC = () => {
             {/* Logo */}
             <div className="size-24 sm:size-32 rounded-2xl overflow-hidden border-4 border-white shadow-lg bg-white shrink-0">
               <img
-                src={store.logoUrl}
+                src={
+                  store.logoUrl ||
+                  "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg"
+                }
                 alt={store.name}
                 className="w-full h-full object-cover"
               />
@@ -409,69 +178,87 @@ const StoreHome: React.FC = () => {
                 </span>
               </div>
               <p className="text-text-muted text-sm sm:text-base max-w-2xl mb-4 leading-relaxed">
-                {store.description}
+                {store.description || "أهلاً بكم في متجرنا الإلكتروني!"}
               </p>
 
               {/* Rating */}
               <div className="flex items-center justify-center sm:justify-start gap-1.5 text-sm">
-                <span className="text-text-dark font-bold">{store.averageRating}</span>
+                <span className="text-text-dark font-bold">{store.averageRating || "4.8"}</span>
                 <div className="flex items-center text-accent">
                   <Star size={16} fill="currentColor" className="text-accent" />
                 </div>
-                <span className="text-text-muted">({store.reviewCount} تقييم)</span>
+                <span className="text-text-muted">({store.reviewCount || "0"} تقييم)</span>
               </div>
             </div>
           </div>
 
           {/* Contact Details Card */}
           <div className="border-t md:border-t-0 md:border-r border-gray-100 pt-6 md:pt-0 md:pr-8 flex flex-col gap-3.5 text-sm text-text-muted shrink-0 min-w-[280px]">
-            <div className="flex items-center gap-3 justify-start">
-              <MapPin size={18} className="text-primary shrink-0" />
-              <span>{store.businessAddress}</span>
-            </div>
-            <div className="flex items-center gap-3 justify-start">
-              <Phone size={18} className="text-primary shrink-0" />
-              <span dir="ltr">{store.phoneNumber}</span>
-            </div>
-            <div className="flex items-center gap-3 justify-start">
-              <Mail size={18} className="text-primary shrink-0" />
-              <span>{store.supportEmail}</span>
-            </div>
-            <div className="flex items-center gap-3 justify-start">
-              <Clock size={18} className="text-primary shrink-0" />
-              <span>{store.operatingHours}</span>
-            </div>
+            {store.businessAddress && (
+              <div className="flex items-center gap-3 justify-start">
+                <MapPin size={18} className="text-primary shrink-0" />
+                <span>{store.businessAddress}</span>
+              </div>
+            )}
+            {store.phoneNumber && (
+              <div className="flex items-center gap-3 justify-start">
+                <Phone size={18} className="text-primary shrink-0" />
+                <span dir="ltr">{store.phoneNumber}</span>
+              </div>
+            )}
+            {store.supportEmail && (
+              <div className="flex items-center gap-3 justify-start">
+                <Mail size={18} className="text-primary shrink-0" />
+                <span>{store.supportEmail}</span>
+              </div>
+            )}
+            {store.operatingHours && (
+              <div className="flex items-center gap-3 justify-start">
+                <Clock size={18} className="text-primary shrink-0" />
+                <span>{String(store.operatingHours)}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Subcategory Sections */}
       <div className="container mx-auto px-4 flex flex-col gap-12">
-        {groupedProducts.map((group) => (
-          <section key={group.id} className="relative">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6 pb-2 border-b border-gray-100">
-              <Link
-                to={`/@${store.subdomain}/products?subcat=${group.id}`}
-                className="group flex items-center gap-2 hover:text-primary transition-colors text-right"
-              >
-                <h2 className="text-xl sm:text-2xl font-bold text-text-dark group-hover:text-primary transition-colors">
-                  {group.name}
-                </h2>
-                <ChevronLeft size={20} className="text-text-muted group-hover:text-primary group-hover:-translate-x-1 transition-all" />
-              </Link>
-              <Link
-                to={`/@${store.subdomain}/products?subcat=${group.id}`}
-                className="text-sm font-semibold text-primary hover:underline"
-              >
-                عرض الكل
-              </Link>
-            </div>
+        {isProductsLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">جاري تحميل المنتجات...</p>
+          </div>
+        ) : groupedProducts.length === 0 ? (
+          <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm">
+            <p className="text-text-muted">لا توجد منتجات معروضة في هذا المتجر حالياً.</p>
+          </div>
+        ) : (
+          groupedProducts.map((group) => (
+            <section key={group.id} className="relative">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6 pb-2 border-b border-gray-100">
+                <Link
+                  to={`/@${store.subdomain}/products?subcat=${group.id}`}
+                  className="group flex items-center gap-2 hover:text-primary transition-colors text-right"
+                >
+                  <h2 className="text-xl sm:text-2xl font-bold text-text-dark group-hover:text-primary transition-colors">
+                    {group.name}
+                  </h2>
+                  <ChevronLeft size={20} className="text-text-muted group-hover:text-primary group-hover:-translate-x-1 transition-all" />
+                </Link>
+                <Link
+                  to={`/@${store.subdomain}/products?subcat=${group.id}`}
+                  className="text-sm font-semibold text-primary hover:underline"
+                >
+                  عرض الكل
+                </Link>
+              </div>
 
-            {/* Slider */}
-            <ProductSlider products={group.products} />
-          </section>
-        ))}
+              {/* Slider */}
+              <ProductSlider products={group.products} />
+            </section>
+          ))
+        )}
       </div>
     </div>
   );

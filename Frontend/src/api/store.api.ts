@@ -21,7 +21,7 @@ export const storeApi = apiSlice.injectEndpoints({
     // Browse active stores with pagination
     listStores: builder.query<
       IPaginatedResponse<Partial<IStore>, "stores">,
-      { page?: number; limit?: number } | void
+      { page?: number; limit?: number; subdomain?: string } | void
     >({
       query: (params) => ({
         url: "/stores",
