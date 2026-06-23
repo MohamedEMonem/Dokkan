@@ -7,6 +7,7 @@ import { useListStoresQuery } from "@/api/store.api";
 import { useGetProductsByStoreIdQuery } from "@/api/product.api";
 import FilterAsideBar from "@/components/ui/FilterAsideBar";
 import { Button } from "@/components/ui/Button";
+import { Pagination } from "@/components/ui/Pagination";
 
 const StoreProducts: React.FC = () => {
   const { subdomain } = useParams<{ subdomain: string }>();
@@ -23,6 +24,15 @@ const StoreProducts: React.FC = () => {
     rating: "all",
     shipping: false,
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
+
+  const [prevFilters, setPrevFilters] = useState(filters);
+  if (filters !== prevFilters) {
+    setPrevFilters(filters);
+    setCurrentPage(1);
+  }
 
   // If the parameter doesn't exist or doesn't start with '@', treat it as a 404 page
   if (!subdomain || !subdomain.startsWith("@")) {
@@ -112,6 +122,23 @@ const StoreProducts: React.FC = () => {
     });
   };
 
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+
+  const fromIndex = paginatedProducts.length
+    ? (currentPage - 1) * ITEMS_PER_PAGE + 1
+    : 0;
+  const toIndex = (currentPage - 1) * ITEMS_PER_PAGE + paginatedProducts.length;
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (isStoreLoading) {
     return (
       <div className="bg-gray-50 min-h-screen flex items-center justify-center" dir="rtl">
@@ -169,17 +196,22 @@ const StoreProducts: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Mobile Filter Toggle Button */}
-        <div className="flex items-center lg:hidden mb-6">
-          <Button
-            variant="outline-accent"
-            onClick={() => setIsMobileFilterOpen(true)}
-            className="h-9! items-center gap-2 px-4 py-2.5 border! text-gray-700!"
-            icon={<SlidersHorizontal size={18} className="text-gray-500" />}
-            iconPos="right"
-          >
-            <span className="text-sm font-medium">الفلاتر</span>
-          </Button>
+        {/* Count and Mobile Filter Toggle */}
+        <div className="flex items-center justify-between mb-6 gap-4">
+          <p className="text-gray-600 text-sm">
+            عرض {fromIndex}–{toIndex} من أصل {filteredProducts.length} منتج
+          </p>
+          <div className="flex items-center lg:hidden">
+            <Button
+              variant="outline-accent"
+              onClick={() => setIsMobileFilterOpen(true)}
+              className="h-9! items-center gap-2 px-4 py-2.5 border! text-gray-700!"
+              icon={<SlidersHorizontal size={18} className="text-gray-500" />}
+              iconPos="right"
+            >
+              <span className="text-sm font-medium">الفلاتر</span>
+            </Button>
+          </div>
         </div>
 
         <div className="flex gap-8 items-start">
@@ -222,10 +254,17 @@ const StoreProducts: React.FC = () => {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
+              <div className="flex flex-col gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {paginatedProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
               </div>
             )}
           </div>
