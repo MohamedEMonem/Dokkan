@@ -1,22 +1,17 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { ICategory } from "@/types/entities/category.types";
 import { Funnel, Search } from "lucide-react";
-// eslint-disable-next-line react-refresh/only-export-components
-export const mockCategories: ICategory[] = [
-  { id: "electronics", name: "الإلكترونيات" },
-  { id: "fashion", name: "الموضة والأزياء" },
-  { id: "home", name: "المنزل والمعيشة" },
-  { id: "beauty", name: "مستحضرات التجميل" },
-  { id: "sports", name: "الرياضة" },
-  { id: "books", name: "الكتب" },
-];
+import { useGetCategoriesQuery } from "@/api/category.api";
 
-const categoryOptions = [
-  { id: "all", name: "كل التصنيفات" },
-  ...mockCategories,
-];
+const categoryTranslations: Record<string, string> = {
+  "Electronics": "الإلكترونيات",
+  "Fashion": "الموضة والأزياء",
+  "Home & Kitchen": "المنزل والمعيشة",
+  "Beauty & Cosmetics": "مستحضرات التجميل",
+  "Sports": "الرياضة",
+  "Books": "الكتب",
+};
 
 const cityOptions = [
   { value: "all", label: "كل المدن" },
@@ -69,6 +64,9 @@ interface IProps {
 }
 
 const FilterAsideBar = ({ filters, setFilters, isOpen, onClose }: IProps) => {
+  const { data: categoriesData } = useGetCategoriesQuery();
+  const categoriesList = categoriesData?.data ?? [];
+
   const updateFilter = (key: keyof typeof filters, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -133,10 +131,17 @@ const FilterAsideBar = ({ filters, setFilters, isOpen, onClose }: IProps) => {
             {/* Category */}
             <FilterSection title="التصنيف">
               <div className="space-y-2">
-                {categoryOptions.map((cat) => (
+                <RadioItem
+                  label="كل التصنيفات"
+                  itemId="all"
+                  name="category"
+                  value={filters.category}
+                  setValue={(val) => updateFilter("category", val)}
+                />
+                {categoriesList.map((cat) => (
                   <RadioItem
                     key={cat.id}
-                    label={cat.name}
+                    label={categoryTranslations[cat.name] || cat.name}
                     itemId={cat.id}
                     name="category"
                     value={filters.category}
