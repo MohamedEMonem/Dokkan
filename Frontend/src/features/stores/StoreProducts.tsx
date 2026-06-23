@@ -1,64 +1,29 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { ArrowRight, Star, SlidersHorizontal } from "lucide-react";
 import ErrorPage from "@/pages/ErrorPage";
 import { ProductCard } from "@/features/products/components/ProductCard";
+import { IProduct } from "@/types/entities/product.types";
 import { useListStoresQuery } from "@/api/store.api";
 import { useGetProductsByStoreIdQuery } from "@/api/product.api";
-
-interface StoreSidebarProps {
-  subcategories: { id: string; name: string }[];
-  activeSubcat: string | null;
-  onSubcatClick: (id: string | null) => void;
-}
-
-const StoreSidebar: React.FC<StoreSidebarProps> = ({
-  subcategories,
-  activeSubcat,
-  onSubcatClick,
-}) => {
-  return (
-    <aside className="hidden lg:block w-64 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 shrink-0 text-right">
-      <h3 className="text-base font-bold text-text-dark mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
-        <SlidersHorizontal size={16} className="text-primary" />
-        <span>الأقسام الفرعية</span>
-      </h3>
-      <ul className="flex flex-col gap-1.5">
-        <li>
-          <button
-            onClick={() => onSubcatClick(null)}
-            className={`w-full text-right px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-              !activeSubcat
-                ? "bg-primary text-white shadow-md shadow-primary/20"
-                : "text-text-muted hover:bg-gray-50 hover:text-text-dark"
-            }`}
-          >
-            جميع المنتجات
-          </button>
-        </li>
-        {subcategories.map((sub) => (
-          <li key={sub.id}>
-            <button
-              onClick={() => onSubcatClick(sub.id)}
-              className={`w-full text-right px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                activeSubcat === sub.id
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "text-text-muted hover:bg-gray-50 hover:text-text-dark"
-              }`}
-            >
-              {sub.name}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </aside>
-  );
-};
+import FilterAsideBar from "@/components/ui/FilterAsideBar";
+import { Button } from "@/components/ui/Button";
 
 const StoreProducts: React.FC = () => {
   const { subdomain } = useParams<{ subdomain: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeSubcat = searchParams.get("subcat");
+
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  // Filter state structure matching FilterAsideBar expectations
+  const [filters, setFilters] = useState({
+    search: "",
+    category: activeSubcat || "all",
+    city: "all",
+    rating: "all",
+    shipping: false,
+  });
 
   // If the parameter doesn't exist or doesn't start with '@', treat it as a 404 page
   if (!subdomain || !subdomain.startsWith("@")) {
@@ -95,21 +60,48 @@ const StoreProducts: React.FC = () => {
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [productsList]);
 
-  // Filter products based on search parameter
-  const filteredProducts = useMemo(() => {
-    if (!activeSubcat) return productsList;
+  // Sync category filter state if URL subcat param changes externally
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      category: activeSubcat || "all",
+    }));
+  }, [activeSubcat]);
 
-    return productsList.filter((p) => p.subCategoryId === activeSubcat);
-  }, [productsList, activeSubcat]);
-
-  const handleSubcatClick = (id: string | null) => {
-    if (id) {
-      setSearchParams({ subcat: id });
-    } else {
+  // Sync URL search param if category changes inside FilterAsideBar
+  useEffect(() => {
+    if (filters.category === "all") {
       searchParams.delete("subcat");
-      setSearchParams(searchParams);
+    } else {
+      searchParams.set("subcat", filters.category);
     }
-  };
+    setSearchParams(searchParams);
+  }, [filters.category]);
+
+  // Filter products based on search terms and selected subcategory
+  const filteredProducts = useMemo(() => {
+    let list = productsList;
+
+    if (filters.category !== "all") {
+      list = list.filter((p) => p.subCategoryId === filters.category);
+    }
+
+    if (filters.search) {
+      const q = filters.search.trim().toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          (p.description || "").toLowerCase().includes(q)
+      );
+    }
+
+    if (filters.rating !== "all") {
+      const minRating = parseFloat(filters.rating);
+      list = list.filter((p) => (p.averageRating ?? 4.8) >= minRating);
+    }
+
+    return list;
+  }, [productsList, filters.category, filters.search, filters.rating]);
 
   if (isStoreLoading) {
     return (
@@ -168,40 +160,33 @@ const StoreProducts: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
-          {/* Subcategories Sidebar - Desktop */}
-          <StoreSidebar
-            subcategories={subcategories}
-            activeSubcat={activeSubcat}
-            onSubcatClick={handleSubcatClick}
-          />
+        {/* Mobile Filter Toggle Button */}
+        <div className="flex items-center lg:hidden mb-6">
+          <Button
+            variant="outline-accent"
+            onClick={() => setIsMobileFilterOpen(true)}
+            className="h-9! items-center gap-2 px-4 py-2.5 border! text-gray-700!"
+            icon={<SlidersHorizontal size={18} className="text-gray-500" />}
+            iconPos="right"
+          >
+            <span className="text-sm font-medium">الفلاتر</span>
+          </Button>
+        </div>
 
-          {/* Subcategories Filter - Mobile horizontal scroll */}
-          <div className="lg:hidden w-full overflow-x-auto pb-4 scrollbar-none flex gap-2 snap-x snap-mandatory">
-            <button
-              onClick={() => handleSubcatClick(null)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap snap-start border transition-all ${
-                !activeSubcat
-                  ? "bg-primary text-white border-primary shadow-sm"
-                  : "bg-white text-text-muted border-gray-200"
-              }`}
-            >
-              جميع المنتجات
-            </button>
-            {subcategories.map((sub) => (
-              <button
-                key={sub.id}
-                onClick={() => handleSubcatClick(sub.id)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap snap-start border transition-all ${
-                  activeSubcat === sub.id
-                    ? "bg-primary text-white border-primary shadow-sm"
-                    : "bg-white text-text-muted border-gray-200"
-                }`}
-              >
-                {sub.name}
-              </button>
-            ))}
-          </div>
+        <div className="flex gap-8 items-start">
+          {/* Reusable FilterAsideBar (handles desktop sidebar & mobile slide-out) */}
+          <FilterAsideBar
+            filters={filters}
+            setFilters={setFilters}
+            categories={subcategories}
+            showCity={false}
+            showShipping={false}
+            showRating={true}
+            showSearch={true}
+            showCategory={true}
+            isOpen={isMobileFilterOpen}
+            onClose={() => setIsMobileFilterOpen(false)}
+          />
 
           {/* Products Grid */}
           <div className="flex-1 w-full">
@@ -212,13 +197,13 @@ const StoreProducts: React.FC = () => {
             ) : filteredProducts.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm flex flex-col items-center">
                 <p className="text-text-muted text-base mb-4">
-                  لا توجد منتجات متوفرة في هذا القسم حالياً.
+                  لم يتم العثور على أي منتجات مطابقة لخيارات الفلترة.
                 </p>
                 <button
-                  onClick={() => handleSubcatClick(null)}
+                  onClick={() => setFilters((prev) => ({ ...prev, category: "all", search: "" }))}
                   className="bg-primary hover:bg-primary-dark text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all"
                 >
-                  عرض جميع المنتجات
+                  إعادة تعيين الفلاتر
                 </button>
               </div>
             ) : (
