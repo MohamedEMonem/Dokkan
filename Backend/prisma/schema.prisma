@@ -118,7 +118,6 @@ model Store {
   // Relations
   owner         User            @relation("StoreOwner", fields: [ownerId], references: [id])
   categories    Category[] // New relation for isolation
-  subCategories SubCategory[]
   products      Product[]
   orders        Order[]
   subscriptions Subscription[]
@@ -159,7 +158,6 @@ model Subscription {
 model Category {
   id               String         @id @default(uuid()) @map("category_id") @db.Uuid
   name             String         @db.VarChar(100)
-  parentCategoryId String?        @map("parent_category_id") @db.Uuid
 
   // Foreign key and relation to Store for tenant isolation
   storeId       String         @map("store_id") @db.Uuid
@@ -177,14 +175,12 @@ model SubCategory {
   id         String   @id @default(uuid()) @map("sub_category_id") @db.Uuid
   name       String   @db.VarChar(100)
   categoryId String   @map("category_id") @db.Uuid
-  storeId    String   @map("store_id") @db.Uuid
 
   // Relations
   category Category @relation(fields: [categoryId], references: [id])
-  store    Store    @relation(fields: [storeId], references: [id])
   products Product[]
 
-  @@unique([name, categoryId, storeId])
+  @@unique([name, categoryId])
   @@map("SubCategory")
 }
 
