@@ -262,6 +262,55 @@ const MOCK_PRODUCTS: any[] = [
   },
 ];
 
+interface StoreSidebarProps {
+  subcategories: { id: string; name: string }[];
+  activeSubcat: string | null;
+  onSubcatClick: (id: string | null) => void;
+}
+
+const StoreSidebar: React.FC<StoreSidebarProps> = ({
+  subcategories,
+  activeSubcat,
+  onSubcatClick,
+}) => {
+  return (
+    <aside className="hidden lg:block w-64 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 shrink-0 text-right">
+      <h3 className="text-base font-bold text-text-dark mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+        <SlidersHorizontal size={16} className="text-primary" />
+        <span>الأقسام الفرعية</span>
+      </h3>
+      <ul className="flex flex-col gap-1.5">
+        <li>
+          <button
+            onClick={() => onSubcatClick(null)}
+            className={`w-full text-right px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              !activeSubcat
+                ? "bg-primary text-white shadow-md shadow-primary/20"
+                : "text-text-muted hover:bg-gray-50 hover:text-text-dark"
+            }`}
+          >
+            جميع المنتجات
+          </button>
+        </li>
+        {subcategories.map((sub) => (
+          <li key={sub.id}>
+            <button
+              onClick={() => onSubcatClick(sub.id)}
+              className={`w-full text-right px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                activeSubcat === sub.id
+                  ? "bg-primary text-white shadow-md shadow-primary/20"
+                  : "text-text-muted hover:bg-gray-50 hover:text-text-dark"
+              }`}
+            >
+              {sub.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
+};
+
 const StoreProducts: React.FC = () => {
   const { subdomain } = useParams<{ subdomain: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -357,40 +406,11 @@ const StoreProducts: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           {/* Subcategories Sidebar - Desktop */}
-          <aside className="hidden lg:block w-64 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 shrink-0 text-right">
-            <h3 className="text-base font-bold text-text-dark mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
-              <SlidersHorizontal size={16} className="text-primary" />
-              <span>الأقسام الفرعية</span>
-            </h3>
-            <ul className="flex flex-col gap-1.5">
-              <li>
-                <button
-                  onClick={() => handleSubcatClick(null)}
-                  className={`w-full text-right px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                    !activeSubcat
-                      ? "bg-primary text-white shadow-md shadow-primary/20"
-                      : "text-text-muted hover:bg-gray-50 hover:text-text-dark"
-                  }`}
-                >
-                  جميع المنتجات
-                </button>
-              </li>
-              {subcategories.map((sub) => (
-                <li key={sub.id}>
-                  <button
-                    onClick={() => handleSubcatClick(sub.id)}
-                    className={`w-full text-right px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      activeSubcat === sub.id
-                        ? "bg-primary text-white shadow-md shadow-primary/20"
-                        : "text-text-muted hover:bg-gray-50 hover:text-text-dark"
-                    }`}
-                  >
-                    {sub.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </aside>
+          <StoreSidebar
+            subcategories={subcategories}
+            activeSubcat={activeSubcat}
+            onSubcatClick={handleSubcatClick}
+          />
 
           {/* Subcategories Filter - Mobile horizontal scroll */}
           <div className="lg:hidden w-full overflow-x-auto pb-4 scrollbar-none flex gap-2 snap-x snap-mandatory">
