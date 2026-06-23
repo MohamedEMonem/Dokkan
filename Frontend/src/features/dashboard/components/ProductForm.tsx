@@ -31,6 +31,7 @@ const DEFAULT_VALUES: ProductFormData = {
   price: 0,
   stockQuantity: 0,
   categoryId: "",
+  subCategoryId: "",
   status: EProductStatus.Active,
   description: "",
 };
@@ -63,7 +64,7 @@ export const ProductForm = ({
   const categoryOptions = useMemo(() => {
     const categories = categoriesResponse?.data || [];
     return [
-      { value: "", label: "اختر القسم" },
+      { value: "", label: "اختر القسم الرئيسي" },
       ...categories.map((cat) => ({
         value: cat.id,
         label: cat.name,
@@ -115,11 +116,34 @@ export const ProductForm = ({
     register,
     handleSubmit,
     control,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: { ...DEFAULT_VALUES, ...initialData },
   });
+
+  const categoryId = watch("categoryId");
+
+  const subCategoryOptions = useMemo(() => {
+    const categories = categoriesResponse?.data || [];
+    const selectedCategory = categories.find((cat) => cat.id === categoryId);
+    const subCats = selectedCategory?.subCategories || [];
+    return [
+      { value: "", label: "اختر القسم الفرعي" },
+      ...subCats.map((sc: any) => ({
+        value: sc.id,
+        label: sc.name,
+      })),
+    ];
+  }, [categoriesResponse, categoryId]);
+
+  useEffect(() => {
+    if (initialData?.categoryId !== categoryId) {
+      setValue("subCategoryId", "");
+    }
+  }, [categoryId, setValue, initialData]);
 
   const onFormSubmit = (data: ProductFormData) => {
     const formData = new FormData();
@@ -128,6 +152,7 @@ export const ProductForm = ({
       "price",
       "stockQuantity",
       "categoryId",
+      "subCategoryId",
       "description",
       "status",
     ];
@@ -248,26 +273,53 @@ export const ProductForm = ({
             </div>
           </div>
 
-          <Controller
-            name="categoryId"
-            control={control}
-            render={({ field }) => (
-              <Select
-                label="القسم"
-                required
-                {...field}
-                value={field.value ?? ""}
-                options={categoryOptions}
-                className="border-accent-light"
-                disabled={isLoadingCategories}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Controller
+                name="categoryId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    label="القسم الرئيسي"
+                    required
+                    {...field}
+                    value={field.value ?? ""}
+                    options={categoryOptions}
+                    className="border-accent-light"
+                    disabled={isLoadingCategories}
+                  />
+                )}
               />
-            )}
-          />
-          {errors.categoryId && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.categoryId.message}
-            </p>
-          )}
+              {errors.categoryId && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.categoryId.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Controller
+                name="subCategoryId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    label="القسم الفرعي"
+                    required
+                    {...field}
+                    value={field.value ?? ""}
+                    options={subCategoryOptions}
+                    className="border-accent-light"
+                    disabled={isLoadingCategories || !categoryId}
+                  />
+                )}
+              />
+              {errors.subCategoryId && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.subCategoryId.message}
+                </p>
+              )}
+            </div>
+          </div>
 
           <TextArea
             label="وصف المنتج"
