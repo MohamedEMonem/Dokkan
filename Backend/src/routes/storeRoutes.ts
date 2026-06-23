@@ -90,6 +90,7 @@ router.get(
      #swagger.parameters['sortDir'] = { in: 'query', type: 'string', required: false, example: 'desc' }
      #swagger.responses[200] = { description: 'Stores retrieved successfully' }
   */
+  (await import("../middleware/auth.js")).authOptional,
   listStores,
 );
 

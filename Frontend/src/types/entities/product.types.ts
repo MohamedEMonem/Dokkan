@@ -23,6 +23,7 @@ export interface IProductImageInfo {
 export interface IProductInfo {
   storeId: string;
   categoryId: string;
+  subCategoryId: string;
   title: string;
   description?: string;
   price: number;

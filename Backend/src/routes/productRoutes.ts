@@ -1,6 +1,6 @@
 import express from "express";
 import { createProduct, deleteProduct, getProductById, listProducts, updateProduct } from "../controllers/ProductController.js";
-import { auth, authStoreOwner } from "../middleware/auth.js";
+import { auth, authStoreOwner, authOptional } from "../middleware/auth.js";
 import {upload} from "../middleware/uploadValidator.js";
 import { validateBody } from "../middleware/validate.middleware.js"
 import {productSchema,updateProductSchema} from "../DTO/product.dto.js";
@@ -19,6 +19,7 @@ router.get("/",
      #swagger.responses[200] = { description: 'Products retrieved successfully' }
      #swagger.responses[500] = { description: 'Internal server error' }
   */
+  authOptional,
   listProducts
 );
 
@@ -30,6 +31,7 @@ router.get("/:id",
      #swagger.responses[200] = { description: 'Product retrieved successfully' }
      #swagger.responses[404] = { description: 'Product not found' }
   */
+  authOptional,
   getProductById
 );
 
@@ -45,10 +47,10 @@ router.post("/", auth, authStoreOwner, upload.single("image"), validateBody(prod
          "multipart/form-data": {
            schema: {
              type: "object",
-             required: ["storeId", "categoryId", "title", "price"],
+             required: ["storeId", "subCategoryId", "title", "price"],
              properties: {
                storeId: { type: "string", format: "uuid", example: "1b3b0de0-b3f7-4d17-9df1-c1b3d31a3fd0" },
-               categoryId: { type: "string", format: "uuid", example: "2c4a1e18-38f5-4d17-b8a0-0a3d4c15cf66" },
+               subCategoryId: { type: "string", format: "uuid", example: "2c4a1e18-38f5-4d17-b8a0-0a3d4c15cf66" },
                title: { type: "string", example: "Summer Tee" },
                description: { type: "string", example: "Comfortable cotton t-shirt" },
                price: { type: "number", example: 29.99 },
@@ -82,7 +84,7 @@ router.patch("/:id", auth, authStoreOwner, validateBody(updateProductSchema),
              properties: {
                title: { type: "string" },
                description: { type: "string" },
-               categoryId: { type: "string", format: "uuid" },
+               subCategoryId: { type: "string", format: "uuid" },
                price: { type: "number" },
                stockQuantity: { type: "integer" },
                status: { type: "string", enum: ["Active", "Inactive"] }

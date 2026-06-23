@@ -19,6 +19,7 @@ export const apiSlice = createApi({
     "Auth",
     "Category",
     "Product",
-    "Store"
+    "Store",
+    "Plan"
   ]
 });

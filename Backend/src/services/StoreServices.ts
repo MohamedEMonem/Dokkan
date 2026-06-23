@@ -100,6 +100,7 @@ export class StoreServices {
         coverBannerUrl: true,
         businessAddress: true,
         vatNumber: true,
+        phoneNumber: true,
         themeSettings: true,
         createdAt: true,
         deletedAt: true,
@@ -109,14 +110,33 @@ export class StoreServices {
     return store;
   }
 
-  async listStores(query: ListStoresQueryDto) {
+  async listStores(query: ListStoresQueryDto, user?: { id: string; role?: string }) {
     const { page, limit, status, sortBy, sortDir } = query;
     const skip = (page - 1) * limit;
     const storeStatus: StoreStatus = status ?? "Active";
-    const where = {
+    let where: Prisma.StoreWhereInput = {
       deletedAt: null,
       status: storeStatus,
     };
+
+    if (user?.role === "Admin") {
+      where = {
+        ...(status ? { status } : {}),
+      };
+    } else if (user?.role === "StoreOwner") {
+      where = {
+        OR: [
+          {
+            deletedAt: null,
+            status: storeStatus,
+          },
+          {
+            ownerId: user.id,
+            ...(status ? { status } : {}),
+          }
+        ]
+      };
+    }
 
     const orderBy = {
       [sortBy]: sortDir,
