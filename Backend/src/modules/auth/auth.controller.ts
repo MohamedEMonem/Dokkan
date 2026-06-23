@@ -95,8 +95,32 @@ export const login = async (req: Request, res: Response) => {
     return sendServerError(res, "Internal server error", error);
   }
 };
-
 export const loginWithGoogle = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return sendError(res, "Authorization code is required.", 400);
+    }
+
+    const result = await authService.loginWithGoogle(code);
+
+    return res.status(result.statusCode).json({
+      success: true,
+      message: result.message,
+      data: {
+        user: result.user,
+        token: result.token,
+        refreshToken: result.refreshToken,
+      },
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signupWithGoogle = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { code, role } = req.body ;
 
@@ -116,7 +140,7 @@ export const loginWithGoogle = async (req: Request, res: Response, next: NextFun
 
     // Call the new Google method we added to the service
     
-    const result = await authService.loginWithGoogle(code, validatedRole);
+    const result = await authService.signupWithGoogle(code, validatedRole);
 
     // Return the standard Dokkan response payload
     return res.status(result.statusCode).json({

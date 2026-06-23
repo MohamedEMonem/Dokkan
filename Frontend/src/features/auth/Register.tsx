@@ -84,15 +84,15 @@ export const RegisterForm = (): React.JSX.Element => {
   return (
     <AuthCard title="إنشاء حساب جديد" subtitle="انضم إلى سوقنا اليوم">
       <div className="mb-6">
-        <GoogleLoginButton role={selectedRole} />
+        <GoogleLoginButton role={selectedRole} action="signup" />
         
         <div className="relative mt-6 flex items-center justify-center">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-200"></div>
           </div>
-          <div className="relative bg-white px-4 text-sm text-text-muted">
+          {/* <div className="relative bg-white px-4 text-sm text-text-muted">
             أو المتابعة بالبريد الإلكتروني
-          </div>
+          </div> */}
         </div>
       </div>
 

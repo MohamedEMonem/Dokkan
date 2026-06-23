@@ -49,7 +49,7 @@ export const LoginForm = (): React.JSX.Element => {
   return (
     <AuthCard title="تسجيل الدخول" subtitle="أهلاً بك مجدداً في دكان">
       <div className="mb-6">
-        <GoogleLoginButton />
+        <GoogleLoginButton action="login" />
         
         <div className="relative mt-6 flex items-center justify-center">
           <div className="absolute inset-0 flex items-center">

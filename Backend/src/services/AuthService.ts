@@ -192,7 +192,42 @@ export const authService = {
   generateOtp: generateOtp,
 
   // --- GOOGLE LOGIN INTEGRATED HERE ---
-  async loginWithGoogle(code: string, role: UserRole): Promise<AuthServiceResult> {
+  async loginWithGoogle(code: string): Promise<AuthServiceResult> {
+    const { tokens } = await googleClient.getToken(code);
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: tokens.id_token!,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) throw createHttpError("Invalid Google Payload", 400);
+
+    const { email } = payload;
+    const normalizedEmail = email!.trim().toLowerCase();
+
+    let user = await prisma.user.findFirst({
+      where: { email: normalizedEmail }
+    });
+
+    if (!user) {
+      throw createHttpError("User not found. Please sign up.", 404);
+    }
+
+    if (user.deletedAt) {
+      throw createHttpError("This account has been deleted.", 401);
+    }
+
+    return {
+      user: toPublicUser(user),
+      token: buildToken({ userId: user.id, email: user.email }),
+      refreshToken: (await issueRefreshToken(user.id, user.email)).refreshToken,
+      message: "Logged in successfully with Google",
+      statusCode: 200,
+    };
+  },
+
+  async signupWithGoogle(code: string, role: UserRole): Promise<AuthServiceResult> {
     // 1. Exchange code for tokens
     const { tokens } = await googleClient.getToken(code);
 
@@ -277,7 +312,10 @@ export const authService = {
       message: "Logged in successfully with Google",
       statusCode: 200,
     };
+
   },
+
+
 
   async register(input: RegisterAuthDto, otp: string): Promise<AuthServiceResult> {
     const normalizedEmail = input.email.trim().toLowerCase();

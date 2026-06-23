@@ -1,30 +1,45 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
-import { useLoginWithGoogleMutation } from '@/api/auth.api';
+import { useLoginWithGoogleMutation, useSignupWithGoogleMutation } from '@/api/auth.api';
 import { showNotification } from '@/utils/showNotification';
 import { EUserRole } from '@/types/entities/user.types';
 
 interface GoogleLoginButtonProps {
   role?: string;
+  action: 'login' | 'signup';
 }
 
-export const GoogleLoginButton = ({ role }: GoogleLoginButtonProps) => {
+export const GoogleLoginButton = ({ role, action }: GoogleLoginButtonProps) => {
   const navigate = useNavigate();
-  const [loginWithGoogle, { isLoading }] = useLoginWithGoogleMutation();
+  const [loginWithGoogle, { isLoading: isLoginLoading }] = useLoginWithGoogleMutation();
+  const [signupWithGoogle, { isLoading: isSignupLoading }] = useSignupWithGoogleMutation();
+
+  const isLoading = isLoginLoading || isSignupLoading;
 
   const login = useGoogleLogin({
     flow: 'auth-code',
     onSuccess: async (codeResponse) => {
       try {
-        const response = await loginWithGoogle({ code: codeResponse.code, role }).unwrap();
+        let response;
+        if (action === 'login') {
+          response = await loginWithGoogle({ code: codeResponse.code }).unwrap();
+        } else {
+          response = await signupWithGoogle({ code: codeResponse.code, role }).unwrap();
+        }
         
         localStorage.setItem("token", response.data.token);
         
-        showNotification({ message: "تم تسجيل الدخول باستخدام جوجل بنجاح", variant: "success" });
+        const successMessage = action === 'login' 
+          ? "تم تسجيل الدخول باستخدام جوجل بنجاح" 
+          : "تم إنشاء الحساب باستخدام جوجل بنجاح";
+        showNotification({ message: successMessage, variant: "success" });
         
         response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
       } catch (error: any) {
-        const errorMessage = error?.data?.message || error?.message || "حدث خطأ أثناء الدخول عبر جوجل";
+        const defaultError = action === 'login' 
+          ? "حدث خطأ أثناء الدخول عبر جوجل" 
+          : "حدث خطأ أثناء إنشاء الحساب عبر جوجل";
+        const errorMessage = error?.data?.message || error?.message || defaultError;
         showNotification({ message: errorMessage, variant: "error" });
       }
     },
@@ -32,6 +47,10 @@ export const GoogleLoginButton = ({ role }: GoogleLoginButtonProps) => {
       showNotification({ message: "فشل الاتصال بخوادم جوجل", variant: "error" });
     },
   });
+
+  const buttonText = isLoading 
+    ? (action === 'login' ? "جارٍ تسجيل الدخول..." : "جارٍ إنشاء الحساب...") 
+    : (action === 'login' ? "تسجيل الدخول باستخدام جوجل" : "إنشاء حساب باستخدام جوجل");
 
   return (
     <button
@@ -51,7 +70,7 @@ export const GoogleLoginButton = ({ role }: GoogleLoginButtonProps) => {
           <path fill="none" d="M0 0h48v48H0z" />
         </svg>
       )}
-      <span>{isLoading ? "جارٍ تسجيل الدخول..." : "المتابعة باستخدام جوجل"}</span>
+      <span>{buttonText}</span>
     </button>
   );
 };
