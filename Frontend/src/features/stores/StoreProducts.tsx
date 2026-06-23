@@ -3,7 +3,6 @@ import { useParams, useSearchParams, Link } from "react-router-dom";
 import { ArrowRight, Star, SlidersHorizontal } from "lucide-react";
 import ErrorPage from "@/pages/ErrorPage";
 import { ProductCard } from "@/features/products/components/ProductCard";
-import { IProduct } from "@/types/entities/product.types";
 import { useListStoresQuery } from "@/api/store.api";
 import { useGetProductsByStoreIdQuery } from "@/api/product.api";
 
