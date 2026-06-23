@@ -20,7 +20,6 @@ const listCategoriesQuerySchema = z.object({
 type CategoryRecord = {
   id: string;
   name: string;
-  storeId: string;
   [key: string]: unknown;
 };
 
@@ -35,23 +34,17 @@ const normalizeCategory = (category: CategoryRecord, kind: "Category" | "SubCate
   name: typeof category.name === "string" ? category.name.trimEnd() : category.name,
 });
 
-const findCategoryRecord = async (id: string, storeId?: string) => {
-  const category = await prisma.category.findFirst({
-    where: {
-      id,
-      ...(storeId ? { storeId } : {}),
-    },
+const findCategoryRecord = async (id: string) => {
+  const category = await prisma.category.findUnique({
+    where: { id },
   });
 
   if (category) {
     return { kind: "Category" as const, record: category as CategoryRecord };
   }
 
-  const subCategory = await prisma.subCategory.findFirst({
-    where: {
-      id,
-      ...(storeId ? { storeId } : {}),
-    },
+  const subCategory = await prisma.subCategory.findUnique({
+    where: { id },
   });
 
   if (subCategory) {
@@ -68,13 +61,11 @@ export const listCategories = async (req: Request, res: Response, next: NextFunc
       return sendValidationError(res, validation.error.format());
     }
 
-    const storeId = req.store?.id;
     const { parentCategoryId } = validation.data;
 
     if (parentCategoryId) {
       const categories = await prisma.subCategory.findMany({
         where: {
-          ...(storeId ? { storeId } : {}),
           categoryId: parentCategoryId,
         },
         orderBy: { name: "asc" },
@@ -88,9 +79,6 @@ export const listCategories = async (req: Request, res: Response, next: NextFunc
     }
 
     const categories = await prisma.category.findMany({
-      where: {
-        ...(storeId ? { storeId } : {}),
-      },
       orderBy: { name: "asc" },
       include: { subCategories: { orderBy: { name: "asc" } } },
     });
@@ -109,13 +97,12 @@ export const listCategories = async (req: Request, res: Response, next: NextFunc
 export const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
-    const storeId = req.store?.id;
 
     if (!id) {
       return sendError(res, "Category id is required", 400);
     }
 
-    const categoryRecord = await findCategoryRecord(id, storeId);
+    const categoryRecord = await findCategoryRecord(id);
 
     if (!categoryRecord) {
       return sendNotFound(res, "Category not found");
@@ -143,17 +130,11 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
     }
 
     const { name, parentCategoryId } = validation.data;
-    const storeId = req.store?.id;
-
-    if (!storeId) {
-      return sendError(res, "Store context is required", 400);
-    }
 
     if (parentCategoryId) {
-      const parent = await prisma.category.findFirst({
+      const parent = await prisma.category.findUnique({
         where: {
           id: parentCategoryId,
-          storeId,
         },
       });
 
@@ -165,7 +146,6 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
         data: {
           name,
           categoryId: parentCategoryId,
-          storeId,
         },
       });
 
@@ -175,7 +155,6 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
     const category = await prisma.category.create({
       data: {
         name,
-        storeId,
       },
     });
 
@@ -188,26 +167,19 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
 export const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
-    const storeId = req.store?.id;
 
     if (!id) {
       return sendError(res, "Category id is required", 400);
     }
 
-    const existingCategory = await prisma.category.findFirst({
-      where: {
-        id,
-        ...(storeId ? { storeId } : {}),
-      },
+    const existingCategory = await prisma.category.findUnique({
+      where: { id },
     });
 
     const existingSubCategory = existingCategory
       ? null
-      : await prisma.subCategory.findFirst({
-          where: {
-            id,
-            ...(storeId ? { storeId } : {}),
-          },
+      : await prisma.subCategory.findUnique({
+          where: { id },
         });
 
     if (!existingCategory && !existingSubCategory) {
@@ -237,10 +209,9 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
           return sendError(res, "Subcategories must belong to a category", 400);
         }
 
-        const parent = await prisma.category.findFirst({
+        const parent = await prisma.category.findUnique({
           where: {
             id: parentCategoryId,
-            ...(storeId ? { storeId } : {}),
           },
         });
 
@@ -283,26 +254,19 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
 export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
-    const storeId = req.store?.id;
 
     if (!id) {
       return sendError(res, "Category id is required", 400);
     }
 
-    const existingCategory = await prisma.category.findFirst({
-      where: {
-        id,
-        ...(storeId ? { storeId } : {}),
-      },
+    const existingCategory = await prisma.category.findUnique({
+      where: { id },
     });
 
     const existingSubCategory = existingCategory
       ? null
-      : await prisma.subCategory.findFirst({
-          where: {
-            id,
-            ...(storeId ? { storeId } : {}),
-          },
+      : await prisma.subCategory.findUnique({
+          where: { id },
         });
 
     if (!existingCategory && !existingSubCategory) {
@@ -314,14 +278,12 @@ export const deleteCategory = async (req: Request, res: Response, next: NextFunc
         prisma.subCategory.count({
           where: {
             categoryId: id,
-            ...(storeId ? { storeId } : {}),
           },
         }),
         prisma.product.count({
           where: {
             subCategoryId: id,
             deletedAt: null,
-            ...(storeId ? { storeId } : {}),
           },
         }),
       ]);
@@ -342,7 +304,6 @@ export const deleteCategory = async (req: Request, res: Response, next: NextFunc
       where: {
         subCategoryId: id,
         deletedAt: null,
-        ...(storeId ? { storeId } : {}),
       },
     });
 

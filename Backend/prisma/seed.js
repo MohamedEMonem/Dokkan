@@ -65,26 +65,249 @@ const STORE_ADJECTIVES = ["Bright","Urban","Fresh","Prime","Elite","Golden","Swi
 const STORE_NOUNS      = ["Mart","Hub","Shop","Depot","Corner","Place","Market","Store","Bazaar","Emporium"];
 
 const PRODUCT_TEMPLATES = [
-  { title: "Wireless Bluetooth Headphones",   category: "Electronics",   price: [29.99, 199.99] },
-  { title: "Running Shoes",                   category: "Sports",        price: [49.99, 150.00] },
-  { title: "Organic Face Cream",              category: "Beauty",        price: [12.99, 59.99]  },
-  { title: "Stainless Steel Water Bottle",    category: "Home & Kitchen",price: [9.99,  39.99]  },
-  { title: "Yoga Mat",                        category: "Sports",        price: [15.99, 69.99]  },
-  { title: "Novel: The Silent Path",          category: "Books",         price: [8.99,  24.99]  },
-  { title: "Men's Slim-Fit Jeans",            category: "Fashion",       price: [29.99, 89.99]  },
-  { title: "Women's Summer Dress",            category: "Fashion",       price: [24.99, 79.99]  },
-  { title: "Smart LED Desk Lamp",             category: "Electronics",   price: [19.99, 59.99]  },
-  { title: "Protein Powder – Vanilla",        category: "Health",        price: [25.99, 69.99]  },
-  { title: "Ceramic Coffee Mug Set",          category: "Home & Kitchen",price: [14.99, 45.99]  },
-  { title: "Kids Backpack",                   category: "Kids",          price: [19.99, 55.99]  },
-  { title: "Mechanical Keyboard",             category: "Electronics",   price: [49.99, 179.99] },
-  { title: "Scented Soy Candle",             category: "Home & Kitchen",price: [8.99,  32.99]  },
-  { title: "Vitamin C Supplement",            category: "Health",        price: [9.99,  29.99]  },
-  { title: "Sunglasses – UV400",              category: "Fashion",       price: [14.99, 89.99]  },
-  { title: "Portable Phone Charger 20000mAh", category: "Electronics",   price: [24.99, 59.99]  },
-  { title: "Resistance Band Set",             category: "Sports",        price: [12.99, 39.99]  },
-  { title: "Moisturising Shampoo",            category: "Beauty",        price: [6.99,  22.99]  },
-  { title: "Wooden Chess Set",               category: "Kids",          price: [19.99, 79.99]  },
+  // Electronics
+  {
+    title: "آيفون 15 برو ماكس 256 جيجابايت تيتانيوم",
+    category: "Electronics",
+    subCategory: "Mobile Phones",
+    price: [55000.00, 75000.00],
+    description: "هاتف آبل الرائد بتصميم من التيتانيوم القوي وخفيف الوزن، مع كاميرا رئيسية بدقة 48 ميجابكسل وتقريب بصري مذهل، ومزود بمعالج A17 Pro للألعاب والأداء الفائق.",
+    images: [
+      "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1695048132958-393ff8bb68b3?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "سامسونج جالاكسي إس 24 ألترا 512 جيجابايت",
+    category: "Electronics",
+    subCategory: "Mobile Phones",
+    price: [50000.00, 70000.00],
+    description: "هاتف سامسونج العملاق مع قلم S Pen المدمج، وشاشة أموليد مسطحة فائقة السطوع، وكاميرا بدقة 200 ميجابكسل مدعومة بتقنيات الذكاء الاصطناعي Galaxy AI.",
+    images: [
+      "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "ماك بوك برو 14 بوصة معالج M3 رامات 16 جيجابايت",
+    category: "Electronics",
+    subCategory: "Laptops",
+    price: [70000.00, 95000.00],
+    description: "جهاز ماك بوك برو المحمول بشريحة M3 المبتكرة، يوفر سرعة مذهلة وعمر بطارية يدوم طوال اليوم، مع شاشة ليكويد ريتنا XDR فائقة النقاء للمحترفين.",
+    images: [
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "كمبيوتر محمول للألعاب أسوس روج زيفيروس G14",
+    category: "Electronics",
+    subCategory: "Laptops",
+    price: [55000.00, 80000.00],
+    description: "كمبيوتر محمول خارق مخصص للألعاب بشاشة ذات معدل تحديث مرتفع، كارت شاشة Nvidia RTX متطور ونظام تبريد ذكي لأقوى جلسات اللعب.",
+    images: [
+      "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "سماعات سوني WH-1000XM5 لاسلكية مانعة للضوضاء",
+    category: "Electronics",
+    subCategory: "Audio",
+    price: [15000.00, 22000.00],
+    description: "سماعات رأس لاسلكية تقدم أفضل تجربة إلغاء ضوضاء في العالم، وصوت عالي الدقة مع ميزة التحدث المباشر والتحكم الذكي باللمس.",
+    images: [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "سماعات أبل إيربودز برو الجيل الثاني",
+    category: "Electronics",
+    subCategory: "Audio",
+    price: [9000.00, 12000.00],
+    description: "سماعات أذن لاسلكية مع ميزة إلغاء الضوضاء النشط المتطور، ووضع شفافية الصوت، وتصميم مريح ومقاوم للعرق والماء مع علبة شحن MagSafe.",
+    images: [
+      "https://images.unsplash.com/photo-1588449668365-d15e397f6787?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "كاميرا سوني ألفا 7 الجيل الرابع بدون مرآة",
+    category: "Electronics",
+    subCategory: "Cameras",
+    price: [90000.00, 120000.00],
+    description: "كاميرا هجينة متطورة للمحترفين بدقة 33 ميجابكسل، تدعم تصوير الفيديو بدقة 4K وميزة التركيز التلقائي الذكي على العين والوجه.",
+    images: [
+      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  
+  // Fashion
+  {
+    title: "تي شيرت بوما رجالي كاجوال بشعار الماركة",
+    category: "Fashion",
+    subCategory: "Men's T-Shirts",
+    price: [800.00, 1500.00],
+    description: "تي شيرت كاجوال مريح مصنوع من قطن ناعم عالي الجودة ومناسب للاستخدام اليومي بتصميم عصري وبسيط.",
+    images: [
+      "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "تي شيرت نايكي دراي فيت الرياضي للرجال",
+    category: "Fashion",
+    subCategory: "Men's T-Shirts",
+    price: [1000.00, 2000.00],
+    description: "تي شيرت رياضي بتقنية Dri-FIT الطاردة للعرق للحفاظ على جفافك وانتعاشك أثناء التمارين الرياضية الصعبة.",
+    images: [
+      "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "فستان زارا صيفي متوسط الطول بنقشة زهور",
+    category: "Fashion",
+    subCategory: "Women's Dresses",
+    price: [2000.00, 4000.00],
+    description: "فستان صيفي متوسط الطول مصنوع من قماش خفيف ومريح بنقشة زهور أنيقة مناسب للإطلالات الصباحية والنزهات.",
+    images: [
+      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "حذاء جري أديداس ألترابوست خفيف الوزن مريح",
+    category: "Fashion",
+    subCategory: "Shoes",
+    price: [6000.00, 9000.00],
+    description: "حذاء جري أسطوري مزود بتقنية Boost في النعل الأوسط لتوفر لك طاقة وراحة لا مثيل لهما مع كل خطوة جري.",
+    images: [
+      "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "حذاء رياضي كلاسيكي نايكي إير فورس 1",
+    category: "Fashion",
+    subCategory: "Shoes",
+    price: [5000.00, 8000.00],
+    description: "الحذاء الرياضي الكلاسيكي الأكثر شهرة بتصميم جلدي متين ونعل مبطن بتقنية Air لراحة وأناقة تدوم طويلاً.",
+    images: [
+      "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "نظارات شمسية ريبان كلاسيكية وايفارير عصرية",
+    category: "Fashion",
+    subCategory: "Accessories",
+    price: [4000.00, 7000.00],
+    description: "نظارات شمسية أصلية بإطار متين وعدسات مستقطبة تحمي العين تماماً من الأشعة فوق البنفسجية وتمنحك مظهراً جذاباً.",
+    images: [
+      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  
+  // Home & Kitchen
+  {
+    title: "ثلاجة سامسونج ذكية باب فرنسي 29 قدم",
+    category: "Home & Kitchen",
+    subCategory: "Fridges & Kitchen Appliances",
+    price: [45000.00, 65000.00],
+    description: "ثلاجة ذكية سعة كبيرة بتصميم باب فرنسي أنيق، مع تقنية التبريد الثنائي للحفاظ على الطعام طازجاً لفترة أطول ونظام موفر للطاقة.",
+    images: [
+      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "حلة ضغط كهربائية إنستانت بوت ذكية 9 في 1",
+    category: "Home & Kitchen",
+    subCategory: "Fridges & Kitchen Appliances",
+    price: [5000.00, 9000.00],
+    description: "جهاز ططهي متعدد الوظائف يجمع بين طنجرة الضغط، والطهي البطيء، وتحضير الأرز، والزبادي، والتحمير في جهاز ذكي واحد لتوفير الوقت.",
+    images: [
+      "https://images.unsplash.com/photo-1547394765-185e1e68f34e?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "وحدة أرفف إيكيا كالاكس باللون الأبيض",
+    category: "Home & Kitchen",
+    subCategory: "Furniture",
+    price: [3000.00, 6000.00],
+    description: "خززانة أرفف عملية وبتصميم بسيط وعصري يمكن استخدامها عمودياً أو أفقياً لتنظيم الكتب والديكورات في المنزل.",
+    images: [
+      "https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  
+  // Beauty & Cosmetics
+  {
+    title: "منظف مرطب للوجه سيرافي لطيف 473 مل",
+    category: "Beauty & Cosmetics",
+    subCategory: "Skincare",
+    price: [500.00, 900.00],
+    description: "منظف لطيف للبشرة العادية إلى الجافة يحتوي على السيراميد الأساسي وحمض الهيالورونيك لتنظيف وترطيب حاجز البشرة الطبيعي.",
+    images: [
+      "https://images.unsplash.com/photo-1608248597481-496100c80836?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "شامبو أولابليكس رقم 4 لإصلاح وتقوية الشعر والتالف",
+    category: "Beauty & Cosmetics",
+    subCategory: "Haircare",
+    price: [1200.00, 1800.00],
+    description: "شامبو علاجي احترافي ينظف الشعر بلطف ويعمل على إعادة بناء الروابط التالفة وترطيب الشعر وتقويته من الجذور.",
+    images: [
+      "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "عطر ديور سوفاج تواليت رجالي فخم 100 مل",
+    category: "Beauty & Cosmetics",
+    subCategory: "Fragrances",
+    price: [5000.00, 8000.00],
+    description: "عطر رجالي أيقوني يمزج بين روائح الحمضيات المنعشة والأخشاب الدافئة ليعطي رائحة غامضة وفواحة تدوم طويلاً وتجذب الانتباه.",
+    images: [
+      "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  
+  // Sports
+  {
+    title: "تي شيرت أندر آرمور رياضي خفيف ومريح للتمارين",
+    category: "Sports",
+    subCategory: "Activewear",
+    price: [1200.00, 2500.00],
+    description: "تي شيرت رياضي خفيف ومطاطي مصنوع من ألياف سريعة الجفاف ومضادة للروائح لتوفير أقصى درجات الراحة أثناء الجري والتمارين.",
+    images: [
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "دمبل بوفليكس ذكي قابل للتعديل للأوزان 552",
+    category: "Sports",
+    subCategory: "Gym Equipment",
+    price: [15000.00, 25000.00],
+    description: "دمبل ذكي يوفر لك مساحة كبيرة حيث يمكن تعديل الوزن بسهولة من 2 إلى 24 كجم ليغني عن 15 زوجاً من الدنابل التقليدية.",
+    images: [
+      "https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  
+  // Books
+  {
+    title: "كتاب العادات الذرية للكاتب جيمس كلير مترجم",
+    category: "Books",
+    subCategory: "Fiction & Novels",
+    price: [250.00, 500.00],
+    description: "الكتاب الأكثر مبيعاً عالمياً والذي يقدم دليلاً عملياً لتغيير عاداتك السيئة وبناء عادات إيجابية جديدة بالاعتماد على خطوات علمية بسيطة.",
+    images: [
+      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "كتاب اجتياز مقابلة البرمجة والترميز النسخة السادسة",
+    category: "Books",
+    subCategory: "Educational Textbooks",
+    price: [800.00, 1500.00],
+    description: "الدليل الشامل والمرجع الأهم للمبرمجين لاجتياز المقابلات الفنية في كبرى شركات التكنولوجيا العالمية مع 189 سؤالاً وحلاً فنيًا.",
+    images: [
+      "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=600&q=80"
+    ]
+  }
 ];
 
 const REVIEW_TEXTS = [
@@ -178,82 +401,61 @@ const CATEGORY_TREE = [
       { name: "Mobile Phones" },
       { name: "Laptops" },
       { name: "Audio" },
-      { name: "Cameras" },
-    ],
+      { name: "Cameras" }
+    ]
   },
   {
     name: "Fashion",
     children: [
-      { name: "Men's Clothing" },
-      { name: "Women's Clothing" },
+      { name: "Men's T-Shirts" },
+      { name: "Women's Dresses" },
       { name: "Shoes" },
-      { name: "Accessories" },
-    ],
+      { name: "Accessories" }
+    ]
   },
   {
     name: "Home & Kitchen",
     children: [
-      { name: "Cookware" },
+      { name: "Fridges & Kitchen Appliances" },
       { name: "Furniture" },
       { name: "Bedding" },
-      { name: "Decor" },
-    ],
+      { name: "Decor" }
+    ]
   },
   {
-    name: "Sports",
-    children: [
-      { name: "Gym Equipment" },
-      { name: "Outdoor" },
-      { name: "Team Sports" },
-      { name: "Cycling" },
-    ],
-  },
-  {
-    name: "Beauty",
+    name: "Beauty & Cosmetics",
     children: [
       { name: "Skincare" },
       { name: "Haircare" },
       { name: "Makeup" },
-      { name: "Fragrances" },
-    ],
+      { name: "Fragrances" }
+    ]
   },
   {
-    name: "Health",
+    name: "Sports",
     children: [
-      { name: "Vitamins" },
-      { name: "Supplements" },
-      { name: "Medical Devices" },
-    ],
+      { name: "Activewear" },
+      { name: "Gym Equipment" }
+    ]
   },
   {
     name: "Books",
     children: [
-      { name: "Fiction" },
-      { name: "Non-Fiction" },
-      { name: "Children's Books" },
-      { name: "Textbooks" },
-    ],
-  },
-  {
-    name: "Kids",
-    children: [
-      { name: "Toys" },
-      { name: "Baby Gear" },
-      { name: "Educational" },
-    ],
-  },
+      { name: "Fiction & Novels" },
+      { name: "Educational Textbooks" }
+    ]
+  }
 ];
 
-async function seedCategoryBranch(storeId, node, categoryMap) {
-  const existingCategory = await prisma.category.findFirst({
-    where: { name: node.name, storeId },
+async function seedCategoryBranch(node, categoryMap) {
+  const existingCategory = await prisma.category.findUnique({
+    where: { name: node.name },
   });
 
   const category = existingCategory ?? await prisma.category.create({
     data: {
       id: randomUUID(),
       name: node.name,
-      storeId,
     },
   });
 
@@ -263,7 +465,6 @@ async function seedCategoryBranch(storeId, node, categoryMap) {
     const existingSubCategory = await prisma.subCategory.findFirst({
       where: {
         name: child.name,
-        storeId,
         categoryId: category.id,
       },
     });
@@ -272,7 +473,6 @@ async function seedCategoryBranch(storeId, node, categoryMap) {
       data: {
         id: randomUUID(),
         name: child.name,
-        storeId,
         categoryId: category.id,
       },
     });
@@ -289,12 +489,28 @@ async function main() {
 
   const hashedPassword = await hashPassword("Pass1234!");
 
+  console.log("Clearing database...");
+  await prisma.message.deleteMany({});
+  await prisma.notification.deleteMany({});
+  await prisma.productReview.deleteMany({});
+  await prisma.storeReview.deleteMany({});
+  await prisma.cartItem.deleteMany({});
+  await prisma.cart.deleteMany({});
+  await prisma.orderItem.deleteMany({});
+  await prisma.order.deleteMany({});
+  await prisma.productImage.deleteMany({});
+  await prisma.product.deleteMany({});
+  await prisma.subCategory.deleteMany({});
+  await prisma.category.deleteMany({});
+  await prisma.storeEmployee.deleteMany({});
+  await prisma.subscription.deleteMany({});
+  await prisma.plan.deleteMany({});
+  await prisma.store.deleteMany({});
+  await prisma.user.deleteMany({});
+
   // ── 1. Plans ────────────────────────────────────────────────────────────────
   console.log("Creating plans...");
   const finalPlans = [];
-
-  await prisma.subscription.deleteMany({});
-  await prisma.plan.deleteMany({});
 
   for (const def of PLAN_DEFINITIONS) {
     const plan = await prisma.plan.create({
@@ -376,18 +592,10 @@ async function main() {
 
   // ── 5. Categories (tree) ────────────────────────────────────────────────────
   console.log("Creating categories...");
-  const categoryMap = new Map(); // storeId → (category name → category record)
-  let categoryCount = 0;
+  const globalCategoryMap = new Map(); // category name → category record
 
-  for (const store of stores) {
-    const storeCategoryMap = new Map();
-
-    for (const node of CATEGORY_TREE) {
-      await seedCategoryBranch(store.id, node, storeCategoryMap);
-    }
-
-    categoryMap.set(store.id, storeCategoryMap);
-    categoryCount += storeCategoryMap.size;
+  for (const node of CATEGORY_TREE) {
+    await seedCategoryBranch(node, globalCategoryMap);
   }
 
   // ── 6. Customers ─────────────────────────────────────────────────────────────
@@ -434,24 +642,23 @@ async function main() {
   // ── 8. Products ──────────────────────────────────────────────────────────────
   console.log("Creating products...");
   const products = [];
+  const allCategoryNames = [...globalCategoryMap.keys()];
 
   for (const store of stores) {
-    const storeCategories = categoryMap.get(store.id);
-    const allCategoryNames = [...storeCategories.keys()];
     const productCount = randInt(12, 20);
     for (let i = 0; i < productCount; i++) {
       const template   = PRODUCT_TEMPLATES[i % PRODUCT_TEMPLATES.length];
-      const catName    = template.category;
+      const subCatName = template.subCategory;
       // Ensure we pick a leaf SubCategory for the product
-      let category = storeCategories.get(catName) ?? storeCategories.get(pick(allCategoryNames));
+      let category = globalCategoryMap.get(subCatName) ?? globalCategoryMap.get(pick(allCategoryNames));
       if (category) {
         // If this is a top-level Category (it won't have `categoryId`), find or create a SubCategory
         if (!category.categoryId) {
-          const subs = await prisma.subCategory.findMany({ where: { categoryId: category.id, storeId: store.id } });
+          const subs = await prisma.subCategory.findMany({ where: { categoryId: category.id } });
           if (subs.length > 0) {
             category = pick(subs);
           } else {
-            const newSub = await prisma.subCategory.create({ data: { id: randomUUID(), name: `${category.name} - General`, storeId: store.id, categoryId: category.id } });
+            const newSub = await prisma.subCategory.create({ data: { id: randomUUID(), name: `${category.name} - General`, categoryId: category.id } });
             category = newSub;
           }
         }
@@ -464,9 +671,11 @@ async function main() {
 
       const product = await prisma.product.create({
         data: {
-          id: randomUUID(), storeId: store.id, subCategoryId: category.id,
+          id: randomUUID(), storeId: store.id,
+          subCategoryId: category.id,
+          categoryId: category.categoryId,
           title: (template.title + titleSuffix).slice(0, 150),
-          description: `High-quality ${template.title}. Perfect for everyday use. Available in multiple variants.`,
+          description: template.description || `High-quality ${template.title}.`,
           price: randDecimal(...template.price),
           stockQuantity: pick([0, randInt(1, 10), randInt(10, 50), randInt(50, 200)]),
           status: Math.random() > 0.15 ? "Active" : "Inactive",
@@ -475,13 +684,13 @@ async function main() {
       });
       products.push(product);
 
-      // 1–4 images per product
-      const imageCount = randInt(1, 4);
-      for (let img = 0; img < imageCount; img++) {
+      // Seed realistic template images
+      const templateImages = template.images || [`https://picsum.photos/seed/${product.id}img0/600/600`];
+      for (let img = 0; img < templateImages.length; img++) {
         await prisma.productImage.create({
           data: {
             id: randomUUID(), productId: product.id,
-            imageUrl: `https://picsum.photos/seed/${product.id}img${img}/600/600`,
+            imageUrl: templateImages[img],
             sortOrder: img,
           },
         });
@@ -681,7 +890,7 @@ async function main() {
   // ── Summary ──────────────────────────────────────────────────────────────────
   console.log("\n✅  Bulk seed complete!\n");
   console.log("  Plans       :", finalPlans.length);
-  console.log("  Categories  :", categoryCount);
+  console.log("  Categories  :", globalCategoryMap.size);
   console.log("  Users       :", 1 + owners.length + customers.length, "(1 admin + owners + customers)");
   console.log("  Stores      :", stores.length);
   console.log("  Products    :", products.length, "(with images)");
