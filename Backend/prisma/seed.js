@@ -447,16 +447,15 @@ const CATEGORY_TREE = [
   }
 ];
 
-async function seedCategoryBranch(storeId, node, categoryMap) {
-  const existingCategory = await prisma.category.findFirst({
-    where: { name: node.name, storeId },
+async function seedCategoryBranch(node, categoryMap) {
+  const existingCategory = await prisma.category.findUnique({
+    where: { name: node.name },
   });
 
   const category = existingCategory ?? await prisma.category.create({
     data: {
       id: randomUUID(),
       name: node.name,
-      storeId,
     },
   });
 
@@ -593,18 +592,10 @@ async function main() {
 
   // ── 5. Categories (tree) ────────────────────────────────────────────────────
   console.log("Creating categories...");
-  const categoryMap = new Map(); // storeId → (category name → category record)
-  let categoryCount = 0;
+  const globalCategoryMap = new Map(); // category name → category record
 
-  for (const store of stores) {
-    const storeCategoryMap = new Map();
-
-    for (const node of CATEGORY_TREE) {
-      await seedCategoryBranch(store.id, node, storeCategoryMap);
-    }
-
-    categoryMap.set(store.id, storeCategoryMap);
-    categoryCount += storeCategoryMap.size;
+  for (const node of CATEGORY_TREE) {
+    await seedCategoryBranch(node, globalCategoryMap);
   }
 
   // ── 6. Customers ─────────────────────────────────────────────────────────────
@@ -651,16 +642,15 @@ async function main() {
   // ── 8. Products ──────────────────────────────────────────────────────────────
   console.log("Creating products...");
   const products = [];
+  const allCategoryNames = [...globalCategoryMap.keys()];
 
   for (const store of stores) {
-    const storeCategories = categoryMap.get(store.id);
-    const allCategoryNames = [...storeCategories.keys()];
     const productCount = randInt(12, 20);
     for (let i = 0; i < productCount; i++) {
       const template   = PRODUCT_TEMPLATES[i % PRODUCT_TEMPLATES.length];
       const subCatName = template.subCategory;
       // Ensure we pick a leaf SubCategory for the product
-      let category = storeCategories.get(subCatName) ?? storeCategories.get(pick(allCategoryNames));
+      let category = globalCategoryMap.get(subCatName) ?? globalCategoryMap.get(pick(allCategoryNames));
       if (category) {
         // If this is a top-level Category (it won't have `categoryId`), find or create a SubCategory
         if (!category.categoryId) {
@@ -900,7 +890,7 @@ async function main() {
   // ── Summary ──────────────────────────────────────────────────────────────────
   console.log("\n✅  Bulk seed complete!\n");
   console.log("  Plans       :", finalPlans.length);
-  console.log("  Categories  :", categoryCount);
+  console.log("  Categories  :", globalCategoryMap.size);
   console.log("  Users       :", 1 + owners.length + customers.length, "(1 admin + owners + customers)");
   console.log("  Stores      :", stores.length);
   console.log("  Products    :", products.length, "(with images)");

@@ -61,7 +61,21 @@ export const listProducts = async (req: Request, res: Response, next: NextFuncti
         skip,
         take: limit,
         orderBy,
-        include: { images: true, store: true },
+        include: {
+          images: true,
+          store: {
+            select: {
+              id: true,
+              name: true,
+              subdomain: true,
+            },
+          },
+          subCategory: {
+            include: {
+              category: true,
+            },
+          },
+        },
       }),
       prisma.product.count({ where }),
     ]);
@@ -125,7 +139,21 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 
     const product = await prisma.product.findFirst({
       where,
-      include: { images: true, store: true },
+      include: {
+        images: true,
+        store: {
+          select: {
+            id: true,
+            name: true,
+            subdomain: true,
+          },
+        },
+        subCategory: {
+          include: {
+            category: true,
+          },
+        },
+      },
     });
 
     if (!product) {
@@ -167,9 +195,11 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
       return sendError(res, "stockQuantity must be a non-negative integer", 400);
     }
 
-    // validate subcategory exists and belongs to store
-    const subCat = await prisma.subCategory.findFirst({ where: { id: subCategoryId, storeId } });
-    if (!subCat) return sendError(res, "Invalid subCategoryId for this store", 400);
+    // validate subcategory exists
+    const subCat = await prisma.subCategory.findUnique({
+      where: { id: subCategoryId },
+    });
+    if (!subCat) return sendError(res, "Invalid subCategoryId", 400);
 
     let imgUrl: string | null = null;
     if (req.file) {
@@ -185,6 +215,7 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
         data: {
           storeId,
           subCategoryId,
+          categoryId: subCat.categoryId,
           title,
           description: description ?? null,
           price: numericPrice,
@@ -195,7 +226,14 @@ export const createProduct = async (req: any, res: Response, next: NextFunction)
           }: undefined,
 
         },
-        include: { images: true },
+        include: {
+          images: true,
+          subCategory: {
+            include: {
+              category: true,
+            },
+          },
+        },
       });
 
       meilisearchService.add("products", {
@@ -249,9 +287,12 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
     if (req.body.description !== undefined) data.description = req.body.description;
     if (req.body.subCategoryId !== undefined) {
       // validate subcategory before updating
-      const sc = await prisma.subCategory.findFirst({ where: { id: req.body.subCategoryId as string, storeId: existing.storeId } });
-      if (!sc) return sendError(res, "Invalid subCategoryId for this store", 400);
+      const sc = await prisma.subCategory.findUnique({
+        where: { id: req.body.subCategoryId as string },
+      });
+      if (!sc) return sendError(res, "Invalid subCategoryId", 400);
       data.subCategoryId = req.body.subCategoryId;
+      data.categoryId = sc.categoryId;
     }
     if (req.body.status !== undefined) data.status = req.body.status;
     if (req.body.price !== undefined) {
@@ -272,7 +313,14 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
     const updated = await prisma.product.update({
       where: { id },
       data,
-      include: { images: true },
+      include: {
+        images: true,
+        subCategory: {
+          include: {
+            category: true,
+          },
+        },
+      },
     });
 
     meilisearchService.update("products", {
