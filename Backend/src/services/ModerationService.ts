@@ -12,7 +12,7 @@ const httpError = (message: string, statusCode: number): never => {
   throw error;
 };
 
-//  Rating Recalculation Helpers (mirroring ReviewService) 
+//  Rating Recalculation Helpers
 
 async function recalculateProductRating(
   productId: string,
