@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { sortBy } from "@/utils/sorting";
 import { SlidersHorizontal } from "lucide-react";
 import { Pagination } from "@/components/ui/Pagination";
+import { useGetCategoriesQuery } from "@/api/category.api";
 
 const sortConfigs: Record<
   string,
@@ -19,7 +20,12 @@ const sortConfigs: Record<
   highest_rated: { key: "rating", order: "desc", type: "number" },
 };
 
+
+
 export const ViewProducts = () => {
+  const { data: categoriesData } = useGetCategoriesQuery();
+  const categoriesList = categoriesData?.data ?? [];
+
   const { data, isLoading, error } = useGetProductsQuery({ limit: 100 });
   const products = data?.data?.products ?? [];
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,12 +60,21 @@ export const ViewProducts = () => {
   }, [filters, sortedBy]);
 
   useEffect(() => {
-    if (categoryParam) {
-      setFilters((prev) => ({ ...prev, category: categoryParam }));
+    if (categoryParam && categoriesList.length > 0) {
+      const found = categoriesList.find(
+        (cat) =>
+          cat.id === categoryParam ||
+          cat.name.toLowerCase().includes(categoryParam.toLowerCase())
+      );
+      if (found) {
+        setFilters((prev) => ({ ...prev, category: found.id }));
+      } else {
+        setFilters((prev) => ({ ...prev, category: categoryParam }));
+      }
     } else {
       setFilters((prev) => ({ ...prev, category: "all" }));
     }
-  }, [categoryParam]);
+  }, [categoryParam, categoriesList]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {

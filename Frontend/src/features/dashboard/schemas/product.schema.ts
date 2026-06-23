@@ -17,7 +17,11 @@ z.object({
   
   categoryId: z
     .string()
-    .min(1, "يرجى اختيار القسم"),
+    .min(1, "يرجى اختيار القسم الرئيسي"),
+
+  subCategoryId: z
+    .string()
+    .min(1, "يرجى اختيار القسم الفرعي"),
 
   description: z.string().optional(),
   
