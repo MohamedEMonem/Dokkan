@@ -26,7 +26,7 @@ export function Settings() {
     if (store) {
       setStoreName(store.name);
       setDescription(store.description ?? "");
-      setPhone(store.phoneNumber);
+      setPhone(store.phoneNumber ?? "");
       setAddress(store.businessAddress ?? "");
     }
   }, [store]);
@@ -103,7 +103,8 @@ export function Settings() {
               placeholder="+20 100 123 4567"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="h-12! text-right"
+              className="h-12!"
+              style={{ textAlign: "right" }}
               disabled={isUpdatingStore}
             />
 
