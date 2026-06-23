@@ -172,15 +172,116 @@ const PLAN_DEFINITIONS = [
 ];
 
 const CATEGORY_TREE = [
-  { name: "Electronics",    children: ["Mobile Phones","Laptops","Audio","Cameras"] },
-  { name: "Fashion",        children: ["Men's Clothing","Women's Clothing","Shoes","Accessories"] },
-  { name: "Home & Kitchen", children: ["Cookware","Furniture","Bedding","Decor"] },
-  { name: "Sports",         children: ["Gym Equipment","Outdoor","Team Sports","Cycling"] },
-  { name: "Beauty",         children: ["Skincare","Haircare","Makeup","Fragrances"] },
-  { name: "Health",         children: ["Vitamins","Supplements","Medical Devices"] },
-  { name: "Books",          children: ["Fiction","Non-Fiction","Children's Books","Textbooks"] },
-  { name: "Kids",           children: ["Toys","Baby Gear","Educational"] },
+  {
+    name: "Electronics",
+    children: [
+      { name: "Mobile Phones" },
+      { name: "Laptops" },
+      { name: "Audio" },
+      { name: "Cameras" },
+    ],
+  },
+  {
+    name: "Fashion",
+    children: [
+      { name: "Men's Clothing" },
+      { name: "Women's Clothing" },
+      { name: "Shoes" },
+      { name: "Accessories" },
+    ],
+  },
+  {
+    name: "Home & Kitchen",
+    children: [
+      { name: "Cookware" },
+      { name: "Furniture" },
+      { name: "Bedding" },
+      { name: "Decor" },
+    ],
+  },
+  {
+    name: "Sports",
+    children: [
+      { name: "Gym Equipment" },
+      { name: "Outdoor" },
+      { name: "Team Sports" },
+      { name: "Cycling" },
+    ],
+  },
+  {
+    name: "Beauty",
+    children: [
+      { name: "Skincare" },
+      { name: "Haircare" },
+      { name: "Makeup" },
+      { name: "Fragrances" },
+    ],
+  },
+  {
+    name: "Health",
+    children: [
+      { name: "Vitamins" },
+      { name: "Supplements" },
+      { name: "Medical Devices" },
+    ],
+  },
+  {
+    name: "Books",
+    children: [
+      { name: "Fiction" },
+      { name: "Non-Fiction" },
+      { name: "Children's Books" },
+      { name: "Textbooks" },
+    ],
+  },
+  {
+    name: "Kids",
+    children: [
+      { name: "Toys" },
+      { name: "Baby Gear" },
+      { name: "Educational" },
+    ],
+  },
 ];
+
+async function seedCategoryBranch(storeId, node, categoryMap) {
+  const existingCategory = await prisma.category.findFirst({
+    where: { name: node.name, storeId },
+  });
+
+  const category = existingCategory ?? await prisma.category.create({
+    data: {
+      id: randomUUID(),
+      name: node.name,
+      storeId,
+    },
+  });
+
+  categoryMap.set(node.name, category);
+
+  for (const child of node.children ?? []) {
+    const existingSubCategory = await prisma.subCategory.findFirst({
+      where: {
+        name: child.name,
+        storeId,
+        categoryId: category.id,
+      },
+    });
+
+    const subCategory = existingSubCategory ?? await prisma.subCategory.create({
+      data: {
+        id: randomUUID(),
+        name: child.name,
+        storeId,
+        categoryId: category.id,
+      },
+    });
+
+    categoryMap.set(child.name, subCategory);
+  }
+
+  return category;
+}
 
 // ─── Main seed ───────────────────────────────────────────────────────────────
 async function main() {
@@ -282,23 +383,7 @@ async function main() {
     const storeCategoryMap = new Map();
 
     for (const node of CATEGORY_TREE) {
-      let parent = await prisma.category.findFirst({ where: { name: node.name, storeId: store.id } });
-      if (!parent) {
-        parent = await prisma.category.create({
-          data: { id: randomUUID(), name: node.name, storeId: store.id },
-        });
-      }
-      storeCategoryMap.set(node.name, parent);
-
-      for (const childName of node.children) {
-        let child = await prisma.category.findFirst({ where: { name: childName, storeId: store.id } });
-        if (!child) {
-          child = await prisma.category.create({
-            data: { id: randomUUID(), name: childName, parentCategoryId: parent.id, storeId: store.id },
-          });
-        }
-        storeCategoryMap.set(childName, child);
-      }
+      await seedCategoryBranch(store.id, node, storeCategoryMap);
     }
 
     categoryMap.set(store.id, storeCategoryMap);
@@ -357,7 +442,20 @@ async function main() {
     for (let i = 0; i < productCount; i++) {
       const template   = PRODUCT_TEMPLATES[i % PRODUCT_TEMPLATES.length];
       const catName    = template.category;
-      const category   = storeCategories.get(catName) ?? storeCategories.get(pick(allCategoryNames));
+      // Ensure we pick a leaf SubCategory for the product
+      let category = storeCategories.get(catName) ?? storeCategories.get(pick(allCategoryNames));
+      if (category) {
+        // If this is a top-level Category (it won't have `categoryId`), find or create a SubCategory
+        if (!category.categoryId) {
+          const subs = await prisma.subCategory.findMany({ where: { categoryId: category.id, storeId: store.id } });
+          if (subs.length > 0) {
+            category = pick(subs);
+          } else {
+            const newSub = await prisma.subCategory.create({ data: { id: randomUUID(), name: `${category.name} - General`, storeId: store.id, categoryId: category.id } });
+            category = newSub;
+          }
+        }
+      }
       const titleSuffix = i >= PRODUCT_TEMPLATES.length ? ` v${Math.ceil(i / PRODUCT_TEMPLATES.length)}` : "";
 
       // Avoid duplicate title+store combos
@@ -366,7 +464,7 @@ async function main() {
 
       const product = await prisma.product.create({
         data: {
-          id: randomUUID(), storeId: store.id, categoryId: category.id,
+          id: randomUUID(), storeId: store.id, subCategoryId: category.id,
           title: (template.title + titleSuffix).slice(0, 150),
           description: `High-quality ${template.title}. Perfect for everyday use. Available in multiple variants.`,
           price: randDecimal(...template.price),
@@ -508,14 +606,14 @@ async function main() {
   console.log("Seeding Meilisearch for products...");
   try {
     const meiliprod = await prisma.product.findMany({
-      include: { category: true, store: true },
+      include: { subCategory: true, store: true },
     });
     const productDocs = meiliprod.map(product => ({
       id: product.id,
       title: product.title,
       description: product.description,
       price: Number(product.price),
-      categoryName: product.category.name,
+      categoryName: product.subCategory?.name ?? null,
       storeName: product.store.name,
     }));
     await meilisearchService.seedMeilisearch("products", productDocs);

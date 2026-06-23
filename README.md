@@ -22,7 +22,11 @@ Dokkan is a multi-tenant web application built to provide isolated environments 
 
 ### Prerequisites
 
-- [List prerequisites here, e.g., Node.js, Docker, etc.]
+- Node.js (v18+)
+- npm (bundled with Node) or yarn/pnpm
+- Docker Desktop (optional — required to run the full stack with containers)
+
+This repository contains two main projects: the `Backend` (Node + TypeScript) and the `Frontend` (Vite + React). Follow each subproject's `README.md` for project-specific setup steps.
 
 ### Installation
 

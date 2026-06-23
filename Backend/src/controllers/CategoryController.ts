@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import prisma from "../config/db.js";
-import { sendError, sendNotFound, sendServerError, sendSuccess, sendValidationError } from "../utils/response.js";
+import { sendError, sendNotFound, sendSuccess, sendValidationError } from "../utils/response.js";
 import { z } from "zod";
 
 const createCategorySchema = z.object({
@@ -13,18 +13,94 @@ const updateCategorySchema = z.object({
   parentCategoryId: z.string().uuid().nullable().optional(),
 });
 
-const normalizeCategory = (category: { [key: string]: unknown }) => ({
+const listCategoriesQuerySchema = z.object({
+  parentCategoryId: z.string().uuid().optional(),
+});
+
+type CategoryRecord = {
+  id: string;
+  name: string;
+  storeId: string;
+  [key: string]: unknown;
+};
+
+type SubCategoryRecord = CategoryRecord & {
+  categoryId: string;
+};
+
+const normalizeCategory = (category: CategoryRecord, kind: "Category" | "SubCategory", parentCategoryId: string | null = null) => ({
   ...category,
+  kind,
+  parentCategoryId,
   name: typeof category.name === "string" ? category.name.trimEnd() : category.name,
 });
 
-export const listCategories = async (_req: Request, res: Response, next: NextFunction) => {
+const findCategoryRecord = async (id: string, storeId?: string) => {
+  const category = await prisma.category.findFirst({
+    where: {
+      id,
+      ...(storeId ? { storeId } : {}),
+    },
+  });
+
+  if (category) {
+    return { kind: "Category" as const, record: category as CategoryRecord };
+  }
+
+  const subCategory = await prisma.subCategory.findFirst({
+    where: {
+      id,
+      ...(storeId ? { storeId } : {}),
+    },
+  });
+
+  if (subCategory) {
+    return { kind: "SubCategory" as const, record: subCategory as SubCategoryRecord };
+  }
+
+  return null;
+};
+
+export const listCategories = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const validation = listCategoriesQuerySchema.safeParse(req.query);
+    if (!validation.success) {
+      return sendValidationError(res, validation.error.format());
+    }
+
+    const storeId = req.store?.id;
+    const { parentCategoryId } = validation.data;
+
+    if (parentCategoryId) {
+      const categories = await prisma.subCategory.findMany({
+        where: {
+          ...(storeId ? { storeId } : {}),
+          categoryId: parentCategoryId,
+        },
+        orderBy: { name: "asc" },
+      });
+
+      return sendSuccess(
+        res,
+        categories.map((category) => normalizeCategory(category as SubCategoryRecord, "SubCategory", category.categoryId)),
+        "Categories retrieved successfully",
+      );
+    }
+
     const categories = await prisma.category.findMany({
-      orderBy: [{ parentCategoryId: "asc" }, { name: "asc" }],
+      where: {
+        ...(storeId ? { storeId } : {}),
+      },
+      orderBy: { name: "asc" },
+      include: { subCategories: { orderBy: { name: "asc" } } },
     });
 
-    return sendSuccess(res, categories.map(normalizeCategory), "Categories retrieved successfully");
+    const nested = categories.map((cat) => ({
+      ...normalizeCategory(cat as CategoryRecord, "Category", null),
+      subCategories: (cat as any).subCategories.map((sc: SubCategoryRecord) => normalizeCategory(sc, "SubCategory", sc.categoryId)),
+    }));
+
+    return sendSuccess(res, nested, "Categories retrieved successfully");
   } catch (error) {
     return next(error);
   }
@@ -33,20 +109,27 @@ export const listCategories = async (_req: Request, res: Response, next: NextFun
 export const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
+    const storeId = req.store?.id;
 
     if (!id) {
       return sendError(res, "Category id is required", 400);
     }
 
-    const category = await prisma.category.findUnique({
-      where: { id },
-    });
+    const categoryRecord = await findCategoryRecord(id, storeId);
 
-    if (!category) {
+    if (!categoryRecord) {
       return sendNotFound(res, "Category not found");
     }
 
-    return sendSuccess(res, normalizeCategory(category), "Category retrieved successfully");
+    return sendSuccess(
+      res,
+      normalizeCategory(
+        categoryRecord.record,
+        categoryRecord.kind,
+        categoryRecord.kind === "SubCategory" ? (categoryRecord.record as SubCategoryRecord).categoryId : null,
+      ),
+      "Category retrieved successfully",
+    );
   } catch (error) {
     return next(error);
   }
@@ -67,21 +150,36 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
     }
 
     if (parentCategoryId) {
-      const parent = await prisma.category.findUnique({ where: { id: parentCategoryId } });
+      const parent = await prisma.category.findFirst({
+        where: {
+          id: parentCategoryId,
+          storeId,
+        },
+      });
+
       if (!parent) {
         return sendNotFound(res, "Parent category not found");
       }
+
+      const subCategory = await prisma.subCategory.create({
+        data: {
+          name,
+          categoryId: parentCategoryId,
+          storeId,
+        },
+      });
+
+      return sendSuccess(res, normalizeCategory(subCategory as SubCategoryRecord, "SubCategory", parentCategoryId), "Category created successfully", 201);
     }
 
     const category = await prisma.category.create({
       data: {
         name,
-        parentCategoryId: parentCategoryId ?? null,
         storeId,
       },
     });
 
-    return sendSuccess(res, normalizeCategory(category), "Category created successfully", 201);
+    return sendSuccess(res, normalizeCategory(category as CategoryRecord, "Category"), "Category created successfully", 201);
   } catch (error) {
     return next(error);
   }
@@ -90,12 +188,29 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
 export const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
+    const storeId = req.store?.id;
+
     if (!id) {
       return sendError(res, "Category id is required", 400);
     }
 
-    const existing = await prisma.category.findUnique({ where: { id } });
-    if (!existing) {
+    const existingCategory = await prisma.category.findFirst({
+      where: {
+        id,
+        ...(storeId ? { storeId } : {}),
+      },
+    });
+
+    const existingSubCategory = existingCategory
+      ? null
+      : await prisma.subCategory.findFirst({
+          where: {
+            id,
+            ...(storeId ? { storeId } : {}),
+          },
+        });
+
+    if (!existingCategory && !existingSubCategory) {
       return sendNotFound(res, "Category not found");
     }
 
@@ -104,7 +219,7 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
       return sendValidationError(res, validation.error.format());
     }
 
-    const data: { name?: string; parentCategoryId?: string | null } = {};
+    const data: { name?: string; categoryId?: string } = {};
 
     if (validation.data.name !== undefined) {
       data.name = validation.data.name.trim();
@@ -113,44 +228,53 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
     if (Object.prototype.hasOwnProperty.call(validation.data, "parentCategoryId")) {
       const parentCategoryId = validation.data.parentCategoryId ?? null;
 
-      if (parentCategoryId === id) {
-        return sendError(res, "Category cannot be its own parent", 400);
-      }
+      if (existingCategory) {
+        if (parentCategoryId !== null) {
+          return sendError(res, "Top-level categories cannot be re-parented. Create a subcategory instead.", 400);
+        }
+      } else if (existingSubCategory) {
+        if (parentCategoryId === null) {
+          return sendError(res, "Subcategories must belong to a category", 400);
+        }
 
-      if (parentCategoryId !== null) {
-        const parent = await prisma.category.findUnique({ where: { id: parentCategoryId } });
+        const parent = await prisma.category.findFirst({
+          where: {
+            id: parentCategoryId,
+            ...(storeId ? { storeId } : {}),
+          },
+        });
+
         if (!parent) {
           return sendNotFound(res, "Parent category not found");
         }
 
-        let ancestorId: string | null = parent.parentCategoryId;
-        while (ancestorId !== null) {
-          if (ancestorId === id) {
-            return sendError(res, "Category cannot be moved under its own descendant", 400);
-          }
-
-          const ancestor = await prisma.category.findUnique({
-            where: { id: ancestorId },
-            select: { parentCategoryId: true },
-          });
-
-          ancestorId = ancestor?.parentCategoryId ?? null;
-        }
+        data.categoryId = parentCategoryId;
       }
-
-      data.parentCategoryId = parentCategoryId;
     }
 
     if (Object.keys(data).length === 0) {
       return sendError(res, "No valid fields provided for update", 400);
     }
 
-    const updatedCategory = await prisma.category.update({
+    if (existingCategory) {
+      const updatedCategory = await prisma.category.update({
+        where: { id },
+        data,
+      });
+
+      return sendSuccess(res, normalizeCategory(updatedCategory as CategoryRecord, "Category"), "Category updated successfully");
+    }
+
+    const updatedSubCategory = await prisma.subCategory.update({
       where: { id },
       data,
     });
 
-    return sendSuccess(res, normalizeCategory(updatedCategory), "Category updated successfully");
+    return sendSuccess(
+      res,
+      normalizeCategory(updatedSubCategory as SubCategoryRecord, "SubCategory", (updatedSubCategory as SubCategoryRecord).categoryId),
+      "Category updated successfully",
+    );
   } catch (error) {
     return next(error);
   }
@@ -159,29 +283,74 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
 export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id?: string };
+    const storeId = req.store?.id;
+
     if (!id) {
       return sendError(res, "Category id is required", 400);
     }
 
-    const existing = await prisma.category.findUnique({ where: { id } });
-    if (!existing) {
+    const existingCategory = await prisma.category.findFirst({
+      where: {
+        id,
+        ...(storeId ? { storeId } : {}),
+      },
+    });
+
+    const existingSubCategory = existingCategory
+      ? null
+      : await prisma.subCategory.findFirst({
+          where: {
+            id,
+            ...(storeId ? { storeId } : {}),
+          },
+        });
+
+    if (!existingCategory && !existingSubCategory) {
       return sendNotFound(res, "Category not found");
     }
 
-    const [childrenCount, productCount] = await Promise.all([
-      prisma.category.count({ where: { parentCategoryId: id } }),
-      prisma.product.count({ where: { categoryId: id, deletedAt: null } }),
-    ]);
+    if (existingCategory) {
+      const [childrenCount, productCount] = await Promise.all([
+        prisma.subCategory.count({
+          where: {
+            categoryId: id,
+            ...(storeId ? { storeId } : {}),
+          },
+        }),
+        prisma.product.count({
+          where: {
+            subCategoryId: id,
+            deletedAt: null,
+            ...(storeId ? { storeId } : {}),
+          },
+        }),
+      ]);
 
-    if (childrenCount > 0) {
-      return sendError(res, "Category has subcategories and cannot be deleted", 409);
+      if (childrenCount > 0) {
+        return sendError(res, "Category has subcategories and cannot be deleted", 409);
+      }
+
+      if (productCount > 0) {
+        return sendError(res, "Category has products and cannot be deleted", 409);
+      }
+
+      await prisma.category.delete({ where: { id } });
+      return sendSuccess(res, null, "Category deleted successfully");
     }
+
+    const productCount = await prisma.product.count({
+      where: {
+        subCategoryId: id,
+        deletedAt: null,
+        ...(storeId ? { storeId } : {}),
+      },
+    });
 
     if (productCount > 0) {
-      return sendError(res, "Category has products and cannot be deleted", 409);
+      return sendError(res, "Subcategory has products and cannot be deleted", 409);
     }
 
-    await prisma.category.delete({ where: { id } });
+    await prisma.subCategory.delete({ where: { id } });
 
     return sendSuccess(res, null, "Category deleted successfully");
   } catch (error) {

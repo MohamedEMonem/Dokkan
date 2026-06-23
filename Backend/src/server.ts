@@ -13,6 +13,7 @@ import emailTestRoutes from "./routes/emailTestRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import planRoutes from "./routes/planRoutes.js";
+import { moderationRoutes, adminRoutes } from "./routes/moderationRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" with { type: "json" };
 
@@ -62,7 +63,7 @@ app.get("/api/health", (req, res) => {
       status: "OK",
       timestamp: new Date().toISOString() 
     },
-    "Server is healthy",
+    "Server is healthyy",
   );
 });
 app.use("/api/stores/:storeSlug/products", resolveTenant, productRoutes);
@@ -83,9 +84,16 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Expose raw OpenAPI JSON for frontend teams and automated tooling
+app.get("/api/openapi.json", (_req, res) => {
+  return res.json(swaggerDocument as any);
+});
+
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/moderation", moderationRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 const PORT = process.env.PORT || 3000;
@@ -105,4 +113,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`API docs (Swagger UI): http://localhost:${PORT}/api/docs`);
+  console.log(`OpenAPI JSON (for frontend / tooling): http://localhost:${PORT}/api/openapi.json`);
 });
