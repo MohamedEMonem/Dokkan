@@ -40,7 +40,7 @@ const StoreProducts: React.FC = () => {
   const store = storeResponse?.data?.stores?.[0];
 
   // 2. Fetch products for this store (skip if store not loaded yet)
-  const { data: productsResponse, isLoading: isProductsLoading } = useGetProductsByStoreIdQuery(
+  const { data: productsResponse, isLoading: isProductsLoading, isError: isProductsError } = useGetProductsByStoreIdQuery(
     store?.id || "",
     { skip: !store?.id }
   );
@@ -102,6 +102,16 @@ const StoreProducts: React.FC = () => {
 
     return list;
   }, [productsList, filters.category, filters.search, filters.rating]);
+
+  const reset = () => {
+    setFilters({
+      search: "",
+      category: "all",
+      city: "all",
+      rating: "all",
+      shipping: false,
+    });
+  };
 
   if (isStoreLoading) {
     return (
@@ -191,20 +201,26 @@ const StoreProducts: React.FC = () => {
           {/* Products Grid */}
           <div className="flex-1 w-full">
             {isProductsLoading ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">جاري تحميل المنتجات...</p>
+              <div className="bg-white rounded-lg p-12 text-center shadow-sm">
+                <p className="text-gray-600">جاري تحميل المنتجات...</p>
+              </div>
+            ) : isProductsError ? (
+              <div className="bg-white rounded-lg p-12 text-center shadow-sm">
+                <p className="text-red-600">حدث خطأ أثناء تحميل المنتجات.</p>
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm flex flex-col items-center">
-                <p className="text-text-muted text-base mb-4">
-                  لم يتم العثور على أي منتجات مطابقة لخيارات الفلترة.
+              <div className="bg-white rounded-lg p-12 text-center shadow-sm flex flex-col items-center">
+                <p className="text-gray-600 mb-4">
+                  لم يتم العثور على منتجات تطابق معاييرك.
                 </p>
-                <button
-                  onClick={() => setFilters((prev) => ({ ...prev, category: "all", search: "" }))}
-                  className="bg-primary hover:bg-primary-dark text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all"
+                <Button
+                  variant="outline-accent"
+                  onClick={() => reset()}
+                  data-slot="button"
+                  className="w-fit! h-9! lg:h-12! px-4 py-2 lg:px-6 rounded-lg text-black! border! outline-none! text-sm! lg:text-base! hover:text-white!"
                 >
                   إعادة تعيين الفلاتر
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
