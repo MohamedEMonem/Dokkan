@@ -43,14 +43,13 @@ export default function StoreStep({
         <div className="space-y-6">
           <div>
             <Input
-              label="اسم المتجر *"
+              label="اسم المتجر"
               id="onboarding-store-name"
               placeholder="متجري الرائع"
+              isRequired
+              error={errors.name?.message}
               {...register("name")}
             />
-            {errors.name && (
-              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
-            )}
           </div>
           
           <div>
@@ -59,19 +58,19 @@ export default function StoreStep({
               id="onboarding-store-description"
               placeholder="وصف متجرك هنا..."
               rows={4}
+              error={errors.description?.message}
               {...register("description")}
             />
-            {errors.description && (
-              <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>
-            )}
           </div>
 
           <div>
             <Input
-              label="النطاق الفرعي *"
+              label="النطاق الفرعي"
               id="onboarding-subdomain"
               placeholder="mystore"
               dir="ltr"
+              isRequired
+              error={errors.subdomain?.message}
               icon={
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-bold text-sm pointer-events-none" dir="ltr">
                   dokkan.com/@
@@ -80,9 +79,6 @@ export default function StoreStep({
               className="relative! pl-28! "
               {...register("subdomain")}
             />
-            {errors.subdomain && (
-              <p className="text-xs text-red-500 mt-1">{errors.subdomain.message}</p>
-            )}
           </div>
         </div>
       </StepSection>

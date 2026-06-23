@@ -23,6 +23,8 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   options: SelectOption[];
   placeholder?: string;
+  isRequired?: boolean;
+  error?: string;
 }
 
 /* ────────────────────────────────────────────────────────
@@ -34,6 +36,8 @@ export function Select({
   placeholder,
   className,
   id,
+  isRequired,
+  error,
   ...rest
 }: SelectProps) {
   return (
@@ -41,12 +45,17 @@ export function Select({
       {label && (
         <label htmlFor={id} className="text-sm font-medium text-text-dark">
           {label}
+          {isRequired && <span className="text-red-500 font-bold mr-1">*</span>}
         </label>
       )}
       <div className="relative">
         <select
           id={id}
-          className={clsx(baseClasses, className)}
+          className={clsx(
+            baseClasses,
+            error && "border-red-500! focus:border-red-500! focus:ring-red-500/30!",
+            className
+          )}
           {...rest}
         >
           {placeholder && <option value="">{placeholder}</option>}
@@ -61,6 +70,7 @@ export function Select({
           <ChevronDown size={16} color="black" strokeWidth={2} aria-hidden="true" />
         </span>
       </div>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 }
