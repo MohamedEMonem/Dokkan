@@ -58,9 +58,9 @@ export const ProductCard = ({ product }: ProductProps) => {
 
   return (
     <Link className="h-full" to={linkTo} data-discover="true">
-      <Card>
+      <Card className="group h-full">
         <div data-slot="card-content" className="pb-6 p-0 flex flex-col h-full">
-          <div className="relative h-32 w-full overflow-hidden bg-bg-cream group">
+          <div className="relative h-32 w-full overflow-hidden bg-bg-cream">
             <img
               src={
                 product.images?.[0]?.imageUrl ||
