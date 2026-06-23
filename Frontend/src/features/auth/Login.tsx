@@ -7,6 +7,7 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Mail, Lock } from "lucide-react";
+import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 
 import { loginSchema, type LoginFormValues } from "./schemas/login.schema";
 import { useLoginMutation } from "@/api/auth.api";
@@ -47,6 +48,19 @@ export const LoginForm = (): React.JSX.Element => {
 
   return (
     <AuthCard title="تسجيل الدخول" subtitle="أهلاً بك مجدداً في دكان">
+      <div className="mb-6">
+        <GoogleLoginButton action="login" />
+        
+        <div className="relative mt-6 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative bg-white px-4 text-sm text-gray-500 font-medium">
+            أو المتابعة بالبريد الإلكتروني
+          </div>
+        </div>
+      </div>
+
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4">
           {/* Email */}

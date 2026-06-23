@@ -58,12 +58,24 @@ export const GoogleLoginButton = ({ role, action }: GoogleLoginButtonProps) => {
     ? (action === 'login' ? "جارٍ تسجيل الدخول..." : "جارٍ إنشاء الحساب...") 
     : (action === 'login' ? "تسجيل الدخول باستخدام جوجل" : "إنشاء حساب باستخدام جوجل");
 
+  const isGoogleAuthConfigured = !!import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
   return (
     <button
       type="button"
-      onClick={() => login()}
-      disabled={isLoading}
-      className="flex items-center justify-center w-full gap-3 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 focus:ring-2 focus:ring-offset-1 focus:ring-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      onClick={() => {
+        if (!isGoogleAuthConfigured) {
+          showNotification({ message: "تسجيل الدخول باستخدام جوجل غير مفعل حالياً لعدم توفر مفتاح الربط", variant: "error" });
+          return;
+        }
+        login();
+      }}
+      disabled={isLoading || !isGoogleAuthConfigured}
+      className={`flex items-center justify-center w-full gap-3 py-3 border rounded-xl font-medium transition-colors 
+        ${isGoogleAuthConfigured 
+          ? "border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-offset-1 focus:ring-gray-200" 
+          : "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"} 
+        disabled:opacity-50`}
     >
       {isLoading ? (
         <span className="animate-spin w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full" />
