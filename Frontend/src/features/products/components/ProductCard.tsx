@@ -1,6 +1,6 @@
 import { IProduct } from "@/types/entities/product.types";
 import { Card } from "@/components/ui/Card";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import { showNotification } from "@/utils/showNotification";
@@ -30,6 +30,7 @@ function getStockBadge(stockQuantity: number) {
 
 export const ProductCard = ({ product }: ProductProps) => {
   //   const dispatch = useAppDispatch();
+  const { subdomain } = useParams<{ subdomain?: string }>();
 
   const productId = product?.id ?? "";
 
@@ -51,8 +52,12 @@ export const ProductCard = ({ product }: ProductProps) => {
   };
 
   if (!product || !productId) return null;
+
+  const isStoreContext = subdomain?.startsWith("@");
+  const linkTo = isStoreContext ? `/${subdomain}/products/${productId}` : `/products/${productId}`;
+
   return (
-    <Link className="h-full" to={`/products/${productId}`} data-discover="true">
+    <Link className="h-full" to={linkTo} data-discover="true">
       <Card>
         <div data-slot="card-content" className="pb-6 p-0 flex flex-col h-full">
           <div className="relative h-32 w-full overflow-hidden bg-bg-cream group">
