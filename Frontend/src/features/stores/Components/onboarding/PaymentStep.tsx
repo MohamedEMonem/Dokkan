@@ -102,51 +102,47 @@ export default function PaymentStep({
 
             <div>
               <Input
-                label="اسم حامل البطاقة *"
+                label="اسم حامل البطاقة"
                 placeholder="أدخل الاسم كما هو مكتوب على البطاقة"
                 className="h-12! border-accent-light! focus-within:border-primary! bg-white!"
+                isRequired
+                error={errors.cardholderName?.message}
                 {...register("cardholderName")}
               />
-              {errors.cardholderName && (
-                <p className="text-xs text-red-500 mt-1">{errors.cardholderName.message}</p>
-              )}
             </div>
 
             <div>
               <Input
-                label="رقم البطاقة *"
+                label="رقم البطاقة"
                 placeholder="1234 5678 9012 3456"
                 icon={<CreditCard className="w-5 h-5 text-text-muted" />}
                 className="h-12! border-accent-light! focus-within:border-primary! bg-white! flex-row-reverse!"
+                isRequired
+                error={errors.cardNumber?.message}
                 {...register("cardNumber", { onChange: handleCardNumberChange })}
               />
-              {errors.cardNumber && (
-                <p className="text-xs text-red-500 mt-1">{errors.cardNumber.message}</p>
-              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Input
-                  label="تاريخ الانتهاء *"
+                  label="تاريخ الانتهاء"
                   placeholder="MM/YY"
                   className="h-12! border-accent-light! focus-within:border-primary! bg-white! text-center!"
+                  isRequired
+                  error={errors.expiry?.message}
                   {...register("expiry", { onChange: handleExpiryChange })}
                 />
-                {errors.expiry && (
-                  <p className="text-xs text-red-500 mt-1">{errors.expiry.message}</p>
-                )}
               </div>
               <div>
                 <Input
-                  label="CVV *"
+                  label="CVV"
                   placeholder="123"
                   className="h-12! border-accent-light! focus-within:border-primary! bg-white! text-center!"
+                  isRequired
+                  error={errors.cvc?.message}
                   {...register("cvc", { onChange: handleCvcChange })}
                 />
-                {errors.cvc && (
-                  <p className="text-xs text-red-500 mt-1">{errors.cvc.message}</p>
-                )}
               </div>
             </div>
 

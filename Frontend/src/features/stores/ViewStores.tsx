@@ -205,7 +205,7 @@ const ViewStores = () => {
                     variant="outline-accent"
                     onClick={() => reset()}
                     data-slot="button"
-                    className="w-fit! h-9! lg:h-12! px-4 py-2 lg:px-6 rounded-lg text-black! border! outline-none! text-sm! lg:text-base! hover:text-white!"
+                    className="w-fit! h-9! px-4 py-2 text-sm"
                   >
                     إعادة تعيين الفلاتر
                   </Button>

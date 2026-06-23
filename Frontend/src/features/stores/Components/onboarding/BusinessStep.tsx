@@ -60,23 +60,20 @@ export default function BusinessStep({
               id="onboarding-business-address"
               placeholder="123 شارع الهرم، الجيزة، مصر"
               rows={3}
+              error={errors.address?.message}
               {...register("address")}
             />
-            {errors.address && (
-              <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>
-            )}
           </div>
 
           <div>
             <Input
-              label="الرقم الضريبي *"
+              label="الرقم الضريبي"
               id="onboarding-tax-id"
               placeholder="123456789"
+              isRequired
+              error={errors.taxId?.message}
               {...register("taxId")}
             />
-            {errors.taxId && (
-              <p className="text-xs text-red-500 mt-1">{errors.taxId.message}</p>
-            )}
             <p className="text-xs text-text-muted mt-1">رقم التسجيل الضريبي المكون من 9 أرقام</p>
           </div>
 
@@ -90,11 +87,9 @@ export default function BusinessStep({
                 autoComplete="tel"
                 disabled={isChecked}
                 className="[&_input]:text-right"
+                error={errors.phone?.message}
                 {...register("phone")}
               />
-              {errors.phone && (
-                <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>
-              )}
             </div>
 
             <div className="flex items-center gap-2">
