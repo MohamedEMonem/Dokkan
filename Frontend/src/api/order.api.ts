@@ -1,5 +1,5 @@
 import { apiSlice } from "@/store/apiSlice";
-import type { IAPIResponse, IPaginatedMeta } from "@/types/api/response.types";
+import type { IAPIResponse, IPaginatedResponse } from "@/types/api/response.types";
 import { EOrderStatus, IOrder } from "@/types/entities/order.types";
 
 export type OrderSortBy = "createdAt" | "status" | "totalAmount";
@@ -31,131 +31,73 @@ export interface UpdateOrderStatusRequest {
   status: EOrderStatus;
 }
 
-type OrderListData = {
-  orders: IOrder[];
-  meta: IPaginatedMeta;
-  page?: number;
-  limit?: number;
-  total?: number;
-  totalPages?: number;
-};
-
-type CreateOrderData = {
-  orders: IOrder[];
-};
-
 export const orderApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    // Checkout - place a new order from cart (customer)
     createOrder: builder.mutation<
-      IAPIResponse<CreateOrderData>,
+      IAPIResponse<{ orders: IOrder[] }>,
       CreateOrderRequest
     >({
-      query: (data) => ({ url: "/orders", method: "POST", body: data }),
+      query: (body) => ({
+        url: "/orders",
+        method: "POST",
+        body,
+      }),
       invalidatesTags: ["Order"],
     }),
 
-    getOrders: builder.query<IAPIResponse<OrderListData>, GetOrdersQuery>({
-      query: (params = {}) => ({ url: "/orders", method: "GET", params }),
-      providesTags: ["Order"],
-    }),
-
-    getMyOrders: builder.query<IAPIResponse<OrderListData>, GetOrdersQuery>({
-      query: (params = {}) => ({ url: "/orders/me", method: "GET", params }),
-      providesTags: ["Order"],
-    }),
-
-    getOrdersByStoreId: builder.query<
-      IAPIResponse<OrderListData>,
-      { storeId: string; query?: GetOrdersQuery }
-    >({
-      query: ({ storeId, query }) => ({
-        url: `/orders/store/${storeId}`,
-        method: "GET",
-        params: query,
-import {
-  IAPIResponse,
-  IPaginatedResponse,
-} from "@/types/api/response.types";
-import {
-  createOrderRequest,
-  EOrderStatus,
-  GetOrdersQueryParams,
-  IOrder,
-  orderSortByValues,
-  orderSortDirValues,
-} from "@/types/entities/order.types";
-
-export const orderApi = apiSlice.injectEndpoints({
-  endpoints: (builder) => ({
     // Get all orders (admin)
     getOrders: builder.query<
       IPaginatedResponse<IOrder, "orders">,
-      GetOrdersQueryParams
+      GetOrdersQuery
     >({
-      query: (params) => ({
+      query: (params = {}) => ({
         url: "/orders",
         method: "GET",
-        params: {
-          page: params?.page ?? 1,
-          limit: params?.limit ?? 10,
-          status: (params as { status?: typeof EOrderStatus } | undefined)
-            ?.status,
-          sortBy: (params as { sortBy?: typeof orderSortByValues } | undefined)
-            ?.sortBy,
-          sortDir: (
-            params as { sortDir?: typeof orderSortDirValues } | undefined
-          )?.sortDir,
-        },
+        params,
       }),
       providesTags: ["Order"],
     }),
 
-    // Update order status (store owner)
-    updateOrderStatus: builder.mutation<
-      IAPIResponse<{ order: Partial<IOrder> }>,
-      { id: string; status: typeof EOrderStatus }
+    // Get my orders (customer)
+    getMyOrders: builder.query<
+      IPaginatedResponse<IOrder, "orders">,
+      GetOrdersQuery
     >({
-      query: ({ id, status }) => ({
-        url: `/orders/${id}`,
-        method: "PUT",
-        body: { status },
+      query: (params = {}) => ({
+        url: "/orders/me",
+        method: "GET",
+        params,
       }),
-      invalidatesTags: ["Order"],
+      providesTags: ["Order"],
+    }),
+
+    // Get orders for a store (store owner)
+    getOrdersByStoreId: builder.query<
+      IPaginatedResponse<IOrder, "orders">,
+      GetOrdersQuery & { storeId: string }
+    >({
+      query: ({ storeId, ...params }) => ({
+        url: `/orders/store/${storeId}`,
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Order"],
     }),
 
     // Get order by id (customer or admin)
     getOrderById: builder.query<
-      IAPIResponse<{ order: Partial<IOrder> }>,
+      IAPIResponse<{ order: IOrder }>,
       string
     >({
-      query: (id) => ({ url: `/orders/${id}`, method: "GET" }),
+      query: (id) => ({
+        url: `/orders/${id}`,
+        method: "GET",
+      }),
       providesTags: (_result, _error, id) => [{ type: "Order", id } as const],
     }),
 
-    //Get my orders (customer)
-    getMyOrders: builder.query<
-      IPaginatedResponse<IOrder, "orders">,
-      GetOrdersQueryParams
-    >({
-      query: (params) => ({
-        url: "/orders/me",
-        method: "GET",
-        params: {
-          page: params?.page ?? 1,
-          limit: params?.limit ?? 10,
-          status: params?.status,
-          sortBy: params?.sortBy,
-          sortDir: params?.sortDir,
-        },
-      }),
-      providesTags: ["Order"],
-    }),
-
-    getOrderById: builder.query<IAPIResponse<IOrder>, { id: string }>({
-      query: ({ id }) => ({ url: `/orders/${id}`, method: "GET" }),
-      providesTags: ["Order"],
-    }),
-
+    // Update order status (store owner)
     updateOrderStatus: builder.mutation<
       IAPIResponse<{ order: IOrder }>,
       UpdateOrderStatusRequest
@@ -164,36 +106,6 @@ export const orderApi = apiSlice.injectEndpoints({
         url: `/orders/${id}`,
         method: "PUT",
         body: { status },
-    //Get orders for a store (store owner)
-    getOrdersByStoreId: builder.query<
-      IPaginatedResponse<IOrder, "orders">,
-      GetOrdersQueryParams & { storeId: string }
-    >({
-      query: (params) => {
-        return {
-          url: `/orders/store/${params.storeId}`,
-          method: "GET",
-          params: {
-            page: params?.page ?? 1,
-            limit: params?.limit ?? 10,
-            status: params?.status,
-            sortBy: params?.sortBy,
-            sortDir: params?.sortDir,
-          },
-        };
-      },
-      providesTags: ["Order"],
-    }),
-
-    //Checkout - place a new order from cart (customer)
-    createOrder: builder.mutation<
-      IPaginatedResponse<IOrder, "orders">,
-      { body: createOrderRequest }
-    >({
-      query: ({ body }) => ({
-        url: "/orders",
-        method: "POST",
-        body: body,
       }),
       invalidatesTags: ["Order"],
     }),
@@ -207,10 +119,4 @@ export const {
   useGetOrdersByStoreIdQuery,
   useGetOrderByIdQuery,
   useUpdateOrderStatusMutation,
-  useGetOrdersQuery,
-  useUpdateOrderStatusMutation,
-  useGetOrderByIdQuery,
-  useGetMyOrdersQuery,
-  useGetOrdersByStoreIdQuery,
-  useCreateOrderMutation,
 } = orderApi;
