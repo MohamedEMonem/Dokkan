@@ -108,19 +108,7 @@ export function AdminProductDetails() {
     <div className="space-y-6 w-full font-sans select-none" dir="rtl">
       {/* Top Navigation / Breadcrumbs & Back */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-text-muted mb-1">
-            <Link to="/admin" className="hover:text-primary transition-colors">لوحة التحكم</Link>
-            <span>/</span>
-            <Link to="/admin/products" className="hover:text-primary transition-colors">إدارة المنتجات</Link>
-            <span>/</span>
-            <span className="text-text-dark font-medium">عرض تفاصيل المنتج</span>
-          </div>
-          <h2 className="text-xl md:text-2xl font-bold text-text-dark">{product.title}</h2>
-        </div>
-        <Button onClick={() => navigate("/admin/products")} variant="outline-accent" className="h-9! text-xs font-semibold">
-          <ArrowRight className="w-4 h-4 ml-2" /> العودة للقائمة
-        </Button>
+        <h2 className="text-xl md:text-2xl font-bold text-text-dark">{product.title}</h2>
       </div>
 
       {/* Main Two-Column Layout */}
@@ -159,10 +147,7 @@ export function AdminProductDetails() {
             {/* SubCategory and Category */}
             <div className="space-y-3 pt-2">
               <h4 className="text-xs font-bold text-text-muted">التصنيف والتبويب:</h4>
-              <div className="flex flex-wrap gap-2">
-                <span className="bg-primary/10 text-primary px-3 py-1 rounded-lg text-xs font-bold">
-                  منتج عام بالمنصة
-                </span>
+              <div className="flex flex-wrap gap-4">
                 {product.subCategory?.category?.name && (
                   <span className="bg-accent-light/40 text-accent-dark px-3 py-1 rounded-lg text-xs font-bold">
                     التصنيف الرئيسي: {product.subCategory.category.name}
@@ -233,10 +218,10 @@ export function AdminProductDetails() {
                   </span>
                   <Link
                     to={`/@${product.store.subdomain}`}
-                    className="text-[10px] font-bold text-primary hover:underline"
+                    className="text-xs font-bold text-primary hover:text-primary-light"
                     target="_blank"
                   >
-                    زيارة المتجر ↗
+                    زيارة المتجر 
                   </Link>
                 </div>
               </div>
@@ -265,11 +250,13 @@ export function AdminProductDetails() {
               </Button>
 
               {/* View Public product page */}
-              <Link to={`/@${product.store.subdomain}/products/${product.id}`} className="w-full" target="_blank">
-                <Button variant="outline-accent" className="w-full text-xs h-9.5! font-bold flex items-center justify-center gap-2 text-text-dark! hover:bg-bg-cream!">
-                  <Eye className="w-4 h-4" /> معاينة صفحة العميل ↗
-                </Button>
-              </Link>
+              {product.store && (
+                <Link to={`/@${product.store.subdomain}/products/${product.id}`} className="w-full" target="_blank">
+                  <Button variant="outline-accent" className="w-full text-xs h-9.5! font-bold flex items-center justify-center gap-2 text-text-dark! hover:bg-bg-cream!">
+                    <Eye className="w-4 h-4" /> معاينة صفحة العميل 
+                  </Button>
+                </Link>
+              )}
 
               {/* Delete product */}
               <Button
