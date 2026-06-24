@@ -279,6 +279,12 @@ export const authService = {
         },
       });
     }
+    else if (user.role !== role) {
+      throw createHttpError("User already exists with a different role", 409);
+    }
+    else if (user) {
+      throw createHttpError("User already exists with this role", 409);
+    }
 
     if (user.deletedAt) {
       const restoredUser = await prisma.user.update({

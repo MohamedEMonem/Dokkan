@@ -68,7 +68,7 @@ export const RegisterForm = (): React.JSX.Element => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      const {confirmPassword, terms, ...payload} = data;
+      const { confirmPassword, terms, ...payload } = data;
       const response = await registerApi(payload).unwrap();
 
       localStorage.setItem("token", response.data.token);
@@ -87,7 +87,7 @@ export const RegisterForm = (): React.JSX.Element => {
     <AuthCard title="إنشاء حساب جديد" subtitle="انضم إلى سوقنا اليوم">
       <div className="mb-6">
         <GoogleLoginButton role={selectedRole} action="signup" />
-        
+
         <div className="relative mt-6 flex items-center justify-center">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-200" />
@@ -109,11 +109,10 @@ export const RegisterForm = (): React.JSX.Element => {
               <div
                 key={r.roleName}
                 onClick={() => setValue("role", r.roleName)}
-                className={`border-2 rounded-xl p-4 cursor-pointer transition-all text-center ${
-                  selectedRole === r.roleName
+                className={`border-2 rounded-xl p-4 cursor-pointer transition-all text-center ${selectedRole === r.roleName
                     ? "border-primary bg-primary/5 shadow-md"
                     : "border-accent-light hover:border-accent"
-                }`}
+                  }`}
               >
                 <div className="text-3xl mb-2">{r.icon}</div>
                 <div className="text-text-dark font-medium">{r.title}</div>
