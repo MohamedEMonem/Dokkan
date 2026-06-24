@@ -69,7 +69,7 @@ export function AdminOverview() {
               {adminStats.totalUsers.change}
             </span>
           }
-          className="bg-white border-2 border-accent-light shadow-md hover:shadow-lg transition-shadow"
+          variant="default"
         />
         <StatCard
           title="المتاجر النشطة"
@@ -80,7 +80,7 @@ export function AdminOverview() {
               {adminStats.activeStores.change}
             </span>
           }
-          className="bg-white border-2 border-accent-light shadow-md hover:shadow-lg transition-shadow"
+          variant="default"
         />
         <StatCard
           title="الاشتراكات الفعالة"
@@ -91,7 +91,7 @@ export function AdminOverview() {
               {adminStats.activeSubscriptions.change}
             </span>
           }
-          className="bg-white border-2 border-accent-light shadow-md hover:shadow-lg transition-shadow"
+          variant="default"
         />
         <StatCard
           title="إبلاغات معلقة"
@@ -102,7 +102,7 @@ export function AdminOverview() {
               {adminStats.pendingFlags.change} معلق
             </span>
           }
-          className="bg-white border-2 border-accent-light shadow-md hover:shadow-lg transition-shadow"
+          variant="default"
         />
       </div>
 
