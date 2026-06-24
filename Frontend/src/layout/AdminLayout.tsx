@@ -3,6 +3,8 @@ import { Outlet, Navigate } from "react-router-dom";
 import { useGetProfileQuery } from "@/api/user.api";
 import { EUserRole } from "@/types/entities/user.types";
 import { AdminSidebar } from "@/features/admin/components/AdminSidebar";
+import { AdminHeader } from "@/features/admin/components/AdminHeader";
+
 
 
 export default function AdminLayout() {
@@ -61,23 +63,8 @@ export default function AdminLayout() {
 
       {/* Main Content Workspace */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header Placeholder (Will be replaced in Commit 4) */}
-        <header className="h-16 bg-white border-b-2 border-accent-light px-6 flex items-center justify-between shadow-xs">
-          <button
-            className="lg:hidden p-2 text-text-dark hover:text-primary hover:bg-gray-100 rounded-lg transition-all cursor-pointer"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="فتح القائمة"
-          >
-            {/* Elegant hamburger menu icon */}
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-          </button>
-          <div className="text-lg font-bold text-text-dark">لوحة التحكم للرئيس</div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-text-muted font-medium">{user.name}</span>
-          </div>
-        </header>
+        {/* Header */}
+        <AdminHeader user={user} onMenuClick={() => setSidebarOpen(true)} />
 
         {/* Dashboard Pages Workspace */}
         <main className="flex-1 p-6 overflow-y-auto">

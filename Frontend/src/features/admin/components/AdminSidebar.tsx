@@ -6,6 +6,7 @@ import {
   Layers,
   CreditCard,
   Users,
+  User,
   LogOut,
   X,
 } from "lucide-react";
@@ -24,6 +25,7 @@ const adminNavLinks = [
   { name: "إدارة التصنيفات", path: "/admin/categories", icon: Layers, end: false },
   { name: "خطط الاشتراك", path: "/admin/plans", icon: CreditCard, end: false },
   { name: "إدارة المستخدمين", path: "/admin/users", icon: Users, end: false },
+  { name: "الملف الشخصي", path: "/profile", icon: User, end: false },
 ];
 
 export function AdminSidebar({ user, onClose }: AdminSidebarProps) {
