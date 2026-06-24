@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/Button";
 import { useState, useEffect } from "react";
 import { Store, Heart, ShoppingCart, Minus, Plus } from "lucide-react";
 import { showNotification } from "@/utils/showNotification";
+
+import { useAddItemMutation } from "@/api/cart.api";
+import useCartService from "@/hooks/useCartService";
 import {
   mockReviewsData,
   mockRelatedProducts,
@@ -12,6 +15,7 @@ import {
 import ReviewCard from "./components/ReviewCard";
 import { Card } from "@/components/ui/Card";
 import { Stars } from "./components/Stars";
+import { readSession } from "../../hooks/useCartSession";
 
 export function ProductDetailsPage() {
   const navigate = useNavigate();
@@ -21,23 +25,26 @@ export function ProductDetailsPage() {
   const [activeTab, setActiveTab] = useState<
     "description" | "reviews" | "shipping"
   >("shipping");
-
+  const { isAuthenticated } = readSession();
   const { data, isLoading, isError } = useGetProductByIdQuery(
     { id: id ?? "" },
     { skip: !id },
   );
 
+  const [addItemApi] = useAddItemMutation();
+  const { addItemToCart } = useCartService();
+
   useEffect(() => {
     if (data?.data) {
       if (data.data.stockQuantity <= 0) {
-        setCartCount(0);
+        setTimeout(() => setCartCount(0), 0);
       } else if (cartCount <= 0) {
-        setCartCount(1);
+        setTimeout(() => setCartCount(1), 0);
       } else if (cartCount > data.data.stockQuantity) {
-        setCartCount(data.data.stockQuantity);
+        setTimeout(() => setCartCount(data.data.stockQuantity), 0);
       }
     }
-  }, [data?.data?.stockQuantity]);
+  }, [data, cartCount]);
 
   const productReviews = 187; // mock number, replace with actual count from API when available
 
@@ -50,12 +57,37 @@ export function ProductDetailsPage() {
   type TabId = (typeof TABS)[number]["id"];
   // Handlers
 
-  const handleAddToCart = () => {
-    showNotification({
-      variant: "success",
-      message: `تمت إضافة ${cartCount} منتج للسلة!`,
-    });
-    console.log("handle Add To Cart");
+  const handleAddToCart = async () => {
+    const item = {
+      productId: String(product.id),
+      quantity: cartCount,
+      title: product.title,
+      unitPrice: product.price,
+      imageUrl: (product.images?.[0]?.imageUrl ?? null) as string | null,
+      storeId: (product.store?.id ?? null) as string | null,
+    };
+
+    try {
+      await addItemToCart({
+        item,
+        isAuthenticated: isAuthenticated,
+        addToCartApi: isAuthenticated
+          ? (it: { productId: string; quantity: number }) =>
+              addItemApi(it).unwrap()
+          : undefined,
+      });
+
+      showNotification({
+        variant: "success",
+        message: `تمت إضافة ${cartCount} منتج للسلة!`,
+      });
+    } catch (err) {
+      console.error(err);
+      showNotification({
+        variant: "error",
+        message: "فشل إضافة المنتج للسلة",
+      });
+    }
   };
 
   const handleToggleFavorite = () => {

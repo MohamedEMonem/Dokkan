@@ -33,9 +33,11 @@ export const LoginForm = (): React.JSX.Element => {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const { rememberMe, ...credentials } = data;
+      void rememberMe;
       const response = await loginApi(credentials).unwrap();
 
       localStorage.setItem("token", response.data.token);
+
 
       showNotification({ message: "تم تسجيل الدخول بنجاح", variant: "success" });
       const role = response.data.user.role;
@@ -46,9 +48,13 @@ export const LoginForm = (): React.JSX.Element => {
       } else {
         navigate("/dashboard");
       }
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as {
+        data?: { message?: string };
+        message?: string;
+      };
       const errorMessage =
-        error?.data?.message || error?.message || "حدث خطأ غير متوقع";
+        authError?.data?.message || authError?.message || "حدث خطأ غير متوقع";
       showNotification({ message: errorMessage, variant: "error" });
     }
   };

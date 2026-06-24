@@ -36,11 +36,14 @@ const navLinks = [
 export function DashboardHeader({ storeName }: DashboardHeaderProps) {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const { data: profileResponse } = useGetProfileQuery(undefined, { skip: !token });
+  const { data: profileResponse } = useGetProfileQuery(undefined, {
+    skip: !token,
+  });
   const user = profileResponse?.data?.user;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+
     window.location.href = "/";
   };
 
