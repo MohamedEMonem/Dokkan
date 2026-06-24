@@ -10,6 +10,9 @@ interface MobileMenuProps {
   onClose: () => void;
   user: any;
   onLogout: () => void;
+  isStoreRoute?: boolean;
+  subdomain?: string;
+  subcategories?: Array<{ id: string; name: string }>;
 }
 
 export default function MobileMenu({
@@ -17,6 +20,9 @@ export default function MobileMenu({
   onClose,
   user,
   onLogout,
+  isStoreRoute = false,
+  subdomain = "",
+  subcategories = [],
 }: MobileMenuProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -88,54 +94,82 @@ export default function MobileMenu({
 
           <nav className="flex-1 py-3 px-4 overflow-y-auto overflow-x-hidden">
             <ul className="space-y-1">
-              {navItems.map((item) => (
-                <li key={item.href} className="flex flex-col">
-                  <div className="flex items-center justify-between">
+              {isStoreRoute ? (
+                subcategories.length > 0 ? (
+                  subcategories.map((subcat) => (
+                    <li key={subcat.id}>
+                      <Link
+                        to={`/${subdomain}/products?subcat=${subcat.id}`}
+                        onClick={onClose}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-bg-cream transition-colors text-base font-semibold text-text-dark text-right w-full"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        <span>{subcat.name}</span>
+                      </Link>
+                    </li>
+                  ))
+                ) : (
+                  <li>
                     <Link
-                      to={item.href}
+                      to={`/${subdomain}/products`}
                       onClick={onClose}
-                      className="flex flex-1 items-center gap-3 px-4 py-3 rounded-xl hover:bg-bg-cream transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-bg-cream transition-colors text-base font-semibold text-text-dark text-right w-full"
                     >
-                      {item.icon}
-                      <span className="text-base font-semibold text-text-dark">
-                        {item.label}
-                      </span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                      <span>كل المنتجات</span>
                     </Link>
+                  </li>
+                )
+              ) : (
+                navItems.map((item) => (
+                  <li key={item.href} className="flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <Link
+                        to={item.href}
+                        onClick={onClose}
+                        className="flex flex-1 items-center gap-3 px-4 py-3 rounded-xl hover:bg-bg-cream transition-colors"
+                      >
+                        {item.icon}
+                        <span className="text-base font-semibold text-text-dark">
+                          {item.label}
+                        </span>
+                      </Link>
 
-                    {item.subItems && (
-                      <Button
-                        onClick={() => toggleSection(item.label)}
-                        variant="tertiary"
-                        className="inline-flex size-9! text-primary transition-colors"
-                        aria-label={`فتح ${item.label}`}
-                        icon={
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 ${
-                              openSections[item.label] ? "rotate-180" : ""
-                            }`}
-                          />
-                        }
-                      />
+                      {item.subItems && (
+                        <Button
+                          onClick={() => toggleSection(item.label)}
+                          variant="tertiary"
+                          className="inline-flex size-9! text-primary transition-colors"
+                          aria-label={`فتح ${item.label}`}
+                          icon={
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-200 ${
+                                openSections[item.label] ? "rotate-180" : ""
+                              }`}
+                            />
+                          }
+                        />
+                      )}
+                    </div>
+
+                    {item.subItems && openSections[item.label] && (
+                      <ul className="my-2 mr-12 flex flex-col gap-3">
+                        {item.subItems.map((sub) => (
+                          <li key={sub.href}>
+                            <Link
+                              to={sub.href}
+                              onClick={onClose}
+                              className="block w-full py-1.5 text-right rounded-lg text-sm text-gray-600 hover:bg-accent-light/30 hover:text-primary transition-colors duration-150"
+                            >
+                              {sub.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
                     )}
-                  </div>
-
-                  {item.subItems && openSections[item.label] && (
-                    <ul className="my-2 mr-12 flex flex-col gap-3">
-                      {item.subItems.map((sub) => (
-                        <li key={sub.href}>
-                          <Link
-                            to={sub.href}
-                            onClick={onClose}
-                            className="block w-full py-1.5 text-right rounded-lg text-sm text-gray-600 hover:bg-accent-light/30 hover:text-primary transition-colors duration-150"
-                          >
-                            {sub.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
+                  </li>
+                ))
+              )}
 
               {iconActions.map((action) => {
                 const isActive = location.pathname === action.href;
