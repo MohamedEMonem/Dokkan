@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { sortBy } from "@/utils/sorting";
 import { SlidersHorizontal } from "lucide-react";
 import { Pagination } from "@/components/ui/Pagination";
+import { useGetCategoriesQuery } from "@/api/category.api";
 
 const sortConfigs: Record<
   string,
@@ -19,7 +20,12 @@ const sortConfigs: Record<
   highest_rated: { key: "rating", order: "desc", type: "number" },
 };
 
+
+
 export const ViewProducts = () => {
+  const { data: categoriesData } = useGetCategoriesQuery();
+  const categoriesList = categoriesData?.data ?? [];
+
   const { data, isLoading, error } = useGetProductsQuery({ limit: 100 });
   const products = data?.data?.products ?? [];
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,12 +60,21 @@ export const ViewProducts = () => {
   }, [filters, sortedBy]);
 
   useEffect(() => {
-    if (categoryParam) {
-      setFilters((prev) => ({ ...prev, category: categoryParam }));
+    if (categoryParam && categoriesList.length > 0) {
+      const found = categoriesList.find(
+        (cat) =>
+          cat.id === categoryParam ||
+          cat.name.toLowerCase().includes(categoryParam.toLowerCase())
+      );
+      if (found) {
+        setFilters((prev) => ({ ...prev, category: found.id }));
+      } else {
+        setFilters((prev) => ({ ...prev, category: categoryParam }));
+      }
     } else {
       setFilters((prev) => ({ ...prev, category: "all" }));
     }
-  }, [categoryParam]);
+  }, [categoryParam, categoriesList]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -73,8 +88,11 @@ export const ViewProducts = () => {
       const matchesCategory =
         filters.category === "all" || product.categoryId === filters.category;
 
-      // Add more filters here as needed (city, rating, etc.)
-      return matchesSearch && matchesCategory;
+      const matchesRating =
+        filters.rating === "all" ||
+        (product.averageRating ?? 4.8) >= parseFloat(filters.rating);
+
+      return matchesSearch && matchesCategory && matchesRating;
     });
   }, [products, filters]);
 
@@ -193,7 +211,7 @@ export const ViewProducts = () => {
                   variant="outline-accent"
                   onClick={() => reset()}
                   data-slot="button"
-                  className="w-fit! h-9! lg:h-12! px-4 py-2 lg:px-6 rounded-lg text-black! border! outline-none! text-sm! lg:text-base! hover:text-white!"
+                  className="w-fit! h-9! px-4 py-2 text-sm"
                 >
                   إعادة تعيين الفلاتر
                 </Button>

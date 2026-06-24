@@ -284,7 +284,7 @@ Docs & swagger
 
 Where to add new docs
 ---------------------
-- Add feature-specific docs under [Backend/Docs/](README.md) and link them from [TOC.md](TOC.md).
+- Add feature-specific docs under [Backend/docs/](README.md) and link them from [TOC.md](TOC.md).
 
 Contact / next steps
 ---------------------
