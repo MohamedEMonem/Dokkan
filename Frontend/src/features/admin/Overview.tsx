@@ -4,95 +4,95 @@ import { StatCard } from "@/components/ui/StatCard";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
 
+// Stats overview data for platform health
+const adminStats = {
+  totalUsers: { value: 1240, change: "+8%" },
+  activeStores: { value: 85, change: "+12%" },
+  totalProducts: { value: 3450, change: "+24%" },
+  totalReviews: { value: 920, change: "+15%" },
+};
+
+// Mock list of recent platform reviews/comments
+const recentReviews = [
+  {
+    id: "r1",
+    productId: "p1",
+    storeSubdomain: "digital-corner",
+    userName: "محمد أحمد",
+    productName: "سماعات بلوتوث الرياضية",
+    storeName: "ركن الرقميات",
+    comment: "سماعات ممتازة، جودة الصوت رائعة وعازل الضوضاء يعمل بشكل جيد جداً.",
+    rating: 5,
+  },
+  {
+    id: "r2",
+    productId: "p2",
+    storeSubdomain: "elegant-fashion",
+    userName: "منى محمود",
+    productName: "فستان قطني صيفي",
+    storeName: "متجر أنيق للموضة",
+    comment: "الخامة جيدة ولكن المقاس كان أصغر قليلاً من المتوقع.",
+    rating: 3,
+  },
+  {
+    id: "r3",
+    productId: "p3",
+    storeSubdomain: "modern-kitchen",
+    userName: "كريم يوسف",
+    productName: "ماكينة إعداد القهوة",
+    storeName: "بيت المطبخ الحديث",
+    comment: "تأخر التوصيل لثلاثة أيام والتغليف كان متضرراً.",
+    rating: 2,
+  },
+];
+
+// Mock list of recently added products
+const recentProducts = [
+  {
+    id: "p1",
+    title: "هاتف ذكي X100 Pro",
+    storeName: "ركن الرقميات",
+    storeSubdomain: "digital-corner",
+    price: "١٥,٠٠٠ ج.م",
+    category: "إلكترونيات",
+  },
+  {
+    id: "p2",
+    title: "حذاء ركض رياضي خفيف",
+    storeName: "الرياضي المحترف",
+    storeSubdomain: "pro-athlete",
+    price: "١,٢٠٠ ج.م",
+    category: "ملابس رياضية",
+  },
+  {
+    id: "p3",
+    title: "ساعة حائط كلاسيكية خشبية",
+    storeName: "بيت الديكور",
+    storeSubdomain: "decor-house",
+    price: "٤٥٠ ج.م",
+    category: "ديكور منزل",
+  },
+];
+
+// Mock list of stores pending approval
+const pendingStores = [
+  {
+    id: "101",
+    name: "دكان الإلكترونيات الحديثة",
+    subdomain: "modern-electronics",
+    owner: "محمود حسن",
+    date: "منذ ساعتين",
+  },
+  {
+    id: "102",
+    name: "متجر أدوات الطهي الاحترافية",
+    subdomain: "pro-cooking",
+    owner: "فاطمة عمر",
+    date: "منذ يوم واحد",
+  },
+];
+
 export function AdminOverview() {
-  // Stats overview data for platform health
-  const adminStats = {
-    totalUsers: { value: 1240, change: "+8%" },
-    activeStores: { value: 85, change: "+12%" },
-    totalProducts: { value: 3450, change: "+24%" },
-    totalReviews: { value: 920, change: "+15%" },
-  };
-
-  // Mock list of recent platform reviews/comments
-  const recentReviews = [
-    {
-      id: "r1",
-      productId: "p1",
-      storeSubdomain: "digital-corner",
-      userName: "محمد أحمد",
-      productName: "سماعات بلوتوث الرياضية",
-      storeName: "ركن الرقميات",
-      comment: "سماعات ممتازة، جودة الصوت رائعة وعازل الضوضاء يعمل بشكل جيد جداً.",
-      rating: 5,
-    },
-    {
-      id: "r2",
-      productId: "p2",
-      storeSubdomain: "elegant-fashion",
-      userName: "منى محمود",
-      productName: "فستان قطني صيفي",
-      storeName: "متجر أنيق للموضة",
-      comment: "الخامة جيدة ولكن المقاس كان أصغر قليلاً من المتوقع.",
-      rating: 3,
-    },
-    {
-      id: "r3",
-      productId: "p3",
-      storeSubdomain: "modern-kitchen",
-      userName: "كريم يوسف",
-      productName: "ماكينة إعداد القهوة",
-      storeName: "بيت المطبخ الحديث",
-      comment: "تأخر التوصيل لثلاثة أيام والتغليف كان متضرراً.",
-      rating: 2,
-    },
-  ];
-
-  // Mock list of recently added products
-  const recentProducts = [
-    {
-      id: "p1",
-      title: "هاتف ذكي X100 Pro",
-      storeName: "ركن الرقميات",
-      storeSubdomain: "digital-corner",
-      price: "١٥,٠٠٠ ج.م",
-      category: "إلكترونيات",
-    },
-    {
-      id: "p2",
-      title: "حذاء ركض رياضي خفيف",
-      storeName: "الرياضي المحترف",
-      storeSubdomain: "pro-athlete",
-      price: "١,٢٠٠ ج.م",
-      category: "ملابس رياضية",
-    },
-    {
-      id: "p3",
-      title: "ساعة حائط كلاسيكية خشبية",
-      storeName: "بيت الديكور",
-      storeSubdomain: "decor-house",
-      price: "٤٥٠ ج.م",
-      category: "ديكور منزل",
-    },
-  ];
-
-  // Mock list of stores pending approval
-  const pendingStores = [
-    {
-      id: "101",
-      name: "دكان الإلكترونيات الحديثة",
-      subdomain: "modern-electronics",
-      owner: "محمود حسن",
-      date: "منذ ساعتين",
-    },
-    {
-      id: "102",
-      name: "متجر أدوات الطهي الاحترافية",
-      subdomain: "pro-cooking",
-      owner: "فاطمة عمر",
-      date: "منذ يوم واحد",
-    },
-  ];
-
   return (
     <div className="space-y-6 w-full font-sans select-none">
       {/* Top Welcome Section */}
