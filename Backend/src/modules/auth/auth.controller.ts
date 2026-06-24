@@ -122,7 +122,7 @@ export const loginWithGoogle = async (req: Request, res: Response, next: NextFun
 
 export const signupWithGoogle = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { code, role } = req.body ;
+    const { code, role } = req.body;
 
     if (!code) {
       return sendError(res, "Authorization code is required.", 400);
@@ -139,7 +139,7 @@ export const signupWithGoogle = async (req: Request, res: Response, next: NextFu
     }
 
     // Call the new Google method we added to the service
-    
+
     const result = await authService.signupWithGoogle(code, validatedRole);
 
     // Return the standard Dokkan response payload

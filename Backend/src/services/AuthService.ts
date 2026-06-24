@@ -15,7 +15,7 @@ import { OAuth2Client } from 'google-auth-library';
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  'postmessage'
+  process.env.CORS_ORIGIN ? `${process.env.CORS_ORIGIN}/auth/callback` : 'http://localhost:5000/auth/callback'
 );
 
 type PublicUser = {
@@ -272,8 +272,8 @@ export const authService = {
       // Link existing account to Google
       user = await prisma.user.update({
         where: { id: user.id },
-        data: { 
-          googleOauthId: googleOauthId, 
+        data: {
+          googleOauthId: googleOauthId,
           isVerified: true,
           ...(user.isVerified === false && { password: null }) // Invalidate password if previously unverified
         },
