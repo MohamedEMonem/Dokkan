@@ -23,6 +23,7 @@ import { Products } from "@/features/dashboard/Products";
 import { CreateProduct } from "@/features/dashboard/CreateProduct";
 import { UpdateProduct } from "@/features/dashboard/UpdateProduct";
 import { Settings } from "@/features/dashboard/Settings";
+import { Analytics } from "@/features/dashboard/Analytics";
 import ViewStores from "@/features/stores/ViewStores";
 import StoreOnboarding from "@/features/stores/StoreOnboarding";
 import WelcomeStep from "@/features/stores/Components/onboarding/WelcomeStep";
@@ -64,6 +65,7 @@ export default function AppRoutes() {
           <Route path="products" element={<Products />} />
           <Route path="products/create" element={<CreateProduct />} />
           <Route path="products/:id/edit" element={<UpdateProduct />} />
+          <Route path="analytics" element={<Analytics />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
         </Route>
