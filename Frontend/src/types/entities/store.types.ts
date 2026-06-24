@@ -41,6 +41,11 @@ export interface IStoreInfo {
   socialMediaLinks?: string | Record<string, unknown>;
   averageRating?: number;
   reviewCount?: number;
+  owner?: {
+    id: string;
+    name: string;
+    email?: string;
+  };
 }
 
 /* ────────────────────────────────────────────────────────

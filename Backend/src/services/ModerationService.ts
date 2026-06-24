@@ -357,6 +357,20 @@ export class ModerationService {
     });
   }
 
+  static async updateStoreStatus(storeId: string, status: "Pending" | "Active" | "Suspended") {
+    const store = await prisma.store.findFirst({
+      where: { id: storeId, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (!store) return httpError("Store not found", 404);
+
+    return prisma.store.update({
+      where: { id: storeId },
+      data: { status },
+    });
+  }
+
   static async restoreProductReview(reviewId: string) {
     const review = await prisma.productReview.findFirst({
       where: { id: reviewId, deletedAt: { not: null } },
