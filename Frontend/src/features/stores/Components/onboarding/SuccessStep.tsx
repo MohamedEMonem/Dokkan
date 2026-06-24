@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { CheckCircle2, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
-import Header from "@/components/layout/Header";
+import Header from "@/components/layout/Header/Header";
 import { useGetProfileQuery } from "@/api/user.api";
 import { useGetUserStoreQuery } from "@/api/store.api";
 

@@ -1,4 +1,4 @@
-import Header from "@/components/layout/Header";
+import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer";
 import { Outlet } from "react-router-dom";
 import StoreThemeProvider from "@/components/layout/StoreThemeProvider";

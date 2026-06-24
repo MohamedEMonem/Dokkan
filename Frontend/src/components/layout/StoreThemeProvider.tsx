@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useListStoresQuery } from "@/api/store.api";
 import { adjustColorBrightness } from "@/utils/themeUtils";
 
@@ -8,7 +8,13 @@ interface StoreThemeProviderProps {
 }
 
 export default function StoreThemeProvider({ children }: StoreThemeProviderProps) {
-  const { subdomain } = useParams<{ subdomain: string }>();
+  const location = useLocation();
+
+  // Extract subdomain from URL path since useParams() is empty in parent layout components
+  const decodedPath = decodeURIComponent(location.pathname);
+  const pathParts = decodedPath.split("/");
+  const subdomain = pathParts[1];
+
   const isStoreRoute = !!subdomain && subdomain.startsWith("@");
   const cleanSubdomain = isStoreRoute ? subdomain.slice(1) : "";
 

@@ -14,7 +14,12 @@ import MobileMenu from "./MobileMenu";
 
 export default function Header() {
   const location = useLocation();
-  const { subdomain } = useParams<{ subdomain: string }>();
+  
+  // Extract subdomain from URL path since useParams() is empty in parent layout components
+  const decodedPath = decodeURIComponent(location.pathname);
+  const pathParts = decodedPath.split("/");
+  const subdomain = pathParts[1];
+  
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const token = localStorage.getItem("token");

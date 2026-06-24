@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import Header from "@/components/layout/Header";
+import Header from "@/components/layout/Header/Header";
 import { showNotification } from "@/utils/showNotification";
 import { useCreateStoreMutation } from "@/api/store.api";
 import { useUpdateProfileMutation } from "@/api/user.api";

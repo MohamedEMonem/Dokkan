@@ -1,5 +1,5 @@
 import { Store, MapPin, Phone, Mail } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   COMPANY_NAME,
   COMPANY_DESCRIPTION,
@@ -13,7 +13,13 @@ import FooterNavItem from "./FooterNavItem";
 import { useListStoresQuery } from "@/api/store.api";
 
 export default function Footer() {
-  const { subdomain } = useParams<{ subdomain: string }>();
+  const location = useLocation();
+
+  // Extract subdomain from URL path since useParams() is empty in parent layout components
+  const decodedPath = decodeURIComponent(location.pathname);
+  const pathParts = decodedPath.split("/");
+  const subdomain = pathParts[1];
+
   const isStoreRoute = !!subdomain && subdomain.startsWith("@");
   const cleanSubdomain = isStoreRoute ? subdomain.slice(1) : "";
 
