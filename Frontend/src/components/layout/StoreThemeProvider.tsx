@@ -23,13 +23,7 @@ export default function StoreThemeProvider({ children }: StoreThemeProviderProps
   const themeStyles = useMemo(() => {
     const themeSettingsData = store?.themeSettings || (store as any)?.theme_settings;
 
-    if (!isStoreRoute || !themeSettingsData) {
-      console.log("StoreTheme: Not a store route or no theme settings found.", { 
-        isStoreRoute, 
-        themeSettings: store?.themeSettings,
-        theme_settings: (store as any)?.theme_settings,
-        store
-      });
+    if (!isStoreRoute) {
       return {};
     }
 
@@ -39,25 +33,25 @@ export default function StoreThemeProvider({ children }: StoreThemeProviderProps
         settings = JSON.parse(settings);
       } catch (e) {
         console.error("StoreTheme: Failed to parse themeSettings JSON string:", e);
-        return {};
+        settings = {};
       }
     }
 
-    const typedSettings = settings as { primaryColor?: string; bgColor?: string };
+    const typedSettings = (settings || {}) as { primaryColor?: string; bgColor?: string };
     const styles: Record<string, string> = {};  
 
-    if (typedSettings.primaryColor) {
-      styles["--color-primary"] = typedSettings.primaryColor;
-      // Derive hovers and active states dynamically (e.g. +/- 15% brightness)
-      styles["--color-primary-light"] = adjustColorBrightness(typedSettings.primaryColor, 15);
-      styles["--color-primary-dark"] = adjustColorBrightness(typedSettings.primaryColor, -15);
-    }
+    // Default primary color to #1A1A1A if not set on store route
+    const primaryColor = typedSettings.primaryColor || "#1A1A1A";
+    styles["--color-primary"] = primaryColor;
+    // Derive hovers and active states dynamically (e.g. +/- 15% brightness)
+    styles["--color-primary-light"] = adjustColorBrightness(primaryColor, 15);
+    styles["--color-primary-dark"] = adjustColorBrightness(primaryColor, -15);
 
-    if (typedSettings.bgColor) {
-      styles["--color-bg-cream"] = typedSettings.bgColor;
-      // Also override warm background color to match the store background
-      styles["--color-bg-warm"] = typedSettings.bgColor;
-    }
+    // Default bg color to #FFFFFF if not set on store route
+    const bgColor = typedSettings.bgColor || "#FFFFFF";
+    styles["--color-bg-cream"] = bgColor;
+    // Also override warm background color to match the store background
+    styles["--color-bg-warm"] = bgColor;
 
     console.log("StoreTheme: Resolved dynamic styles:", styles);
     return styles as React.CSSProperties;
