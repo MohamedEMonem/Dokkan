@@ -68,7 +68,6 @@ export function AdminOrdersFilters({ filters, onChange }: AdminOrdersFiltersProp
             value={filters.status}
             onChange={(e) => onChange({ status: e.target.value })}
             options={statusOptions}
-            placeholder="حالة الطلب"
             className="w-full h-9! text-xs font-semibold"
           />
         </div>
@@ -80,7 +79,6 @@ export function AdminOrdersFilters({ filters, onChange }: AdminOrdersFiltersProp
             value={filters.paymentStatus}
             onChange={(e) => onChange({ paymentStatus: e.target.value })}
             options={paymentStatusOptions}
-            placeholder="حالة الدفع"
             className="w-full h-9! text-xs font-semibold"
           />
         </div>
