@@ -47,16 +47,29 @@ enum StoreStatus {
   Suspended
 }
 
+enum FlagStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
+enum FlagTargetType {
+  PRODUCT
+  STORE
+  PRODUCT_REVIEW
+  STORE_REVIEW
+}
+
 // Models
 model User {
   id              String    @id @default(uuid()) @map("user_id") @db.Uuid
   name            String    @db.Char(50)
   email           String    @unique @db.VarChar(150)
-  password        String    @db.VarChar(255)
+  password        String?    @db.VarChar(255)
   role            UserRole  @default(Customer)
   contactNumber   String?   @map("contact_number") @db.VarChar(20)
   profilePhotoUrl String?   @map("profile_photo_url") @db.VarChar(255)
-  googleOauthId   String?   @map("google_oauth_id") @db.VarChar(255)
+  googleOauthId   String?   @unique @map("google_oauth_id") @db.VarChar(255)
   isVerified      Boolean   @default(false) @map("is_verified")
   createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
   deletedAt       DateTime? @map("deleted_at") @db.Timestamp(0)
@@ -71,6 +84,8 @@ model User {
   receivedMessages Message[]       @relation("MessageReceiver")
   notifications    Notification[]
   employments      StoreEmployee[]
+  flagsReported    Flag[]          @relation("FlagReporter")
+  flagsResolved    Flag[]          @relation("FlagResolver")
 
   @@map("User")
 }
@@ -102,7 +117,6 @@ model Store {
 
   // Relations
   owner         User            @relation("StoreOwner", fields: [ownerId], references: [id])
-  categories    Category[] // New relation for isolation
   products      Product[]
   orders        Order[]
   subscriptions Subscription[]
@@ -115,6 +129,7 @@ model Store {
 
 model Plan {
   id       String  @id @default(uuid()) @map("plan_id") @db.Uuid
+  slug     String  @unique @db.VarChar(100)
   name     String  @db.VarChar(100)
   price    Decimal @db.Decimal(10, 2)
   features Json
@@ -140,28 +155,33 @@ model Subscription {
 }
 
 model Category {
-  id               String  @id @default(uuid()) @map("category_id") @db.Uuid
-  name             String  @db.VarChar(100)
-  parentCategoryId String? @map("parent_category_id") @db.Uuid
-
-  // Foreign key and relation to Store for tenant isolation
-  storeId String @map("store_id") @db.Uuid
-  store   Store  @relation(fields: [storeId], references: [id])
+  id               String         @id @default(uuid()) @map("category_id") @db.Uuid
+  name             String         @unique @db.VarChar(100)
 
   // Relations
-  parent   Category?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
-  children Category[] @relation("CategoryHierarchy")
+  subCategories  SubCategory[]
+
+  @@map("Category")
+}
+
+model SubCategory {
+  id         String   @id @default(uuid()) @map("sub_category_id") @db.Uuid
+  name       String   @db.VarChar(100)
+  categoryId String   @map("category_id") @db.Uuid
+
+  // Relations
+  category Category @relation(fields: [categoryId], references: [id])
   products Product[]
 
-  // Ensures category names are unique only within the same store
-  @@unique([name, storeId])
-  @@map("Category")
+  @@unique([name, categoryId])
+  @@map("SubCategory")
 }
 
 model Product {
   id            String        @id @default(uuid()) @map("product_id") @db.Uuid
   storeId       String        @map("store_id") @db.Uuid
-  categoryId    String        @map("category_id") @db.Uuid
+  subCategoryId String?       @map("sub_category_id") @db.Uuid
+  categoryId    String?       @map("category_id") @db.Uuid
   title         String        @db.VarChar(150)
   description   String?       @db.Text
   price         Decimal       @db.Decimal(10, 2)
@@ -175,7 +195,7 @@ model Product {
 
   // Relations
   store          Store          @relation(fields: [storeId], references: [id])
-  category       Category       @relation(fields: [categoryId], references: [id])
+  subCategory    SubCategory?   @relation(fields: [subCategoryId], references: [id])
   images         ProductImage[]
   orderItems     OrderItem[]
   productReviews ProductReview[]
@@ -244,6 +264,7 @@ model ProductReview {
   storeRepliedAt DateTime? @map("store_replied_at") @db.Timestamp(0)
   createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt      DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamp(0)
 
   // Relations
   product  Product @relation(fields: [productId], references: [id])
@@ -265,6 +286,7 @@ model StoreReview {
   storeRepliedAt DateTime? @map("store_replied_at") @db.Timestamp(0)
   createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt      DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamp(0)
 
   // Relations
   store    Store @relation("StoreReviews", fields: [storeId], references: [id])
@@ -355,6 +377,25 @@ model Notification {
   user User @relation(fields: [userId], references: [id])
 
   @@map("Notification")
+}
+
+model Flag {
+  id           String         @id @default(uuid()) @map("flag_id") @db.Uuid
+  reporterId   String         @map("reporter_id") @db.Uuid
+  targetType   FlagTargetType @map("target_type")
+  targetId     String         @map("target_id") @db.Uuid
+  reason       String         @db.Text
+  status       FlagStatus     @default(PENDING)
+  adminNote    String?        @map("admin_note") @db.Text
+  resolvedById String?        @map("resolved_by_id") @db.Uuid
+  createdAt    DateTime?      @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt    DateTime?      @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // Relations
+  reporter   User  @relation("FlagReporter", fields: [reporterId], references: [id])
+  resolvedBy User? @relation("FlagResolver", fields: [resolvedById], references: [id])
+
+  @@map("Flag")
 }
 
 model StoreAnalytics {

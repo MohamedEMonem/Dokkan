@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Store,
   Bell,
@@ -34,6 +34,7 @@ const navLinks = [
 ];
 
 export function DashboardHeader({ storeName }: DashboardHeaderProps) {
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const { data: profileResponse } = useGetProfileQuery(undefined, {
     skip: !token,
@@ -94,14 +95,15 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
                 </Button>
               </div>
 
-              {/* Create Store CTA */}
+              {/* Customize Store CTA */}
               <Button
                 variant="accent"
                 icon={<Sparkles className="w-5 h-5" />}
                 iconPos="right"
                 className="px-4 md:px-6 py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl"
+                onClick={() => navigate("/dashboard/customize")}
               >
-                إنشاء متجري
+                تخصيص متجري
               </Button>
 
               {/* User Dropdown */}

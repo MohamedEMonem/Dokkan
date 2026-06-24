@@ -18,7 +18,7 @@ const variantClasses = {
   accent: "bg-accent hover:bg-accent-dark text-white",
   /** Gold outline  */
   "outline-accent":
-    "border-2 border-accent text-accent bg-transparent hover:bg-accent hover:text-white",
+    "border border-accent/20 bg-bg-cream/40 text-text-dark hover:bg-accent hover:text-white hover:border-accent dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
 
   /** White bg, teal text */
   hero: "bg-white text-primary hover:bg-accent-light",

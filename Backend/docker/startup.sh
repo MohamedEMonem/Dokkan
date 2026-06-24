@@ -34,6 +34,9 @@ else
   fi
 fi
 
+printf '%s\n' "Regenerating Prisma client..."
+npx prisma generate
+
 if [ "${AUTO_SEED:-true}" = "true" ]; then
   printf '%s\n' "Seeding database..."
   npx tsx prisma/seed.js

@@ -22,12 +22,14 @@ const passwordSchema = z
     message: "Password must contain at least one special character",
   });
 
+export const userRoleSchema = z.enum(["Customer", "StoreOwner"]);
+
 export const registerAuthSchema = z
   .object({
     email: emailSchema,
     password: passwordSchema,
     name: z.string().trim().min(1, "name is required").max(50, "Name must be at most 50 characters"),
-    role: z.enum(["Customer", "StoreOwner"]).optional(),
+    role: userRoleSchema.optional(),
   })
   .strict();
 

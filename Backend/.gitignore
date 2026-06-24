@@ -1,5 +1,5 @@
 .env
 /node_modules
 /dist
-src/prisma/migrations
-src/prisma/migrations/*
+prisma/migrations
+prisma/migrations/*

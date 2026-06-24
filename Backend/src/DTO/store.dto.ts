@@ -1,5 +1,6 @@
 // @ts-ignore - zod type resolution may fail in this environment while runtime import remains valid
 import { z } from "zod";
+import { optional } from "zod/mini";
 
 export const listStoresQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional().default(1),
@@ -7,6 +8,7 @@ export const listStoresQuerySchema = z.object({
   status: z.enum(["Pending", "Active", "Suspended"]).optional(),
   sortBy: z.enum(["createdAt", "name", "status"]).optional().default("createdAt"),
   sortDir: z.enum(["asc", "desc"]).optional().default("desc"),
+  subdomain: z.string().optional(),
 });
 
 const storePayloadSchema = z.object({
@@ -22,7 +24,7 @@ const storePayloadSchema = z.object({
     .refine((val: string) => !["admin", "api", "www", "support", "dokkan"].includes(val), {
       message: "This subdomain is a reserved keyword and cannot be used",
     }),
-  logoUrl: z.string().min(1, "Logo URL is required"),
+  logoUrl: z.string().min(1, "Logo URL is required").optional(),
   description: z.string().optional(),
   coverBannerUrl: z.string().optional(),
   businessAddress: z.string().optional(),

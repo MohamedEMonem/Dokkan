@@ -71,13 +71,33 @@ Restart your server, refresh the page, and your new route will be there!
 
 Here are the most common tags you will use:
 
-* **Group the route (Required):** `#swagger.tags = ['Auth']` *(Available tags: Auth, Stores, Categories, Products, Cart)*
+* **Group the route (Required):** `#swagger.tags = ['Auth']` *(Available tags: Auth, User, Stores, Categories, Products, Cart, Orders, Reviews, Plans, Test Email)*
 * **Short description:** `#swagger.summary = 'What this does'`
 * **Long description:** `#swagger.description = 'Detailed explanation here.'`
 * **Require Bearer Token:** `#swagger.security = [{ "bearerAuth": [] }]`
 * **Documenting a URL param (e.g., `/:id`):** `#swagger.parameters['id'] = { description: 'The unique ID' }`
 * **Custom Responses:** `#swagger.responses[200] = { description: 'Success!' }`
     `#swagger.responses[404] = { description: 'Not found.' }`
+
+## Response Envelope
+
+The API returns a consistent JSON envelope from `src/utils/response.ts`:
+
+```json
+{
+  "success": true,
+  "data": {},
+  "message": "Operation completed successfully",
+  "error": null,
+  "code": 200
+}
+```
+
+When documenting richer endpoints, prefer showing the `data` object shape rather than only listing status codes.
+
+## Body Shape Notes
+
+Some endpoints wrap their payload in a `data` property before validation. Keep the docs aligned with that wrapper for store create/update requests so the generated form matches the runtime contract.
 
 
 Ah, I see what you mean! The "comment thing" isn't actually part of the official Swagger/OpenAPI specification itself—it is a special feature built specifically into the **`swagger-autogen`** library that we used to scan your code.
@@ -96,3 +116,65 @@ Here are the most useful sections you will find in that documentation:
 * **[Security](https://swagger-autogen.github.io/docs/endpoints/security):** How to apply different types of authentication (like the Bearer tokens you are using) to specific routes.
 
 It is a fantastic cheat sheet to keep bookmarked as you and your friends continue building out the Dokkan API!
+
+---
+
+## Quick Examples
+
+Register (magic comment example):
+
+```js
+/* #swagger.tags = ['Auth']
+   #swagger.summary = 'Register a new user'
+   #swagger.requestBody = {
+     required: true,
+     content: {
+       "application/json": { schema: { type: 'object', required: ['email','password','name'], properties: { email: { type: 'string', format: 'email' }, password: { type: 'string' }, name: { type: 'string' } } } }
+     }
+   }
+   #swagger.responses[201] = { description: 'User created successfully' }
+*/
+```
+
+Create product (multipart):
+
+```js
+/* #swagger.tags = ['Products']
+   #swagger.summary = 'Create a product'
+   #swagger.consumes = ['multipart/form-data']
+   #swagger.security = [{ "bearerAuth": [] }]
+   #swagger.requestBody = { required: true, content: { "multipart/form-data": { schema: { type: 'object', properties: { title: { type: 'string' }, price: { type: 'number' }, image: { type: 'string', format: 'binary' } } } } } }
+   #swagger.responses[201] = { description: 'Product created successfully' }
+*/
+```
+
+Place order (shows envelope):
+
+```json
+{
+  "success": true,
+  "data": { "orders": [ { "id": "...", "totalAmount": "149.99" } ] },
+  "message": "Order(s) placed successfully",
+  "error": null,
+  "code": 201
+}
+```
+
+---
+
+## Commands
+
+Regenerate the OpenAPI JSON (run from the `Backend` folder):
+
+```bash
+node swagger.cjs
+```
+
+Start the dev server and view the UI:
+
+```bash
+npm run dev
+# then open http://localhost:3000/api/docs
+```
+
+Spec location (generated): `swagger-output.json`

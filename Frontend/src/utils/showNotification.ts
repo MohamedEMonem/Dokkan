@@ -17,6 +17,7 @@ const baseOptions: ToastOptions = {
 };
 
 export const showNotification = ({ message, variant = "success", options }: NotificationProps) => {
+  toast.dismiss();
   toast(
     message, {
     ...baseOptions,
