@@ -136,11 +136,10 @@ export const RegisterForm = (): React.JSX.Element => {
               type="text"
               placeholder="أدخل اسمك الكامل"
               icon={<User className="w-5 h-5" />}
+              isRequired
+              error={errors.name?.message}
               {...register("name")}
             />
-            {errors.name && (
-              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
-            )}
           </div>
 
           {/* Email */}
@@ -151,13 +150,10 @@ export const RegisterForm = (): React.JSX.Element => {
               type="email"
               placeholder="البريد@الإلكتروني.com"
               icon={<Mail className="w-5 h-5" />}
+              isRequired
+              error={errors.email?.message}
               {...register("email")}
             />
-            {errors.email && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.email.message}
-              </p>
-            )}
           </div>
 
           {/* Password */}
@@ -168,13 +164,11 @@ export const RegisterForm = (): React.JSX.Element => {
               type="password"
               placeholder="••••••••"
               icon={<Lock className="w-5 h-5" />}
+              isRequired
+              error={errors.password?.message}
               {...register("password")}
             />
-            {errors.password ? (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.password.message}
-              </p>
-            ) : (
+            {!errors.password && (
               <p className="text-xs text-text-muted mt-1">6 أحرف على الأقل</p>
             )}
           </div>
@@ -187,13 +181,10 @@ export const RegisterForm = (): React.JSX.Element => {
               type="password"
               placeholder="••••••••"
               icon={<Lock className="w-5 h-5" />}
+              isRequired
+              error={errors.confirmPassword?.message}
               {...register("confirmPassword")}
             />
-            {errors.confirmPassword && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.confirmPassword.message}
-              </p>
-            )}
           </div>
         </div>
 

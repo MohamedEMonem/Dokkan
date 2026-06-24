@@ -77,21 +77,21 @@ export function Settings() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
-              label="اسم المتجر *"
+              label="اسم المتجر"
               placeholder="أدخل اسم المتجر"
               value={storeName}
               onChange={(e) => setStoreName(e.target.value)}
-              required
+              isRequired
               className="h-12!"
               disabled={isUpdatingStore}
             />
 
             <TextArea
-              label="وصف المتجر *"
+              label="وصف المتجر"
               placeholder="أدخل وصف تفصيلي عن متجرك"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              required
+              isRequired
               rows={4}
               className="min-h-32!"
               disabled={isUpdatingStore}
@@ -109,11 +109,11 @@ export function Settings() {
             />
 
             <Input
-              label="العنوان *"
+              label="العنوان"
               placeholder="أدخل عنوان المتجر"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              required
+              isRequired
               className="h-12!"
               disabled={isUpdatingStore}
             />

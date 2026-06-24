@@ -226,50 +226,40 @@ export const ProductForm = ({
         <div className="space-y-6">
           <Input
             label="اسم المنتج"
-            required
+            isRequired
+            error={errors.title?.message}
             {...register("title")}
             placeholder="مثال: ساعة ذكية رياضية"
             className="border-accent-light"
           />
-          {errors.title && (
-            <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
-          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Input
                 label="الكمية"
-                required
+                isRequired
                 type="number"
                 placeholder="50"
                 step="1"
                 min={0}
                 max={1000}
+                error={errors.stockQuantity?.message}
                 {...register("stockQuantity", { valueAsNumber: true })}
                 className="border-accent-light text-right"
               />
-              {errors.stockQuantity && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.stockQuantity.message}
-                </p>
-              )}
             </div>
 
             <div>
               <Input
                 label="السعر (ج.م)"
-                required
+                isRequired
                 type="number"
                 placeholder="250"
                 step="0.01"
+                error={errors.price?.message}
                 {...register("price", { valueAsNumber: true })}
                 className="border-accent-light text-right"
               />
-              {errors.price && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.price.message}
-                </p>
-              )}
             </div>
           </div>
 
@@ -281,20 +271,16 @@ export const ProductForm = ({
                 render={({ field }) => (
                   <Select
                     label="القسم الرئيسي"
-                    required
+                    isRequired
                     {...field}
                     value={field.value ?? ""}
                     options={categoryOptions}
+                    error={errors.categoryId?.message}
                     className="border-accent-light"
                     disabled={isLoadingCategories}
                   />
                 )}
               />
-              {errors.categoryId && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.categoryId.message}
-                </p>
-              )}
             </div>
 
             <div>
@@ -304,36 +290,28 @@ export const ProductForm = ({
                 render={({ field }) => (
                   <Select
                     label="القسم الفرعي"
-                    required
+                    isRequired
                     {...field}
                     value={field.value ?? ""}
                     options={subCategoryOptions}
+                    error={errors.subCategoryId?.message}
                     className="border-accent-light"
                     disabled={isLoadingCategories || !categoryId}
                   />
                 )}
               />
-              {errors.subCategoryId && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.subCategoryId.message}
-                </p>
-              )}
             </div>
           </div>
 
           <TextArea
             label="وصف المنتج"
-            required
+            isRequired
             {...register("description")}
             placeholder="اكتب وصفاً تفصيلياً للمنتج..."
             rows={4}
+            error={errors.description?.message}
             className="border-accent-light"
           />
-          {errors.description && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.description.message}
-            </p>
-          )}
         </div>
 
         {/* Footer */}

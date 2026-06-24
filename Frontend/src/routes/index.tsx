@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import HomeLayout from "@/layout/HomeLayout";
 import AuthLayout from "@/layout/AuthLayout";
 import DashboardLayout from "@/layout/DashboardLayout";
+import AdminLayout from "@/layout/AdminLayout";
+
 
 import ProtectedRoutes from "./ProtectedRoutes";
 import ErrorPage from "@/pages/ErrorPage";
@@ -16,6 +18,7 @@ import { ViewProducts } from "@/features/products/ViewProducts";
 import { ProductDetailsPage } from "@/features/products/ProductDetailsPage";
 
 import { Overview } from "@/features/dashboard/Overview";
+import { AdminOverview } from "@/features/admin/Overview";
 import { Products } from "@/features/dashboard/Products";
 import { CreateProduct } from "@/features/dashboard/CreateProduct";
 import { UpdateProduct } from "@/features/dashboard/UpdateProduct";
@@ -63,6 +66,18 @@ export default function AppRoutes() {
           <Route path="products/:id/edit" element={<UpdateProduct />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
+        </Route>
+
+        {/* Admin Dashboard Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminOverview />} />
+          <Route path="stores" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة المتاجر - قيد التطوير</div>} />
+          <Route path="products" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة المنتجات العامة - قيد التطوير</div>} />
+          <Route path="reviews" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">مراجعة التعليقات والتقييمات - قيد التطوير</div>} />
+          <Route path="flags" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة طلبات الإبلاغ - قيد التطوير</div>} />
+          <Route path="categories" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة التصنيفات - قيد التطوير</div>} />
+          <Route path="plans" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">خطط الاشتراك - قيد التطوير</div>} />
+          <Route path="users" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة حسابات المستخدمين - قيد التطوير</div>} />
         </Route>
       </Route>
 

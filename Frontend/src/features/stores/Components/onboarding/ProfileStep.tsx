@@ -54,29 +54,27 @@ export default function ProfileStep({
         <div className="space-y-6">
           <div>
             <Input
-              label="الاسم الكامل *"
+              label="الاسم الكامل"
               id="onboarding-full-name"
               placeholder="أحمد محمد"
               autoComplete="name"
+              isRequired
+              error={errors.fullName?.message}
               {...register("fullName")}
             />
-            {errors.fullName && (
-              <p className="text-xs text-red-500 mt-1">{errors.fullName.message}</p>
-            )}
           </div>
 
           <div className="space-y-1">
             <Input
-              label="البريد الإلكتروني *"
+              label="البريد الإلكتروني"
               id="onboarding-email"
               type="email"
               placeholder="ahmed@example.com"
               autoComplete="email"
+              isRequired
+              error={errors.email?.message}
               {...register("email")}
             />
-            {errors.email && (
-              <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
-            )}
             <p className="text-xs text-text-muted">سنرسل رسالة تحقق إذا قمت بتغيير البريد</p>
           </div>
 
@@ -87,12 +85,10 @@ export default function ProfileStep({
               type="tel"
               placeholder="1234567890 20+"
               autoComplete="tel"
+              error={errors.phone?.message}
               {...register("phone")}
               style={{ textAlign: "right" }}
             />
-            {errors.phone && (
-              <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>
-            )}
           </div>
         </div>
       </StepSection>
