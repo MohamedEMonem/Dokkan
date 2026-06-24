@@ -20,14 +20,9 @@ export default function NavItem({ item }: NavItemProps) {
       {/* Trigger */}
       <Link
         to={item.href}
-        className="flex items-center gap-1 px-3 py-2 text-sm text-text-dark hover:text-primary transition-colors"
+        className="flex items-center gap-1 px-3 py-2 text-base text-text-dark hover:text-primary transition-colors"
       >
         <span>{item.label}</span>
-        {item.subItems && (
-          <ChevronDown
-            className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          />
-        )}
       </Link>
 
       {/* Dropdown */}

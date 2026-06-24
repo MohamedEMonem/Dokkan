@@ -162,6 +162,7 @@ export class StoreServices {
           phoneNumber: true,
           operatingHours: true,
           socialMediaLinks: true,
+          themeSettings: true,
           createdAt: true,
           deletedAt: true,
           ownerId: true,
