@@ -1,79 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAdminListUsersQuery, useAdminDeleteUserMutation } from "@/api/user.api";
-import { IUser } from "@/types/entities/user.types";
 import { UsersFilter, UsersFilterState } from "./components/UsersFilter";
 import { UsersTable } from "./components/UsersTable";
 import { Pagination } from "@/components/ui/Pagination";
 import { showNotification } from "@/utils/showNotification";
-import { Users, UserCheck, Store, ShieldCheck } from "lucide-react";
+import { Users, UserCheck, Store } from "lucide-react";
 import { StatCard } from "@/components/ui/StatCard";
-
-// ── Fallback dummy data (shown when backend returns nothing) ──────────────── //
-
-const dummyUsers: IUser[] = [
-  {
-    id: "u1",
-    name: "أحمد محمد",
-    email: "ahmed@example.com",
-    role: "Customer" as any,
-    isVerified: true,
-    contactNumber: "+201012345678",
-    profilePhotoUrl: null,
-    googleOauthId: null,
-    password: "",
-    createdAt: new Date("2025-01-15"),
-  } as IUser,
-  {
-    id: "u2",
-    name: "سارة علي",
-    email: "sara@example.com",
-    role: "StoreOwner" as any,
-    isVerified: true,
-    contactNumber: "+201098765432",
-    profilePhotoUrl: null,
-    googleOauthId: null,
-    password: "",
-    createdAt: new Date("2025-02-20"),
-  } as IUser,
-  {
-    id: "u3",
-    name: "محمد عبدالله",
-    email: "mabdullah@example.com",
-    role: "Customer" as any,
-    isVerified: false,
-    contactNumber: null,
-    profilePhotoUrl: null,
-    googleOauthId: null,
-    password: "",
-    createdAt: new Date("2025-03-10"),
-  } as IUser,
-  {
-    id: "u4",
-    name: "ليلى حسن",
-    email: "laila@example.com",
-    role: "StoreOwner" as any,
-    isVerified: true,
-    contactNumber: "+966501234567",
-    profilePhotoUrl: null,
-    googleOauthId: null,
-    password: "",
-    createdAt: new Date("2025-04-05"),
-  } as IUser,
-  {
-    id: "u5",
-    name: "Admin System",
-    email: "admin@dokkan.com",
-    role: "Admin" as any,
-    isVerified: true,
-    contactNumber: null,
-    profilePhotoUrl: null,
-    googleOauthId: null,
-    password: "",
-    createdAt: new Date("2025-01-01"),
-  } as IUser,
-];
-
-// ── Main Component ────────────────────────────────────────────────────────── //
 
 export function AdminUsers() {
   const [page, setPage] = useState(1);
@@ -102,7 +34,7 @@ export function AdminUsers() {
     setPage(1);
   };
 
-  // ── Fetch main paginated list ─────────────────────────────────────────── //
+  // ── Fetch paginated list ──────────────────────────────────────────────── //
   const {
     data: response,
     isLoading,
@@ -119,32 +51,16 @@ export function AdminUsers() {
 
   // ── Fetch global counts for stat cards ───────────────────────────────── //
   const { data: allUsersRes } = useAdminListUsersQuery({ limit: 1 });
-  const { data: customersRes } = useAdminListUsersQuery({
-    limit: 1,
-    role: "Customer",
-  });
-  const { data: storeOwnersRes } = useAdminListUsersQuery({
-    limit: 1,
-    role: "StoreOwner",
-  });
+  const { data: customersRes } = useAdminListUsersQuery({ limit: 1, role: "Customer" });
+  const { data: storeOwnersRes } = useAdminListUsersQuery({ limit: 1, role: "StoreOwner" });
 
-  // ── Derive display data ───────────────────────────────────────────────── //
-  const apiUsers = response?.data?.users || [];
-  const rawUsers = apiUsers.length > 0 ? apiUsers : dummyUsers;
-  // Client-side search fallback (when server doesn't support search natively)
-  const users = rawUsers; // server handles search; no client filter needed
-
+  const users = response?.data?.users || [];
   const meta = response?.data?.meta;
-  const totalPages = apiUsers.length > 0 ? (meta?.totalPages || 0) : 1;
+  const totalPages = meta?.totalPages || 0;
 
-  const globalTotal =
-    allUsersRes?.data?.meta?.total ?? dummyUsers.length;
-  const globalCustomers =
-    customersRes?.data?.meta?.total ??
-    dummyUsers.filter((u) => u.role === "Customer").length;
-  const globalStoreOwners =
-    storeOwnersRes?.data?.meta?.total ??
-    dummyUsers.filter((u) => u.role === "StoreOwner").length;
+  const globalTotal = allUsersRes?.data?.meta?.total ?? "...";
+  const globalCustomers = customersRes?.data?.meta?.total ?? "...";
+  const globalStoreOwners = storeOwnersRes?.data?.meta?.total ?? "...";
 
   // ── Delete mutation ───────────────────────────────────────────────────── //
   const [adminDeleteUser] = useAdminDeleteUserMutation();
