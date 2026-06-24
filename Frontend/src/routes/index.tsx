@@ -15,6 +15,8 @@ import { AuthCallback } from "@/features/auth/AuthCallback";
 import Landing from "@/pages/Landing";
 import Profile from "@/pages/Profile";
 
+import Checkout from "@/features/checkout/CheckoutPage";
+
 import { ViewProducts } from "@/features/products/ViewProducts";
 import { ProductDetailsPage } from "@/features/products/ProductDetailsPage";
 
@@ -51,7 +53,9 @@ export default function AppRoutes() {
         <Route path="/:subdomain/products" element={<StoreProducts />} />
         <Route path="/:subdomain/products/:id" element={<ProductDetailsPage />} />
         {/* <Route path="/store/:id" element={<ViewStores />} /> */}
+
         <Route element={<ProtectedRoutes />}>
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
