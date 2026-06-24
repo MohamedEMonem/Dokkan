@@ -20,8 +20,8 @@ export function ProductsFilter({ filters, onChange }: ProductsFilterProps) {
   const stores = storesResponse?.data?.stores || [];
 
   const storeOptions = stores.map((store) => ({
-    value: store.id,
-    label: store.name,
+    value: store.id || "",
+    label: store.name || "",
   }));
 
   const statusOptions = [
