@@ -18,6 +18,7 @@ import { ViewProducts } from "@/features/products/ViewProducts";
 import { ProductDetailsPage } from "@/features/products/ProductDetailsPage";
 
 import { Overview } from "@/features/dashboard/Overview";
+import { AdminOverview } from "@/features/admin/Overview";
 import { Products } from "@/features/dashboard/Products";
 import { CreateProduct } from "@/features/dashboard/CreateProduct";
 import { UpdateProduct } from "@/features/dashboard/UpdateProduct";
@@ -69,7 +70,7 @@ export default function AppRoutes() {
 
         {/* Admin Dashboard Routes */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">لوحة التحكم - قيد التطوير</div>} />
+          <Route index element={<AdminOverview />} />
           <Route path="stores" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة المتاجر - قيد التطوير</div>} />
           <Route path="flags" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة طلبات الإبلاغ - قيد التطوير</div>} />
           <Route path="categories" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة التصنيفات - قيد التطوير</div>} />
