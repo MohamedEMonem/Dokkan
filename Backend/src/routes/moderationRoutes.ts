@@ -14,6 +14,10 @@ import {
   adminRestoreProductReview,
   adminRestoreStoreReview,
 } from "../controllers/ModerationController.js";
+import {
+  adminListUsers,
+  adminDeleteUser,
+} from "../controllers/AdminUserController.js";
 
 //  Customer-facing routes: /api/moderation 
 
@@ -219,3 +223,40 @@ adminRoutes.post(
   adminRestoreStoreReview,
 );
 
+// ── Admin: User Management ───────────────────────────────────────────────── //
+
+adminRoutes.get(
+  "/users",
+  auth,
+  authAdmin,
+  /* #swagger.tags = ['Admin - Users']
+     #swagger.summary = 'List all platform users'
+     #swagger.description = 'Retrieve a paginated list of all registered users. Admin only.'
+     #swagger.security = [{ "bearerAuth": [] }]
+     #swagger.parameters['page']   = { in: 'query', type: 'integer', example: 1 }
+     #swagger.parameters['limit']  = { in: 'query', type: 'integer', example: 20 }
+     #swagger.parameters['role']   = { in: 'query', type: 'string', enum: ['Customer', 'StoreOwner', 'Admin'] }
+     #swagger.parameters['search'] = { in: 'query', type: 'string', description: 'Search by name or email' }
+     #swagger.parameters['sortBy'] = { in: 'query', type: 'string', enum: ['createdAt', 'name', 'email'] }
+     #swagger.parameters['sortDir']= { in: 'query', type: 'string', enum: ['asc', 'desc'] }
+     #swagger.responses[200] = { description: 'Users retrieved successfully' }
+     #swagger.responses[403] = { description: 'Admin only' }
+  */
+  adminListUsers,
+);
+
+adminRoutes.delete(
+  "/users/:userId",
+  auth,
+  authAdmin,
+  /* #swagger.tags = ['Admin - Users']
+     #swagger.summary = 'Delete a user account'
+     #swagger.description = 'Soft-delete a user account by ID. Admin only.'
+     #swagger.security = [{ "bearerAuth": [] }]
+     #swagger.parameters['userId'] = { in: 'path', type: 'string', required: true }
+     #swagger.responses[200] = { description: 'User deleted successfully' }
+     #swagger.responses[403] = { description: 'Admin only' }
+     #swagger.responses[404] = { description: 'User not found' }
+  */
+  adminDeleteUser,
+);

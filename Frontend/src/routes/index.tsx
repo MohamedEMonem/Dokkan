@@ -17,11 +17,13 @@ import Profile from "@/pages/Profile";
 
 import { ViewProducts } from "@/features/products/ViewProducts";
 import { ProductDetailsPage } from "@/features/products/ProductDetailsPage";
+import { AdminUsers } from "@/features/admin/users/AdminUsers";
 
 import { Overview } from "@/features/dashboard/Overview";
 import { AdminOverview } from "@/features/admin/Overview";
 import { AdminProducts } from "@/features/admin/products/AdminProducts";
 import { AdminProductDetails } from "@/features/admin/products/AdminProductDetails";
+import { AdminUsers } from "@/features/admin/users/AdminUsers";
 import { Products } from "@/features/dashboard/Products";
 import { CreateProduct } from "@/features/dashboard/CreateProduct";
 import { UpdateProduct } from "@/features/dashboard/UpdateProduct";
@@ -84,7 +86,7 @@ export default function AppRoutes() {
           <Route path="flags" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة طلبات الإبلاغ - قيد التطوير</div>} />
           <Route path="categories" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة التصنيفات - قيد التطوير</div>} />
           <Route path="plans" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">خطط الاشتراك - قيد التطوير</div>} />
-          <Route path="users" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة حسابات المستخدمين - قيد التطوير</div>} />
+          <Route path="users" element={<AdminUsers />} />
         </Route>
       </Route>
 
