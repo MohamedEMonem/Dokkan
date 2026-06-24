@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { useGetProfileQuery } from "@/api/user.api";
 import { EUserRole } from "@/types/entities/user.types";
+import { AdminSidebar } from "@/features/admin/components/AdminSidebar";
+
 
 export default function AdminLayout() {
   const token = localStorage.getItem("token");
@@ -35,12 +37,9 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen flex bg-bg-cream font-sans" dir="rtl">
-      {/* Sidebar Desktop Placeholder (Will be replaced in Commit 3) */}
-      <aside className="hidden lg:flex flex-col w-64 bg-primary-dark text-white border-l-2 border-accent-light shrink-0">
-        <div className="p-6 font-bold text-xl border-b border-white/10 text-center">لوحة تحكم المدير</div>
-        <div className="flex-1 p-6 text-sm text-white/60 text-center flex items-center justify-center">
-          [شريط التنقل - قيد الإنشاء]
-        </div>
+      {/* Sidebar Desktop */}
+      <aside className="hidden lg:block w-64 border-l-2 border-accent-light shrink-0">
+        <AdminSidebar user={user} />
       </aside>
 
       {/* Mobile Sidebar Backdrop */}
@@ -51,25 +50,13 @@ export default function AdminLayout() {
         />
       )}
 
-      {/* Sidebar Mobile Drawer Placeholder (Will be replaced in Commit 3) */}
+      {/* Sidebar Mobile Drawer */}
       <aside
-        className={`fixed top-0 right-0 bottom-0 w-64 bg-primary-dark text-white z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
+        className={`fixed top-0 right-0 bottom-0 w-64 z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
           sidebarOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="p-6 font-bold text-xl border-b border-white/10 flex justify-between items-center">
-          <span>لوحة تحكم المدير</span>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="text-white hover:text-accent transition-colors cursor-pointer"
-            aria-label="إغلاق القائمة"
-          >
-            ✕
-          </button>
-        </div>
-        <div className="p-6 text-sm text-white/60 text-center flex items-center justify-center h-[calc(100vh-80px)]">
-          [شريط التنقل - قيد الإنشاء]
-        </div>
+        <AdminSidebar user={user} onClose={() => setSidebarOpen(false)} />
       </aside>
 
       {/* Main Content Workspace */}
