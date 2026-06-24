@@ -30,6 +30,7 @@ import { Customize } from "@/features/dashboard/Customize";
 import { Analytics } from "@/features/dashboard/Analytics";
 import ViewStores from "@/features/stores/ViewStores";
 import CartPage from "@/features/cart/CartPage";
+import Orders from "@/features/dashboard/Orders";
 import StoreOnboarding from "@/features/stores/StoreOnboarding";
 import WelcomeStep from "@/features/stores/Components/onboarding/WelcomeStep";
 import SuccessStep from "@/features/stores/Components/onboarding/SuccessStep";
@@ -76,6 +77,7 @@ export default function AppRoutes() {
           <Route path="analytics" element={<Analytics />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="orders" element={<Orders />} />
         </Route>
 
         {/* Admin Dashboard Routes */}
