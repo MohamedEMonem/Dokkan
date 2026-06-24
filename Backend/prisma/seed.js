@@ -49,7 +49,6 @@ const prisma   = new PrismaClient({ adapter });
 const pick   = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const range  = (n)   => Array.from({ length: n }, (_, i) => i);
 const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-const randDecimal = (min, max) => (Math.random() * (max - min) + min).toFixed(2);
 
 function daysAgo(n) {
   const d = new Date();
@@ -61,16 +60,72 @@ function daysAgo(n) {
 const FIRST_NAMES = ["Alice","Bob","Carol","David","Eva","Frank","Grace","Hank","Iris","Jack","Karen","Leo","Mia","Noah","Olivia","Paul","Quinn","Rachel","Sam","Tina","Uma","Victor","Wendy","Xander","Yara","Zane"];
 const LAST_NAMES  = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Martinez","Wilson","Anderson","Taylor","Thomas","Moore","Jackson","White","Harris","Martin","Thompson","Young"];
 
-const STORE_ADJECTIVES = ["Bright","Urban","Fresh","Prime","Elite","Golden","Swift","Cozy","Bold","Pure"];
-const STORE_NOUNS      = ["Mart","Hub","Shop","Depot","Corner","Place","Market","Store","Bazaar","Emporium"];
+// Custom metadata for 6 stores mapping exactly to 6 categories
+const STORES_METADATA = [
+  {
+    name: "تكنو زون / TechnoZone",
+    subdomain: "technozone",
+    category: "Electronics",
+    description: "متجرك الأول لأحدث الهواتف الذكية، أجهزة الكمبيوتر المحمول، ومستلزمات التقنية بأسعار منافسة.",
+    logoUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=200&h=200&q=80",
+    coverBannerUrl: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&h=400&q=80",
+    themeColor: "#6366f1"
+  },
+  {
+    name: "تريند فاشن / TrendFashion",
+    subdomain: "trendfashion",
+    category: "Fashion",
+    description: "اكتشف أحدث صيحات الموضة والملابس والأحذية الرجالية والنسائية بتصاميم عصرية تناسب كل الأذواق.",
+    logoUrl: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=200&h=200&q=80",
+    coverBannerUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&h=400&q=80",
+    themeColor: "#ef4444"
+  },
+  {
+    name: "بيت العائلة / FamilyHome",
+    subdomain: "familyhome",
+    category: "Home & Kitchen",
+    description: "كل ما تحتاجه لتأثيث وتزيين منزلك ومطبخك من أثاث وديكورات وأجهزة مطبخ بأعلى جودة.",
+    logoUrl: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=200&h=200&q=80",
+    coverBannerUrl: "https://images.unsplash.com/photo-1556911220-115f7448dbf3?auto=format&fit=crop&w=1200&h=400&q=80",
+    themeColor: "#10b981"
+  },
+  {
+    name: "جلو بيوتي / GlowBeauty",
+    subdomain: "glowbeauty",
+    category: "Beauty & Cosmetics",
+    description: "منتجات العناية بالبشرة والشعر، المكياج، وأرقى العطور العالمية لتبرز جمالك الطبيعي.",
+    logoUrl: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=200&h=200&q=80",
+    coverBannerUrl: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&h=400&q=80",
+    themeColor: "#f59e0b"
+  },
+  {
+    name: "باور فيت / PowerFit",
+    subdomain: "powerfit",
+    category: "Sports",
+    description: "تجهيزات رياضية كاملة، ملابس رياضية مريحة، وأحدث معدات الجيم المنزلية للياقة بدنية أفضل.",
+    logoUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=200&h=200&q=80",
+    coverBannerUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&h=400&q=80",
+    themeColor: "#0ea5e9"
+  },
+  {
+    name: "مكتبة القراء / ReadersBookstore",
+    subdomain: "readersbookstore",
+    category: "Books",
+    description: "وابل من المعرفة والكتب التعليمية، الأدبية، والروايات الأكثر مبيعاً لتغذية عقلك وفكرك.",
+    logoUrl: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=200&h=200&q=80",
+    coverBannerUrl: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1200&h=400&q=80",
+    themeColor: "#6b7280"
+  }
+];
 
 const PRODUCT_TEMPLATES = [
-  // Electronics
+  // === Electronics ===
+  // 1. الهواتف المحمولة
   {
     title: "آيفون 15 برو ماكس 256 جيجابايت تيتانيوم",
     category: "Electronics",
-    subCategory: "Mobile Phones",
-    price: [55000.00, 75000.00],
+    subCategory: "الهواتف المحمولة",
+    price: [55000, 75000],
     description: "هاتف آبل الرائد بتصميم من التيتانيوم القوي وخفيف الوزن، مع كاميرا رئيسية بدقة 48 ميجابكسل وتقريب بصري مذهل، ومزود بمعالج A17 Pro للألعاب والأداء الفائق.",
     images: [
       "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80",
@@ -80,18 +135,40 @@ const PRODUCT_TEMPLATES = [
   {
     title: "سامسونج جالاكسي إس 24 ألترا 512 جيجابايت",
     category: "Electronics",
-    subCategory: "Mobile Phones",
-    price: [50000.00, 70000.00],
+    subCategory: "الهواتف المحمولة",
+    price: [50000, 70000],
     description: "هاتف سامسونج العملاق مع قلم S Pen المدمج، وشاشة أموليد مسطحة فائقة السطوع، وكاميرا بدقة 200 ميجابكسل مدعومة بتقنيات الذكاء الاصطناعي Galaxy AI.",
     images: [
       "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "هاتف شاومي 14 الترا الذكي 5G",
+    category: "Electronics",
+    subCategory: "الهواتف المحمولة",
+    price: [40000, 52000],
+    description: "هاتف رائد بكاميرا لايكا الاحترافية رباعية العدسات، مستشعر بمقاس 1 بوصة، شاشة AMOLED مذهلة ومعالج سناب دراجون الجيل الثالث.",
+    images: [
+      "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "جوجل بكسل 8 برو 256 جيجابايت سعة",
+    category: "Electronics",
+    subCategory: "الهواتف المحمولة",
+    price: [35000, 48000],
+    description: "الهاتف الذكي الأكثر ذكاءً من جوجل مع معالج Tensor G3، وكاميرا مذهلة تلتقط أدق التفاصيل مع ميزات التعديل السحرية للصور بالذكاء الاصطناعي.",
+    images: [
+      "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 2. أجهزة الكمبيوتر المحمول
+  {
     title: "ماك بوك برو 14 بوصة معالج M3 رامات 16 جيجابايت",
     category: "Electronics",
-    subCategory: "Laptops",
-    price: [70000.00, 95000.00],
+    subCategory: "أجهزة الكمبيوتر المحمول",
+    price: [70000, 95000],
     description: "جهاز ماك بوك برو المحمول بشريحة M3 المبتكرة، يوفر سرعة مذهلة وعمر بطارية يدوم طوال اليوم، مع شاشة ليكويد ريتنا XDR فائقة النقاء للمحترفين.",
     images: [
       "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
@@ -101,18 +178,40 @@ const PRODUCT_TEMPLATES = [
   {
     title: "كمبيوتر محمول للألعاب أسوس روج زيفيروس G14",
     category: "Electronics",
-    subCategory: "Laptops",
-    price: [55000.00, 80000.00],
+    subCategory: "أجهزة الكمبيوتر المحمول",
+    price: [55000, 80000],
     description: "كمبيوتر محمول خارق مخصص للألعاب بشاشة ذات معدل تحديث مرتفع، كارت شاشة Nvidia RTX متطور ونظام تبريد ذكي لأقوى جلسات اللعب.",
     images: [
       "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "لابتوب ديل إكس بي إس 13 باللمس موديل 9315",
+    category: "Electronics",
+    subCategory: "أجهزة الكمبيوتر المحمول",
+    price: [45000, 62000],
+    description: "جهاز رفيع وخفيف الوزن بتصميم مذهل من الألمونيوم، شاشة إنفينيتي إيدج فائقة الدقة باللمس، وأداء سريع يناسب رجال الأعمال والطلاب.",
+    images: [
+      "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "لابتوب لينوفو ثينك باد X1 كاربون الجيل 11",
+    category: "Electronics",
+    subCategory: "أجهزة الكمبيوتر المحمول",
+    price: [65000, 88000],
+    description: "اللابتوب الأقوى للأعمال الشاقة بهيكل من ألياف الكربون المتين، لوحة مفاتيح أسطورية مريحة، وميزات أمان متقدمة لحماية بياناتك.",
+    images: [
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 3. أجهزة الصوت
+  {
     title: "سماعات سوني WH-1000XM5 لاسلكية مانعة للضوضاء",
     category: "Electronics",
-    subCategory: "Audio",
-    price: [15000.00, 22000.00],
+    subCategory: "أجهزة الصوت",
+    price: [15000, 22000],
     description: "سماعات رأس لاسلكية تقدم أفضل تجربة إلغاء ضوضاء في العالم، وصوت عالي الدقة مع ميزة التحدث المباشر والتحكم الذكي باللمس.",
     images: [
       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
@@ -121,30 +220,73 @@ const PRODUCT_TEMPLATES = [
   {
     title: "سماعات أبل إيربودز برو الجيل الثاني",
     category: "Electronics",
-    subCategory: "Audio",
-    price: [9000.00, 12000.00],
+    subCategory: "أجهزة الصوت",
+    price: [9000, 12000],
     description: "سماعات أذن لاسلكية مع ميزة إلغاء الضوضاء النشط المتطور، ووضع شفافية الصوت، وتصميم مريح ومقاوم للعرق والماء مع علبة شحن MagSafe.",
     images: [
       "https://images.unsplash.com/photo-1588449668365-d15e397f6787?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "مكبر صوت بلوتوث لاسلكي محمولة من جي بي إل فليب 6",
+    category: "Electronics",
+    subCategory: "أجهزة الصوت",
+    price: [4500, 6500],
+    description: "مكبر صوت محمول قوي مقاوم للماء والغبار بمعيار IP67، يوفر صوتاً نقياً وباس عميق مع بطارية تدوم حتى 12 ساعة من التشغيل المتواصل.",
+    images: [
+      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "مكبر صوت ذكي من سونوس إيرا 100 لاسلكي",
+    category: "Electronics",
+    subCategory: "أجهزة الصوت",
+    price: [11000, 16000],
+    description: "مكبر صوت ذكي منزلي بصوت نقي يملأ الغرفة، يدعم التحكم الصوتي والاتصال اللاسلكي عبر الواي فاي والبلوتوث لتجربة استماع غامرة.",
+    images: [
+      "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 4. الكاميرات
+  {
     title: "كاميرا سوني ألفا 7 الجيل الرابع بدون مرآة",
     category: "Electronics",
-    subCategory: "Cameras",
-    price: [90000.00, 120000.00],
+    subCategory: "الكاميرات",
+    price: [90000, 120000],
     description: "كاميرا هجينة متطورة للمحترفين بدقة 33 ميجابكسل، تدعم تصوير الفيديو بدقة 4K وميزة التركيز التلقائي الذكي على العين والوجه.",
     images: [
       "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80"
     ]
   },
-  
-  // Fashion
+  {
+    title: "كاميرا كانون EOS R6 Mark II الاحترافية",
+    category: "Electronics",
+    subCategory: "الكاميرات",
+    price: [95000, 130000],
+    description: "كاميرا إطار كامل بدون مرآة تقدم سرعة التقاط فائقة وأداء تصوير منخفض الإضاءة مذهل، ومثالية لتصوير الفعاليات والرياضة والفيديو الاحترافي.",
+    images: [
+      "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "كاميرا فورية فوجي فيلم إنستاكس ميني 12 للصور الفورية",
+    category: "Electronics",
+    subCategory: "الكاميرات",
+    price: [3500, 5000],
+    description: "كاميرا فورية ممتعة وسهلة الاستخدام بضغطة زر واحدة لتسجيل الذكريات وطباعتها فوراً بألوان زاهية وتصميم أنيق وجذاب.",
+    images: [
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // === Fashion ===
+  // 1. تي شيرتات رجالي
   {
     title: "تي شيرت بوما رجالي كاجوال بشعار الماركة",
     category: "Fashion",
-    subCategory: "Men's T-Shirts",
-    price: [800.00, 1500.00],
+    subCategory: "تي شيرتات رجالي",
+    price: [800, 1500],
     description: "تي شيرت كاجوال مريح مصنوع من قطن ناعم عالي الجودة ومناسب للاستخدام اليومي بتصميم عصري وبسيط.",
     images: [
       "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80"
@@ -153,29 +295,73 @@ const PRODUCT_TEMPLATES = [
   {
     title: "تي شيرت نايكي دراي فيت الرياضي للرجال",
     category: "Fashion",
-    subCategory: "Men's T-Shirts",
-    price: [1000.00, 2000.00],
+    subCategory: "تي شيرتات رجالي",
+    price: [1000, 2000],
     description: "تي شيرت رياضي بتقنية Dri-FIT الطاردة للعرق للحفاظ على جفافك وانتعاشك أثناء التمارين الرياضية الصعبة.",
     images: [
       "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "قميص كلاسيكي قطن 100% من تومي هيلفيغر",
+    category: "Fashion",
+    subCategory: "تي شيرتات رجالي",
+    price: [2500, 4000],
+    description: "قميص كلاسيكي فاخر بأكمام طويلة مصنوع من القطن الصافي 100%، خياطة متقنة ومظهر أنيق مناسب للمناسبات الرسمية والعمل.",
+    images: [
+      "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "بولو شيرت كاجوال من لاكوست للرجال بألوان متعددة",
+    category: "Fashion",
+    subCategory: "تي شيرتات رجالي",
+    price: [2800, 4500],
+    description: "قميص بولو كلاسيكي بشعار التمساح الشهير مصنوع من قطن البيكيه المريح، متوفر بألوان جذابة وقصة كلاسيكية ممتازة.",
+    images: [
+      "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 2. فساتين نسائي
+  {
     title: "فستان زارا صيفي متوسط الطول بنقشة زهور",
     category: "Fashion",
-    subCategory: "Women's Dresses",
-    price: [2000.00, 4000.00],
+    subCategory: "فساتين نسائي",
+    price: [2000, 4000],
     description: "فستان صيفي متوسط الطول مصنوع من قماش خفيف ومريح بنقشة زهور أنيقة مناسب للإطلالات الصباحية والنزهات.",
     images: [
       "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "فستان سهرة شيفون طويل بأكمام طويلة وتطريز ناعم",
+    category: "Fashion",
+    subCategory: "فساتين نسائي",
+    price: [4500, 8000],
+    description: "فستان سهرة راقي مصنوع من الشيفون الانسيابي الناعم مع تطريز يدوي دقيق على الصدر والأكمام ليمنحك إطلالة ملكية في الحفلات.",
+    images: [
+      "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "فستان كاجوال قصير قطن ناعم مريح يومي",
+    category: "Fashion",
+    subCategory: "فساتين نسائي",
+    price: [1500, 2800],
+    description: "فستان يومي مريح ومرن بأكمام قصيرة، مصنوع من القطن والياف الليكرا، رائع للمشاوير السريعة والمنزل.",
+    images: [
+      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 3. أحذية
+  {
     title: "حذاء جري أديداس ألترابوست خفيف الوزن مريح",
     category: "Fashion",
-    subCategory: "Shoes",
-    price: [6000.00, 9000.00],
-    description: "حذاء جري أسطوري مزود بتقنية Boost في النعل الأوسط لتوفر لك طاقة وراحة لا مثيل لهما مع كل خطوة جري.",
+    subCategory: "أحذية",
+    price: [6000, 9000],
+    description: "حذاء جري أسطوري مزود بتقنية Boost في النعل الأوسط لتوفر لك طاقة وراحة لا ميل لهما مع كل خطوة جري.",
     images: [
       "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=600&q=80"
     ]
@@ -183,30 +369,73 @@ const PRODUCT_TEMPLATES = [
   {
     title: "حذاء رياضي كلاسيكي نايكي إير فورس 1",
     category: "Fashion",
-    subCategory: "Shoes",
-    price: [5000.00, 8000.00],
+    subCategory: "أحذية",
+    price: [5000, 8000],
     description: "الحذاء الرياضي الكلاسيكي الأكثر شهرة بتصميم جلدي متين ونعل مبطن بتقنية Air لراحة وأناقة تدوم طويلاً.",
     images: [
       "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "حذاء جلد كلاسيكي رسمي رجالي إيطالي فخم",
+    category: "Fashion",
+    subCategory: "أحذية",
+    price: [3500, 5500],
+    description: "حذاء رسمي كلاسيكي مصنوع يدوياً من الجلد الإيطالي الطبيعي 100% بنعل مريح وتصميم أنيق يكمل بدلتك الرسمية.",
+    images: [
+      "https://images.unsplash.com/photo-1533867617858-e7b97e060509?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "حذاء مشي مريح سكيتشرز جو ووك 6 مبطن وسهل الارتداء",
+    category: "Fashion",
+    subCategory: "أحذية",
+    price: [2800, 4200],
+    description: "حذاء مشي بدون أربطة خفيف الوزن للغاية، نعل مرن بنقاط توازن تدعم باطن القدم لراحة تامة أثناء الوقوف الطويل والمشي.",
+    images: [
+      "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 4. إكسسوارات
+  {
     title: "نظارات شمسية ريبان كلاسيكية وايفارير عصرية",
     category: "Fashion",
-    subCategory: "Accessories",
-    price: [4000.00, 7000.00],
+    subCategory: "إكسسوارات",
+    price: [4000, 7000],
     description: "نظارات شمسية أصلية بإطار متين وعدسات مستقطبة تحمي العين تماماً من الأشعة فوق البنفسجية وتمنحك مظهراً جذاباً.",
     images: [
       "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=600&q=80"
     ]
   },
-  
-  // Home & Kitchen
+  {
+    title: "ساعة يد جلد كلاسيكية كاسيو للرجال مقاومة للماء",
+    category: "Fashion",
+    subCategory: "إكسسوارات",
+    price: [1800, 3000],
+    description: "ساعة كاسيو اليابانية الأصلية بهيكل فضي وحزام جلدي طبيعي بني مقاومة للمياه، تصميم كلاسيكي جذاب ومناسب للعمل واليوميات.",
+    images: [
+      "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "حقيبة يد جلدية نسائية من مايكل كورس عصرية",
+    category: "Fashion",
+    subCategory: "إكسسوارات",
+    price: [8000, 13000],
+    description: "حقيبة كتف نسائية راقية بتصميم واسع وجلد فاخر محفور عليه شعار الماركة مع تفاصيل معدنية ذهبية تزيدها جمالاً وأناقة.",
+    images: [
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // === Home & Kitchen ===
+  // 1. ثلاجات وأجهزة المطبخ
   {
     title: "ثلاجة سامسونج ذكية باب فرنسي 29 قدم",
     category: "Home & Kitchen",
-    subCategory: "Fridges & Kitchen Appliances",
-    price: [45000.00, 65000.00],
+    subCategory: "ثلاجات وأجهزة المطبخ",
+    price: [45000, 65000],
     description: "ثلاجة ذكية سعة كبيرة بتصميم باب فرنسي أنيق، مع تقنية التبريد الثنائي للحفاظ على الطعام طازجاً لفترة أطول ونظام موفر للطاقة.",
     images: [
       "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80"
@@ -215,97 +444,396 @@ const PRODUCT_TEMPLATES = [
   {
     title: "حلة ضغط كهربائية إنستانت بوت ذكية 9 في 1",
     category: "Home & Kitchen",
-    subCategory: "Fridges & Kitchen Appliances",
-    price: [5000.00, 9000.00],
-    description: "جهاز ططهي متعدد الوظائف يجمع بين طنجرة الضغط، والطهي البطيء، وتحضير الأرز، والزبادي، والتحمير في جهاز ذكي واحد لتوفير الوقت.",
+    subCategory: "ثلاجات وأجهزة المطبخ",
+    price: [5000, 9000],
+    description: "جهاز طهي متعدد الوظائف يجمع بين طنجرة الضغط، والطهي البطيء، وتحضير الأرز، والزبادي، والتحمير في جهاز ذكي واحد لتوفير الوقت.",
     images: [
       "https://images.unsplash.com/photo-1547394765-185e1e68f34e?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "قلاية هوائية فيليبس حجم كبير جداً XXL ديجيتال",
+    category: "Home & Kitchen",
+    subCategory: "ثلاجات وأجهزة المطبخ",
+    price: [6500, 9500],
+    description: "قلاية بدون زيت صحية وسريعة، تكفي لتحضير وجبات عائلية كاملة، مزودة بتقنية إزالة الدهون الزائدة بنسبة تصل إلى 90%.",
+    images: [
+      "https://images.unsplash.com/photo-1621972750749-0fbb1abb7736?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "خلاط نينجا الاحترافي لتحضير العصائر والسموذي بقوة 1000 واط",
+    category: "Home & Kitchen",
+    subCategory: "ثلاجات وأجهزة المطبخ",
+    price: [3800, 5800],
+    description: "خلاط قوي وفعال مع شفرات حادة تسحق الثلج والفواكه الصلبة في ثوانٍ لتحضير أشهى المشروبات الصحية والصلصات المنزلية.",
+    images: [
+      "https://images.unsplash.com/photo-1578643463396-0997cb5328c1?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 2. أثاث
+  {
     title: "وحدة أرفف إيكيا كالاكس باللون الأبيض",
     category: "Home & Kitchen",
-    subCategory: "Furniture",
-    price: [3000.00, 6000.00],
-    description: "خززانة أرفف عملية وبتصميم بسيط وعصري يمكن استخدامها عمودياً أو أفقياً لتنظيم الكتب والديكورات في المنزل.",
+    subCategory: "أثاث",
+    price: [3000, 6000],
+    description: "خزانة أرفف عملية وبتصميم بسيط وعصري يمكن استخدامها عمودياً أو أفقياً لتنظيم الكتب والديكورات في المنزل.",
     images: [
       "https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&w=600&q=80"
     ]
   },
-  
-  // Beauty & Cosmetics
+  {
+    title: "أريكة معيشة مريحة 3 مقاعد بتصميم عصري ووسائد ناعمة",
+    category: "Home & Kitchen",
+    subCategory: "أثاث",
+    price: [12000, 18000],
+    description: "كنبة ثلاثية فخمة ومبطنة بقماش الكتان المعالج المقاوم للبقع، أرجل خشبية صلبة وتصميم حديث يضفي جمالاً على غرفة المعيشة.",
+    images: [
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "طاولة قهوة خشبية مودرن مع وحدات تخزين مفتوحة",
+    category: "Home & Kitchen",
+    subCategory: "أثاث",
+    price: [2500, 4500],
+    description: "طاولة وسط لغرفة المعيشة مصنوعة من خشب البلوط المعالج بتصميم عملي ومساحة تخزين سفلية للمجلات وأجهزة التحكم.",
+    images: [
+      "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "مكتب دراسة وعمل خشبي مع أدراج جانبية وقاعدة معدنية",
+    category: "Home & Kitchen",
+    subCategory: "أثاث",
+    price: [4000, 7000],
+    description: "مكتب عمل أنيق للدراسة أو العمل المنزلي بمساحة كافية للابتوب والشاشة، مزود بأدراج انسيابية لتنظيم الأوراق والأدوات المكتبية.",
+    images: [
+      "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 3. مستلزمات السرير
+  {
+    title: "طقم لحاف سرير مزدوج مايكروفايبر ناعم 4 قطع",
+    category: "Home & Kitchen",
+    subCategory: "مستلزمات السرير",
+    price: [1200, 2200],
+    description: "طقم سرير فاخر وناعم يتضمن لحاف دافئ، ملاءة مطاطية واثنين من أغطية الوسائد بتصميم متين وألوان مهدئة للأعصاب.",
+    images: [
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "وسادة طبية ميموري فوم لدعم الرقبة والعمود الفقري",
+    category: "Home & Kitchen",
+    subCategory: "مستلزمات السرير",
+    price: [600, 1200],
+    description: "مخده طبية مريحة تحافظ على وضعية النوم المثالية وتقلل من آلام الرقبة بفضل تقنية رغوة الذاكرة المرنة وغطاء قابل للغسيل.",
+    images: [
+      "https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 4. ديكور
+  {
+    title: "مصباح طاولة ذكي إل إي دي متعدد الألوان ومتوافق مع المساعد الذكي",
+    category: "Home & Kitchen",
+    subCategory: "ديكور",
+    price: [1100, 2000],
+    description: "أباجورة طاولة ذكية ومضيئة بألوان دافئة وباردة متعددة، تحكم لاسلكي بالهاتف لتغيير الإضاءة بما يناسب مزاجك وغرفتك.",
+    images: [
+      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "طقم إطارات صور خشبية معلقة للحائط مكون من 5 قطع مختلفة الأحجام",
+    category: "Home & Kitchen",
+    subCategory: "ديكور",
+    price: [800, 1500],
+    description: "براويز خشبية أنيقة لترتيب وعرض صور عائلتك المفضلة أو اللوحات الفنية على الحائط بطريقة عصرية وجميلة.",
+    images: [
+      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // === Beauty & Cosmetics ===
+  // 1. العناية بالبشرة
   {
     title: "منظف مرطب للوجه سيرافي لطيف 473 مل",
     category: "Beauty & Cosmetics",
-    subCategory: "Skincare",
-    price: [500.00, 900.00],
+    subCategory: "العناية بالبشرة",
+    price: [500, 900],
     description: "منظف لطيف للبشرة العادية إلى الجافة يحتوي على السيراميد الأساسي وحمض الهيالورونيك لتنظيف وترطيب حاجز البشرة الطبيعي.",
     images: [
       "https://images.unsplash.com/photo-1608248597481-496100c80836?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "سيروم الهيالورونيك أسيد من ذا أوردينري لترطيب البشرة 30 مل",
+    category: "Beauty & Cosmetics",
+    subCategory: "العناية بالبشرة",
+    price: [600, 1100],
+    description: "سيروم ترطيب عميق للبشرة مدعم بفيتامين B5 لمكافحة الجفاف والخطوط الرفيعة وإعطاء البشرة نضارة ومرونة فورية.",
+    images: [
+      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "واقي شمس لاروش بوزيه بعامل حماية 50+ سائل خفيف للبشرة المختلطة",
+    category: "Beauty & Cosmetics",
+    subCategory: "العناية بالبشرة",
+    price: [850, 1400],
+    description: "صن بلوك فائق الحماية يوفر وقاية عالية جداً من الأشعة فوق البنفسجية UVA/UVB، خفيف ولا يترك أي علامات بيضاء على البشرة.",
+    images: [
+      "https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "كريم ترطيب مغذي للبشرة الجافة والحساسة من كيلز 125 مل",
+    category: "Beauty & Cosmetics",
+    subCategory: "العناية بالبشرة",
+    price: [1800, 2800],
+    description: "كريم الترطيب الشهير الترا فيشال الذي يمنح البشرة ترطيباً يدوم 24 ساعة بمكونات طبيعية كالسqualane للحصول على نعومة فائقة.",
+    images: [
+      "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 2. العناية بالشعر
+  {
     title: "شامبو أولابليكس رقم 4 لإصلاح وتقوية الشعر والتالف",
     category: "Beauty & Cosmetics",
-    subCategory: "Haircare",
-    price: [1200.00, 1800.00],
+    subCategory: "العناية بالشعر",
+    price: [1200, 1800],
     description: "شامبو علاجي احترافي ينظف الشعر بلطف ويعمل على إعادة بناء الروابط التالفة وترطيب الشعر وتقويته من الجذور.",
     images: [
       "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "زيت الشعر المغذي والمقوي من ميلي بالروزماري والنعناع 60 مل",
+    category: "Beauty & Cosmetics",
+    subCategory: "العناية بالشعر",
+    price: [550, 950],
+    description: "زيت علاجي مكثف غني بالبيوتين والزيوت الأساسية لتغذية بصيلات الشعر، تقوية الأطراف، وتحفيز نمو الشعر وملء الفراغات.",
+    images: [
+      "https://images.unsplash.com/photo-1608248597481-496100c80836?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "قناع مغذي للشعر بزبدة الشيا وزيت الخروع من شيا مويستشر",
+    category: "Beauty & Cosmetics",
+    subCategory: "العناية بالشعر",
+    price: [900, 1500],
+    description: "ماسك ترطيب عميق ومكثف للشعر الكيرلي والتالف، يمنح خصلات الشعر حيوية ولمعان ويسهل تسريح وفك تشابك الشعر.",
+    images: [
+      "https://images.unsplash.com/photo-1526947425960-945c6e72858f?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 3. المكياج
+  {
+    title: "أحمر شفاه كريمي مطفأ اللمعة من ماك بلون أحمر جذاب",
+    category: "Beauty & Cosmetics",
+    subCategory: "المكياج",
+    price: [800, 1300],
+    description: "أحمر شفاه كلاسيكي عالي الثبات ذو لون غني وجذاب بلمسة نهائية مطفية ناعمة لا تسبب جفاف الشفاه.",
+    images: [
+      "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "ماسكارا لتكثيف وتطويل الرموش للاش ديسكفري من ميبلين مقاومة للماء",
+    category: "Beauty & Cosmetics",
+    subCategory: "المكياج",
+    price: [450, 750],
+    description: "ماسكارا بفرشاة دقيقة ومميزة تغطي أصغر الرموش لتمنحك طولاً وتكثيفاً رائعاً بدون أي تكتل يدوم طوال اليوم.",
+    images: [
+      "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "كريم أساس سائل بتغطية كاملة من هدى بيوتي فاو فلتر درجة تناسب الجميع",
+    category: "Beauty & Cosmetics",
+    subCategory: "المكياج",
+    price: [1800, 2600],
+    description: "فاونديشن سائل عالي الجودة وثبات فائق، يخفي عيوب البشرة تماماً ويوحد لونها بلمسة نهائية ناعمة كالفلتر تدوم 24 ساعة.",
+    images: [
+      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 4. العطور
+  {
     title: "عطر ديور سوفاج تواليت رجالي فخم 100 مل",
     category: "Beauty & Cosmetics",
-    subCategory: "Fragrances",
-    price: [5000.00, 8000.00],
+    subCategory: "العطور",
+    price: [5000, 8000],
     description: "عطر رجالي أيقوني يمزج بين روائح الحمضيات المنعشة والأخشاب الدافئة ليعطي رائحة غامضة وفواحة تدوم طويلاً وتجذب الانتباه.",
     images: [
       "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80"
     ]
   },
-  
-  // Sports
+  {
+    title: "عطر شانيل كوكو مادمويل نسائي أنيق 100 مل",
+    category: "Beauty & Cosmetics",
+    subCategory: "العطور",
+    price: [5500, 8500],
+    description: "عطر نسائي شرقي وجذاب يجمع بين نفحات الياسمين والورد والباتشولي ليعبر عن الأنوثة الطاغية والجاذبية الكلاسيكية.",
+    images: [
+      "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "عطر إيف سان لوران ليبر النسائي الراقي بتركيز أو دو برفيوم 90 مل",
+    category: "Beauty & Cosmetics",
+    subCategory: "العطور",
+    price: [4800, 7500],
+    description: "عطر نسائي أنيق يمثل روح الحرية بتركيبته المذهلة التي تدمج زهر البرتقال المغربي وحيوية الخزامى الفرنسي.",
+    images: [
+      "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // === Sports ===
+  // 1. الملابس الرياضية
   {
     title: "تي شيرت أندر آرمور رياضي خفيف ومريح للتمارين",
     category: "Sports",
-    subCategory: "Activewear",
-    price: [1200.00, 2500.00],
+    subCategory: "الملابس الرياضية",
+    price: [1200, 2500],
     description: "تي شيرت رياضي خفيف ومطاطي مصنوع من ألياف سريعة الجفاف ومضادة للروائح لتوفير أقصى درجات الراحة أثناء الجري والتمارين.",
     images: [
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
+    title: "بنطال ضيق رياضي نايكي للنساء للتمارين واليوغا أسود اللون",
+    category: "Sports",
+    subCategory: "الملابس الرياضية",
+    price: [1500, 2800],
+    description: "ليقنز رياضي ضيق وعالي الخصر بتصميم مرن يتبع حركة الجسم بتقنية طاردة للرطوبة ليحافظ على راحتك أثناء اليوجا أو الجيم.",
+    images: [
+      "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "هودي رياضي دافئ وسريع الجفاف للتمارين الخارجية من أديداس",
+    category: "Sports",
+    subCategory: "الملابس الرياضية",
+    price: [2200, 3800],
+    description: "هودي سويت شيرت دافئ مبطن بالملابس الرياضية الناعمة، مع غطاء للرأس وجيوب أمامية واسعة للوقاية من البرد أثناء التمارين الخارجية.",
+    images: [
+      "https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 2. معدات الجيم
+  {
     title: "دمبل بوفليكس ذكي قابل للتعديل للأوزان 552",
     category: "Sports",
-    subCategory: "Gym Equipment",
-    price: [15000.00, 25000.00],
+    subCategory: "معدات الجيم",
+    price: [15000, 25000],
     description: "دمبل ذكي يوفر لك مساحة كبيرة حيث يمكن تعديل الوزن بسهولة من 2 إلى 24 كجم ليغني عن 15 زوجاً من الدنابل التقليدية.",
     images: [
       "https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?auto=format&fit=crop&w=600&q=80"
     ]
   },
-  
-  // Books
   {
-    title: "كتاب العادات الذرية للكاتب جيمس كلير مترجم",
+    title: "سجادة يوغا رياضية سميكة مانعة للانزلاق مع حزام حمل مريح",
+    category: "Sports",
+    subCategory: "معدات الجيم",
+    price: [600, 1100],
+    description: "سجادة تمارين رياضية فائقة النعومة والسمك لحماية المفاصل أثناء ممارسة اليوغا والبلاتس والتمدد، سهلة التنظيف بالماء والصابون.",
+    images: [
+      "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "حبل قفز ذكي مع شاشة عداد رقمية لحرق الدهون والتمارين السويدية",
+    category: "Sports",
+    subCategory: "معدات الجيم",
+    price: [450, 800],
+    description: "حبل نط ذكي مزود بمستشعرات لحساب عدد القفزات وحساب السعرات الحرارية المحروقة بدقة وعرضها على شاشة LED صغيرة مدمجة.",
+    images: [
+      "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "مجموعة أحزمة المقاومة المطاطية للتمارين المنزلية 5 قطع بأوزان مختلفة",
+    category: "Sports",
+    subCategory: "معدات الجيم",
+    price: [350, 700],
+    description: "حبال مقاومة مطاطية متينة لتمارين تمدد وتقوية كامل عضلات الجسم في المنزل، تأتي مع مقابض مريحة وحقيبة تخزين خفيفة.",
+    images: [
+      "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // === Books ===
+  // 1. روايات وقصص
+  {
+    title: "كتاب العادات الذرية للكاتب جيمس كلير مترجم للعربية",
     category: "Books",
-    subCategory: "Fiction & Novels",
-    price: [250.00, 500.00],
+    subCategory: "روايات وقصص",
+    price: [250, 500],
     description: "الكتاب الأكثر مبيعاً عالمياً والذي يقدم دليلاً عملياً لتغيير عاداتك السيئة وبناء عادات إيجابية جديدة بالاعتماد على خطوات علمية بسيطة.",
     images: [
       "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
     ]
   },
   {
-    title: "كتاب اجتياز مقابلة البرمجة والترميز النسخة السادسة",
+    title: "رواية الخيميائي للكاتب العالمي باولو كويلو مترجمة للعربية",
     category: "Books",
-    subCategory: "Educational Textbooks",
-    price: [800.00, 1500.00],
+    subCategory: "روايات وقصص",
+    price: [200, 380],
+    description: "رواية رمزية ساحرة عن راعي أندلسي شاب يقرر السفر عبر الصحراء بحثاً عن كنز مدفون بالقرب من الأهرامات وتكشف له رحلته عن ذاته وأحلامه.",
+    images: [
+      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "رواية 1984 للكاتب جورج أورويل الشهيرة باللغة العربية",
+    category: "Books",
+    subCategory: "روايات وقصص",
+    price: [220, 400],
+    description: "الرواية الكلاسيكية الشهيرة والديستوبيا التي تقدم تحليلاً عميقاً للأنظمة الديكتاتورية والرقابة الشاملة ومصادرة حرية الرأي والتفكير.",
+    images: [
+      "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+
+  // 2. كتب تعليمية
+  {
+    title: "كتاب اجتياز مقابلة البرمجة والترميز النسخة السادسة المعتمدة",
+    category: "Books",
+    subCategory: "كتب تعليمية",
+    price: [800, 1500],
     description: "الدليل الشامل والمرجع الأهم للمبرمجين لاجتياز المقابلات الفنية في كبرى شركات التكنولوجيا العالمية مع 189 سؤالاً وحلاً فنيًا.",
     images: [
       "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "كتاب التفكير السريع والبطيء الحائز على جائزة نوبل لدانيال كانمان",
+    category: "Books",
+    subCategory: "كتب تعليمية",
+    price: [450, 750],
+    description: "كتاب رائع يشرح كيفية عمل عقل الإنسان وينقسم التفكير فيه إلى نظامين: السريع والانفعالي، والبطيء والتحليلي وكيفية اتخاذ القرارات.",
+    images: [
+      "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "كتاب مقدمة في علم الخوارزميات وهياكل البيانات وبناء البرمجيات",
+    category: "Books",
+    subCategory: "كتب تعليمية",
+    price: [650, 1100],
+    description: "كتاب أكاديمي وعملي قيم يشرح أساسيات التفكير الخوارزمي وهياكل البيانات الرئيسية بلغة مبسطة وأمثلة برمجية واضحة للمطورين.",
+    images: [
+      "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=600&q=80"
     ]
   }
 ];
@@ -398,51 +926,51 @@ const CATEGORY_TREE = [
   {
     name: "Electronics",
     children: [
-      { name: "Mobile Phones" },
-      { name: "Laptops" },
-      { name: "Audio" },
-      { name: "Cameras" }
+      { name: "الهواتف المحمولة" },
+      { name: "أجهزة الكمبيوتر المحمول" },
+      { name: "أجهزة الصوت" },
+      { name: "الكاميرات" }
     ]
   },
   {
     name: "Fashion",
     children: [
-      { name: "Men's T-Shirts" },
-      { name: "Women's Dresses" },
-      { name: "Shoes" },
-      { name: "Accessories" }
+      { name: "تي شيرتات رجالي" },
+      { name: "فساتين نسائي" },
+      { name: "أحذية" },
+      { name: "إكسسوارات" }
     ]
   },
   {
     name: "Home & Kitchen",
     children: [
-      { name: "Fridges & Kitchen Appliances" },
-      { name: "Furniture" },
-      { name: "Bedding" },
-      { name: "Decor" }
+      { name: "ثلاجات وأجهزة المطبخ" },
+      { name: "أثاث" },
+      { name: "مستلزمات السرير" },
+      { name: "ديكور" }
     ]
   },
   {
     name: "Beauty & Cosmetics",
     children: [
-      { name: "Skincare" },
-      { name: "Haircare" },
-      { name: "Makeup" },
-      { name: "Fragrances" }
+      { name: "العناية بالبشرة" },
+      { name: "العناية بالشعر" },
+      { name: "المكياج" },
+      { name: "العطور" }
     ]
   },
   {
     name: "Sports",
     children: [
-      { name: "Activewear" },
-      { name: "Gym Equipment" }
+      { name: "الملابس الرياضية" },
+      { name: "معدات الجيم" }
     ]
   },
   {
     name: "Books",
     children: [
-      { name: "Fiction & Novels" },
-      { name: "Educational Textbooks" }
+      { name: "روايات وقصص" },
+      { name: "كتب تعليمية" }
     ]
   }
 ];
@@ -539,7 +1067,8 @@ async function main() {
   const stores = [];
   const owners = [];
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < STORES_METADATA.length; i++) {
+    const meta = STORES_METADATA[i];
     const email = `owner${i + 1}@test.com`;
     let owner = await prisma.user.findUnique({ where: { email } });
     if (!owner) {
@@ -555,25 +1084,27 @@ async function main() {
     }
     owners.push(owner);
 
-    const subdomain = `${STORE_ADJECTIVES[i].toLowerCase()}${STORE_NOUNS[i].toLowerCase()}`;
+    const subdomain = meta.subdomain;
     let store = await prisma.store.findUnique({ where: { subdomain } });
     if (!store) {
       store = await prisma.store.create({
         data: {
           id: randomUUID(), ownerId: owner.id,
-          name: `${STORE_ADJECTIVES[i]} ${STORE_NOUNS[i]}`.slice(0, 50),
+          name: meta.name.slice(0, 50),
           subdomain,
           status: pick(["Active","Active","Active","Pending","Suspended"]),
-          description: `Welcome to ${STORE_ADJECTIVES[i]} ${STORE_NOUNS[i]}! We offer the best products at great prices.`,
-          logoUrl: `https://picsum.photos/seed/${subdomain}logo/200/200`,
-          coverBannerUrl: `https://picsum.photos/seed/${subdomain}banner/1200/400`,
+          description: meta.description,
+          logoUrl: meta.logoUrl,
+          coverBannerUrl: meta.coverBannerUrl,
           businessAddress: `${randInt(1,999)} Main Street, City, Country`,
           vatNumber: `VAT${randInt(100000000, 999999999)}`,
-          themeSettings: { primaryColor: pick(["#6366f1","#0ea5e9","#10b981","#f59e0b","#ef4444"]), fontFamily: pick(["Inter","Roboto","Poppins"]) },
+          themeSettings: { primaryColor: meta.themeColor, fontFamily: pick(["Inter","Roboto","Poppins"]) },
           createdAt: daysAgo(randInt(30, 365)),
         },
       });
     }
+    // Attach assigned category to the store object in memory for product seeding
+    store.assignedCategory = meta.category;
     stores.push(store);
 
     // Subscription for each active store
@@ -644,10 +1175,43 @@ async function main() {
   const products = [];
   const allCategoryNames = [...globalCategoryMap.keys()];
 
+  // Pricing uniqueness tracking
+  const usedPrices = new Set();
+  function getUniquePrice(min, max) {
+    const cleanMin = Math.ceil(min / 10) * 10;
+    const cleanMax = Math.floor(max / 10) * 10;
+    
+    let attempts = 0;
+    while (attempts < 1000) {
+      const steps = Math.floor((cleanMax - cleanMin) / 10);
+      if (steps <= 0) {
+        const val = cleanMin;
+        if (!usedPrices.has(val)) {
+          usedPrices.add(val);
+          return val;
+        }
+      } else {
+        const val = cleanMin + randInt(0, steps) * 10;
+        if (!usedPrices.has(val)) {
+          usedPrices.add(val);
+          return val;
+        }
+      }
+      attempts++;
+    }
+    
+    // Fallback if unique not found
+    return cleanMin + randInt(0, Math.max(1, Math.floor((cleanMax - cleanMin) / 10))) * 10;
+  }
+
   for (const store of stores) {
+    const storeCategory = store.assignedCategory;
+    const storeTemplates = PRODUCT_TEMPLATES.filter(p => p.category === storeCategory);
+    const templatesToUse = storeTemplates.length > 0 ? storeTemplates : PRODUCT_TEMPLATES;
+    
     const productCount = randInt(12, 20);
     for (let i = 0; i < productCount; i++) {
-      const template   = PRODUCT_TEMPLATES[i % PRODUCT_TEMPLATES.length];
+      const template = templatesToUse[i % templatesToUse.length];
       const subCatName = template.subCategory;
       // Ensure we pick a leaf SubCategory for the product
       let category = globalCategoryMap.get(subCatName) ?? globalCategoryMap.get(pick(allCategoryNames));
@@ -663,20 +1227,24 @@ async function main() {
           }
         }
       }
-      const titleSuffix = i >= PRODUCT_TEMPLATES.length ? ` v${Math.ceil(i / PRODUCT_TEMPLATES.length)}` : "";
+      
+      const titleSuffix = i >= templatesToUse.length ? ` v${Math.ceil(i / templatesToUse.length)}` : "";
 
       // Avoid duplicate title+store combos
-      const existing = await prisma.product.findFirst({ where: { storeId: store.id, title: template.title + titleSuffix } });
+      const title = (template.title + titleSuffix).slice(0, 150);
+      const existing = await prisma.product.findFirst({ where: { storeId: store.id, title } });
       if (existing) { products.push(existing); continue; }
+
+      const finalPrice = getUniquePrice(...template.price);
 
       const product = await prisma.product.create({
         data: {
           id: randomUUID(), storeId: store.id,
           subCategoryId: category.id,
           categoryId: category.categoryId,
-          title: (template.title + titleSuffix).slice(0, 150),
+          title,
           description: template.description || `High-quality ${template.title}.`,
-          price: randDecimal(...template.price),
+          price: finalPrice,
           stockQuantity: pick([0, randInt(1, 10), randInt(10, 50), randInt(50, 200)]),
           status: Math.random() > 0.15 ? "Active" : "Inactive",
           createdAt: daysAgo(randInt(0, 180)),
@@ -722,7 +1290,7 @@ async function main() {
         return { productId: p.id, quantity: qty, priceAtPurchase: price.toFixed(2) };
       });
 
-      const shippingCost = parseFloat(randDecimal(0, 15));
+      const shippingCost = randInt(0, 15);
       const taxAmount    = parseFloat((subtotal * 0.08).toFixed(2));
       const totalAmount  = (subtotal + shippingCost + taxAmount).toFixed(2);
 

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 
 const baseQuery = fetchBaseQuery({
@@ -86,23 +85,6 @@ const baseQueryWithReauth: BaseQueryFn<
 export const apiSlice = createApi({
   reducerPath: 'apiSlice',
   baseQuery: baseQueryWithReauth,
-=======
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
-export const apiSlice = createApi({
-  reducerPath: "apiSlice",
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_SERVER_DEV_API_URL,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-    credentials: "include",
-  }),
->>>>>>> 8a921f7d1fbc11633dc29e53819476a24c57a4b5
   endpoints: () => ({}),
   tagTypes: [
     "Auth",
