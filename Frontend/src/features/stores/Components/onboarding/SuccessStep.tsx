@@ -55,7 +55,7 @@ export default function SuccessStep() {
               <Button
                 variant="primary"
                 className="w-full h-10! rounded-md! font-semibold!"
-                onClick={() => {}}
+                onClick={() => navigate("/dashboard/customize")}
               >
                 اختيار مظهر المتجر
               </Button>

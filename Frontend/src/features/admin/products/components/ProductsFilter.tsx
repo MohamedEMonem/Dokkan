@@ -20,8 +20,8 @@ export function ProductsFilter({ filters, onChange }: ProductsFilterProps) {
   const stores = storesResponse?.data?.stores || [];
 
   const storeOptions = stores.map((store) => ({
-    value: store.id,
-    label: store.name,
+    value: store.id || "",
+    label: store.name || "",
   }));
 
   const statusOptions = [
@@ -38,7 +38,7 @@ export function ProductsFilter({ filters, onChange }: ProductsFilterProps) {
   return (
     <div className="bg-white p-5 rounded-xl border-2 border-accent-light shadow-sm gap-4 flex flex-col md:flex-row md:items-center justify-between font-sans select-none w-full">
       {/* Search Input */}
-      <div className="relative flex-1 min-w-[240px]">
+      <div className="relative flex-1 min-w-60">
         <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
         <input
           type="text"
@@ -52,7 +52,7 @@ export function ProductsFilter({ filters, onChange }: ProductsFilterProps) {
       {/* Filter Options */}
       <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
         {/* Filter by Store */}
-        <div className="flex items-center gap-2 flex-1 md:flex-initial min-w-[180px]">
+        <div className="flex items-center gap-2 flex-1 md:flex-initial min-w-45">
           <span className="text-xs text-text-muted shrink-0">المتجر:</span>
           <Select
             value={filters.storeId}
@@ -76,7 +76,7 @@ export function ProductsFilter({ filters, onChange }: ProductsFilterProps) {
         </div>
 
         {/* Sort By */}
-        <div className="flex items-center gap-2 flex-1 md:flex-initial min-w-[180px]">
+        <div className="flex items-center gap-2 flex-1 md:flex-initial min-w-45">
           <span className="text-xs text-text-muted shrink-0 flex items-center gap-1">
             <ArrowUpDown className="w-3 h-3" /> الترتيب:
           </span>

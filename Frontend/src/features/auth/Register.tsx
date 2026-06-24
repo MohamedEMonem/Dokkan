@@ -68,6 +68,10 @@ export const RegisterForm = (): React.JSX.Element => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
+<<<<<<< HEAD
+=======
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+>>>>>>> 8a921f7d1fbc11633dc29e53819476a24c57a4b5
       const { confirmPassword, terms, ...payload } = data;
       const response = await registerApi(payload).unwrap();
 

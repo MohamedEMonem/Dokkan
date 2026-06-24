@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Package, Trash2, Eye } from "lucide-react";
 import { IProduct } from "@/types/entities/product.types";
-import { Button } from "@/components/ui/Button";
 
 interface ProductsTableProps {
   products: IProduct[];
@@ -91,7 +90,7 @@ export function ProductsTable({ products, isLoading, onDelete }: ProductsTablePr
                       <div className="min-w-0">
                         <Link
                           to={`/admin/products/${product.id}`}
-                          className="font-bold text-text-dark hover:text-primary transition-colors block truncate max-w-[200px]"
+                          className="font-bold text-text-dark hover:text-primary transition-colors block truncate max-w-50"
                         >
                           {product.title}
                         </Link>
@@ -115,7 +114,7 @@ export function ProductsTable({ products, isLoading, onDelete }: ProductsTablePr
 
                   {/* Price column */}
                   <td className="py-4 px-4 font-bold text-primary">
-                    {Number(product.price).toLocaleString("ar-EG")} ج.م
+                    {Number(product.price).toLocaleString("en-US")} ج.م
                   </td>
 
                   {/* Stock Quantity column */}
