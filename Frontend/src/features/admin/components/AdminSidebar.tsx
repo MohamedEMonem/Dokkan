@@ -70,7 +70,7 @@ export function AdminSidebar({ user, onClose }: AdminSidebarProps) {
             className={({ isActive }) =>
               `flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 group text-sm font-medium ${
                 isActive
-                  ? "bg-white/10 text-accent font-semibold border-r-4 border-accent"
+                  ? "bg-white/10 text-accent font-semibold"
                   : "text-white/70 hover:bg-white/5 hover:text-white"
               }`
             }
