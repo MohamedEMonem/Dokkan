@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { StatCard } from "@/components/ui/StatCard";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/Button";
+import { useGetProductsQuery } from "@/api/product.api";
+
 
 // Stats overview data for platform health
 const adminStats = {
@@ -93,6 +95,10 @@ const pendingStores = [
 ];
 
 export function AdminOverview() {
+  const { data: response, isLoading: productsLoading } = useGetProductsQuery({ page: 1, limit: 5 });
+  const recentProductsList = response?.data?.products || [];
+  const totalProductsCount = response?.data?.meta?.total || 0;
+
   return (
     <div className="space-y-6 w-full font-sans select-none">
       {/* Top Welcome Section */}
@@ -127,7 +133,7 @@ export function AdminOverview() {
         />
         <StatCard
           title="إجمالي المنتجات"
-          value={adminStats.totalProducts.value}
+          value={productsLoading ? "..." : totalProductsCount}
           icon={<Package className="w-6 h-6 text-primary" />}
           action={
             <span className="text-xs font-bold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full">
@@ -172,31 +178,51 @@ export function AdminOverview() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {recentProducts.map((product) => (
-                    <tr key={product.id} className="hover:bg-bg-cream/20 transition-colors">
-                      <td className="py-3 px-3 font-semibold text-text-dark">
-                        <Link to={`/products/${product.id}`} className="hover:text-primary transition-colors block w-full">
-                          {product.title}
-                        </Link>
-                      </td>
-                      <td className="py-3 px-3 text-text-muted">
-                        <Link to={`/${product.storeSubdomain}`} className="hover:text-primary transition-colors block w-full">
-                          {product.storeName}
-                        </Link>
-                      </td>
-                      <td className="py-3 px-3 text-text-muted">
-                        <span className="bg-accent-light/30 text-accent-dark px-2 py-0.5 rounded-md text-[10px]">
-                          {product.category}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 font-semibold text-primary">{product.price}</td>
-                      <td className="py-3 px-3 text-center">
-                        <Button variant="tertiary" className="text-red-500 hover:bg-red-50 px-2.5 py-1 text-[10px] h-6! w-auto! inline-flex items-center gap-1">
-                          حظر المنتج
-                        </Button>
+                  {productsLoading ? (
+                    <tr>
+                      <td colSpan={5} className="py-6 text-center text-text-muted">
+                        جاري تحميل المنتجات...
                       </td>
                     </tr>
-                  ))}
+                  ) : recentProductsList.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-6 text-center text-text-muted">
+                        لا توجد منتجات مسجلة بالمنصة
+                      </td>
+                    </tr>
+                  ) : (
+                    recentProductsList.map((product) => (
+                      <tr key={product.id} className="hover:bg-bg-cream/20 transition-colors">
+                        <td className="py-3 px-3 font-semibold text-text-dark">
+                          <Link to={`/admin/products/${product.id}`} className="hover:text-primary transition-colors block w-full">
+                            {product.title}
+                          </Link>
+                        </td>
+                        <td className="py-3 px-3 text-text-muted">
+                          {product.store ? (
+                            <Link to={`/${product.store.subdomain}`} className="hover:text-primary transition-colors block w-full">
+                              {product.store.name}
+                            </Link>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                        <td className="py-3 px-3 text-text-muted">
+                          <span className="bg-accent-light/30 text-accent-dark px-2 py-0.5 rounded-md text-[10px]">
+                            منتج
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 font-semibold text-primary">
+                          {Number(product.price).toLocaleString("ar-EG")} ج.م
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          <Button variant="tertiary" className="text-red-500 hover:bg-red-50 px-2.5 py-1 text-[10px] h-6! w-auto! inline-flex items-center gap-1">
+                            حظر المنتج
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

@@ -64,7 +64,7 @@ export default function AdminLayout() {
       {/* Main Content Workspace */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <AdminHeader user={user} onMenuClick={() => setSidebarOpen(true)} />
+        <AdminHeader onMenuClick={() => setSidebarOpen(true)} />
 
         {/* Dashboard Pages Workspace */}
         <main className="flex-1 p-6 overflow-y-auto">

@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Bell, Menu, Clock } from "lucide-react";
-import { IUser } from "@/types/entities/user.types";
 import { Button } from "@/components/ui/Button";
-import { UserAvatar } from "@/components/ui/UserAvatar";
 
 interface AdminHeaderProps {
-  user?: IUser;
   onMenuClick: () => void;
 }
 
@@ -21,7 +18,7 @@ const routeTitles: Record<string, string> = {
   "/admin/users": "إدارة حسابات المستخدمين",
 };
 
-export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
+export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const location = useLocation();
   const currentTitle = routeTitles[location.pathname] || "لوحة التحكم";
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -66,7 +63,7 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
         </h1>
       </div>
 
-      {/* Left Side: Date/Time, Notifications & User Greeting */}
+      {/* Left Side: Date/Time & Notifications */}
       <div className="flex items-center gap-3.5">
         {/* Live Clock Display */}
         <div className="hidden md:flex items-center gap-2 text-xs text-text-muted bg-bg-cream border border-accent-light/60 px-3 py-1.5 rounded-xl font-medium">
@@ -89,26 +86,6 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
             </span>
           </Button>
         </div>
-
-        {/* Vertical Separator */}
-        <span className="h-6 w-px bg-gray-200" />
-
-        {/* User Info (Purely visual welcome, no navigation dropdown) */}
-        {user && (
-          <div className="flex items-center gap-2.5">
-            <div className="text-right hidden sm:block">
-              <p className="text-[10px] text-text-muted font-medium">مرحباً بك</p>
-              <p className="text-xs font-bold text-text-dark mt-0.5 leading-none">
-                {user.name}
-              </p>
-            </div>
-            <UserAvatar
-              name={user.name}
-              avatarUrl={user.profilePhotoUrl}
-              className="w-9 h-9 border border-accent-light shadow-xs"
-            />
-          </div>
-        )}
       </div>
     </header>
   );
