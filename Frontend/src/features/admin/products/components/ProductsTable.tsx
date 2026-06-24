@@ -90,7 +90,7 @@ export function ProductsTable({ products, isLoading, onDelete }: ProductsTablePr
                       )}
                       <div className="min-w-0">
                         <Link
-                          to={`/products/${product.id}`}
+                          to={`/admin/products/${product.id}`}
                           className="font-bold text-text-dark hover:text-primary transition-colors block truncate max-w-[200px]"
                         >
                           {product.title}
@@ -142,7 +142,7 @@ export function ProductsTable({ products, isLoading, onDelete }: ProductsTablePr
                   <td className="py-4 px-4">
                     <div className="flex items-center justify-center gap-2">
                       <Link
-                        to={`/products/${product.id}`}
+                        to={`/admin/products/${product.id}`}
                         className="p-1.5 text-text-muted hover:text-primary hover:bg-bg-cream rounded-md transition-colors"
                         title="عرض تفاصيل المنتج"
                       >

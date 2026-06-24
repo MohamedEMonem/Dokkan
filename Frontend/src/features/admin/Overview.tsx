@@ -194,7 +194,7 @@ export function AdminOverview() {
                     recentProductsList.map((product) => (
                       <tr key={product.id} className="hover:bg-bg-cream/20 transition-colors">
                         <td className="py-3 px-3 font-semibold text-text-dark">
-                          <Link to={`/products/${product.id}`} className="hover:text-primary transition-colors block w-full">
+                          <Link to={`/admin/products/${product.id}`} className="hover:text-primary transition-colors block w-full">
                             {product.title}
                           </Link>
                         </td>
