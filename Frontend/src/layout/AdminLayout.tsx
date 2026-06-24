@@ -40,7 +40,7 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen flex bg-bg-cream font-sans" dir="rtl">
       {/* Sidebar Desktop */}
-      <aside className="hidden lg:block w-64 border-l-2 border-accent-light shrink-0">
+      <aside className="hidden lg:block w-64 border-l-2 border-accent-light shrink-0 sticky top-0 h-screen">
         <AdminSidebar user={user} />
       </aside>
 
