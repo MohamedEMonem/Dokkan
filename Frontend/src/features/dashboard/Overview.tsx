@@ -10,7 +10,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  type TooltipProps,
+  type TooltipContentProps,
 } from "recharts";
 
 const salesData = [
@@ -22,22 +22,13 @@ const salesData = [
   { month: "يونيو", sales: 7500 },
 ];
 
-function SalesTooltip({ active, payload, label }: TooltipProps<number, string>) {
+function SalesTooltip({ active, payload, label }: Partial<TooltipContentProps<number, string>>) {
   if (!active || !payload?.length) return null;
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "2px solid #EBD8B7",
-        borderRadius: 12,
-        padding: "10px 14px",
-        direction: "rtl",
-        fontFamily: "inherit",
-      }}
-    >
-      <p style={{ margin: 0, fontWeight: 600, color: "#2B2B2B" }}>{label}</p>
-      <p style={{ margin: "4px 0 0", color: "#005B7F" }}>
-        {payload[0].value?.toLocaleString("ar-EG")} ج.م
+    <div className="bg-white border-2 border-accent-light rounded-xl px-3.5 py-2.5 rtl font-inherit">
+      <p className="m-0 font-semibold text-text-dark">{label}</p>
+      <p className="mt-1 m-0 text-primary">
+        {payload[0].value?.toLocaleString("en-US")} ج.م
       </p>
     </div>
   );
@@ -53,13 +44,13 @@ export function Overview() {
         title="نمو المبيعات - آخر 6 أشهر"
         icon={<TrendingUp className="w-6 h-6 text-primary" />}
       >
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={salesData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+        <ResponsiveContainer width="100%" height={300} style={{ direction: "ltr" }}>
+          <LineChart data={salesData} margin={{ top: 5, right: 5, left: 15, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EBD8B7" />
             <XAxis
               dataKey="month"
               stroke="#6B6B6B"
-              tick={{ fill: "#6B6B6B", fontSize: 13 }}
+              tick={{ fill: "#6B6B6B", fontSize: 15 }}
               axisLine={{ stroke: "#6B6B6B" }}
               tickLine={{ stroke: "#6B6B6B" }}
             />
@@ -67,7 +58,7 @@ export function Overview() {
               orientation="left"
               width={60}
               stroke="#6B6B6B"
-              tick={{ fill: "#6B6B6B", fontSize: 13 }}
+              tick={{ fill: "#6B6B6B", fontSize: 15 }}
               axisLine={{ stroke: "#6B6B6B" }}
               tickLine={{ stroke: "#6B6B6B" }}
               domain={[0, 8000]}
