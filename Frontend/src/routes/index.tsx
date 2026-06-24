@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import HomeLayout from "@/layout/HomeLayout";
 import AuthLayout from "@/layout/AuthLayout";
 import DashboardLayout from "@/layout/DashboardLayout";
+import AdminLayout from "@/layout/AdminLayout";
+
 
 import ProtectedRoutes from "./ProtectedRoutes";
 import ErrorPage from "@/pages/ErrorPage";
@@ -63,6 +65,16 @@ export default function AppRoutes() {
           <Route path="products/:id/edit" element={<UpdateProduct />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
+        </Route>
+
+        {/* Admin Dashboard Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">لوحة التحكم - قيد التطوير</div>} />
+          <Route path="stores" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة المتاجر - قيد التطوير</div>} />
+          <Route path="flags" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة طلبات الإبلاغ - قيد التطوير</div>} />
+          <Route path="categories" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة التصنيفات - قيد التطوير</div>} />
+          <Route path="plans" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">خطط الاشتراك - قيد التطوير</div>} />
+          <Route path="users" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة حسابات المستخدمين - قيد التطوير</div>} />
         </Route>
       </Route>
 
