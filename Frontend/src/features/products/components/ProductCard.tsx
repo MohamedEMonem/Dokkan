@@ -6,6 +6,10 @@ import { useState } from "react";
 import { showNotification } from "@/utils/showNotification";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 
+import { useAddItemMutation } from "@/api/cart.api";
+import useCartService from "@/hooks/useCartService";
+import { useCartSession } from "@/hooks/useCartSession";
+
 type ProductProps = {
   product: IProduct;
 };
@@ -29,6 +33,9 @@ function getStockBadge(stockQuantity: number) {
 }
 
 export const ProductCard = ({ product }: ProductProps) => {
+  const [addItemApi] = useAddItemMutation();
+  const { addItemToCart } = useCartService();
+  const { isAuthenticated } = useCartSession();
   //   const dispatch = useAppDispatch();
   const { subdomain } = useParams<{ subdomain?: string }>();
 
@@ -47,8 +54,32 @@ export const ProductCard = ({ product }: ProductProps) => {
     });
   };
 
-  const AddToCartHandler = (product: IProduct) => {
-    console.log(product);
+  const AddToCartHandler = async (product: IProduct) => {
+    const item = {
+      productId: String(product.id),
+      quantity: 1,
+      title: product.title,
+      unitPrice: product.price ?? 0,
+      imageUrl: (product.images?.[0]?.imageUrl ?? null) as string | null,
+      storeId: (product.store?.id ?? null) as string | null,
+    };
+    try {
+      await addItemToCart({
+        item,
+        isAuthenticated: isAuthenticated,
+        addToCartApi: isAuthenticated
+          ? (p: { productId: string; quantity: number }) =>
+              addItemApi(p).unwrap()
+          : undefined,
+      });
+      showNotification({
+        message: "تمت إضافة المنتج إلى السلة",
+        variant: "success",
+      });
+    } catch (err) {
+      console.error("Add to cart failed", err);
+      showNotification({ message: "فشل إضافة المنتج للسلة", variant: "error" });
+    }
   };
 
   if (!product || !productId) return null;

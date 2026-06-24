@@ -15,6 +15,8 @@ import { AuthCallback } from "@/features/auth/AuthCallback";
 import Landing from "@/pages/Landing";
 import Profile from "@/pages/Profile";
 
+import Checkout from "@/features/checkout/CheckoutPage";
+
 import { ViewProducts } from "@/features/products/ViewProducts";
 import { ProductDetailsPage } from "@/features/products/ProductDetailsPage";
 
@@ -29,6 +31,7 @@ import { Settings } from "@/features/dashboard/Settings";
 import { Customize } from "@/features/dashboard/Customize";
 import { Analytics } from "@/features/dashboard/Analytics";
 import ViewStores from "@/features/stores/ViewStores";
+import CartPage from "@/features/cart/CartPage";
 import Orders from "@/features/dashboard/Orders";
 import StoreOnboarding from "@/features/stores/StoreOnboarding";
 import WelcomeStep from "@/features/stores/Components/onboarding/WelcomeStep";
@@ -45,11 +48,14 @@ export default function AppRoutes() {
         <Route path="/products" element={<ViewProducts />} />
         <Route path="/products/:id" element={<ProductDetailsPage />} />
         <Route path="/stores" element={<ViewStores />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/:subdomain" element={<StoreHome />} />
         <Route path="/:subdomain/products" element={<StoreProducts />} />
         <Route path="/:subdomain/products/:id" element={<ProductDetailsPage />} />
         {/* <Route path="/store/:id" element={<ViewStores />} /> */}
+
         <Route element={<ProtectedRoutes />}>
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
