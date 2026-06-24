@@ -37,7 +37,14 @@ export const LoginForm = (): React.JSX.Element => {
       localStorage.setItem("token", response.data.token);
 
       showNotification({ message: "تم تسجيل الدخول بنجاح", variant: "success" });
-      response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
+      const role = response.data.user.role;
+      if (role === EUserRole.Admin) {
+        navigate("/admin");
+      } else if (role === EUserRole.Customer) {
+        navigate("/");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       const errorMessage =
         error?.data?.message || error?.message || "حدث خطأ غير متوقع";
