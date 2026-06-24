@@ -326,3 +326,39 @@ export const adminRestoreStoreReview = async (req: Request, res: Response, next:
     return sendServerError(res, "Failed to restore store review", error);
   }
 };
+
+//  Admin: Update Store Status (Approve/Suspend)
+
+export const adminUpdateStoreStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { storeId } = req.params as { storeId?: string };
+    const { status } = req.body as { status?: string };
+
+    if (!storeId) {
+      return sendError(res, "storeId is required", 400);
+    }
+
+    if (!status || !["Pending", "Active", "Suspended"].includes(status)) {
+      return sendError(res, "Invalid status. Must be Pending, Active, or Suspended", 400);
+    }
+
+    const store = await ModerationService.updateStoreStatus(
+      storeId,
+      status as "Pending" | "Active" | "Suspended",
+    );
+
+    return sendSuccess(res, { store }, "Store status updated successfully");
+  } catch (error) {
+    const cause = error as Error & { statusCode?: number };
+
+    if (cause.statusCode) {
+      return sendError(res, cause.message, cause.statusCode);
+    }
+
+    return sendServerError(res, "Failed to update store status", error);
+  }
+};

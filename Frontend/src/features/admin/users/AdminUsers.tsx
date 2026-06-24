@@ -6,13 +6,15 @@ import { Pagination } from "@/components/ui/Pagination";
 import { showNotification } from "@/utils/showNotification";
 import { Users, UserCheck, Store } from "lucide-react";
 import { StatCard } from "@/components/ui/StatCard";
+import { useSearchParams } from "react-router-dom";
 
 export function AdminUsers() {
+  const [searchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const limit = 10;
 
   const [filters, setFilters] = useState<UsersFilterState>({
-    search: "",
+    search: searchParams.get("search") || "",
     role: "",
     sortBy: "createdAt",
     sortDir: "desc",

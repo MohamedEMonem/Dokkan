@@ -163,6 +163,14 @@ export class StoreServices {
           operatingHours: true,
           socialMediaLinks: true,
           createdAt: true,
+          deletedAt: true,
+          ownerId: true,
+          owner: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       }),
       prisma.store.count({ where }),

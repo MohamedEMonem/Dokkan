@@ -13,6 +13,7 @@ import {
   adminRestoreStore,
   adminRestoreProductReview,
   adminRestoreStoreReview,
+  adminUpdateStoreStatus,
 } from "../controllers/ModerationController.js";
 import {
   adminListUsers,
@@ -259,4 +260,37 @@ adminRoutes.delete(
      #swagger.responses[404] = { description: 'User not found' }
   */
   adminDeleteUser,
+);
+
+// ── Admin: Store Status Management ───────────────────────────────────────── //
+
+adminRoutes.patch(
+  "/stores/:storeId/status",
+  auth,
+  authAdmin,
+  /* #swagger.tags = ['Admin - Stores']
+     #swagger.summary = 'Update store status'
+     #swagger.description = 'Update store status (Pending/Active/Suspended). Admin only.'
+     #swagger.security = [{ "bearerAuth": [] }]
+     #swagger.parameters['storeId'] = { in: 'path', type: 'string', required: true }
+     #swagger.requestBody = {
+       required: true,
+       content: {
+         "application/json": {
+           schema: {
+             type: "object",
+             required: ["status"],
+             properties: {
+               status: { type: "string", enum: ["Pending", "Active", "Suspended"], example: "Active" }
+             }
+           }
+         }
+       }
+     }
+     #swagger.responses[200] = { description: 'Store status updated successfully' }
+     #swagger.responses[400] = { description: 'Invalid status' }
+     #swagger.responses[403] = { description: 'Admin only' }
+     #swagger.responses[404] = { description: 'Store not found' }
+  */
+  adminUpdateStoreStatus,
 );
