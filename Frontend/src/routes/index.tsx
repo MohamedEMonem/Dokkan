@@ -10,6 +10,7 @@ import ErrorPage from "@/pages/ErrorPage";
 
 import { LoginForm } from "@/features/auth/Login";
 import { RegisterForm } from "@/features/auth/Register";
+import { AuthCallback } from "@/features/auth/AuthCallback";
 
 import Landing from "@/pages/Landing";
 import Profile from "@/pages/Profile";
@@ -19,11 +20,14 @@ import { ProductDetailsPage } from "@/features/products/ProductDetailsPage";
 
 import { Overview } from "@/features/dashboard/Overview";
 import { AdminOverview } from "@/features/admin/Overview";
+import { AdminProducts } from "@/features/admin/products/AdminProducts";
+import { AdminProductDetails } from "@/features/admin/products/AdminProductDetails";
 import { Products } from "@/features/dashboard/Products";
 import { CreateProduct } from "@/features/dashboard/CreateProduct";
 import { UpdateProduct } from "@/features/dashboard/UpdateProduct";
 import { Settings } from "@/features/dashboard/Settings";
 import { Customize } from "@/features/dashboard/Customize";
+import { Analytics } from "@/features/dashboard/Analytics";
 import ViewStores from "@/features/stores/ViewStores";
 import StoreOnboarding from "@/features/stores/StoreOnboarding";
 import WelcomeStep from "@/features/stores/Components/onboarding/WelcomeStep";
@@ -52,6 +56,7 @@ export default function AppRoutes() {
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="login" element={<LoginForm />} />
         <Route path="register" element={<RegisterForm />} />
+        <Route path="callback" element={<AuthCallback />} />
       </Route>
 
       {/* Protected */}
@@ -66,6 +71,7 @@ export default function AppRoutes() {
           <Route path="products" element={<Products />} />
           <Route path="products/create" element={<CreateProduct />} />
           <Route path="products/:id/edit" element={<UpdateProduct />} />
+          <Route path="analytics" element={<Analytics />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
         </Route>
@@ -74,7 +80,8 @@ export default function AppRoutes() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminOverview />} />
           <Route path="stores" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة المتاجر - قيد التطوير</div>} />
-          <Route path="products" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة المنتجات العامة - قيد التطوير</div>} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="products/:id" element={<AdminProductDetails />} />
           <Route path="reviews" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">مراجعة التعليقات والتقييمات - قيد التطوير</div>} />
           <Route path="flags" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة طلبات الإبلاغ - قيد التطوير</div>} />
           <Route path="categories" element={<div className="p-6 bg-white rounded-xl border border-accent-light shadow-sm text-text-dark font-bold text-lg">إدارة التصنيفات - قيد التطوير</div>} />

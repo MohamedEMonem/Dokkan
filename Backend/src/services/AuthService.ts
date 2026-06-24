@@ -15,7 +15,7 @@ import { OAuth2Client } from 'google-auth-library';
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  'postmessage'
+  process.env.CORS_ORIGIN ? `${process.env.CORS_ORIGIN}/auth/callback` : 'http://localhost:5000/auth/callback'
 );
 
 type PublicUser = {
@@ -203,6 +203,10 @@ export const authService = {
     const payload = ticket.getPayload();
     if (!payload) throw createHttpError("Invalid Google Payload", 400);
 
+    if (!payload.email_verified) {
+      throw createHttpError("Google email is not verified. Cannot trust identity.", 403);
+    }
+
     const { email } = payload;
     const normalizedEmail = email!.trim().toLowerCase();
 
@@ -240,6 +244,10 @@ export const authService = {
     const payload = ticket.getPayload();
     if (!payload) throw createHttpError("Invalid Google Payload", 400);
 
+    if (!payload.email_verified) {
+      throw createHttpError("Google email is not verified. Cannot trust identity.", 403);
+    }
+
     const { email, name, sub: googleOauthId } = payload;
     const normalizedEmail = email!.trim().toLowerCase();
 
@@ -264,7 +272,11 @@ export const authService = {
       // Link existing account to Google
       user = await prisma.user.update({
         where: { id: user.id },
-        data: { googleOauthId: googleOauthId, isVerified: true },
+        data: {
+          googleOauthId: googleOauthId,
+          isVerified: true,
+          ...(user.isVerified === false && { password: null }) // Invalidate password if previously unverified
+        },
       });
     }
 

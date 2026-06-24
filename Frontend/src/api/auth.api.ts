@@ -27,7 +27,29 @@ export const authApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Auth"],
     }),
+    loginWithGoogle: builder.mutation<
+      IAPIResponse<{ token: string; user: IUser }>,
+      { code: string }
+    >({
+      query: (body) => ({
+        url: "/auth/google/login",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Auth"],
+    }),
+    signupWithGoogle: builder.mutation<
+      IAPIResponse<{ token: string; user: IUser }>,
+      { code: string; role?: string }
+    >({
+      query: (body) => ({
+        url: "/auth/google/signup",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Auth"],
+    }),
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation } = authApi;
+export const { useRegisterMutation, useLoginMutation, useLoginWithGoogleMutation, useSignupWithGoogleMutation } = authApi;
