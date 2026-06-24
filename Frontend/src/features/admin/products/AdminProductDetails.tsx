@@ -232,7 +232,7 @@ export function AdminProductDetails() {
                     <Store className="w-4 h-4 text-accent" /> {product.store.name}
                   </span>
                   <Link
-                    to={`/${product.store.subdomain}`}
+                    to={`/@${product.store.subdomain}`}
                     className="text-[10px] font-bold text-primary hover:underline"
                     target="_blank"
                   >
@@ -265,7 +265,7 @@ export function AdminProductDetails() {
               </Button>
 
               {/* View Public product page */}
-              <Link to={`/products/${product.id}`} className="w-full" target="_blank">
+              <Link to={`/@${product.store.subdomain}/products/${product.id}`} className="w-full" target="_blank">
                 <Button variant="outline-accent" className="w-full text-xs h-9.5! font-bold flex items-center justify-center gap-2 text-text-dark! hover:bg-bg-cream!">
                   <Eye className="w-4 h-4" /> معاينة صفحة العميل ↗
                 </Button>
