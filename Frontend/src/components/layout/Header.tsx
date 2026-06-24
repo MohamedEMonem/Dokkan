@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { useGetProfileQuery } from "@/api/user.api";
+import { useCartSession } from "@/hooks/useCartSession";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SubItem {
@@ -31,6 +32,13 @@ interface NavItemData {
   href: string;
   icon?: ReactNode;
   subItems?: SubItem[];
+}
+
+interface UserType {
+  name?: string;
+  profilePhotoUrl?: string;
+  email?: string;
+  role?: string;
 }
 
 // ─── Nav Data ────────────────────────────────────────────────────────────────
@@ -157,7 +165,7 @@ function MobileMenu({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  user: any;
+  user: UserType | undefined;
   onLogout: () => void;
 }) {
   const navigate = useNavigate();
@@ -362,9 +370,12 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const token = localStorage.getItem("token");
-  const { data: profileResponse } = useGetProfileQuery(undefined, { skip: !token });
+  const { data: profileResponse } = useGetProfileQuery(undefined, {
+    skip: !token,
+  });
   const user = profileResponse?.data?.user;
-  const isAuthenticated = !!token && !!user;
+  const isAuthenticated = !!token;
+  const { cartCount } = useCartSession();
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -415,10 +426,22 @@ export default function Header() {
               <Link
                 key={action.href}
                 to={action.href}
-                className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
+                className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors relative"
                 aria-label={action.ariaLabel}
               >
-                {action.icon}
+                {/* Cart icon shows a count badge */}
+                {action.href === "/cart" ? (
+                  <div className="relative">
+                    {action.icon}
+                    {cartCount > 0 && (
+                      <span className="p-3 absolute -top-4 -left-4 bg-accent text-white text-[14px] rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                        {cartCount}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  action.icon
+                )}
               </Link>
             ))}
 

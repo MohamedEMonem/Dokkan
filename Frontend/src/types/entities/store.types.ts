@@ -39,6 +39,8 @@ export interface IStoreInfo {
   phoneNumber?: string;
   operatingHours?: string | Record<string, unknown>;
   socialMediaLinks?: string | Record<string, unknown>;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 /* ────────────────────────────────────────────────────────

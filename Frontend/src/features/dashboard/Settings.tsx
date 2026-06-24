@@ -26,7 +26,7 @@ export function Settings() {
     if (store) {
       setStoreName(store.name);
       setDescription(store.description ?? "");
-      setPhone(store.phoneNumber);
+      setPhone(store.phoneNumber ?? "");
       setAddress(store.businessAddress ?? "");
     }
   }, [store]);
@@ -77,21 +77,21 @@ export function Settings() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
-              label="اسم المتجر *"
+              label="اسم المتجر"
               placeholder="أدخل اسم المتجر"
               value={storeName}
               onChange={(e) => setStoreName(e.target.value)}
-              required
+              isRequired
               className="h-12!"
               disabled={isUpdatingStore}
             />
 
             <TextArea
-              label="وصف المتجر *"
+              label="وصف المتجر"
               placeholder="أدخل وصف تفصيلي عن متجرك"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              required
+              isRequired
               rows={4}
               className="min-h-32!"
               disabled={isUpdatingStore}
@@ -103,16 +103,17 @@ export function Settings() {
               placeholder="+20 100 123 4567"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="h-12! text-right"
+              className="h-12!"
+              style={{ textAlign: "right" }}
               disabled={isUpdatingStore}
             />
 
             <Input
-              label="العنوان *"
+              label="العنوان"
               placeholder="أدخل عنوان المتجر"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              required
+              isRequired
               className="h-12!"
               disabled={isUpdatingStore}
             />

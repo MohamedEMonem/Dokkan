@@ -264,13 +264,9 @@ export default function Profile() {
                         className={
                           !isEditing ? "opacity-100 bg-gray-50/50" : "bg-white"
                         }
+                        error={errors.name?.message}
                         {...register("name")}
                       />
-                      {errors.name && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.name.message}
-                        </p>
-                      )}
                     </div>
 
                     <Input
@@ -295,13 +291,9 @@ export default function Profile() {
                             ? "opacity-100 bg-gray-50/50 text-left"
                             : "bg-white text-left"
                         }
+                        error={errors.contactNumber?.message}
                         {...register("contactNumber")}
                       />
-                      {errors.contactNumber && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.contactNumber.message}
-                        </p>
-                      )}
                     </div>
                   </div>
 

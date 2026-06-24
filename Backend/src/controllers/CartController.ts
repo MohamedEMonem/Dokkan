@@ -74,6 +74,17 @@ export const updateItem = async (req: Request, res: Response, next: NextFunction
     const message = quantity === 0 ? "Item removed from cart" : "Cart item updated";
     return sendSuccess(res, { productId, quantity }, message);
   } catch (error) {
+    const cause = error as Error;
+    if (cause.message === "PRODUCT_NOT_FOUND") {
+      const err: any = new Error("Product not found or no longer available");
+      err.status = 404;
+      return next(err);
+    }
+    if (cause.message === "OUT_OF_STOCK") {
+      const err: any = new Error("Product is out of stock");
+      err.status = 409;
+      return next(err);
+    }
     return next(error);
   }
 };

@@ -10,6 +10,13 @@ import type {
 } from "../DTO/auth.dto.js";
 import { hashPassword, verifyPassword } from "../utils/password.js";
 import { emailService } from "./email.service.js";
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.CORS_ORIGIN ? `${process.env.CORS_ORIGIN}/auth/callback` : 'http://localhost:5000/auth/callback'
+);
 
 type PublicUser = {
   id: string;
@@ -23,7 +30,7 @@ type PublicUser = {
 };
 
 type AuthUser = PublicUser & {
-  password: string;
+  password?: string | null; // Updated to reflect optional password
   deletedAt: Date | null;
 };
 
@@ -183,6 +190,144 @@ async function issueRefreshToken(userId: string, email: string) {
 
 export const authService = {
   generateOtp: generateOtp,
+
+  // --- GOOGLE LOGIN INTEGRATED HERE ---
+  async loginWithGoogle(code: string): Promise<AuthServiceResult> {
+    const { tokens } = await googleClient.getToken(code);
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: tokens.id_token!,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) throw createHttpError("Invalid Google Payload", 400);
+
+    if (!payload.email_verified) {
+      throw createHttpError("Google email is not verified. Cannot trust identity.", 403);
+    }
+
+    const { email } = payload;
+    const normalizedEmail = email!.trim().toLowerCase();
+
+    let user = await prisma.user.findFirst({
+      where: { email: normalizedEmail }
+    });
+
+    if (!user) {
+      throw createHttpError("User not found. Please sign up.", 404);
+    }
+
+    if (user.deletedAt) {
+      throw createHttpError("This account has been deleted.", 401);
+    }
+
+    return {
+      user: toPublicUser(user),
+      token: buildToken({ userId: user.id, email: user.email }),
+      refreshToken: (await issueRefreshToken(user.id, user.email)).refreshToken,
+      message: "Logged in successfully with Google",
+      statusCode: 200,
+    };
+  },
+
+  async signupWithGoogle(code: string, role: UserRole): Promise<AuthServiceResult> {
+    // 1. Exchange code for tokens
+    const { tokens } = await googleClient.getToken(code);
+
+    // 2. Verify the ID token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: tokens.id_token!,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) throw createHttpError("Invalid Google Payload", 400);
+
+    if (!payload.email_verified) {
+      throw createHttpError("Google email is not verified. Cannot trust identity.", 403);
+    }
+
+    const { email, name, sub: googleOauthId } = payload;
+    const normalizedEmail = email!.trim().toLowerCase();
+
+    // 3. Find or create the user in the database
+    let user = await prisma.user.findFirst({
+      where: { email: normalizedEmail }
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email: normalizedEmail,
+          name: name!,
+          role: role,
+          googleOauthId: googleOauthId,
+          isVerified: true,
+          // Google emails are already verified
+          // Note: password is omitted entirely since it's optional
+        },
+      });
+    } else if (!user.googleOauthId) {
+      // Link existing account to Google
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          googleOauthId: googleOauthId,
+          isVerified: true,
+          ...(user.isVerified === false && { password: null }) // Invalidate password if previously unverified
+        },
+      });
+    }
+
+    if (user.deletedAt) {
+      const restoredUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          email: normalizedEmail,
+          role: role,
+          deletedAt: null,
+          isVerified: true,
+          googleOauthId: googleOauthId,
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          contactNumber: true,
+          profilePhotoUrl: true,
+          isVerified: true,
+          createdAt: true,
+          password: true,
+          deletedAt: true,
+        },
+      });
+
+      return {
+        user: toPublicUser(restoredUser),
+        token: buildToken({ userId: restoredUser.id, email: restoredUser.email }),
+        refreshToken: (await issueRefreshToken(restoredUser.id, restoredUser.email)).refreshToken,
+        message: "Logged in successfully with Google",
+        statusCode: 200,
+      };
+    }
+
+    // 4. Generate your Dokkan Tokens and Redis Session
+    const token = buildToken({ userId: user.id, email: user.email });
+    const { refreshToken } = await issueRefreshToken(user.id, user.email);
+
+    return {
+      user: toPublicUser(user as AuthUser),
+      token,
+      refreshToken,
+      message: "Logged in successfully with Google",
+      statusCode: 200,
+    };
+
+  },
+
+
 
   async register(input: RegisterAuthDto, otp: string): Promise<AuthServiceResult> {
     const normalizedEmail = input.email.trim().toLowerCase();
@@ -344,6 +489,11 @@ export const authService = {
 
     if (user.deletedAt) {
       throw createHttpError("This account has been deleted.", 401);
+    }
+
+    // Explicit check for users who only registered via Google and don't have a password
+    if (!user.password) {
+      throw createHttpError("Please sign in with Google.", 401);
     }
 
     const isPasswordValid = await verifyPassword(input.password, user.password);

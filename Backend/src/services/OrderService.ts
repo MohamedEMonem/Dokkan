@@ -2,6 +2,7 @@ import { OrderStatus, Prisma } from "@prisma/client";
 import prisma from "../config/db.js";
 import redisClient from "../utils/redisClient.js";
 import type { OrderQueryDto, StoreOrderQueryDto } from "../DTO/order.dto.js";
+import { emailService } from "./email.service.js";
 
 const CART_KEY = (userId: string) => `cart:${userId}`;
 const SHIPPING_COST = 5.0;
@@ -189,14 +190,18 @@ export class OrderService {
         });
 
         // Decrement stock for this store's items
-        await Promise.all(
-          lineItems.map((item) =>
-            tx.product.update({
-              where: { id: item.productId },
-              data: { stockQuantity: { decrement: item.quantity } },
-            }),
-          ),
-        );
+        for (const item of lineItems) {
+          const updateResult = await tx.product.updateMany({
+            where: { id: item.productId, stockQuantity: { gte: item.quantity } },
+            data: { stockQuantity: { decrement: item.quantity } },
+          });
+
+          if (updateResult.count === 0) {
+            const err = new Error(`Product is out of stock`) as Error & { statusCode?: number };
+            err.statusCode = 409;
+            throw err;
+          }
+        }
 
         createdOrders.push(newOrder);
       }
@@ -205,6 +210,27 @@ export class OrderService {
     });
 
     await redisClient.del(CART_KEY(userId));
+
+    // Send confirmation emails asynchronously
+    Promise.all(orders.map(async (order) => {
+      try {
+        await emailService.sendOrderConfirmationEmail({
+          customerName: username,
+          customerEmail: email,
+          orderNumber: order.id,
+          totalAmount: String(order.totalAmount),
+          orderDate: order.createdAt?.toISOString(),
+          storeName: order.store.name,
+          items: order.orderItems.map((item: any) => ({
+            name: item.product.title,
+            quantity: item.quantity,
+            unitPrice: String(item.priceAtPurchase),
+          })),
+        });
+      } catch (err) {
+        console.error("Failed to send order confirmation email:", err);
+      }
+    })).catch((err) => console.error("Unhandled promise in email sending:", err));
 
     return orders.map((order) =>
       serializeOrder(order as unknown as Record<string, unknown>),
@@ -422,7 +448,7 @@ export class OrderService {
         },
       });
 
-      if (newStatus === "Cancelled" && order.status === OrderStatus.Pending) {
+      if (newStatus === "Cancelled" && (order.status === OrderStatus.Pending || order.status === OrderStatus.Shipped)) {
         await Promise.all(
           order.orderItems.map((item) =>
             tx.product.update({

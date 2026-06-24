@@ -7,6 +7,7 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Mail, Lock } from "lucide-react";
+import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 
 import { loginSchema, type LoginFormValues } from "./schemas/login.schema";
 import { useLoginMutation } from "@/api/auth.api";
@@ -32,21 +33,47 @@ export const LoginForm = (): React.JSX.Element => {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const { rememberMe, ...credentials } = data;
+      void rememberMe;
       const response = await loginApi(credentials).unwrap();
 
       localStorage.setItem("token", response.data.token);
 
+
       showNotification({ message: "تم تسجيل الدخول بنجاح", variant: "success" });
-      response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
-    } catch (error: any) {
+      const role = response.data.user.role;
+      if (role === EUserRole.Admin) {
+        navigate("/admin");
+      } else if (role === EUserRole.Customer) {
+        navigate("/");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      const authError = error as {
+        data?: { message?: string };
+        message?: string;
+      };
       const errorMessage =
-        error?.data?.message || error?.message || "حدث خطأ غير متوقع";
+        authError?.data?.message || authError?.message || "حدث خطأ غير متوقع";
       showNotification({ message: errorMessage, variant: "error" });
     }
   };
 
   return (
     <AuthCard title="تسجيل الدخول" subtitle="أهلاً بك مجدداً في دكان">
+      <div className="mb-6">
+        <GoogleLoginButton action="login" />
+
+        <div className="relative mt-6 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative bg-white px-4 text-sm text-gray-500 font-medium">
+            أو المتابعة بالبريد الإلكتروني
+          </div>
+        </div>
+      </div>
+
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4">
           {/* Email */}
@@ -57,13 +84,10 @@ export const LoginForm = (): React.JSX.Element => {
               type="email"
               placeholder="البريد@الإلكتروني.com"
               icon={<Mail className="w-5 h-5" />}
+              isRequired
+              error={errors.email?.message}
               {...register("email")}
             />
-            {errors.email && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.email.message}
-              </p>
-            )}
           </div>
 
           {/* Password */}
@@ -74,13 +98,10 @@ export const LoginForm = (): React.JSX.Element => {
               type="password"
               placeholder="••••••••"
               icon={<Lock className="w-5 h-5" />}
+              isRequired
+              error={errors.password?.message}
               {...register("password")}
             />
-            {errors.password && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.password.message}
-              </p>
-            )}
           </div>
         </div>
 

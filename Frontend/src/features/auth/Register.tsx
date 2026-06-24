@@ -7,6 +7,7 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { User, Mail, Lock } from "lucide-react";
+import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 
 import {
   registerSchema,
@@ -67,13 +68,16 @@ export const RegisterForm = (): React.JSX.Element => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      const {confirmPassword, terms, ...payload} = data;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { confirmPassword, terms, ...payload } = data;
       const response = await registerApi(payload).unwrap();
 
       localStorage.setItem("token", response.data.token);
 
       showNotification({ message: "تم تسجيل الحساب بنجاح", variant: "success" });
-      response.data.user.role === EUserRole.Customer ? navigate("/") : navigate("/dashboard");
+      response.data.user.role === EUserRole.Customer
+        ? navigate("/")
+        : navigate("/store/onboarding/welcome");
     } catch (error: any) {
       const errorMessage = error?.data?.message || error?.message || "حدث خطأ غير متوقع";
       showNotification({ message: errorMessage, variant: "error" });
@@ -82,6 +86,19 @@ export const RegisterForm = (): React.JSX.Element => {
 
   return (
     <AuthCard title="إنشاء حساب جديد" subtitle="انضم إلى سوقنا اليوم">
+      <div className="mb-6">
+        <GoogleLoginButton role={selectedRole} action="signup" />
+        
+        <div className="relative mt-6 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative bg-white px-4 text-sm text-gray-500 font-medium">
+            أو المتابعة بالبريد الإلكتروني
+          </div>
+        </div>
+      </div>
+
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         {/* Role Selection */}
         <div>
@@ -120,11 +137,10 @@ export const RegisterForm = (): React.JSX.Element => {
               type="text"
               placeholder="أدخل اسمك الكامل"
               icon={<User className="w-5 h-5" />}
+              isRequired
+              error={errors.name?.message}
               {...register("name")}
             />
-            {errors.name && (
-              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
-            )}
           </div>
 
           {/* Email */}
@@ -135,13 +151,10 @@ export const RegisterForm = (): React.JSX.Element => {
               type="email"
               placeholder="البريد@الإلكتروني.com"
               icon={<Mail className="w-5 h-5" />}
+              isRequired
+              error={errors.email?.message}
               {...register("email")}
             />
-            {errors.email && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.email.message}
-              </p>
-            )}
           </div>
 
           {/* Password */}
@@ -152,13 +165,11 @@ export const RegisterForm = (): React.JSX.Element => {
               type="password"
               placeholder="••••••••"
               icon={<Lock className="w-5 h-5" />}
+              isRequired
+              error={errors.password?.message}
               {...register("password")}
             />
-            {errors.password ? (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.password.message}
-              </p>
-            ) : (
+            {!errors.password && (
               <p className="text-xs text-text-muted mt-1">6 أحرف على الأقل</p>
             )}
           </div>
@@ -171,13 +182,10 @@ export const RegisterForm = (): React.JSX.Element => {
               type="password"
               placeholder="••••••••"
               icon={<Lock className="w-5 h-5" />}
+              isRequired
+              error={errors.confirmPassword?.message}
               {...register("confirmPassword")}
             />
-            {errors.confirmPassword && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.confirmPassword.message}
-              </p>
-            )}
           </div>
         </div>
 
