@@ -13,6 +13,8 @@ interface AdminHeaderProps {
 const routeTitles: Record<string, string> = {
   "/admin": "نظرة عامة على المنصة",
   "/admin/stores": "إدارة متاجر المنصة",
+  "/admin/products": "إدارة المنتجات العامة",
+  "/admin/reviews": "مراجعة التعليقات والتقييمات",
   "/admin/flags": "طلبات الإبلاغ والاعتدال",
   "/admin/categories": "إدارة تصنيفات المنتجات",
   "/admin/plans": "خطط الاشتراك والأسعار",

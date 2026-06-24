@@ -2,6 +2,8 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   Store,
+  Package,
+  MessageSquare,
   Flag,
   Layers,
   CreditCard,
@@ -21,6 +23,8 @@ interface AdminSidebarProps {
 const adminNavLinks = [
   { name: "نظرة عامة", path: "/admin", icon: LayoutDashboard, end: true },
   { name: "إدارة المتاجر", path: "/admin/stores", icon: Store, end: false },
+  { name: "إدارة المنتجات", path: "/admin/products", icon: Package, end: false },
+  { name: "التعليقات والتقييمات", path: "/admin/reviews", icon: MessageSquare, end: false },
   { name: "طلبات الإبلاغ", path: "/admin/flags", icon: Flag, end: false },
   { name: "إدارة التصنيفات", path: "/admin/categories", icon: Layers, end: false },
   { name: "خطط الاشتراك", path: "/admin/plans", icon: CreditCard, end: false },
