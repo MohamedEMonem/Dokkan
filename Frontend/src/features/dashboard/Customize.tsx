@@ -291,7 +291,7 @@ export function Customize() {
                     </div>
                     <div className="space-y-4">
                       {coverBannerUrl ? (
-                        <div className="relative w-full aspect-[16/9] max-w-[300px] mx-auto rounded-xl overflow-hidden border-2 border-dashed border-accent-light group">
+                        <div className="relative w-full aspect-video max-w-75 mx-auto rounded-xl overflow-hidden border-2 border-dashed border-accent-light group">
                           <img src={coverBannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 z-10">
                             <label className="cursor-pointer bg-white/95 hover:bg-white text-text-dark px-3 py-1.5 rounded-lg text-xs font-bold shadow-md flex items-center gap-1 transition-all">
@@ -309,7 +309,7 @@ export function Customize() {
                         </div>
                       ) : (
                         <label className="cursor-pointer block">
-                          <div className="w-full aspect-[16/9] max-w-[300px] mx-auto bg-gray-50 rounded-xl border-2 border-dashed border-accent-light hover:border-primary hover:bg-gray-100 transition-all flex flex-col items-center justify-center gap-3">
+                          <div className="w-full aspect-video max-w-75 mx-auto bg-gray-50 rounded-xl border-2 border-dashed border-accent-light hover:border-primary hover:bg-gray-100 transition-all flex flex-col items-center justify-center gap-3">
                             <Upload className="w-12 h-12 text-accent" />
                             <div className="text-center">
                               <p className="text-sm text-text-dark mb-1 font-semibold">اضغط لرفع صورة خلفية</p>
@@ -333,7 +333,7 @@ export function Customize() {
                     </div>
                     <div className="space-y-4">
                       {logoUrl ? (
-                        <div className="relative w-full aspect-square max-w-[200px] mx-auto rounded-xl overflow-hidden border-2 border-dashed border-accent-light group">
+                        <div className="relative w-full aspect-square max-w-50 mx-auto rounded-xl overflow-hidden border-2 border-dashed border-accent-light group">
                           <img src={logoUrl} alt="Store Logo" className="w-full h-full object-cover" />
                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 z-10">
                             <label className="cursor-pointer bg-white/95 hover:bg-white text-text-dark px-3 py-1.5 rounded-lg text-xs font-bold shadow-md flex items-center gap-1 transition-all">
