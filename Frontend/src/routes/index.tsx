@@ -10,6 +10,7 @@ import ErrorPage from "@/pages/ErrorPage";
 
 import { LoginForm } from "@/features/auth/Login";
 import { RegisterForm } from "@/features/auth/Register";
+import { AuthCallback } from "@/features/auth/AuthCallback";
 
 import Landing from "@/pages/Landing";
 import Profile from "@/pages/Profile";
@@ -51,6 +52,7 @@ export default function AppRoutes() {
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="login" element={<LoginForm />} />
         <Route path="register" element={<RegisterForm />} />
+        <Route path="callback" element={<AuthCallback />} />
       </Route>
 
       {/* Protected */}
