@@ -225,9 +225,9 @@ export default function Header() {
 
       {/* Dynamic Subcategories Row (Only for store routes, horizontally scrollable) */}
       {isStoreRoute && (
-        <div className="border-t border-gray-100 bg-gray-50/50 py-2.5">
+        <div className="border-t border-gray-100 bg-gray-50/50 py-2">
           <div className="container mx-auto px-4">
-            <nav className="flex items-center gap-6 overflow-x-auto scrollbar-none whitespace-nowrap" dir="rtl">
+            <nav className="flex items-center gap-6 overflow-x-auto overflow-y-hidden scrollbar-none whitespace-nowrap py-1" dir="rtl">
               {isStoreLoading ? (
                 <div className="flex gap-4">
                   <div className="w-16 h-4 bg-gray-200 rounded-md animate-pulse" />
