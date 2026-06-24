@@ -114,7 +114,7 @@ export function ProductsTable({ products, isLoading, onDelete }: ProductsTablePr
 
                   {/* Price column */}
                   <td className="py-4 px-4 font-bold text-primary">
-                    {Number(product.price).toLocaleString("ar-EG")} ج.م
+                    {Number(product.price).toLocaleString("en-US")} ج.م
                   </td>
 
                   {/* Stock Quantity column */}

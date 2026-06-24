@@ -212,7 +212,6 @@ export function StoresTable({ stores, isLoading, onUpdateStatus, onDelete }: Sto
                     <span
                       className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ${badge.className}`}
                     >
-                      {badge.icon}
                       {badge.label}
                     </span>
                   </td>
