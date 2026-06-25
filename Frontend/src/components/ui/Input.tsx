@@ -23,20 +23,37 @@ const inputClasses =
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   icon?: ReactNode;
+  isRequired?: boolean;
+  error?: string;
 }
 
 /* ────────────────────────────────────────────────────────
  * Component
  * ──────────────────────────────────────────────────────── */
-export function Input({ label, icon, className, id, ...rest }: InputProps) {
+export function Input({
+  label,
+  icon,
+  className,
+  id,
+  isRequired,
+  error,
+  ...rest
+}: InputProps) {
   return (
     <div className="flex flex-col gap-2">
       {label && (
         <label htmlFor={id} className="text-sm font-medium text-text-dark">
           {label}
+          {isRequired && <span className="text-red-500 font-bold mr-1">*</span>}
         </label>
       )}
-      <div className={clsx(containerClasses, className)}>
+      <div
+        className={clsx(
+          containerClasses,
+          error && "border-red-500! focus-within:border-red-500! focus-within:ring-red-500/30!",
+          className
+        )}
+      >
         {icon && (
           <span className="flex items-center text-text-muted shrink-0">
             {icon}
@@ -44,6 +61,7 @@ export function Input({ label, icon, className, id, ...rest }: InputProps) {
         )}
         <input id={id} className={inputClasses} {...rest} />
       </div>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 }

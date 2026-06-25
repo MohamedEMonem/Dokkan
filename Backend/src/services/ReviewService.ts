@@ -133,11 +133,22 @@ export class ReviewService {
     return review;
   }
 
-  static async getProductReviews(productId: string, query: ListReviewsQueryDto) {
+  static async getProductReviews(productId: string, query: ListReviewsQueryDto, user?: { id: string; role?: string }) {
     const { page, limit, sortBy, sortDir } = query;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ProductReviewWhereInput = { productId };
+    let where: Prisma.ProductReviewWhereInput = { productId, deletedAt: null };
+    if (user?.role === "Admin") {
+      where = { productId };
+    } else if (user?.role === "StoreOwner") {
+      where = {
+        productId,
+        OR: [
+          { deletedAt: null },
+          { product: { store: { ownerId: user.id } } }
+        ]
+      };
+    }
     const orderBy = toOrderBy(sortBy ?? "createdAt", sortDir ?? "desc");
 
     const [reviews, total] = await Promise.all([
@@ -162,9 +173,22 @@ export class ReviewService {
     };
   }
 
-  static async getProductReviewById(reviewId: string) {
-    const review = await prisma.productReview.findUnique({
-      where: { id: reviewId },
+  static async getProductReviewById(reviewId: string, user?: { id: string; role?: string }) {
+    let where: Prisma.ProductReviewWhereInput = { id: reviewId, deletedAt: null };
+    if (user?.role === "Admin") {
+      where = { id: reviewId };
+    } else if (user?.role === "StoreOwner") {
+      where = {
+        id: reviewId,
+        OR: [
+          { deletedAt: null },
+          { product: { store: { ownerId: user.id } } }
+        ]
+      };
+    }
+
+    const review = await prisma.productReview.findFirst({
+      where,
       include: {
         customer: { select: { id: true, name: true, profilePhotoUrl: true } },
         product: { select: { id: true, title: true } },
@@ -330,11 +354,22 @@ export class ReviewService {
     return review;
   }
 
-  static async getStoreReviews(storeId: string, query: ListReviewsQueryDto) {
+  static async getStoreReviews(storeId: string, query: ListReviewsQueryDto, user?: { id: string; role?: string }) {
     const { page, limit, sortBy, sortDir } = query;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.StoreReviewWhereInput = { storeId };
+    let where: Prisma.StoreReviewWhereInput = { storeId, deletedAt: null };
+    if (user?.role === "Admin") {
+      where = { storeId };
+    } else if (user?.role === "StoreOwner") {
+      where = {
+        storeId,
+        OR: [
+          { deletedAt: null },
+          { store: { ownerId: user.id } }
+        ]
+      };
+    }
     const orderBy = toOrderBy(sortBy ?? "createdAt", sortDir ?? "desc");
 
     const [reviews, total] = await Promise.all([
@@ -359,9 +394,22 @@ export class ReviewService {
     };
   }
 
-  static async getStoreReviewById(reviewId: string) {
-    const review = await prisma.storeReview.findUnique({
-      where: { id: reviewId },
+  static async getStoreReviewById(reviewId: string, user?: { id: string; role?: string }) {
+    let where: Prisma.StoreReviewWhereInput = { id: reviewId, deletedAt: null };
+    if (user?.role === "Admin") {
+      where = { id: reviewId };
+    } else if (user?.role === "StoreOwner") {
+      where = {
+        id: reviewId,
+        OR: [
+          { deletedAt: null },
+          { store: { ownerId: user.id } }
+        ]
+      };
+    }
+
+    const review = await prisma.storeReview.findFirst({
+      where,
       include: {
         customer: { select: { id: true, name: true, profilePhotoUrl: true } },
         store: { select: { id: true, name: true } },

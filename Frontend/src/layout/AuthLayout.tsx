@@ -18,7 +18,13 @@ export default function AuthLayout() {
       );
     }
     if (role) {
-      return <Navigate to={role === EUserRole.Customer ? "/" : "/dashboard"} replace />;
+      const redirectPath =
+        role === EUserRole.Admin
+          ? "/admin"
+          : role === EUserRole.Customer
+          ? "/"
+          : "/dashboard";
+      return <Navigate to={redirectPath} replace />;
     }
   }
 

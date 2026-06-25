@@ -72,3 +72,12 @@ body {
 .filter-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
   background-color: rgba(235, 216, 183, 0.2);
 }
+
+/* Hide scrollbar utility */
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}

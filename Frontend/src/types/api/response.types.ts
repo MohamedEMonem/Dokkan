@@ -3,8 +3,11 @@
  * ──────────────────────────────────────────────────────── */
 
 export interface IAPIResponse<T> {
+  success: boolean;
   data: T;
-  message?: string;
+  message?: string | null;
+  error?: unknown;
+  code?: number;
 }
 
 /* ────────────────────────────────────────────────────────

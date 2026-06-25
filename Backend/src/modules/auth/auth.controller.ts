@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import {
   sendError,
   sendServerError,
@@ -12,8 +12,10 @@ import {
   loginAuthSchema,
   otpSchema,
   registerAuthSchema,
+  userRoleSchema,
 } from "../../DTO/auth.dto.js";
 import { patchProfileSchema } from "../../DTO/user.dto.js";
+import { UserRole } from "@prisma/client";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -41,6 +43,7 @@ export const register = async (req: Request, res: Response) => {
     if (!payload) {
       return sendError(res, "Invalid request body", 400);
     }
+
 
     const validation = registerAuthSchema.safeParse(payload);
     if (!validation.success) {
@@ -92,6 +95,68 @@ export const login = async (req: Request, res: Response) => {
     return sendServerError(res, "Internal server error", error);
   }
 };
+export const loginWithGoogle = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return sendError(res, "Authorization code is required.", 400);
+    }
+
+    const result = await authService.loginWithGoogle(code);
+
+    return res.status(result.statusCode).json({
+      success: true,
+      message: result.message,
+      data: {
+        user: result.user,
+        token: result.token,
+        refreshToken: result.refreshToken,
+      },
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signupWithGoogle = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code, role } = req.body;
+
+    if (!code) {
+      return sendError(res, "Authorization code is required.", 400);
+    }
+
+    let validatedRole: UserRole = "StoreOwner"; // Default role
+
+    if (role) {
+      const validation = userRoleSchema.safeParse(role);
+      if (!validation.success) {
+        return sendError(res, "Invalid role.", 400);
+      }
+      validatedRole = validation.data as UserRole;
+    }
+
+    // Call the new Google method we added to the service
+
+    const result = await authService.signupWithGoogle(code, validatedRole);
+
+    // Return the standard Dokkan response payload
+    return res.status(result.statusCode).json({
+      success: true,
+      message: result.message,
+      data: {
+        user: result.user,
+        token: result.token,
+        refreshToken: result.refreshToken,
+      },
+    });
+
+  } catch (error) {
+    next(error); // Passes errors to your global error handler
+  }
+}
 
 export const refresh = async (req: Request, res: Response) => {
   try {

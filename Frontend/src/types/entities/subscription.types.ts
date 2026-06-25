@@ -6,6 +6,7 @@ import { SoftDeleted } from '@/types/core/audit.types';
  * ──────────────────────────────────────────────────────── */
 
 export interface IPlanInfo {
+  slug?: string;
   name: string;
   price: number;
   features: Record<string, unknown>;

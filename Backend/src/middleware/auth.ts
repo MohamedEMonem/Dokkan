@@ -92,6 +92,53 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+export const authOptional = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const authorizationHeader = req.header("Authorization");
+    if (!authorizationHeader) {
+      return next();
+    }
+
+    const headerMatch = authorizationHeader.trim().match(/^Bearer\s+([^\s]+)$/);
+    if (!headerMatch) {
+      return next();
+    }
+
+    const token = headerMatch[1];
+    let decoded: DecodedToken;
+    try {
+      decoded = jwt.verify(token, getJwtSecret()) as DecodedToken;
+    } catch {
+      return next();
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        id: decoded.userId,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isVerified: true,
+        deletedAt: true,
+      },
+    });
+
+    if (user) {
+      user.name = user.name?.trim();
+      req.user = user;
+      req.token = token;
+    }
+
+    return next();
+  } catch (error) {
+    return next();
+  }
+};
+
 export const authAdmin = async (
   req: Request,
   res: Response,

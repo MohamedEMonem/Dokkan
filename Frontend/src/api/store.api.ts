@@ -1,8 +1,17 @@
 import { apiSlice } from "@/store/apiSlice";
 import { IAPIResponse, IPaginatedResponse } from "@/types/api/response.types";
-import { IStore } from "@/types/entities/store.types";
+import { IStore, EStoreStatus } from "@/types/entities/store.types";
 import { IUser } from "@/types/entities/user.types";
 import { CreateStoreDTO, UpdateStoreDTO } from "@/types/dto/store.dto";
+
+export interface AdminListStoresParams {
+  page?: number;
+  limit?: number;
+  status?: EStoreStatus | "";
+  search?: string;
+  sortBy?: "createdAt" | "name";
+  sortDir?: "asc" | "desc";
+}
 
 export const storeApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -21,7 +30,7 @@ export const storeApi = apiSlice.injectEndpoints({
     // Browse active stores with pagination
     listStores: builder.query<
       IPaginatedResponse<Partial<IStore>, "stores">,
-      { page?: number; limit?: number } | void
+      { page?: number; limit?: number; subdomain?: string } | void
     >({
       query: (params) => ({
         url: "/stores",
@@ -68,6 +77,56 @@ export const storeApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Store"],
     }),
+
+    // Admin: List all stores with filters (uses public endpoint)
+    adminListStores: builder.query<
+      IPaginatedResponse<IStore, "stores">,
+      AdminListStoresParams | void
+    >({
+      query: (params) => ({
+        url: "/stores",
+        method: "GET",
+        params: params || undefined,
+      }),
+      providesTags: ["Store"],
+    }),
+
+    // Admin: Suspend/Remove store
+    adminSuspendStore: builder.mutation<
+      IAPIResponse<{ store: IStore }>,
+      { storeId: string }
+    >({
+      query: ({ storeId }) => ({
+        url: `/admin/stores/${storeId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Store"],
+    }),
+
+    // Admin: Restore/Activate store (for suspended/deleted stores)
+    adminRestoreStore: builder.mutation<
+      IAPIResponse<IStore>,
+      { storeId: string }
+    >({
+      query: ({ storeId }) => ({
+        url: `/admin/restore/store/${storeId}`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Store"],
+    }),
+
+    // Admin: Update store status (for pending stores approval)
+    adminUpdateStoreStatus: builder.mutation<
+      IAPIResponse<{ store: IStore }>,
+      { storeId: string; status: EStoreStatus }
+    >({
+      query: ({ storeId, status }) => ({
+        url: `/admin/stores/${storeId}/status`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["Store"],
+    }),
   }),
 });
 
@@ -77,4 +136,8 @@ export const {
   useCreateStoreMutation,
   useUpdateStoreMutation,
   useDeleteStoreMutation,
+  useAdminListStoresQuery,
+  useAdminSuspendStoreMutation,
+  useAdminRestoreStoreMutation,
+  useAdminUpdateStoreStatusMutation,
 } = storeApi;

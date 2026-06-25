@@ -2,6 +2,37 @@ import { DashboardCard } from "@/components/ui/DashboardCard";
 import { TrendingUp, ShoppingBag, Package, ChevronLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useNavigate } from "react-router-dom";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  type TooltipContentProps,
+} from "recharts";
+
+const salesData = [
+  { month: "يناير", sales: 4000 },
+  { month: "فبراير", sales: 3500 },
+  { month: "مارس", sales: 5000 },
+  { month: "أبريل", sales: 4500 },
+  { month: "مايو", sales: 6000 },
+  { month: "يونيو", sales: 7500 },
+];
+
+function SalesTooltip({ active, payload, label }: Partial<TooltipContentProps<number, string>>) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-white border-2 border-accent-light rounded-xl px-3.5 py-2.5 rtl font-inherit">
+      <p className="m-0 font-semibold text-text-dark">{label}</p>
+      <p className="mt-1 m-0 text-primary">
+        {payload[0].value?.toLocaleString("en-US")} ج.م
+      </p>
+    </div>
+  );
+}
 
 export function Overview() {
   const navigate = useNavigate();
@@ -13,9 +44,38 @@ export function Overview() {
         title="نمو المبيعات - آخر 6 أشهر"
         icon={<TrendingUp className="w-6 h-6 text-primary" />}
       >
-        <div className="h-72 p-6 flex items-center justify-center bg-bg-cream rounded-lg border-2 border-dashed border-accent-light w-full">
-          <p className="text-text-muted">مساحة الرسم البياني (Analytics)</p>
-        </div>
+        <ResponsiveContainer width="100%" height={300} style={{ direction: "ltr" }}>
+          <LineChart data={salesData} margin={{ top: 5, right: 5, left: 15, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#EBD8B7" />
+            <XAxis
+              dataKey="month"
+              stroke="#6B6B6B"
+              tick={{ fill: "#6B6B6B", fontSize: 15 }}
+              axisLine={{ stroke: "#6B6B6B" }}
+              tickLine={{ stroke: "#6B6B6B" }}
+            />
+            <YAxis
+              orientation="left"
+              width={60}
+              stroke="#6B6B6B"
+              tick={{ fill: "#6B6B6B", fontSize: 15 }}
+              axisLine={{ stroke: "#6B6B6B" }}
+              tickLine={{ stroke: "#6B6B6B" }}
+              domain={[0, 8000]}
+              ticks={[0, 2000, 4000, 6000, 8000]}
+            />
+            <Tooltip content={<SalesTooltip />} />
+            <Line
+              type="monotone"
+              dataKey="sales"
+              name="المبيعات (ج.م)"
+              stroke="#005B7F"
+              strokeWidth={3}
+              dot={{ r: 3, stroke: "#005B7F", strokeWidth: 3, fill: "#fff" }}
+              activeDot={{ r: 5, fill: "#005B7F" }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </DashboardCard>
 
       {/* Two Column Grid */}

@@ -1,10 +1,14 @@
 import { IProduct } from "@/types/entities/product.types";
 import { Card } from "@/components/ui/Card";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import { showNotification } from "@/utils/showNotification";
 import { Heart, ShoppingCart, Star } from "lucide-react";
+
+import { useAddItemMutation } from "@/api/cart.api";
+import useCartService from "@/hooks/useCartService";
+import { useCartSession } from "@/hooks/useCartSession";
 
 type ProductProps = {
   product: IProduct;
@@ -29,7 +33,11 @@ function getStockBadge(stockQuantity: number) {
 }
 
 export const ProductCard = ({ product }: ProductProps) => {
+  const [addItemApi] = useAddItemMutation();
+  const { addItemToCart } = useCartService();
+  const { isAuthenticated } = useCartSession();
   //   const dispatch = useAppDispatch();
+  const { subdomain } = useParams<{ subdomain?: string }>();
 
   const productId = product?.id ?? "";
 
@@ -46,16 +54,44 @@ export const ProductCard = ({ product }: ProductProps) => {
     });
   };
 
-  const AddToCartHandler = (product: IProduct) => {
-    console.log(product);
+  const AddToCartHandler = async (product: IProduct) => {
+    const item = {
+      productId: String(product.id),
+      quantity: 1,
+      title: product.title,
+      unitPrice: product.price ?? 0,
+      imageUrl: (product.images?.[0]?.imageUrl ?? null) as string | null,
+      storeId: (product.store?.id ?? null) as string | null,
+    };
+    try {
+      await addItemToCart({
+        item,
+        isAuthenticated: isAuthenticated,
+        addToCartApi: isAuthenticated
+          ? (p: { productId: string; quantity: number }) =>
+              addItemApi(p).unwrap()
+          : undefined,
+      });
+      showNotification({
+        message: "تمت إضافة المنتج إلى السلة",
+        variant: "success",
+      });
+    } catch (err) {
+      console.error("Add to cart failed", err);
+      showNotification({ message: "فشل إضافة المنتج للسلة", variant: "error" });
+    }
   };
 
   if (!product || !productId) return null;
+
+  const isStoreContext = subdomain?.startsWith("@");
+  const linkTo = isStoreContext ? `/${subdomain}/products/${productId}` : `/products/${productId}`;
+
   return (
-    <Link className="h-full" to={`/products/${productId}`} data-discover="true">
-      <Card>
+    <Link className="h-full" to={linkTo} data-discover="true">
+      <Card className="group h-full">
         <div data-slot="card-content" className="pb-6 p-0 flex flex-col h-full">
-          <div className="relative h-32 w-full overflow-hidden bg-bg-cream group">
+          <div className="relative h-32 w-full overflow-hidden bg-bg-cream">
             <img
               src={
                 product.images?.[0]?.imageUrl ||

@@ -23,6 +23,7 @@ export interface IProductImageInfo {
 export interface IProductInfo {
   storeId: string;
   categoryId: string;
+  subCategoryId: string;
   title: string;
   description?: string;
   price: number;
@@ -30,6 +31,8 @@ export interface IProductInfo {
   status: EProductStatus;
   images?: IProductImage[];
   store?: Pick<IStore, "id" | "name" | "subdomain">;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 /* ────────────────────────────────────────────────────────
