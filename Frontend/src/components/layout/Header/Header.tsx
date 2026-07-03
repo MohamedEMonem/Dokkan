@@ -137,7 +137,7 @@ export default function Header() {
             {iconActions.map((action) => (
               <Link
                 key={action.href}
-                to={action.href}
+                to={action.href === "/cart" && isStoreRoute ? `/${subdomain}/cart` : action.href}
                 className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
                 aria-label={action.ariaLabel}
               >

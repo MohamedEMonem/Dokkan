@@ -53,6 +53,7 @@ export default function AppRoutes() {
         <Route path="/products/:id" element={<ProductDetailsPage />} />
         <Route path="/stores" element={<ViewStores />} />
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/:subdomain/cart" element={<CartPage />} />
         <Route path="/:subdomain" element={<StoreHome />} />
         <Route path="/:subdomain/products" element={<StoreProducts />} />
         <Route path="/:subdomain/products/:id" element={<ProductDetailsPage />} />
@@ -60,6 +61,7 @@ export default function AppRoutes() {
 
         <Route element={<ProtectedRoutes />}>
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/:subdomain/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>

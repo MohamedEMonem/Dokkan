@@ -84,7 +84,7 @@ const StoreProducts: React.FC = () => {
     } else {
       searchParams.set("subcat", filters.category);
     }
-    setSearchParams(searchParams);
+    setSearchParams(searchParams, { replace: true });
   }, [filters.category]);
 
   // Filter products based on search terms and selected subcategory
