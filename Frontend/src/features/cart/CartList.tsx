@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { ICartStore } from "@/types/entities/cart.types";
 import { Store, Package } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
@@ -15,6 +15,14 @@ interface Props {
 }
 
 const CartList = ({ stores, onQtyChange, onRemove }: Props) => {
+  const location = useLocation();
+
+  // Extract subdomain from URL path
+  const decodedPath = decodeURIComponent(location.pathname);
+  const pathParts = decodedPath.split("/");
+  const subdomain = pathParts[1];
+  const isStoreRoute = !!subdomain && subdomain.startsWith("@");
+
   if (!stores || stores.length === 0) return <div>No items</div>;
 
   const storeTotals = stores.map((store) => {
@@ -48,32 +56,34 @@ const CartList = ({ stores, onQtyChange, onRemove }: Props) => {
           key={store.storeId}
           className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200"
         >
-          <div className="bg-linear-to-l from-primary/5 to-white px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Store className="w-5 h-5 text-primary" />
-                </div>
+          {!isStoreRoute && (
+            <div className="bg-linear-to-l from-primary/5 to-white px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Store className="w-5 h-5 text-primary" />
+                  </div>
 
-                <div>
-                  <Link to={`/@${store.subdomain}`}>
-                    <h3 className="text-lg text-text-dark">
-                      {store.storeName}
-                    </h3>
-                  </Link>
+                  <div>
+                    <Link to={`/@${store.subdomain}`}>
+                      <h3 className="text-lg text-text-dark">
+                        {store.storeName}
+                      </h3>
+                    </Link>
 
-                  <p className="text-sm text-gray-600">{itemCount} منتج</p>
+                    <p className="text-sm text-gray-600">{itemCount} منتج</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="p-4 space-y-3">
             {store.items.map((item) => (
               <div key={item.productId} className="bg-gray-50 rounded-lg p-4">
                 <div className="flex gap-4">
                   <Link
-                    to={`/products/${item.productId}`}
+                    to={isStoreRoute ? `/${subdomain}/products/${item.productId}` : `/products/${item.productId}`}
                     className="shrink-0"
                     data-discover="true"
                   >
@@ -88,7 +98,7 @@ const CartList = ({ stores, onQtyChange, onRemove }: Props) => {
 
                   <div className="flex-1">
                     <Link
-                      to={`/products/${item.productId}`}
+                      to={isStoreRoute ? `/${subdomain}/products/${item.productId}` : `/products/${item.productId}`}
                       data-discover="true"
                     >
                       <h4 className="mb-1 hover:text-blue-600 text-text-dark">
@@ -126,22 +136,21 @@ const CartList = ({ stores, onQtyChange, onRemove }: Props) => {
                           <Plus className="w-4 h-4" />
                         </Button>
                       </div>
-
-                      <Button
-                        className="w-20! px-3! h-8! text-red-600 hover:text-red-700 hover:bg-red-50"
-                        icon={<Trash2 className="w-4 h-4" />}
-                        variant="tertiary"
-                        onClick={() => onRemove(item.productId)}
-                      >
-                        حذف
-                      </Button>
                     </div>
                   </div>
 
-                  <div className="text-left">
+                  <div className="flex flex-col justify-between items-end text-left pl-1">
                     <div className="text-lg text-text-dark">
                       {item.lineTotal?.toFixed(2)} ج.م
                     </div>
+                    <Button
+                      className="px-3! h-8! text-red-600 hover:text-red-700 hover:bg-red-50"
+                      icon={<Trash2 className="w-4 h-4" />}
+                      variant="tertiary"
+                      onClick={() => onRemove(item.productId)}
+                    >
+                      حذف
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -153,11 +162,6 @@ const CartList = ({ stores, onQtyChange, onRemove }: Props) => {
               <div className="flex justify-between text-gray-600">
                 <span>المجموع الفرعي للمتجر</span>
                 <span>{storeTotalWithoutTax.toFixed(2)} ج.م</span>
-              </div>
-
-              <div className="flex justify-between text-gray-600">
-                <span>الشحن</span>
-                <span>{SHIPPING_FEE.toFixed(2)} ج.م</span>
               </div>
 
               <div className="flex justify-between text-gray-600">

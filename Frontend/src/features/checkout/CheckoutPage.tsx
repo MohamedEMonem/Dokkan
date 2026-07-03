@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import CheckoutForm from "@/features/checkout/CheckoutForm";
 import CheckoutSummary from "./CheckoutSummary";
 import { useNavigate } from "react-router-dom";
 import { useCreateOrderMutation } from "@/api/order.api";
+import { useGetCartQuery } from "@/api/cart.api";
 import { showNotification } from "@/utils/showNotification";
 import {
   checkoutSchema,
@@ -32,9 +33,32 @@ const INITIAL_FORM: CheckoutFormValues = {
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const [createOrder, { isLoading }] = useCreateOrderMutation();
+  const { data: cartResponse, isLoading: isCartLoading } = useGetCartQuery();
   const [form, setForm] = useState<CheckoutFormValues>(INITIAL_FORM);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const cart = cartResponse?.data;
+
+  const checkoutCart = useMemo(() => {
+    if (!cart) return EMPTY_CART;
+
+    const items = cart.stores?.flatMap((store) =>
+      store.items.map((item) => ({
+        title: item.title,
+        quantity: item.quantity,
+        lineTotal: item.lineTotal ?? 0,
+      }))
+    ) || [];
+
+    return {
+      items,
+      itemsTotal: cart.itemsTotal || 0,
+      shippingEstimate: cart.shippingEstimate || 0,
+      tax: cart.taxEstimate || 0,
+      grandTotal: cart.grandTotal || 0,
+    };
+  }, [cart]);
 
   const validateForm = useCallback(() => {
     const validationResult = checkoutSchema.safeParse(form);
@@ -52,6 +76,14 @@ export default function CheckoutPage() {
 
   const placeOrder = useCallback(async () => {
     if (isLoading || isSubmitting) return; // prevent duplicate submissions
+
+    if (checkoutCart.items.length === 0) {
+      showNotification({
+        message: "سلة التسوق فارغة",
+        variant: "error",
+      });
+      return;
+    }
 
     const validation = validateForm();
     if (!validation.valid) {
@@ -93,7 +125,7 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   }, [
-    // cart,
+    checkoutCart,
     createOrder,
     form,
     isLoading,
@@ -120,7 +152,7 @@ export default function CheckoutPage() {
               <CheckoutForm form={form} setForm={setForm} />
             </div>
             <div className="lg:col-span-1">
-              <CheckoutSummary cartItems={EMPTY_CART} isLoading={isLoading} />
+              <CheckoutSummary cartItems={checkoutCart} isLoading={isLoading || isCartLoading || isSubmitting} />
             </div>
           </div>
         </form>

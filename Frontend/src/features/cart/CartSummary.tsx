@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface Props {
   itemCount: number;
@@ -17,6 +17,13 @@ export default function CartSummary({
   grandTotal,
 }: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Extract subdomain from URL path
+  const decodedPath = decodeURIComponent(location.pathname);
+  const pathParts = decodedPath.split("/");
+  const subdomain = pathParts[1];
+  const isStoreRoute = !!subdomain && subdomain.startsWith("@");
   return (
     <div className="lg:col-span-1">
       <div className="bg-white rounded-lg p-6 shadow-sm sticky top-24">
@@ -25,10 +32,6 @@ export default function CartSummary({
           <div className="flex justify-between text-gray-600">
             <span>المجموع الفرعي ({itemCount} منتج)</span>
             <span>{itemsTotal.toFixed(2)} ج.م</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
-            <span>إجمالي الشحن</span>
-            <span>{shippingEstimate.toFixed(2)} ج.م</span>
           </div>
           <div className="flex justify-between text-gray-600">
             <span>إجمالي الضريبة</span>
@@ -43,17 +46,19 @@ export default function CartSummary({
             </div>
           </div>
         </div>
-        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-          <p className="text-xs text-amber-800">
-            💡 الشحن يُحسب لكل متجر على حدة. احصل على شحن مجاني عند الشراء بـ
-            500 ج.م أو أكثر من نفس المتجر.
-          </p>
-        </div>
+        {!isStoreRoute && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-xs text-amber-800">
+              💡 الشحن يُحسب لكل متجر على حدة. احصل على شحن مجاني عند الشراء بـ
+              500 ج.م أو أكثر من نفس المتجر.
+            </p>
+          </div>
+        )}
         <Button
           variant="primary"
           className="h-10! mb-4! px-6!"
           onClick={() => {
-            navigate("/checkout");
+            navigate(isStoreRoute ? `/${subdomain}/checkout` : "/checkout");
           }}
         >
           إتمام الطلب
@@ -61,7 +66,7 @@ export default function CartSummary({
         <Button
           variant="outline-accent"
           className="h-10! text-black border-gray-100!"
-          onClick={() => navigate("/products")}
+          onClick={() => navigate(isStoreRoute ? `/${subdomain}/products` : "/products")}
         >
           متابعة التسوق
         </Button>

@@ -7,6 +7,7 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { useGetProfileQuery } from "@/api/user.api";
 import { useListStoresQuery } from "@/api/store.api";
 import { useGetProductsByStoreIdQuery } from "@/api/product.api";
+import { useCartSession } from "@/hooks/useCartSession";
 
 import { navItems, iconActions, userActions, navLinkVariant } from "./data";
 import NavItem from "./NavItem";
@@ -14,6 +15,7 @@ import MobileMenu from "./MobileMenu";
 
 export default function Header() {
   const location = useLocation();
+  const { cartCount } = useCartSession();
   
   // Extract subdomain from URL path since useParams() is empty in parent layout components
   const decodedPath = decodeURIComponent(location.pathname);
@@ -135,11 +137,22 @@ export default function Header() {
             {iconActions.map((action) => (
               <Link
                 key={action.href}
-                to={action.href}
+                to={action.href === "/cart" && isStoreRoute ? `/${subdomain}/cart` : action.href}
                 className="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent-light transition-colors"
                 aria-label={action.ariaLabel}
               >
-                {action.icon}
+                {action.href === "/cart" ? (
+                  <div className="relative">
+                    {action.icon}
+                    {cartCount > 0 && (
+                      <span className="p-3 absolute -top-4 -left-4 bg-accent text-white text-[14px] rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                        {cartCount}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  action.icon
+                )}
               </Link>
             ))}
 
