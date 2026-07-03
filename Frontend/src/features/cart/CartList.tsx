@@ -126,22 +126,21 @@ const CartList = ({ stores, onQtyChange, onRemove }: Props) => {
                           <Plus className="w-4 h-4" />
                         </Button>
                       </div>
-
-                      <Button
-                        className="w-20! px-3! h-8! text-red-600 hover:text-red-700 hover:bg-red-50"
-                        icon={<Trash2 className="w-4 h-4" />}
-                        variant="tertiary"
-                        onClick={() => onRemove(item.productId)}
-                      >
-                        حذف
-                      </Button>
                     </div>
                   </div>
 
-                  <div className="text-left">
+                  <div className="flex flex-col justify-between items-end text-left pl-1">
                     <div className="text-lg text-text-dark">
                       {item.lineTotal?.toFixed(2)} ج.م
                     </div>
+                    <Button
+                      className="px-3! h-8! text-red-600 hover:text-red-700 hover:bg-red-50"
+                      icon={<Trash2 className="w-4 h-4" />}
+                      variant="tertiary"
+                      onClick={() => onRemove(item.productId)}
+                    >
+                      حذف
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -153,11 +152,6 @@ const CartList = ({ stores, onQtyChange, onRemove }: Props) => {
               <div className="flex justify-between text-gray-600">
                 <span>المجموع الفرعي للمتجر</span>
                 <span>{storeTotalWithoutTax.toFixed(2)} ج.م</span>
-              </div>
-
-              <div className="flex justify-between text-gray-600">
-                <span>الشحن</span>
-                <span>{SHIPPING_FEE.toFixed(2)} ج.م</span>
               </div>
 
               <div className="flex justify-between text-gray-600">

@@ -27,10 +27,6 @@ export default function CartSummary({
             <span>{itemsTotal.toFixed(2)} ج.م</span>
           </div>
           <div className="flex justify-between text-gray-600">
-            <span>إجمالي الشحن</span>
-            <span>{shippingEstimate.toFixed(2)} ج.م</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
             <span>إجمالي الضريبة</span>
             <span>{taxEstimate.toFixed(2)} ج.م</span>
           </div>
