@@ -12,9 +12,10 @@ interface Props {
   stores: ICartStore[];
   onQtyChange: (productId: string, qty: number) => void;
   onRemove: (productId: string) => void;
+  maxQuantities?: Record<string, number>;
 }
 
-const CartList = ({ stores, onQtyChange, onRemove }: Props) => {
+const CartList = ({ stores, onQtyChange, onRemove, maxQuantities = {} }: Props) => {
   const location = useLocation();
 
   // Extract subdomain from URL path
@@ -126,12 +127,13 @@ const CartList = ({ stores, onQtyChange, onRemove }: Props) => {
                           {item.quantity}
                         </span>
 
-                        <Button
+                         <Button
                           variant="outline-accent"
-                          className="w-9! h-8! border-none!"
+                          className={`w-9! h-8! border-none! ${maxQuantities[item.productId] !== undefined && item.quantity >= maxQuantities[item.productId] ? "cursor-not-allowed opacity-50" : ""}`}
                           onClick={() =>
                             handleIncrease(item.productId, item.quantity)
                           }
+                          disabled={maxQuantities[item.productId] !== undefined && item.quantity >= maxQuantities[item.productId]}
                         >
                           <Plus className="w-4 h-4" />
                         </Button>

@@ -51,6 +51,7 @@ export default function CartPage() {
   });
   const [updateItem] = useUpdateItemMutation();
   const [removeItem] = useRemoveItemMutation();
+  const [maxQuantities, setMaxQuantities] = useState<Record<string, number>>({});
 
   // Guest cart state
   const {
@@ -189,9 +190,18 @@ export default function CartPage() {
   );
 
   const handleQtyChange = useCallback(
-    (productId: string, qty: number) => {
+    async (productId: string, qty: number) => {
       if (cart) {
-        updateItem({ productId, quantity: qty });
+        try {
+          await updateItem({ productId, quantity: qty }).unwrap();
+        } catch (err: any) {
+          if (err?.status === 409 || err?.data?.message?.includes("stock")) {
+            setMaxQuantities((prev) => ({
+              ...prev,
+              [productId]: qty - 1,
+            }));
+          }
+        }
         return;
       }
 
@@ -235,6 +245,7 @@ export default function CartPage() {
             stores={effectiveStores}
             onQtyChange={handleQtyChange}
             onRemove={handleRemove}
+            maxQuantities={maxQuantities}
           />
           <CartSummary
             itemCount={totalItemCount}
