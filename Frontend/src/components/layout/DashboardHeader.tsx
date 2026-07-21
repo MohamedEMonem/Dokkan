@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   Store,
   Bell,
@@ -76,7 +76,9 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
   const user = profileResponse?.data?.user;
 
   const { data: storeResponse } = useGetUserStoreQuery();
-  const storeId = storeResponse?.data?.store?.id;
+  const store = storeResponse?.data?.store;
+  const storeId = store?.id;
+  const storeSubdomain = store?.subdomain || storeName;
 
   const { data: analyticsResponse } = useGetStoreAnalyticsQuery({ granularity: "month" });
   const { data: ordersResponse } = useGetOrdersByStoreIdQuery(
@@ -132,7 +134,16 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
                   مرحباً، {user?.name}
                 </h1>
                 <p className="text-white/80 text-sm md:text-lg truncate max-w-48 md:max-w-none">
-                  لوحة تحكم البائع - {storeName}
+                  لوحة تحكم البائع -{" "}
+                  <Link
+                    to={`/@${storeSubdomain}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline font-semibold text-white hover:text-accent-light transition-colors"
+                    title="زيارة المتجر (في تبويب جديد)"
+                  >
+                    {storeName}
+                  </Link>
                 </p>
               </div>
             </div>

@@ -52,7 +52,14 @@ const formatStatusLabel = (status: string) => {
   }
 };
 
-const salesData = [
+const formatMonthLabel = (dateStr?: string) => {
+  if (!dateStr) return "";
+  const date = new Date(dateStr.length === 7 ? `${dateStr}-01` : dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  return date.toLocaleDateString("ar-EG", { month: "long" });
+};
+
+const defaultSalesData = [
   { month: "يناير", sales: 4000 },
   { month: "فبراير", sales: 3500 },
   { month: "مارس", sales: 5000 },
@@ -66,12 +73,41 @@ function SalesTooltip({ active, payload, label }: Partial<TooltipContentProps<nu
   return (
     <div className="bg-white border-2 border-accent-light rounded-xl px-3.5 py-2.5 rtl font-inherit">
       <p className="m-0 font-semibold text-text-dark">{label}</p>
-      <p className="mt-1 m-0 text-primary">
+      <p className="mt-1 m-0 text-primary font-bold">
         {payload[0].value?.toLocaleString("en-US")} ج.م
       </p>
     </div>
   );
 }
+
+const calculateSalesChartData = (rawPoints: any[]) => {
+  if (!rawPoints || rawPoints.length === 0) return [];
+
+  const monthMap = new Map<string, number>();
+
+  rawPoints.forEach((pt: any) => {
+    const rawDate = pt.period || pt.date || pt.createdAt;
+    if (!rawDate) return;
+    const dateObj = new Date(rawDate);
+    if (isNaN(dateObj.getTime())) return;
+
+    const monthName = dateObj.toLocaleDateString("ar-EG", { month: "long" });
+    const revenue = Number(pt.totalRevenue ?? pt.sales ?? pt.revenue ?? 0);
+
+    monthMap.set(monthName, (monthMap.get(monthName) || 0) + revenue);
+  });
+
+  return Array.from(monthMap.entries()).map(([month, sales]) => ({
+    month,
+    sales: Math.round(sales),
+  }));
+};
+
+const createProductMap = (storeProducts: any[]) => {
+  const map = new Map<string, any>();
+  storeProducts.forEach((p) => map.set(p.id, p));
+  return map;
+};
 
 export function Overview() {
   const navigate = useNavigate();
@@ -79,7 +115,7 @@ export function Overview() {
   const { data: storeResponse } = useGetUserStoreQuery();
   const storeId = storeResponse?.data?.store?.id;
 
-  const { data: analyticsResponse, isLoading: isAnalyticsLoading } = useGetStoreAnalyticsQuery();
+  const { data: analyticsResponse, isLoading: isAnalyticsLoading } = useGetStoreAnalyticsQuery({ granularity: "month" });
   const { data: ordersResponse, isLoading: isOrdersLoading } = useGetOrdersByStoreIdQuery(
     { storeId: storeId!, limit: 5, sortBy: "createdAt", sortDir: "desc" },
     { skip: !storeId }
@@ -91,11 +127,9 @@ export function Overview() {
   const analytics = (analyticsResponse as any)?.data || analyticsResponse;
   const topProducts = analytics?.topProducts || [];
 
-  const productMap = useMemo(() => {
-    const map = new Map<string, any>();
-    storeProducts.forEach((p) => map.set(p.id, p));
-    return map;
-  }, [storeProducts]);
+  const chartData = useMemo(() => calculateSalesChartData(analytics?.salesOverTime), [analytics]);
+  const displayChartData = chartData.length > 0 ? chartData : defaultSalesData;
+  const productMap = useMemo(() => createProductMap(storeProducts), [storeProducts]);
 
   return (
     <div className="space-y-6 w-full">
@@ -105,24 +139,23 @@ export function Overview() {
         icon={<TrendingUp className="w-6 h-6 text-primary" />}
       >
         <ResponsiveContainer width="100%" height={300} style={{ direction: "ltr" }}>
-          <LineChart data={salesData} margin={{ top: 5, right: 5, left: 15, bottom: 5 }}>
+          <LineChart data={displayChartData} margin={{ top: 5, right: 5, left: 25, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EBD8B7" />
             <XAxis
               dataKey="month"
               stroke="#6B6B6B"
-              tick={{ fill: "#6B6B6B", fontSize: 15 }}
+              tick={{ fill: "#6B6B6B", fontSize: 14 }}
               axisLine={{ stroke: "#6B6B6B" }}
               tickLine={{ stroke: "#6B6B6B" }}
             />
             <YAxis
               orientation="left"
-              width={60}
+              width={80}
               stroke="#6B6B6B"
-              tick={{ fill: "#6B6B6B", fontSize: 15 }}
+              tick={{ fill: "#6B6B6B", fontSize: 13 }}
               axisLine={{ stroke: "#6B6B6B" }}
               tickLine={{ stroke: "#6B6B6B" }}
-              domain={[0, 8000]}
-              ticks={[0, 2000, 4000, 6000, 8000]}
+              tickFormatter={(val) => `${Number(val).toLocaleString("en-US")}`}
             />
             <Tooltip content={<SalesTooltip />} />
             <Line
@@ -131,8 +164,8 @@ export function Overview() {
               name="المبيعات (ج.م)"
               stroke="#005B7F"
               strokeWidth={3}
-              dot={{ r: 3, stroke: "#005B7F", strokeWidth: 3, fill: "#fff" }}
-              activeDot={{ r: 5, fill: "#005B7F" }}
+              dot={{ r: 4, stroke: "#005B7F", strokeWidth: 2, fill: "#fff" }}
+              activeDot={{ r: 6, fill: "#005B7F" }}
             />
           </LineChart>
         </ResponsiveContainer>
