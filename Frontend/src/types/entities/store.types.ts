@@ -20,8 +20,35 @@ export interface IStoreEmployee {
   permissions?: Record<string, unknown>;
 }
 
-export interface IStoreAnalytics {
-  receiverId: string;
+export interface IStoreAnalyticsParams {
+  granularity?: "day" | "week" | "month";
+  from?: string;
+  to?: string;
+}
+
+export interface IStoreAnalyticsResponse {
+  revenue: {
+    totalRevenue: number;
+    orderCount?: number;
+    totalOrders?: number;
+    averageOrderValue?: number;
+  };
+  salesOverTime: Array<{
+    period?: string;
+    date?: string;
+    totalRevenue?: number;
+    sales?: number;
+    orderCount?: number;
+  }>;
+  topProducts: Array<{
+    productId?: string;
+    product?: { id: string; title: string; price: number };
+    title?: string;
+    unitsSold?: number;
+    totalQuantity?: number;
+    totalRevenue?: number;
+    orderCount?: number;
+  }>;
 }
 
 export interface IStoreInfo {

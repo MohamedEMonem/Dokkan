@@ -1,6 +1,11 @@
 import { apiSlice } from "@/store/apiSlice";
 import { IAPIResponse, IPaginatedResponse } from "@/types/api/response.types";
-import { IStore, EStoreStatus } from "@/types/entities/store.types";
+import {
+  IStore,
+  EStoreStatus,
+  IStoreAnalyticsParams,
+  IStoreAnalyticsResponse,
+} from "@/types/entities/store.types";
 import { IUser } from "@/types/entities/user.types";
 import { CreateStoreDTO, UpdateStoreDTO } from "@/types/dto/store.dto";
 
@@ -15,6 +20,19 @@ export interface AdminListStoresParams {
 
 export const storeApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    // Get store analytics (revenue, salesOverTime, topProducts)
+    getStoreAnalytics: builder.query<
+      IAPIResponse<IStoreAnalyticsResponse>,
+      IStoreAnalyticsParams | void
+    >({
+      query: (params) => ({
+        url: "/stores/analytics",
+        method: "GET",
+        params: params || undefined,
+      }),
+      providesTags: ["Store", "Order"],
+    }),
+
     // Get details for the authenticated user's store
     getUserStore: builder.query<
       IAPIResponse<{ store: IStore }>,
@@ -131,6 +149,7 @@ export const storeApi = apiSlice.injectEndpoints({
 });
 
 export const {
+  useGetStoreAnalyticsQuery,
   useGetUserStoreQuery,
   useListStoresQuery,
   useCreateStoreMutation,
