@@ -114,6 +114,7 @@ export function Overview() {
 
   const { data: storeResponse } = useGetUserStoreQuery();
   const storeId = storeResponse?.data?.store?.id;
+  const storeSubdomain = storeResponse?.data?.store?.subdomain;
 
   const { data: analyticsResponse, isLoading: isAnalyticsLoading } = useGetStoreAnalyticsQuery({ granularity: "month" });
   const { data: ordersResponse, isLoading: isOrdersLoading } = useGetOrdersByStoreIdQuery(
@@ -288,8 +289,11 @@ export function Overview() {
                       )}
                       <div>
                         <Link
-                          to="/dashboard/products"
+                          to={storeSubdomain ? `/@${storeSubdomain}/products/${pId}` : `/products/${pId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="font-semibold text-text-dark hover:text-primary hover:underline text-sm truncate max-w-44 md:max-w-60 block"
+                          title="عرض تفاصيل المنتج (في تبويب جديد)"
                         >
                           {title}
                         </Link>

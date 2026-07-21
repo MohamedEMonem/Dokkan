@@ -79,6 +79,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
   const store = storeResponse?.data?.store;
   const storeId = store?.id;
   const storeSubdomain = store?.subdomain || storeName;
+  const storeLogoUrl = store?.logoUrl;
 
   const { data: analyticsResponse } = useGetStoreAnalyticsQuery({ granularity: "month" });
   const { data: ordersResponse } = useGetOrdersByStoreIdQuery(
@@ -126,8 +127,16 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
             {/* Right Section: User & Store Info */}
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-2xl flex items-center justify-center text-primary shadow-lg shrink-0">
-                <Store className="w-6 h-6 md:w-9 md:h-9" />
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-2xl flex items-center justify-center text-primary shadow-lg shrink-0 overflow-hidden border border-white/20">
+                {storeLogoUrl ? (
+                  <img
+                    src={storeLogoUrl}
+                    alt={storeName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Store className="w-6 h-6 md:w-9 md:h-9" />
+                )}
               </div>
               <div>
                 <h1 className="text-xl md:text-3xl font-bold mb-1">
