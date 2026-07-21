@@ -1,7 +1,10 @@
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { TrendingUp, ShoppingBag, Package, ChevronLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import clsx from "clsx";
+import { useGetUserStoreQuery } from "@/api/store.api";
+import { useGetOrdersByStoreIdQuery } from "@/api/order.api";
 import {
   LineChart,
   Line,
@@ -12,6 +15,40 @@ import {
   ResponsiveContainer,
   type TooltipContentProps,
 } from "recharts";
+
+const getOrderStatusStyles = (status: string) => {
+  switch (status) {
+    case "Pending":
+    case "قيد الانتظار":
+      return "bg-amber-500 text-white";
+    case "Shipped":
+    case "تم الشحن":
+      return "bg-blue-500 text-white";
+    case "Delivered":
+    case "تم التوصيل":
+      return "bg-emerald-500 text-white";
+    case "Cancelled":
+    case "ملغي":
+      return "bg-red-500 text-white";
+    default:
+      return "bg-accent-light/30 text-primary";
+  }
+};
+
+const formatStatusLabel = (status: string) => {
+  switch (status) {
+    case "Pending":
+      return "قيد الانتظار";
+    case "Shipped":
+      return "تم الشحن";
+    case "Delivered":
+      return "تم التوصيل";
+    case "Cancelled":
+      return "ملغي";
+    default:
+      return status;
+  }
+};
 
 const salesData = [
   { month: "يناير", sales: 4000 },
@@ -36,6 +73,16 @@ function SalesTooltip({ active, payload, label }: Partial<TooltipContentProps<nu
 
 export function Overview() {
   const navigate = useNavigate();
+
+  const { data: storeResponse } = useGetUserStoreQuery();
+  const storeId = storeResponse?.data?.store?.id;
+
+  const { data: ordersResponse, isLoading: isOrdersLoading } = useGetOrdersByStoreIdQuery(
+    { storeId: storeId!, limit: 5, sortBy: "createdAt", sortDir: "desc" },
+    { skip: !storeId }
+  );
+
+  const orders = ordersResponse?.data?.orders || [];
 
   return (
     <div className="space-y-6 w-full">
@@ -96,10 +143,47 @@ export function Overview() {
           }
           className="h-full"
         >
-          <div className="p-8 text-center text-text-muted">
-            <ShoppingBag className="w-12 h-12 mx-auto mb-4 text-accent-light" />
-            <p>لا توجد طلبات حتى الآن</p>
-          </div>
+          {isOrdersLoading ? (
+            <div className="p-8 text-center text-text-muted">جاري التحميل...</div>
+          ) : orders.length === 0 ? (
+            <div className="p-8 text-center text-text-muted">
+              <ShoppingBag className="w-12 h-12 mx-auto mb-4 text-accent-light" />
+              <p>لا توجد طلبات حتى الآن</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {orders.slice(0, 5).map((order) => (
+                <div key={order.id} className="py-3 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to="/dashboard/orders"
+                        className="font-semibold text-primary hover:underline text-sm"
+                      >
+                        طلب #{order.id.trim().slice(-6)}
+                      </Link>
+                      <span
+                        className={clsx(
+                          "text-xs px-2.5 py-0.5 rounded-full font-medium shadow-xs",
+                          getOrderStatusStyles(order.status)
+                        )}
+                      >
+                        {formatStatusLabel(order.status)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-text-muted mt-1">
+                      {order.createdAt ? new Date(order.createdAt).toLocaleDateString("ar-EG") : ""}
+                    </p>
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-primary text-sm">
+                      {Math.round(Number(order.totalAmount || 0)).toLocaleString("en-US")} ج.م
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </DashboardCard>
 
         {/* Top Products Card */}
