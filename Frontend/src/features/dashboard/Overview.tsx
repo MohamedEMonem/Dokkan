@@ -1,10 +1,12 @@
+import { useMemo } from "react";
 import { DashboardCard } from "@/components/ui/DashboardCard";
 import { TrendingUp, ShoppingBag, Package, ChevronLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Link, useNavigate } from "react-router-dom";
 import clsx from "clsx";
-import { useGetUserStoreQuery } from "@/api/store.api";
+import { useGetUserStoreQuery, useGetStoreAnalyticsQuery } from "@/api/store.api";
 import { useGetOrdersByStoreIdQuery } from "@/api/order.api";
+import { useGetProductsByStoreIdQuery } from "@/api/product.api";
 import {
   LineChart,
   Line,
@@ -77,12 +79,23 @@ export function Overview() {
   const { data: storeResponse } = useGetUserStoreQuery();
   const storeId = storeResponse?.data?.store?.id;
 
+  const { data: analyticsResponse, isLoading: isAnalyticsLoading } = useGetStoreAnalyticsQuery();
   const { data: ordersResponse, isLoading: isOrdersLoading } = useGetOrdersByStoreIdQuery(
     { storeId: storeId!, limit: 5, sortBy: "createdAt", sortDir: "desc" },
     { skip: !storeId }
   );
+  const { data: storeProductsResponse } = useGetProductsByStoreIdQuery(storeId!, { skip: !storeId });
 
   const orders = ordersResponse?.data?.orders || [];
+  const storeProducts = storeProductsResponse?.data?.products || [];
+  const analytics = (analyticsResponse as any)?.data || analyticsResponse;
+  const topProducts = analytics?.topProducts || [];
+
+  const productMap = useMemo(() => {
+    const map = new Map<string, any>();
+    storeProducts.forEach((p) => map.set(p.id, p));
+    return map;
+  }, [storeProducts]);
 
   return (
     <div className="space-y-6 w-full">
@@ -201,17 +214,69 @@ export function Overview() {
           }
           className="h-full"
         >
-          <div className="p-8 text-center text-text-muted flex flex-col items-center justify-center">
-            <Package className="w-12 h-12 mx-auto mb-4 text-accent-light" />
-            <p className="mb-4">لا توجد منتجات حتى الآن</p>
-            <Button
-              variant="primary"
-              className="w-auto! px-4 py-2 text-sm"
-              icon={<Plus className="w-4 h-4 ml-2" />}
-            >
-              إضافة أول منتج
-            </Button>
-          </div>
+          {isAnalyticsLoading ? (
+            <div className="p-8 text-center text-text-muted">جاري التحميل...</div>
+          ) : topProducts.length === 0 ? (
+            <div className="p-8 text-center text-text-muted flex flex-col items-center justify-center">
+              <Package className="w-12 h-12 mx-auto mb-4 text-accent-light" />
+              <p className="mb-4">لا توجد منتجات مبيعة حتى الآن</p>
+              <Button
+                variant="primary"
+                className="w-auto! px-4 py-2 text-sm"
+                icon={<Plus className="w-4 h-4 ml-2" />}
+                onClick={() => navigate("/dashboard/products")}
+              >
+                إضافة أو استعراض المنتجات
+              </Button>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {topProducts.slice(0, 5).map((item: any, idx: number) => {
+                const pId = item.product?.id || item.productId;
+                const matchedProduct = productMap.get(pId) || item.product;
+                const title = matchedProduct?.title || item.product?.title || item.title || "منتج";
+                const units = item.unitsSold ?? item.totalQuantity ?? 0;
+                const price = matchedProduct?.price ? Number(matchedProduct.price) : (item.product?.price ? Number(item.product.price) : 0);
+                const imageUrl = matchedProduct?.images?.[0]?.imageUrl || matchedProduct?.images?.[0];
+
+                return (
+                  <div key={pId || idx} className="py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={title}
+                          className="w-10 h-10 rounded-xl object-cover border border-accent-light/40 shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-accent-light/30 flex items-center justify-center text-primary shrink-0">
+                          <Package className="w-5 h-5 text-primary" />
+                        </div>
+                      )}
+                      <div>
+                        <Link
+                          to="/dashboard/products"
+                          className="font-semibold text-text-dark hover:text-primary hover:underline text-sm truncate max-w-44 md:max-w-60 block"
+                        >
+                          {title}
+                        </Link>
+                        <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-accent-light/30 text-primary inline-block mt-1">
+                          {units} قطعة
+                        </span>
+                      </div>
+                    </div>
+                    {price > 0 && (
+                      <div className="text-left">
+                        <p className="font-bold text-primary text-sm">
+                          {Math.round(price).toLocaleString("en-US")} ج.م
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </DashboardCard>
       </div>
     </div>
