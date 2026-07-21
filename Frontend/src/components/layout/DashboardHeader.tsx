@@ -20,6 +20,10 @@ import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { StatCard } from "@/components/ui/StatCard";
 import { useGetProfileQuery } from "@/api/user.api";
+import { useGetUserStoreQuery, useGetStoreAnalyticsQuery } from "@/api/store.api";
+import { useGetOrdersByStoreIdQuery } from "@/api/order.api";
+import { useGetProductsByStoreIdQuery } from "@/api/product.api";
+import { EOrderStatus, IOrder } from "@/types/entities/order.types";
 
 interface DashboardHeaderProps {
   storeName: string;
@@ -33,6 +37,36 @@ const navLinks = [
   { name: "إعدادات المتجر", path: "/dashboard/settings", icon: Settings },
 ];
 
+// Helper functions for dashboard metric calculations
+const calculateTotalSales = (analytics: any, orders: IOrder[]) => {
+  const rawSales = analytics?.revenue?.totalRevenue;
+  if (rawSales !== undefined && rawSales !== null) {
+    return Number(rawSales);
+  }
+  return orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+};
+
+const calculateOrdersTrend = (salesOverTime: any[]) => {
+  const currentMonthCount = salesOverTime[salesOverTime.length - 1]?.orderCount || 0;
+  const prevMonthCount = salesOverTime[salesOverTime.length - 2]?.orderCount || 0;
+  const diff = currentMonthCount - prevMonthCount;
+  const isOrdersUp = diff >= 0;
+  const ordersTrend =
+    prevMonthCount > 0
+      ? Math.round((Math.abs(diff) / prevMonthCount) * 100)
+      : currentMonthCount > 0
+      ? 100
+      : 0;
+  return { isOrdersUp, ordersTrend };
+};
+
+const calculateTotalUnitsSold = (orders: IOrder[]) => {
+  return orders.reduce((sum, order) => {
+    if (!order.orderItems || order.orderItems.length === 0) return sum;
+    return sum + order.orderItems.reduce((itemSum, item) => itemSum + (item.quantity || 1), 0);
+  }, 0);
+};
+
 export function DashboardHeader({ storeName }: DashboardHeaderProps) {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -40,6 +74,29 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
     skip: !token,
   });
   const user = profileResponse?.data?.user;
+
+  const { data: storeResponse } = useGetUserStoreQuery();
+  const storeId = storeResponse?.data?.store?.id;
+
+  const { data: analyticsResponse } = useGetStoreAnalyticsQuery({ granularity: "month" });
+  const { data: ordersResponse } = useGetOrdersByStoreIdQuery(
+    { storeId: storeId! },
+    { skip: !storeId }
+  );
+  const { data: productsResponse } = useGetProductsByStoreIdQuery(storeId!, {
+    skip: !storeId,
+  });
+
+  const analytics = (analyticsResponse as any)?.data || analyticsResponse;
+  const orders = ordersResponse?.data?.orders || [];
+  const salesOverTime = analytics?.salesOverTime || [];
+
+  const totalSales = calculateTotalSales(analytics, orders);
+  const totalOrdersCount = analytics?.revenue?.totalOrders ?? analytics?.revenue?.orderCount ?? orders.length;
+  const pendingOrders = orders.filter((o) => o.status === EOrderStatus.Pending).length;
+  const { isOrdersUp, ordersTrend } = calculateOrdersTrend(salesOverTime);
+  const itemsCount = productsResponse?.data?.meta?.total ?? productsResponse?.data?.products?.length ?? 0;
+  const totalUnitsSold = calculateTotalUnitsSold(orders);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -49,14 +106,14 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
 
   // Pure numerical values from the API
   const statsValues = {
-    totalSales: 0,
-    isSalesUp: true,
-    totalOrders: 0,
-    isOrdersUp: true,
-    pendingOrders: 0,
-    historicalTotal: 0,
-    ordersTrend: 12,
-    itemsCount: 0,
+    totalSales,
+    isSalesUp: isOrdersUp,
+    totalOrders: totalOrdersCount,
+    isOrdersUp,
+    pendingOrders,
+    historicalTotal: totalUnitsSold,
+    ordersTrend,
+    itemsCount,
   };
 
   return (
@@ -172,7 +229,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
           <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 pb-4 md:pb-0 snap-x snap-mandatory">
             <StatCard
               title="إجمالي المبيعات"
-              value={`${statsValues.totalSales} ج.م`}
+              value={`${Math.round(statsValues.totalSales).toLocaleString("en-US")} ج.م`}
               icon={<DollarSign className="w-8 h-8 text-accent" />}
               className="min-w-64 md:min-w-0 snap-center shrink-0"
               action={
@@ -209,7 +266,7 @@ export function DashboardHeader({ storeName }: DashboardHeaderProps) {
             />
             <StatCard
               title="إجمالي المبيعات التاريخية"
-              value={statsValues.historicalTotal}
+              value={`${statsValues.historicalTotal} قطعة`}
               icon={<Package className="w-8 h-8 text-blue-300" />}
               className="min-w-64 md:min-w-0 snap-center shrink-0"
               action={
